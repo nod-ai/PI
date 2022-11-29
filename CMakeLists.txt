@@ -105,6 +105,16 @@ declare_mlir_python_sources(SharkMLIRPythonSources.Core
     _mlir_libs/_mlir/passmanager.pyi
 )
 
+
+# TODO(max): this can't be here because it'll get erased
+
+declare_mlir_python_sources(SharkMLIRPythonSources.SharkCompiler
+  ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/shark"
+  ADD_TO_PARENT SharkMLIRPythonSources
+  SOURCES_GLOB
+    compiler/*.py
+)
+
 declare_mlir_python_sources(SharkMLIRPythonSources.ExecutionEngine
   ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/shark"
   ADD_TO_PARENT SharkMLIRPythonSources
@@ -332,6 +342,7 @@ declare_mlir_python_extension(SharkMLIRPythonExtension.Core
   ADD_TO_PARENT SharkMLIRPythonSources.Core
   ROOT_DIR "${PYTHON_SOURCE_DIR}"
   SOURCES
+    Builder.cpp
     MainModule.cpp
     IRAffine.cpp
     IRAttributes.cpp
@@ -578,3 +589,6 @@ add_mlir_python_modules(SharkMLIRPythonModules
   COMMON_CAPI_LINK_LIBS
     SharkMLIRPythonCAPI
 )
+
+# CMakeLists END
+

@@ -2820,6 +2820,31 @@ void mlir::python::populateIRCore(py::module &m) {
           py::arg("parent"), py::arg("arg_types") = py::list(),
           "Creates and returns a new Block at the beginning of the given "
           "region (with given argument types).")
+      .def_static(
+          "create_at_end",
+          [](PyRegion &parent, py::list pyArgTypes) {
+            parent.checkValid();
+            llvm::SmallVector<MlirType, 4> argTypes;
+            llvm::SmallVector<MlirLocation, 4> argLocs;
+            argTypes.reserve(pyArgTypes.size());
+            argLocs.reserve(pyArgTypes.size());
+            for (auto &pyArg : pyArgTypes) {
+              argTypes.push_back(pyArg.cast<PyType &>());
+              // TODO: Pass in a proper location here.
+              argLocs.push_back(
+                  mlirLocationUnknownGet(mlirTypeGetContext(argTypes.back())));
+            }
+
+            auto numBlocks = PyBlockList(parent.getParentOperation(), parent.get()).dunderLen();
+
+            MlirBlock block = mlirBlockCreate(argTypes.size(), argTypes.data(),
+                                              argLocs.data());
+            mlirRegionInsertOwnedBlock(parent, numBlocks, block);
+            return PyBlock(parent.getParentOperation(), block);
+          },
+          py::arg("parent"), py::arg("arg_types") = py::list(),
+          "Creates and returns a new Block at the beginning of the given "
+          "region (with given argument types).")
       .def(
           "append_to",
           [](PyBlock &self, PyRegion &region) {
