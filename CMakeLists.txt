@@ -178,6 +178,15 @@ declare_mlir_dialect_python_bindings(
 declare_mlir_dialect_python_bindings(
   ADD_TO_PARENT SharkMLIRPythonSources.Dialects
   ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/shark"
+  TD_FILE dialects/LLVMOps.td
+  SOURCES
+    dialects/llvm.py
+    dialects/_llvm_ops_ext.py
+  DIALECT_NAME llvm)
+
+declare_mlir_dialect_python_bindings(
+  ADD_TO_PARENT SharkMLIRPythonSources.Dialects
+  ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/shark"
   TD_FILE dialects/FuncOps.td
   SOURCES
     dialects/func.py
@@ -342,7 +351,6 @@ declare_mlir_python_extension(SharkMLIRPythonExtension.Core
   ADD_TO_PARENT SharkMLIRPythonSources.Core
   ROOT_DIR "${PYTHON_SOURCE_DIR}"
   SOURCES
-    Builder.cpp
     MainModule.cpp
     IRAffine.cpp
     IRAttributes.cpp

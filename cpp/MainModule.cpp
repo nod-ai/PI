@@ -10,7 +10,6 @@
 
 #include "PybindUtils.h"
 
-#include "Builder.h"
 #include "Globals.h"
 #include "IRModule.h"
 #include "Pass.h"
@@ -95,7 +94,6 @@ PYBIND11_MODULE(_mlir, m) {
   populateIRAttributes(irModule);
   populateIRInterfaces(irModule);
   populateIRTypes(irModule);
-  populateSharkPy(irModule);
 
   // Define and populate PassManager submodule.
   auto passModule =
