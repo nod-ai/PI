@@ -8,14 +8,14 @@ from pathlib import Path
 from typing import Union, List, Optional, Mapping, Dict
 
 import libcst as cst
-from libcst import matchers as m
+from libcst import matchers as m, Subscript
 from libcst._position import CodeRange, CodePosition
 from libcst.metadata import (
     PositionProvider,
     ProviderT,
-    ScopeProvider,
     ParentNodeProvider,
     ExpressionContextProvider,
+    ScopeProvider,
 )
 from libcst.metadata.type_inference_provider import (
     run_command,
@@ -31,6 +31,7 @@ from shark.ir import (
     IntegerType,
     F64Type,
     Attribute,
+    MemRefType,
 )
 
 
@@ -51,20 +52,13 @@ def map_type_str_to_mlir_type(
         if isinstance(thing, tuple):
             return tuple(map(lambda t: map_type_str_to_mlir_type(t, context), thing))
         else:
+            f64 = F64Type.get()
+            i64 = IntegerType.get_signed(64)
             return {
-                "int": IntegerType.get_signed(64),
-                "float": F64Type.get(),
+                "int": i64,
+                "float": f64,
+                "memref": MemRefType.get((-1,), f64),
             }[thing]
-
-
-def infer_mlir_type(py_val) -> MLIRType:
-    if isinstance(py_val, int):
-        # return IntegerType.get_signed(64)
-        return IntegerType.get_signless(64)
-    elif isinstance(py_val, float):
-        return F64Type.get()
-    else:
-        raise Exception(f"unsupported val type {type(py_val)} {py_val}")
 
 
 def map_pyre_type_str_to_mlir_type_str(type_info):
@@ -92,6 +86,10 @@ def map_pyre_type_str_to_mlir_type_str(type_info):
             )
         )
         return input_types
+    elif type_info.startswith("BoundMethod[typing.Callable(numpy.ndarray.__setitem__)"):
+        print()
+    elif type_info.startswith("numpy.ndarray"):
+        return "memref"
     else:
         raise Exception(f"unknown type {type_info}")
 
@@ -195,6 +193,7 @@ class MLIRTypeProvider(
     @m.visit(m.Assign())
     @m.visit(m.Annotation())
     @m.visit(m.FunctionDef())
+    @m.visit(m.For())
     @m.visit(m.Param())
     @m.visit(m.Return())
     def visit_(self, _node):
@@ -271,14 +270,17 @@ class MLIRTypeProvider(
                 return_types = [function_return_type]
             else:
                 raise Exception(f"no return for {node.name}")
-
-                # (
-                #     [self.standard_types["i64"]] * len(arg_names),
-                #     [self.standard_types["i64"]],
-                # ),
-        # with Context(), Location.unknown():
-        #     function_type = MLIRFunctionType.get(inputs=arg_types, results=return_types)
         self.set_metadata(node, (arg_types, return_types))
+
+    def visit_Subscript(self, node: Subscript) -> Optional[bool]:
+        # TODO(max): hack
+        scope = self.get_metadata(ScopeProvider, node.value)
+        last_assign_node = list(scope.assignments[node.value.value])[-1].node
+        last_assign_type = self.get_metadata(type(self), last_assign_node)
+        assert last_assign_type
+        self.set_metadata(node.value, last_assign_type)
+        self.set_metadata(node, last_assign_type)
+        return False
 
     def visit_Name(self, node: cst.Name):
         if node.value in {"float", "int", "bool"}:

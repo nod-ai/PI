@@ -19,7 +19,7 @@ src_lines = src.split("\n")
 
 seen_scopes = set()
 for scope in scopes.values():
-    scope_name = getattr(scope, 'name', 'global')
+    scope_name = getattr(scope, "name", "global")
     if scope_name not in seen_scopes:
         seen_scopes.add(scope_name)
         print(f"\n*** scope {scope_name} ***")
@@ -29,9 +29,13 @@ for scope in scopes.values():
             for ref in acc.referents:
                 acc_pos = positions[acc.node].start.line - 1
                 ref_pos = positions[ref.node].start.line - 1
-                print(dedent(f"""\
+                print(
+                    dedent(
+                        f"""\
                 access {acc.node.value} on line {acc_pos + 1}:
                 {src_lines[acc_pos]}
                 refers to {ref.name} on line {ref_pos + 1}
                 {src_lines[ref_pos]}
-                """))
+                """
+                    )
+                )

@@ -27,15 +27,17 @@ def mlir_compile(fn, globals=None):
     if globals is None:
         globals = sys.modules[fn.__module__].__dict__
 
-    fn_source = inspect.getsource(fn)
-    fn_ast = cst.parse_module(fn_source)
+    fn_file = inspect.getfile(fn)
+    with open(fn_file) as f:
+        file_source = f.read()
+    module_ast = cst.parse_module(file_source)
 
     mlir_context = Context()
     mlir_location_unknown = Location.unknown(context=mlir_context)
     mlir_module = Module.create(loc=mlir_location_unknown)
 
     wrapper = MetadataWrapper(
-        fn_ast,
+        module_ast,
         cache={
             MyTypeInferenceProvider: manager.get_cache_for_path(file_path),
             MLIRTypeProvider: mlir_context,

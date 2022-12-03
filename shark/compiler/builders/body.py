@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable
+from typing import Callable, Union
 
 from shark._mlir_libs._mlir.ir import (
     Type as MLIRType,
@@ -9,8 +9,11 @@ from shark._mlir_libs._mlir.ir import (
     Attribute,
     IntegerAttr,
     IntegerType,
+    Context,
+    F64Type,
+    MemRefType,
 )
-from shark.dialects import arith, linalg, math
+from shark.dialects import arith, linalg, math, memref
 from shark.dialects.linalg import ScalarAssign, ScalarExpression, FunctionKind
 from shark.dialects.linalg.opdsl.lang.emitter import (
     _is_integer_type,
@@ -29,13 +32,45 @@ class BodyBuilder:
         type_mapping: dict[str, MLIRType],
         block_arg_mapping: dict[str, MLIRValue],
         fn_attr_mapping: dict[str, str],
+        context: Context,
         location: Location,
     ):
         self.type_mapping = type_mapping
         self.block_arg_mapping = block_arg_mapping
         self.fn_attr_mapping = fn_attr_mapping
         self.yield_mapping = dict()
+        self.context = context
         self.location = location
+
+    def constant(
+        self,
+        py_cst: Union[int, float, bool],
+        index_type: bool = False,
+    ):
+        if index_type:
+            constant = arith.ConstantOp.create_index(py_cst).result
+        else:
+            constant = arith.ConstantOp(infer_mlir_type(py_cst), py_cst).result
+
+        return constant
+
+    def memref_alloc(
+        self, dim_sizes: Union[list[int], tuple[int]], el_type: MLIRType
+    ) -> MLIRValue:
+        res_type = MemRefType.get(dim_sizes, el_type)
+        # dim_sizes = [self.constant(dim, True) for dim in dim_sizes]
+        # num_dims = self.constant(len(dim_sizes), True)
+        res = memref.AllocaOp(res_type, [], []).memref
+        return res
+
+    def memref_store(
+        self,
+        store_value: MLIRValue,
+        dst_memref: MLIRValue,
+        indices: Union[tuple[MLIRValue], list[MLIRValue]],
+    ) -> MLIRValue:
+        # value, memref, indices
+        return memref.StoreOp(store_value, dst_memref, indices).memref
 
     def assign(self, assignment: ScalarAssign):
         if assignment.arg in self.yield_mapping:
@@ -260,3 +295,13 @@ class BodyBuilder:
             "Add": self.binary_add,
             "Subtract": self.binary_sub,
         }[bin_op]
+
+
+def infer_mlir_type(py_val) -> MLIRType:
+    if isinstance(py_val, int):
+        # return IntegerType.get_signed(64)
+        return IntegerType.get_signless(64)
+    elif isinstance(py_val, float):
+        return F64Type.get()
+    else:
+        raise Exception(f"unsupported val type {type(py_val)} {py_val}")
