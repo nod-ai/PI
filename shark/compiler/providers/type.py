@@ -5,36 +5,16 @@ import re
 import subprocess
 import warnings
 from pathlib import Path
-from typing import (
-    Optional,
-    Union,
-    List,
-    Mapping,
-    Dict,
-)
+from typing import Union, List, Optional, Mapping, Dict
 
 import libcst as cst
-from libcst import (
-    Assign,
-    Call,
-    FunctionDef,
-    Name,
-    Return,
-    Annotation,
-    Param,
-    Float,
-    Tuple,
-    AssignTarget,
-    VisitorMetadataProvider,
-    CSTNode,
-)
-from libcst import matchers
+from libcst import matchers as m
 from libcst._position import CodeRange, CodePosition
 from libcst.metadata import (
-    ScopeProvider,
-    ParentNodeProvider,
     PositionProvider,
     ProviderT,
+    ScopeProvider,
+    ParentNodeProvider,
     ExpressionContextProvider,
 )
 from libcst.metadata.type_inference_provider import (
@@ -43,25 +23,15 @@ from libcst.metadata.type_inference_provider import (
     PyreData,
 )
 
-
-def accept(self, visitor, *args, **kwargs):
-    """Visit this node using the given visitor."""
-    func = getattr(visitor, "visit_" + self.__class__.__name__.lower())
-    return func(self, *args, **kwargs)
-
-
+from shark.compiler.providers import ReturnFinder
 from shark.ir import (
-    Type as MLIRType,
-    Attribute,
-    IntegerType,
     Context,
     Location,
+    Type as MLIRType,
+    IntegerType,
     F64Type,
+    Attribute,
 )
-
-# pylint: disable=unused-argument
-
-DOC_NEWLINE = "\0"
 
 
 # types are uniqed by context (see mlir/IR/Types.h::Type):
@@ -72,8 +42,8 @@ DOC_NEWLINE = "\0"
 #   protected:
 #       ImplType *impl{nullptr};
 def map_type_str_to_mlir_type(
-    thing: Union[str, Tuple[str]], context: Context, location: Location = None
-) -> Union[MLIRType, Tuple[MLIRType]]:
+    thing: Union[str, tuple[str]], context: Context, location: Location = None
+) -> Union[MLIRType, tuple[MLIRType]]:
     # catch all that should be factored
     if location is None:
         location = Location.unknown(context=context)
@@ -131,12 +101,10 @@ def map_libcst_type(node):
     return libcst_typing_map[node.__class__.__name__]
 
 
-class MyTypeInferenceProvider(VisitorMetadataProvider[str]):
+class MyTypeInferenceProvider(cst.VisitorMetadataProvider[str]):
     METADATA_DEPENDENCIES = (PositionProvider,)
 
     @staticmethod
-    # pyre-fixme[40]: Static method `gen_cache` cannot override a non-static method
-    #  defined in `cst.metadata.base_provider.BaseMetadataProvider`.
     def gen_cache(
         root_path: Path, paths: List[str], timeout: Optional[int]
     ) -> Mapping[str, object]:
@@ -193,47 +161,21 @@ class MyTypeInferenceProvider(VisitorMetadataProvider[str]):
         if range in self.lookup:
             self.set_metadata(node, self.lookup.pop(range))
 
-    def visit_Name(self, node: Name):
+    def visit_Name(self, node: cst.Name):
         self._parse_metadata(node)
 
     def visit_Attribute(self, node: Attribute):
         self._parse_metadata(node)
 
-    def visit_Call(self, node: Call):
+    def visit_Call(self, node: cst.Call):
         self._parse_metadata(node)
 
-    def visit_FunctionDef(self, node: FunctionDef):
+    def visit_FunctionDef(self, node: cst.FunctionDef):
         self._parse_metadata(node.name)
 
 
-class ReturnFinder(matchers.MatcherDecoratableVisitor):
-    _returns = []
-    func_node = None
-
-    @matchers.visit(matchers.FunctionDef())
-    def visit_(self, node):
-        self.func_node = node
-        return True
-
-    @matchers.visit(matchers.Return())
-    def visit_(self, node):
-        self._returns.append(node)
-        return False
-
-    def __call__(self, node: CSTNode):
-        node.visit(self)
-        if len(self._returns) == 0:
-            warnings.warn(f"no return for {self.func_node.name}")
-            return None
-
-        function_return = self._returns.pop()
-        if len(self._returns) > 0:
-            raise Exception(f"multiple return sites unsupported {self.func_node.name}")
-        return function_return
-
-
 class MLIRTypeProvider(
-    VisitorMetadataProvider[MLIRType], matchers.MatcherDecoratableVisitor
+    cst.VisitorMetadataProvider[MLIRType], m.MatcherDecoratableVisitor
 ):
     METADATA_DEPENDENCIES = (
         MyTypeInferenceProvider,
@@ -249,20 +191,20 @@ class MLIRTypeProvider(
         super().__init__()
         self.context = cache
 
-    @matchers.visit(matchers.AssignTarget())
-    @matchers.visit(matchers.Assign())
-    @matchers.visit(matchers.Annotation())
-    @matchers.visit(matchers.FunctionDef())
-    @matchers.visit(matchers.Param())
-    @matchers.visit(matchers.Return())
+    @m.visit(m.AssignTarget())
+    @m.visit(m.Assign())
+    @m.visit(m.Annotation())
+    @m.visit(m.FunctionDef())
+    @m.visit(m.Param())
+    @m.visit(m.Return())
     def visit_(self, _node):
         return True
 
-    def leave_AssignTarget(self, node: AssignTarget):
+    def leave_AssignTarget(self, node: cst.AssignTarget):
         typ = self.get_metadata(type(self), node.target)
         self.set_metadata(node, typ)
 
-    def leave_Assign(self, node: Assign) -> None:
+    def leave_Assign(self, node: cst.Assign) -> None:
         assert (
             len(node.targets) == 1
         ), f"multiple assign targets unsupported {node.targets}"
@@ -271,11 +213,11 @@ class MLIRTypeProvider(
         assert value_mlir_type, f"no type found for {lhs.target}"
         self.set_metadata(lhs, value_mlir_type)
 
-    def leave_Annotation(self, node: Annotation):
+    def leave_Annotation(self, node: cst.Annotation):
         typ = self.get_metadata(type(self), node.annotation)
         self.set_metadata(node, typ)
 
-    def leave_Param(self, node: Param):
+    def leave_Param(self, node: cst.Param):
         # there's a bug in pyre where a param with a default value is inferred to be any
         # even though the default determines the type
         # so check that first and set the name of both the param and the name
@@ -296,8 +238,8 @@ class MLIRTypeProvider(
         if self.get_metadata(type(self), node.name, None) is None:
             self.set_metadata(node.name, typ)
 
-    def leave_Return(self, node: Return):
-        if isinstance(node.value, Name):
+    def leave_Return(self, node: cst.Return):
+        if isinstance(node.value, cst.Name):
             if return_type := self.get_metadata(type(self), node.value, None):
                 return_type = return_type
             else:
@@ -311,7 +253,7 @@ class MLIRTypeProvider(
         else:
             raise Exception(f"unsupported expr return {node.value}")
 
-    def leave_FunctionDef(self, node: FunctionDef):
+    def leave_FunctionDef(self, node: cst.FunctionDef):
         if arg_types := self.get_metadata(type(self), node.name):
             arg_types = arg_types
         else:
@@ -338,7 +280,7 @@ class MLIRTypeProvider(
         #     function_type = MLIRFunctionType.get(inputs=arg_types, results=return_types)
         self.set_metadata(node, (arg_types, return_types))
 
-    def visit_Name(self, node: Name):
+    def visit_Name(self, node: cst.Name):
         if node.value in {"float", "int", "bool"}:
             type_info = node.value
         else:
@@ -371,8 +313,8 @@ class MLIRTypeProvider(
             return
         self.set_metadata(node, mlir_type)
 
-    def visit_Float(self, node: Float):
+    def visit_Float(self, node: cst.Float):
         self.set_metadata(node, map_type_str_to_mlir_type("float", self.context))
 
-    def visit_Integer(self, node: Float):
+    def visit_Integer(self, node: cst.Float):
         self.set_metadata(node, map_type_str_to_mlir_type("int", self.context))
