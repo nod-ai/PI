@@ -5,7 +5,6 @@ from typing import Callable, Tuple, Any, Optional, NamedTuple, Iterable
 import torch
 
 from shark._mlir_libs._mlir import ir
-
 from shark.compiler import immutable_collections
 
 

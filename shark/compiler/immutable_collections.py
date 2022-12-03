@@ -1,6 +1,5 @@
 from typing import Any, Dict, Tuple, List
 
-
 __all__ = ["immutable_list", "immutable_dict"]
 
 from shark.compiler.pytree import _register_pytree_node
@@ -35,7 +34,6 @@ immutable_list = _create_immutable_container(
     ],
 )
 immutable_list.__reduce__ = lambda self: (immutable_list, (tuple(iter(self)),))
-
 
 immutable_dict = _create_immutable_container(
     dict, ["__delitem__", "__setitem__", "clear", "pop", "popitem", "update"]

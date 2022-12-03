@@ -1,10 +1,23 @@
-from typing import NamedTuple, Callable, Any, Tuple, List, Dict, Type, cast, Optional, TypeVar, overload, Union
 import functools
 from collections import namedtuple, OrderedDict
+from typing import (
+    NamedTuple,
+    Callable,
+    Any,
+    Tuple,
+    List,
+    Dict,
+    Type,
+    cast,
+    Optional,
+    TypeVar,
+    overload,
+    Union,
+)
 
-T = TypeVar('T')
-S = TypeVar('S')
-R = TypeVar('R')
+T = TypeVar("T")
+S = TypeVar("S")
+R = TypeVar("R")
 
 """
 Contains utility functions for working with nested python data structures.
@@ -34,43 +47,58 @@ PyTree = Any
 FlattenFunc = Callable[[PyTree], Tuple[List, Any]]
 UnflattenFunc = Callable[[List, Any], PyTree]
 
+
 class NodeDef(NamedTuple):
     flatten_fn: FlattenFunc
     unflatten_fn: UnflattenFunc
 
+
 SUPPORTED_NODES: Dict[Type[Any], NodeDef] = {}
 
-def _register_pytree_node(typ: Any, flatten_fn: FlattenFunc, unflatten_fn: UnflattenFunc) -> None:
+
+def _register_pytree_node(
+    typ: Any, flatten_fn: FlattenFunc, unflatten_fn: UnflattenFunc
+) -> None:
     SUPPORTED_NODES[typ] = NodeDef(flatten_fn, unflatten_fn)
+
 
 def _dict_flatten(d: Dict[Any, Any]) -> Tuple[List[Any], Any]:
     return list(d.values()), list(d.keys())
 
+
 def _dict_unflatten(values: List[Any], Any: Any) -> Dict[Any, Any]:
     return {key: value for key, value in zip(Any, values)}
+
 
 def _list_flatten(d: List[Any]) -> Tuple[List[Any], Any]:
     return d, None
 
+
 def _list_unflatten(values: List[Any], Any: Any) -> List[Any]:
     return list(values)
+
 
 def _tuple_flatten(d: Tuple[Any, ...]) -> Tuple[List[Any], Any]:
     return list(d), None
 
+
 def _tuple_unflatten(values: List[Any], Any: Any) -> Tuple[Any, ...]:
     return tuple(values)
+
 
 def _namedtuple_flatten(d: NamedTuple) -> Tuple[List[Any], Any]:
     return list(d), type(d)
 
+
 def _namedtuple_unflatten(values: List[Any], Any: Any) -> NamedTuple:
     return cast(NamedTuple, Any(*values))
 
-def _odict_flatten(d: 'OrderedDict[Any, Any]') -> Tuple[List[Any], Any]:
+
+def _odict_flatten(d: "OrderedDict[Any, Any]") -> Tuple[List[Any], Any]:
     return list(d.values()), list(d.keys())
 
-def _odict_unflatten(values: List[Any], Any: Any) -> 'OrderedDict[Any, Any]':
+
+def _odict_unflatten(values: List[Any], Any: Any) -> "OrderedDict[Any, Any]":
     return OrderedDict((key, value) for key, value in zip(Any, values))
 
 
@@ -87,15 +115,17 @@ def _is_namedtuple_instance(pytree: Any) -> bool:
     bases = typ.__bases__
     if len(bases) != 1 or bases[0] != tuple:
         return False
-    fields = getattr(typ, '_fields', None)
+    fields = getattr(typ, "_fields", None)
     if not isinstance(fields, tuple):
         return False
     return all(type(entry) == str for entry in fields)
+
 
 def _get_node_type(pytree: Any) -> Any:
     if _is_namedtuple_instance(pytree):
         return namedtuple
     return type(pytree)
+
 
 # A leaf is defined as anything that is not a Node.
 def _is_leaf(pytree: PyTree) -> bool:
@@ -108,24 +138,28 @@ def _is_leaf(pytree: PyTree) -> bool:
 # children_specs: specs for each child of the root Node
 # num_leaves: the number of leaves
 class TreeSpec:
-    def __init__(self, typ: Any, Any: Any, children_specs: List['TreeSpec']) -> None:
+    def __init__(self, typ: Any, Any: Any, children_specs: List["TreeSpec"]) -> None:
         self.type = typ
         self.Any = Any
         self.children_specs = children_specs
         self.num_leaves: int = sum([spec.num_leaves for spec in children_specs])
 
     def __repr__(self) -> str:
-        return f'TreeSpec({self.type.__name__}, {self.Any}, {self.children_specs})'
+        return f"TreeSpec({self.type.__name__}, {self.Any}, {self.children_specs})"
 
     def __eq__(self, other: Any) -> bool:
-        result = self.type == other.type and self.Any == other.Any \
-            and self.children_specs == other.children_specs \
+        result = (
+            self.type == other.type
+            and self.Any == other.Any
+            and self.children_specs == other.children_specs
             and self.num_leaves == other.num_leaves
+        )
         # This should really not be necessary, but mypy errors out without it.
         return cast(bool, result)
 
     def __ne__(self, other: Any) -> bool:
         return not self.__eq__(other)
+
 
 class LeafSpec(TreeSpec):
     def __init__(self) -> None:
@@ -133,7 +167,8 @@ class LeafSpec(TreeSpec):
         self.num_leaves = 1
 
     def __repr__(self) -> str:
-        return '*'
+        return "*"
+
 
 def tree_flatten(pytree: PyTree) -> Tuple[List[Any], TreeSpec]:
     """Flattens a pytree into a list of values and a TreeSpec that can be used
@@ -147,8 +182,8 @@ def tree_flatten(pytree: PyTree) -> Tuple[List[Any], TreeSpec]:
     child_pytrees, Any = flatten_fn(pytree)
 
     # Recursively flatten the children
-    result : List[Any] = []
-    children_specs : List['TreeSpec'] = []
+    result: List[Any] = []
+    children_specs: List["TreeSpec"] = []
     for child in child_pytrees:
         flat, child_spec = tree_flatten(child)
         result += flat
@@ -163,13 +198,15 @@ def tree_unflatten(values: List[Any], spec: TreeSpec) -> PyTree:
     """
     if not isinstance(spec, TreeSpec):
         raise ValueError(
-            f'tree_unflatten(values, spec): Expected `spec` to be instance of '
-            f'TreeSpec but got item of type {type(spec)}.')
+            f"tree_unflatten(values, spec): Expected `spec` to be instance of "
+            f"TreeSpec but got item of type {type(spec)}."
+        )
     if len(values) != spec.num_leaves:
         raise ValueError(
-            f'tree_unflatten(values, spec): `values` has length {len(values)} '
-            f'but the spec refers to a pytree that holds {spec.num_leaves} '
-            f'items ({spec}).')
+            f"tree_unflatten(values, spec): `values` has length {len(values)} "
+            f"but the spec refers to a pytree that holds {spec.num_leaves} "
+            f"items ({spec})."
+        )
     if isinstance(spec, LeafSpec):
         return values[0]
 
@@ -186,9 +223,11 @@ def tree_unflatten(values: List[Any], spec: TreeSpec) -> PyTree:
 
     return unflatten_fn(child_pytrees, spec.Any)
 
+
 def tree_map(fn: Any, pytree: PyTree) -> PyTree:
     flat_args, spec = tree_flatten(pytree)
     return tree_unflatten([fn(i) for i in flat_args], spec)
+
 
 Type2 = Tuple[Type[T], Type[S]]
 TypeAny = Union[Type[Any], Tuple[Type[Any], ...]]
@@ -199,20 +238,24 @@ FnAny = Callable[[Any], R]
 
 MapOnlyFn = Callable[[T], Callable[[Any], Any]]
 
+
 # These specializations help with type inference on the lambda passed to this
 # function
 @overload
 def map_only(ty: Type2[T, S]) -> MapOnlyFn[Fn2[T, S, Any]]:
     ...
 
+
 @overload
 def map_only(ty: Type[T]) -> MapOnlyFn[Fn[T, Any]]:
     ...
+
 
 # This specialization is needed for the implementations below that call
 @overload
 def map_only(ty: TypeAny) -> MapOnlyFn[FnAny[Any]]:
     ...
+
 
 def map_only(ty: TypeAny) -> MapOnlyFn[FnAny[Any]]:
     """
@@ -233,6 +276,7 @@ def map_only(ty: TypeAny) -> MapOnlyFn[FnAny[Any]]:
 
     You can also directly use 'tree_map_only'
     """
+
     def deco(f: Callable[[T], Any]) -> Callable[[Any], Any]:
         @functools.wraps(f)
         def inner(x: T) -> Any:
@@ -240,51 +284,65 @@ def map_only(ty: TypeAny) -> MapOnlyFn[FnAny[Any]]:
                 return f(x)
             else:
                 return x
+
         return inner
+
     return deco
+
 
 @overload
 def tree_map_only(ty: Type[T], fn: Fn[T, Any], pytree: PyTree) -> PyTree:
     ...
 
+
 @overload
 def tree_map_only(ty: Type2[T, S], fn: Fn2[T, S, Any], pytree: PyTree) -> PyTree:
     ...
 
+
 def tree_map_only(ty: TypeAny, fn: FnAny[Any], pytree: PyTree) -> PyTree:
     return tree_map(map_only(ty)(fn), pytree)
+
 
 def tree_all(pred: Callable[[Any], bool], pytree: PyTree) -> bool:
     flat_args, _ = tree_flatten(pytree)
     return all(map(pred, flat_args))
 
+
 def tree_any(pred: Callable[[Any], bool], pytree: PyTree) -> bool:
     flat_args, _ = tree_flatten(pytree)
     return any(map(pred, flat_args))
+
 
 @overload
 def tree_all_only(ty: Type[T], pred: Fn[T, bool], pytree: PyTree) -> bool:
     ...
 
+
 @overload
 def tree_all_only(ty: Type2[T, S], pred: Fn2[T, S, bool], pytree: PyTree) -> bool:
     ...
+
 
 def tree_all_only(ty: TypeAny, pred: FnAny[bool], pytree: PyTree) -> bool:
     flat_args, _ = tree_flatten(pytree)
     return all(pred(x) for x in flat_args if isinstance(x, ty))
 
+
 @overload
 def tree_any_only(ty: Type[T], pred: Fn[T, bool], pytree: PyTree) -> bool:
     ...
+
 
 @overload
 def tree_any_only(ty: Type2[T, S], pred: Fn2[T, S, bool], pytree: PyTree) -> bool:
     ...
 
+
 def tree_any_only(ty: TypeAny, pred: FnAny[bool], pytree: PyTree) -> bool:
     flat_args, _ = tree_flatten(pytree)
     return any(pred(x) for x in flat_args if isinstance(x, ty))
+
 
 # Broadcasts a pytree to the provided TreeSpec and returns the flattened
 # values. If this is not possible, then this function returns None.
@@ -313,7 +371,7 @@ def _broadcast_to_and_flatten(pytree: PyTree, spec: TreeSpec) -> Optional[List[A
         return None
 
     # Recursively flatten the children
-    result : List[Any] = []
+    result: List[Any] = []
     for child, child_spec in zip(child_pytrees, spec.children_specs):
         flat = _broadcast_to_and_flatten(child, child_spec)
         if flat is not None:
