@@ -16,12 +16,7 @@ from libcst.metadata import (
 from libcst.metadata.scope_provider import ScopeVisitor, LocalScope
 
 
-# even though we don't override the constructor.
 class ForScope(LocalScope):
-    """
-    When a function is defined, it creates a FunctionScope.
-    """
-
     pass
 
 

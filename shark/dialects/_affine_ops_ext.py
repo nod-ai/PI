@@ -3,67 +3,93 @@
 #  SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 try:
-  from ..ir import *
+    from ..ir import *
+    from ._ods_common import get_default_loc_context as _get_default_loc_context
 except ImportError as e:
-  raise RuntimeError("Error loading imports from extension module") from e
+    raise RuntimeError("Error loading imports from extension module") from e
 
-from typing import Any, Optional, Sequence, Union
-from ._ods_common import get_op_result_or_value as _get_op_result_or_value, get_op_results_or_values as _get_op_results_or_values
+from typing import Optional, Sequence, Union
+
+from ._ods_common import (
+    get_op_result_or_value as _get_op_result_or_value,
+    get_op_results_or_values as _get_op_results_or_values,
+)
+
 
 class AffineForOp:
-  """Specialization for the Affine for op class."""
+    """Specialization for the Affine for op class."""
 
-  def __init__(self,
-               lower_bound,
-               upper_bound,
-               step,
-               iter_args: Optional[Union[Operation, OpView,
-                                         Sequence[Value]]] = None,
-               *,
-               loc=None,
-               ip=None):
-    """Creates an Affine `for` operation.
+    def __init__(
+        self,
+        lower_bound,
+        upper_bound,
+        step,
+        *,
+        loc=None,
+        ip=None,
+    ):
+        attributes = {
+            "lower_bound": AffineMapAttr.get(AffineMap.get_constant(lower_bound)),
+            "upper_bound": AffineMapAttr.get(AffineMap.get_constant(upper_bound)),
+            "step": IntegerAttr.get(IntegerType.get_signless(64), step),
+        }
 
-    - `lower_bound` is the value to use as lower bound of the loop.
-    - `upper_bound` is the value to use as upper bound of the loop.
-    - `step` is the value to use as loop step.
-    - `iter_args` is a list of additional loop-carried arguments or an operation
-      producing them as results.
-    """
-    if iter_args is None:
-      iter_args = []
-    iter_args = _get_op_results_or_values(iter_args)
+        results = []
+        super().__init__(
+            self.build_generic(
+                regions=1,
+                results=[],
+                attributes=attributes,
+                operands=[],
+                loc=loc,
+                ip=ip,
+            )
+        )
+        self.regions[0].blocks.append(IndexType.get(), *results)
 
-    results = [arg.type for arg in iter_args]
-    super().__init__(
-        self.build_generic(
-            regions=1,
-            results=results,
-            operands=[
-                _get_op_result_or_value(o)
-                for o in [lower_bound, upper_bound, step]
-            ] + list(iter_args),
-            loc=loc,
-            ip=ip))
-    self.regions[0].blocks.append(IndexType.get(), *results)
+    @property
+    def body(self):
+        """Returns the body (block) of the loop."""
+        return self.regions[0].blocks[0]
 
-  @property
-  def body(self):
-    """Returns the body (block) of the loop."""
-    return self.regions[0].blocks[0]
+    @property
+    def induction_variable(self):
+        """Returns the induction variable of the loop."""
+        return self.body.arguments[0]
 
-  @property
-  def induction_variable(self):
-    """Returns the induction variable of the loop."""
-    return self.body.arguments[0]
+    @property
+    def inner_iter_args(self):
+        """Returns the loop-carried arguments usable within the loop.
 
-  @property
-  def inner_iter_args(self):
-    """Returns the loop-carried arguments usable within the loop.
+        To obtain the loop-carried operands, use `iter_args`.
+        """
+        return self.body.arguments[1:]
 
-    To obtain the loop-carried operands, use `iter_args`.
-    """
-    return self.body.arguments[1:]
+
+class AffineLoadOp:
+    """Specialization for the MemRef load operation."""
+
+    def __init__(
+        self,
+        memref: Union[Operation, OpView, Value],
+        indices: Optional[Union[Operation, OpView, Sequence[Value]]] = None,
+        *,
+        loc=None,
+        ip=None,
+    ):
+        """Creates a memref load operation.
+
+        Args:
+          memref: the buffer to load from.
+          indices: the list of subscripts, may be empty for zero-dimensional
+            buffers.
+          loc: user-visible location of the operation.
+          ip: insertion point.
+        """
+        memref_resolved = _get_op_result_or_value(memref)
+        indices_resolved = [] if indices is None else _get_op_results_or_values(indices)
+        return_type = MemRefType(memref_resolved.type).element_type
+        super().__init__(return_type, memref, indices_resolved, loc=loc, ip=ip)
 
 
 # class IfOp:

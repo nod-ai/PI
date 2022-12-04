@@ -8,11 +8,11 @@ import os
 import numpy as np
 
 from shark import ir
+from shark.compiler.config import DEBUG
 from shark.dialects import func, arith, memref, scf
 from shark.execution_engine import ExecutionEngine
 from shark.runtime import get_ranked_memref_descriptor
 from refbackend import assert_arg_type_is_supported
-from config import DEBUG
 
 
 def emit_timer_func() -> func.FuncOp:

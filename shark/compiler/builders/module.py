@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from ast import literal_eval
 from contextlib import contextmanager
-from functools import lru_cache
 from typing import Optional, Union
 
 import libcst as cst
@@ -15,7 +14,7 @@ from libcst.metadata import (
     ExpressionContext,
 )
 
-from shark._mlir_libs._mlir.ir import (
+from shark.ir import (
     Context,
     Module as MLIRModule,
     Location,
@@ -23,19 +22,21 @@ from shark._mlir_libs._mlir.ir import (
     InsertionPoint,
     Value as MLIRValue,
     OpView,
-    Operation, TypeAttr, FunctionType,
+    Operation,
+    TypeAttr,
+    FunctionType,
 )
 from shark.compiler.builders.body import BodyBuilder
 from shark.compiler.providers import ReturnFinder
 from shark.compiler.providers.scope import MyScopeProvider, LiveInLiveOutProvider
 from shark.compiler.providers.type import MLIRTypeProvider, map_type_str_to_mlir_type
-from shark.dialects import arith, func, llvm, scf
+from shark.dialects import func, scf, affine_
 
 
 class FindName(cst.CSTVisitor):
     _name: Optional[str] = None
 
-    def leave_Name(self, node: cst.Name) -> bool:
+    def leave_Name(self, node: cst.Name):
         if self._name is not None:
             raise Exception(f"multiple names {node}")
         else:
@@ -65,6 +66,7 @@ class CompilerVisitor(m.MatcherDecoratableVisitor):
         mlir_context: Context,
         mlir_module: MLIRModule,
         mlir_location: Location,
+        use_affine_fors=False,
         py_constants=None,
         py_global_defs=None,
         global_scope=None,
@@ -84,6 +86,7 @@ class CompilerVisitor(m.MatcherDecoratableVisitor):
         self.py_global_defs = py_global_defs
         self.local_defs = {}
         self.global_uses = {}
+        self.scf_fors = not use_affine_fors  # affine for loops
 
     def enter_mlir_block_scope(
         self,
@@ -156,7 +159,6 @@ class CompilerVisitor(m.MatcherDecoratableVisitor):
         assert len(self._mlir_block_stack), "no block scope yet"
         return self._mlir_block_stack[-1][:-1]
 
-    @lru_cache(maxsize=None, typed=True)
     def _get_or_make_mlir_constant(
         self,
         py_cst: Union[int, float, bool],
@@ -165,14 +167,11 @@ class CompilerVisitor(m.MatcherDecoratableVisitor):
     ):
         if name is None:
             name = str(py_cst)
-        # TODO(max): drop asserts eventually when sure this works
-        assert (
-            name,
-            index_type,
-        ) not in self.local_defs, f"duplicate constant {py_cst=} {name=} {index_type=}: type {self.local_defs[name].type}"
-        constant = self.body_builder.constant(py_cst, index_type)
-        self.set_mlir_value((name, index_type), constant)
-        return constant
+        if (name, index_type) not in self.local_defs:
+            self.local_defs[name, index_type] = self.body_builder.constant(
+                py_cst, index_type
+            )
+        return self.local_defs[name, index_type]
 
     def _get_mlir_value(self, name) -> MLIRValue:
         # Float and Integer nodes that don't have names...
@@ -191,7 +190,7 @@ class CompilerVisitor(m.MatcherDecoratableVisitor):
         # Float and Integer nodes that don't have names...
         if isinstance(node, cst.BaseNumber):
             return self._get_or_make_mlir_constant(literal_eval(node.value))
-        elif isinstance(node, (cst.BinaryOperation, cst.Call)):
+        elif isinstance(node, (cst.BinaryOperation, cst.Call, cst.Subscript)):
             # values associated with expression nodes (e.g. binary expression) are stored as nodes in
             # local_defs
             return self._get_mlir_value(node)
@@ -246,6 +245,8 @@ class CompilerVisitor(m.MatcherDecoratableVisitor):
             store_value = self.get_mlir_value(node.value)
             # this just returns back the same memref
             value = self.body_builder.memref_store(store_value, memref, slice_idxs)
+            # TODO(max): do i need this?
+            # value = self.body_builder.affine_store(store_value, memref, slice_idxs)
         else:
             lhs = [n.target for n in node.targets]
             assert len(lhs) == 1, f"multiple assign targets unsupported {lhs}"
@@ -281,13 +282,17 @@ class CompilerVisitor(m.MatcherDecoratableVisitor):
 
     def leave_Subscript(self, node: cst.Subscript):
         ctx = self.get_metadata(ExpressionContextProvider, node)
-        if ctx == ExpressionContext.STORE:
-            print()
-        elif ctx == ExpressionContext.LOAD:
-            print()
-        else:
-            # DEL
-            print()
+        if ctx == ExpressionContext.LOAD:
+            memref = self.get_mlir_value(node.value)
+            slice_idxs = [
+                # these are Name nodes...
+                self._get_mlir_value(slice_idx.slice.value.value)
+                for slice_idx in node.slice
+            ]
+            value = self.body_builder.memref_load(memref, slice_idxs)
+            # TODO(max): do i need this?
+            # value = self.body_builder.affine_load(memref, slice_idxs)
+            self.set_mlir_value(node, value)
 
     def leave_Expr(self, node: cst.Expr) -> Optional[bool]:
         return True
@@ -315,18 +320,14 @@ class CompilerVisitor(m.MatcherDecoratableVisitor):
         func_op = func.FuncOp(
             name=node.name.value,
             type=function_type,
-            # TODO(max): could (and should) be public
-            visibility="private",
+            visibility="public",
             loc=mlir_location,
         )
         func_op_entry_block = func_op.add_entry_block()
         for i, func_op_arg in enumerate(func_op.arguments):
             self.set_mlir_value(args.params[i].name.value, func_op_arg)
 
-        with self.mlir_block_scope(func_op_entry_block, scope_name=node.name.value) as (
-            _block,
-            mlir_location,
-        ):
+        with self.mlir_block_scope(func_op_entry_block, scope_name=node.name.value):
             node.body.visit(self)
 
             function_returns = ReturnFinder()(node)
@@ -349,17 +350,47 @@ class CompilerVisitor(m.MatcherDecoratableVisitor):
             else:
                 return_values = []
 
-            canonical_func_type = FunctionType.get(inputs=function_type[0], results=[return_values[0].type])
+            canonical_func_type = FunctionType.get(
+                inputs=function_type[0], results=[return_values[0].type]
+            )
             func_op.attributes["function_type"] = TypeAttr.get(canonical_func_type)
             func.ReturnOp(return_values)
         return False
 
     def leave_FunctionDef(self, node: cst.FunctionDef):
-        # error: 'scf.for' op using value defined outside the region
-        self._get_or_make_mlir_constant.cache_clear()
         self.local_defs = {}
 
+    # _live_ins, live_outs, scope_name = self.get_metadata(
+    #     LiveInLiveOutProvider, node
+    # )
+    # live_outs = tuple(live_outs)
+    # yielded_types = []
+    # for l in live_outs:
+    #     items = scope._getitem_from_self_or_parent(l)
+    #     assert len(items) == 1, f"multiple parent items {l}"
+    #     item = list(items)[0].node
+    #     yielded_types.append(self.get_metadata(MLIRTypeProvider, item))
+    # undef_ops = [llvm.UndefOp(yt, loc=mlir_location) for yt in yielded_types]
+
+    # for i, yielded_var_name in enumerate(live_outs):
+    #     self.local_defs[yielded_var_name] = block.owner.operation.results[i]
+    #     yielded_type = yielded_types[i]
+    #
+    #     with InsertionPoint.at_block_begin(func_body_block), mlir_location:
+    #         cst = arith.ConstantOp(yielded_type, 0.0)
+    #         undef_ops[i].operation.replace_all_uses_with(cst.operation)
+    #
+    # for undef_op in undef_ops:
+    #     undef_op.operation.erase()
+
     def visit_For(self, node: cst.For):
+        (
+            func_body_block,
+            _block_args,
+            _insertion_point,
+            mlir_location,
+        ) = self.peek_block_scope()
+
         if node.iter.func.value != "range":
             raise RuntimeError("Only `range` iterator currently supported")
         for arg in node.iter.args:
@@ -368,79 +399,46 @@ class CompilerVisitor(m.MatcherDecoratableVisitor):
                 arg.value, cst_Integer
             ), f"symbolic range not supported yet {arg.value}"
 
-        lb = (
-            node.iter.args[0].value.value
-            if len(node.iter.args) > 1
-            else self._get_or_make_mlir_constant(0, index_type=True)
-        )
+        lb = int(node.iter.args[0].value.value) if len(node.iter.args) > 1 else 0
         ub = (
-            node.iter.args[1].value.value
+            int(node.iter.args[1].value.value)
             if len(node.iter.args) > 1
-            else node.iter.args[0].value.value
+            else int(node.iter.args[0].value.value)
         )
-        step = (
-            node.iter.args[2].value.value
-            if len(node.iter.args) > 2
-            else self._get_or_make_mlir_constant(1, index_type=True)
-        )
-
-        lb, ub, step = [
-            self._get_or_make_mlir_constant(literal_eval(c), index_type=True)
-            if isinstance(c, str)
-            else c
-            for c in [lb, ub, step]
-        ]
-        assert all(
-            [isinstance(x, MLIRValue) for x in [lb, ub, step]]
-        ), f"something went wrong converting range for {lb=} {ub=} {step=}"
-
-        _live_ins, live_outs, scope_name = self.get_metadata(
-            LiveInLiveOutProvider, node
-        )
-        live_outs = tuple(live_outs)
-
-        (
-            func_body_block,
-            _block_args,
-            _insertion_point,
-            mlir_location,
-        ) = self.peek_block_scope()
-
-        scope = self.get_metadata(MyScopeProvider, node.body)
-        yielded_types = []
-        for l in live_outs:
-            items = scope._getitem_from_self_or_parent(l)
-            assert len(items) == 1, f"multiple parent items {l}"
-            item = list(items)[0].node
-            yielded_types.append(self.get_metadata(MLIRTypeProvider, item))
-        undef_ops = [llvm.UndefOp(yt, loc=mlir_location) for yt in yielded_types]
+        step = int(node.iter.args[2].value.value) if len(node.iter.args) > 2 else 1
         induction_var = node.target
         assert isinstance(
             induction_var, cst_Name
         ), f"complex for range targets unsupported {induction_var}"
 
-        loop = scf.ForOp(lb, ub, step, undef_ops, loc=mlir_location)
+        if self.scf_fors:
+            lb, ub, step = [
+                self._get_or_make_mlir_constant(c, index_type=self.scf_fors)
+                for c in [lb, ub, step]
+            ]
+            assert all(
+                [isinstance(x, MLIRValue) for x in [lb, ub, step]]
+            ), f"something went wrong converting range for {lb=} {ub=} {step=}"
+
+            loop = scf.ForOp(lb, ub, step, [], loc=mlir_location)
+        else:
+            loop = affine_.AffineForOp(lb, ub, step, loc=mlir_location)
+
+        # yielded_vals = [self._get_mlir_value(y) for y in live_outs]
+        # yielded_types = []
+        # undef_ops = []
+        # live_outs = []
+        yielded_vals = []
+
         self.set_mlir_value(induction_var.value, loop.induction_variable)
-        # i know these aren't the only block args but i'm abusing the api
         with self.mlir_block_scope(
             loop.body,
-            block_args=live_outs,
-            scope_name=f"{scope_name}",
         ) as (block, mlir_location):
             node.body.visit(self)
-            yielded_vals = [self._get_mlir_value(y) for y in live_outs]
-            scf.YieldOp(yielded_vals, loc=mlir_location)
-
-            for i, yielded_var_name in enumerate(live_outs):
-                self.local_defs[yielded_var_name] = block.owner.operation.results[i]
-                yielded_type = yielded_types[i]
-
-                with InsertionPoint.at_block_begin(func_body_block), mlir_location:
-                    cst = arith.ConstantOp(yielded_type, 0.0)
-                    undef_ops[i].operation.replace_all_uses_with(cst.operation)
-
-            for undef_op in undef_ops:
-                undef_op.operation.erase()
+            if self.scf_fors:
+                scf.YieldOp(yielded_vals, loc=mlir_location)
+            else:
+                affine_.AffineYieldOp(yielded_vals, loc=mlir_location)
 
         return False
 
