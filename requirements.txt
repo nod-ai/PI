@@ -1,3 +1,10 @@
-python-graphs @ git+https://github.com/google-research/python-graphs.git
+# python-graphs @ git+https://github.com/google-research/python-graphs.git
 PyYAML
 numpy
+astor
+astroid
+ast_tools
+libcst
+pyre-check
+intervaltree
+sortedcontainers

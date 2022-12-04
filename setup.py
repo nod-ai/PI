@@ -10,6 +10,7 @@ import subprocess
 import tarfile
 import tempfile
 import urllib.request
+from ast import literal_eval
 from distutils.command.build import build as _build
 from pathlib import Path
 
@@ -76,41 +77,68 @@ class CMakeBuild(build_py):
     def run(self):
         target_dir = self.build_lib
         here = os.path.abspath(os.path.dirname(__file__))
-        cmake_build_dir = os.path.join(here, "build")
-        cmake_install_dir = os.path.join(cmake_build_dir, "install")
-        llvm_install_dir = get_llvm_package()
-        cmake_args = os.environ.get("CMAKE_ARGS", "")
-        cmake_args = [
-            "-DCMAKE_BUILD_TYPE=Release",
-            f"-DCMAKE_INSTALL_PREFIX={cmake_install_dir}",
-            f"-DCMAKE_PREFIX_PATH={llvm_install_dir}",
-            f"-DPython3_EXECUTABLE={sys.executable}",
-            "-DMLIR_ENABLE_EXECUTION_ENGINE=ON",
-            f"-DLLVM_TABLEGEN_EXE={llvm_install_dir}/bin/llvm-tblgen",
-            f"-DMLIR_TABLEGEN_EXE={llvm_install_dir}/bin/mlir-tblgen",
-            f"-DMLIR_LINALG_ODS_YAML_GEN_EXE={llvm_install_dir}/bin/mlir-linalg-ods-yaml-gen",
-        ] + cmake_args.split(";")
+        with tempfile.TemporaryDirectory() as cmake_build_dir:
+            # cmake_build_dir = os.path.join(here, "build")
+            cmake_install_dir = os.path.join(cmake_build_dir, "install")
+            llvm_install_dir = get_llvm_package()
+            cmake_args = os.environ.get("CMAKE_ARGS", "")
+            cmake_args = [
+                "-DCMAKE_BUILD_TYPE=Release",
+                f"-DCMAKE_INSTALL_PREFIX={cmake_install_dir}",
+                f"-DCMAKE_PREFIX_PATH={llvm_install_dir}",
+                f"-DPython3_EXECUTABLE={sys.executable}",
+                "-DMLIR_ENABLE_EXECUTION_ENGINE=ON",
+                f"-DLLVM_TABLEGEN_EXE={llvm_install_dir}/bin/llvm-tblgen",
+                f"-DMLIR_TABLEGEN_EXE={llvm_install_dir}/bin/mlir-tblgen",
+                f"-DMLIR_LINALG_ODS_YAML_GEN_EXE={llvm_install_dir}/bin/mlir-linalg-ods-yaml-gen",
+            ] + cmake_args.split(";")
 
-        build_args = []
-        os.makedirs(cmake_build_dir, exist_ok=True)
-        if os.path.exists(cmake_install_dir):
-            shutil.rmtree(cmake_install_dir)
-        cmake_cache_file = os.path.join(cmake_build_dir, "CMakeCache.txt")
-        if os.path.exists(cmake_cache_file):
-            os.remove(cmake_cache_file)
-        subprocess.check_call(
-            ["cmake", "-G Ninja", here] + cmake_args, cwd=cmake_build_dir
-        )
-        subprocess.check_call(
-            ["cmake", "--build", ".", "--target", "install"] + build_args,
-            cwd=cmake_build_dir,
-        )
-        shutil.copytree(
-            os.path.join(cmake_install_dir, "python_packages", "mlir_core"),
-            target_dir,
-            symlinks=False,
-            dirs_exist_ok=True,
-        )
+            build_args = []
+            os.makedirs(cmake_build_dir, exist_ok=True)
+            if os.path.exists(cmake_install_dir):
+                shutil.rmtree(cmake_install_dir)
+            cmake_cache_file = os.path.join(cmake_build_dir, "CMakeCache.txt")
+            if os.path.exists(cmake_cache_file):
+                os.remove(cmake_cache_file)
+            subprocess.check_call(
+                ["cmake", "-G Ninja", here] + cmake_args, cwd=cmake_build_dir
+            )
+            subprocess.check_call(
+                ["cmake", "--build", ".", "--target", "install"] + build_args,
+                cwd=cmake_build_dir,
+            )
+            if literal_eval(os.getenv("DEVELOP", "0")):
+                shutil.copytree(
+                    os.path.join(
+                        cmake_install_dir,
+                        "python_packages",
+                        "mlir_core",
+                        "shark",
+                        "_mlir_libs",
+                    ),
+                    str((Path(__file__).parent / "shark" / "_mlir_libs").resolve()),
+                    symlinks=False,
+                    dirs_exist_ok=True,
+                )
+                shutil.copytree(
+                    os.path.join(
+                        cmake_install_dir,
+                        "python_packages",
+                        "mlir_core",
+                        "shark",
+                        "dialects",
+                    ),
+                    str((Path(__file__).parent / "shark" / "dialects").resolve()),
+                    symlinks=False,
+                    dirs_exist_ok=True,
+                )
+            else:
+                shutil.copytree(
+                    os.path.join(cmake_install_dir, "python_packages", "mlir_core"),
+                    target_dir,
+                    symlinks=False,
+                    dirs_exist_ok=True,
+                )
 
 
 class NoopBuildExtension(build_ext):

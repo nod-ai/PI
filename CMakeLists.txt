@@ -105,6 +105,16 @@ declare_mlir_python_sources(SharkMLIRPythonSources.Core
     _mlir_libs/_mlir/passmanager.pyi
 )
 
+
+# TODO(max): this can't be here because it'll get erased
+
+declare_mlir_python_sources(SharkMLIRPythonSources.SharkCompiler
+  ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/shark"
+  ADD_TO_PARENT SharkMLIRPythonSources
+  SOURCES_GLOB
+    compiler/*.py
+)
+
 declare_mlir_python_sources(SharkMLIRPythonSources.ExecutionEngine
   ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/shark"
   ADD_TO_PARENT SharkMLIRPythonSources
@@ -164,6 +174,15 @@ declare_mlir_dialect_python_bindings(
   SOURCES
     dialects/cf.py
   DIALECT_NAME cf)
+
+declare_mlir_dialect_python_bindings(
+  ADD_TO_PARENT SharkMLIRPythonSources.Dialects
+  ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/shark"
+  TD_FILE dialects/LLVMOps.td
+  SOURCES
+    dialects/llvm.py
+    dialects/_llvm_ops_ext.py
+  DIALECT_NAME llvm)
 
 declare_mlir_dialect_python_bindings(
   ADD_TO_PARENT SharkMLIRPythonSources.Dialects
@@ -578,3 +597,6 @@ add_mlir_python_modules(SharkMLIRPythonModules
   COMMON_CAPI_LINK_LIBS
     SharkMLIRPythonCAPI
 )
+
+# CMakeLists END
+
