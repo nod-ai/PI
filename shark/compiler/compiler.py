@@ -1,5 +1,5 @@
 import inspect
-import sys
+from pathlib import Path
 
 import libcst as cst
 from libcst import (
@@ -21,14 +21,15 @@ from shark.ir import (
 )
 
 
-def mlir_compile(fn, globals=None):
-    file_path = inspect.getfile(fn)
-    manager = FullRepoManager(".", {file_path}, {MyTypeInferenceProvider})
+def mlir_compile(module, globals=None, use_affine_fors=False):
+    file_path = inspect.getfile(module)
+    manager = FullRepoManager(
+        str(Path(file_path).parent.resolve()), {file_path}, {MyTypeInferenceProvider}
+    )
     if globals is None:
-        globals = sys.modules[fn.__module__].__dict__
+        globals = module.__dict__
 
-    fn_file = inspect.getfile(fn)
-    with open(fn_file) as f:
+    with open(file_path) as f:
         file_source = f.read()
     module_ast = cst.parse_module(file_source)
 
@@ -47,6 +48,7 @@ def mlir_compile(fn, globals=None):
         mlir_context,
         mlir_module,
         mlir_location_unknown,
+        use_affine_fors=use_affine_fors,
         py_global_defs=globals,
     )
     wrapper.visit(visitor)

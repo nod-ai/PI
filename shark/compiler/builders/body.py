@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Callable, Union
 
-from shark._mlir_libs._mlir.ir import (
+from shark.ir import (
     Type as MLIRType,
     Value as MLIRValue,
     Location,
@@ -12,8 +12,10 @@ from shark._mlir_libs._mlir.ir import (
     Context,
     F64Type,
     MemRefType,
+    AffineExpr,
+    AffineMap,
 )
-from shark.dialects import arith, linalg, math, memref
+from shark.dialects import arith, linalg, math, memref, affine_ as affine
 from shark.dialects.linalg import ScalarAssign, ScalarExpression, FunctionKind
 from shark.dialects.linalg.opdsl.lang.emitter import (
     _is_integer_type,
@@ -41,6 +43,20 @@ class BodyBuilder:
         self.yield_mapping = dict()
         self.context = context
         self.location = location
+
+    def get_affine_expr_constant(self, c):
+        return AffineExpr.get_constant(c)
+
+    def get_affine_map_constant(self, c):
+        return AffineMap.get_constant(c)
+
+    def get_int_attr(self, bits: int, value: Union[IntegerAttr, int]) -> IntegerAttr:
+        """Converts the given value to signless integer attribute of given bit width."""
+        if isinstance(value, int):
+            ty = IntegerType.get_signless(bits)
+            return IntegerAttr.get(ty, value)
+        else:
+            return value
 
     def constant(
         self,
@@ -71,6 +87,31 @@ class BodyBuilder:
     ) -> MLIRValue:
         # value, memref, indices
         return memref.StoreOp(store_value, dst_memref, indices).memref
+
+    def memref_load(
+        self,
+        src_memref: MLIRValue,
+        indices: Union[tuple[MLIRValue], list[MLIRValue]],
+    ) -> MLIRValue:
+        # result_type, memref, indices
+        return memref.LoadOp(src_memref, indices).result
+
+    def affine_store(
+        self,
+        store_value: MLIRValue,
+        dst_memref: MLIRValue,
+        indices: Union[tuple[MLIRValue], list[MLIRValue]],
+    ) -> MLIRValue:
+        # value, memref, indices
+        return affine.AffineStoreOp(store_value, dst_memref, indices).memref
+
+    def affine_load(
+        self,
+        src_memref: MLIRValue,
+        indices: Union[tuple[MLIRValue], list[MLIRValue]],
+    ) -> MLIRValue:
+        # result_type, memref, indices
+        return affine.AffineLoadOp(src_memref, indices).result
 
     def assign(self, assignment: ScalarAssign):
         if assignment.arg in self.yield_mapping:

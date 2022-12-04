@@ -1,7 +1,14 @@
 import argparse
 
 import numpy as np
-from shark._mlir_libs._mlir.ir import (
+
+import benchmark
+from refbackend import (
+    RefBackendLinalgOnTensorsBackend,
+    BUFFERIZATION_PIPELINE,
+    LOWER_LLVM_PIPELINE,
+)
+from shark.ir import (
     Context,
     Location,
     Module,
@@ -9,16 +16,9 @@ from shark._mlir_libs._mlir.ir import (
     RankedTensorType,
     F64Type,
 )
-
-import benchmark
-from compiler_utils import run_pipeline_with_repro_report
+from shark.compiler.config import MLIR_C_RUNNER_UTILS, MLIR_RUNNER_UTILS
+from shark.compiler.utils import run_pipeline_with_repro_report
 from shark.dialects import func, linalg
-from refbackend import (
-    RefBackendLinalgOnTensorsBackend,
-    BUFFERIZATION_PIPELINE,
-    LOWER_LLVM_PIPELINE,
-)
-from config import MLIR_C_RUNNER_UTILS, MLIR_RUNNER_UTILS, DEBUG
 
 M = 32
 N = 32
@@ -48,7 +48,7 @@ def lower_matmul(module, tile_size=2, munge=False):
         ",".join(BUFFERIZATION_PIPELINE(munge)),
     )
     if DEBUG:
-        print(module)
+        module.operation.print(print_generic_op_form=True)
     run_pipeline_with_repro_report(
         module,
         ",".join(
@@ -67,13 +67,13 @@ def lower_matmul(module, tile_size=2, munge=False):
         ),
     )
     if DEBUG:
-        print(module)
+        module.operation.print(print_generic_op_form=True)
     run_pipeline_with_repro_report(
         module,
         ",".join(LOWER_LLVM_PIPELINE),
     )
     if DEBUG:
-        print(module)
+        module.operation.print(print_generic_op_form=True)
     return module
 
 

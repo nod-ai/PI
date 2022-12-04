@@ -1,9 +1,9 @@
 import re
 
-from shark._mlir_libs._mlir.ir import Type, Context, InsertionPoint, Location
+from shark.ir import Type, Context, InsertionPoint, Location
+from shark.compiler.utils import add_dummy_value, traverse_op_region_block_iterators
 
 from shark.dialects import memref
-from compiler_utils import add_dummy_value, traverse_op_region_block_iterators
 
 
 def promote_alloc(module):

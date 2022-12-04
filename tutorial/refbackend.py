@@ -11,7 +11,9 @@ __all__ = [
     "RefBackendLinalgOnTensorsBackend",
 ]
 
-from shark._mlir_libs._mlir.ir import Module
+from shark.ir import Module
+from shark.compiler.config import MLIR_C_RUNNER_UTILS, MLIR_RUNNER_UTILS
+from shark.compiler.utils import run_pipeline_with_repro_report
 
 from shark.execution_engine import ExecutionEngine
 
@@ -20,9 +22,6 @@ from shark.runtime import (
     unranked_memref_to_numpy,
     get_unranked_memref_descriptor,
 )
-
-from compiler_utils import run_pipeline_with_repro_report
-from config import MLIR_C_RUNNER_UTILS, MLIR_RUNNER_UTILS
 
 
 def assert_arg_type_is_supported(ty):

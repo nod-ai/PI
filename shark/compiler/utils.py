@@ -13,7 +13,6 @@ from shark._mlir_libs._mlir.ir import (
     IntegerType,
 )
 from shark._mlir_libs._mlir.passmanager import PassManager
-
 from shark.dialects import arith
 
 ONE_SHOT_BUFFERIZATION_PIPELINE = [

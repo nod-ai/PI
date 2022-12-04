@@ -6,9 +6,8 @@ from shark._mlir_libs._mlir.ir import (
     F32Type,
     MemRefType,
 )
-from shark._mlir_libs._mlir.passmanager import PassManager
-from shark.dialects import func, scf, arith
-from shark.dialects import linalg
+from shark.passmanager import PassManager
+from shark.dialects import func, scf, arith, linalg
 from shark.ir import Context
 
 
