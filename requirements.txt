@@ -8,3 +8,4 @@ libcst
 pyre-check
 intervaltree
 sortedcontainers
+pytype
