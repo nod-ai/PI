@@ -19,7 +19,7 @@ from shark.compiler.providers.type import (
     MyTypeInferenceProvider,
     MLIRTypeProvider,
 )
-from shark.compiler.pytype_vm.vm import ByteCodeCompiler
+from shark.compiler.pytype_vm.bytecode_compiler import ByteCodeCompiler
 from shark.ir import (
     Context,
     Module,
@@ -75,10 +75,11 @@ def callback(
 
 
 # TODO(max): this should not be exposed and basically hidden behind "abstract" compile
-def mlir_bytecode_pytype_compile(fp):
+def mlir_bytecode_pytype_compile(fn):
+    fp = inspect.getfile(fn)
     b = ByteCodeCompiler()
     with open(fp) as f:
-        b.ctx.vm.run_program(f.read(), "", maximum_depth=10)
+        b.vm.run_program(f.read(), "", maximum_depth=10)
 
     print(b.mlir_module)
     # actual = [(op.name, op.line, symbol) for op, symbol, _ in b.ctx.vm.opcode_traces]

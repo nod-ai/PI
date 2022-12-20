@@ -9,3 +9,4 @@ pyre-check
 intervaltree
 sortedcontainers
 pytype
+xdis
