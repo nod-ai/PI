@@ -1,37 +1,20 @@
-import numpy as np
+# from dataclasses import dataclass
+
+from shark.dialects import memref
 
 
-def test_single_for(a: float, b: float):
-    e = np.empty((10, 10))
-    for i in range(10):
-        e[i, i] = a * b
-    return e
-
-
-def test_double_for(a: float, b: float):
-    e = np.empty((10, 10))
-    for i in range(10):
-        for j in range(10):
-            e[i, j] = a * b
-    return e
-
-
-def test_mat_prod():
-    A = np.empty((10, 10))
-    B = np.empty((10, 10))
-    C = np.empty((10, 10))
-    for i in range(10):
-        for j in range(10):
-            C[i, j] = A[i, j] * B[i, j]
-    return C
-
-
-def test_mat_mul():
-    A = np.empty((10, 30))
-    B = np.empty((30, 20))
-    C = np.empty((10, 20))
+def test_mat_mul(a: float, b: float, c: float):
+    print("inside test_mat_mul", a, b, c)
+    A = memref.AllocaOp((10, 30)).memref
+    B = memref.AllocaOp((30, 20)).memref
+    C = memref.AllocaOp((10, 20)).memref
     for i in range(10):
         for j in range(30):
             for k in range(20):
-                C[i, k] = A[i, j] * B[j, k]
+                C[i, k] += A[i, j] * B[j, k]
+    print("inside test_mat_mul", i)
     return C
+
+
+if __name__ == "__main__":
+    test_mat_mul(1, 2, 3)

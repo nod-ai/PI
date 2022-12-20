@@ -9,11 +9,17 @@ from libcst.metadata import (
     FullRepoManager,
 )
 
+from shark import ir
+
 from shark.compiler.builders.module import CompilerVisitor
+from shark.compiler.byte_code_interpreter.execfile import (
+    run_python_file,
+)
 from shark.compiler.providers.type import (
     MyTypeInferenceProvider,
     MLIRTypeProvider,
 )
+from shark.compiler.pytype_vm.vm import ByteCodeCompiler
 from shark.ir import (
     Context,
     Module,
@@ -52,4 +58,44 @@ def mlir_compile(module, globals=None, use_affine_fors=False):
         py_global_defs=globals,
     )
     wrapper.visit(visitor)
+    return mlir_module
+
+
+def callback(
+    event,
+    opoffset,
+    byte_name,
+    byte_code,
+    line_number,
+    int_arg,
+    event_arg,
+    vm,
+):
+    print(f"{event=}", f"{byte_name=}")
+
+
+# TODO(max): this should not be exposed and basically hidden behind "abstract" compile
+def mlir_bytecode_pytype_compile(fp):
+    b = ByteCodeCompiler()
+    with open(fp) as f:
+        b.ctx.vm.run_program(f.read(), "", maximum_depth=10)
+
+    print(b.mlir_module)
+    # actual = [(op.name, op.line, symbol) for op, symbol, _ in b.ctx.vm.opcode_traces]
+    # pprint(actual)
+
+
+def mlir_bytecode_xpython_compile(fn):
+    top_mlir_context = ir.Context()
+    mlir_location = ir.Location.unknown(context=top_mlir_context)
+    with top_mlir_context, mlir_location:
+        mlir_module = ir.Module.create(loc=mlir_location)
+
+    mlir_module = run_python_file(
+        inspect.getfile(fn),
+        [],
+        top_mlir_context,
+        mlir_location,
+        mlir_module,
+    )
     return mlir_module
