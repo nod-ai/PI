@@ -94,7 +94,7 @@ class AllocaOp:
         #         res = memref.AllocaOp(res_type, [], []).memref
 
         if el_type is None:
-            el_type = F32Type.get()
+            el_type = F64Type.get()
         assert dim_sizes
         assert isinstance(dim_sizes[0], int)
 

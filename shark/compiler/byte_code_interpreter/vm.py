@@ -5,7 +5,7 @@ import linecache
 import logging
 import reprlib
 import sys
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 from contextlib import contextmanager
 from typing import Optional, Union
 
@@ -29,7 +29,7 @@ from shark.compiler.byte_code_interpreter.pyobj import (
 from shark import ir
 
 log = logging.getLogger(__name__)
-# log.setLevel(logging.DEBUG)
+log.setLevel(logging.DEBUG)
 
 LINE_NUMBER_WIDTH = 4
 LINE_NUMBER_WIDTH_FMT = "L. %%-%dd@" % LINE_NUMBER_WIDTH
@@ -118,14 +118,20 @@ class PyVM(object):
         self.mlir_location = mlir_location
         self.mlir_module = mlir_module
 
+        f64_type = ir.F64Type.get(context=self.mlir_context)
         self.body_builder = BodyBuilder(
-            {}, {}, {}, self.mlir_context, self.mlir_location
+            type_mapping={
+                "float": f64_type,
+                "float_memref": ir.MemRefType.get((-1,), f64_type, loc=self.mlir_location),
+                "int": ir.IntegerType.get_signed(64, context=self.mlir_context),
+                "uint": ir.IntegerType.get_unsigned(64, context=self.mlir_context),
+            },
+            block_arg_mapping={},
+            fn_attr_mapping={},
+            context=self.mlir_context,
+            location=self.mlir_location,
         )
 
-        self.f64_type = ir.F64Type.get(context=self.mlir_context)
-        self.f64_memref_type = ir.MemRefType.get(
-            (-1,), self.f64_type, loc=self.mlir_location
-        )
         self.scf_fors = False
 
         # TODO(max): not correct - should be a function of the call or module or something like that
@@ -157,6 +163,7 @@ class PyVM(object):
         # most of the time we want a VM function defined in pyobj.
         # This maps between the two.
         self.fn2native = {}
+        self.fn2native_mlir = {}
 
         self.in_exception_processing = False
 
@@ -248,7 +255,7 @@ class PyVM(object):
         assert len(self._mlir_block_stack), "no block scope yet"
         return self._mlir_block_stack[-1]
 
-    def _get_or_make_mlir_constant(
+    def get_or_make_mlir_constant(
         self,
         py_cst: Union[int, float, bool],
         name: Optional[str] = None,
@@ -439,10 +446,11 @@ class PyVM(object):
     # This is the main entry point
     def run_code(self, code, f_globals=None, f_locals=None, toplevel=True):
         """run code using f_globals and f_locals in our VM"""
-        frame = self.make_frame(code, f_globals=f_globals, f_locals=f_locals)
-        self.top_level_frame = frame
+        self.top_level_frame = self.make_frame(
+            code, f_globals=f_globals, f_locals=f_locals
+        )
         try:
-            val = self.eval_frame(frame)
+            val = self.eval_frame(self.top_level_frame)
         except Exception:
             # Until we get test/vmtest.py under control:
             if self.vmtest_testing:
@@ -584,29 +592,26 @@ class PyVM(object):
         why = None
         self.in_exception_processing = False
         try:
-            if "SLICE+" in bytecode_name:
-                self.slice_operator(bytecode_name)
-            else:
-                # dispatch
-                bytecode_fn = getattr(self.byteop, bytecode_name)
-                if bytecode_fn is None:  # pragma: no cover
-                    raise PyVMError(
-                        "Unknown bytecode type: %s\n\t%s"
-                        % (
-                            self.format_instruction(
-                                self.frame,
-                                self.opc,
-                                bytecode_name,
-                                int_arg,
-                                arguments,
-                                offset,
-                                line_number,
-                                False,
-                            ),
+            # dispatch
+            bytecode_fn = getattr(self.byteop, bytecode_name)
+            if bytecode_fn is None:  # pragma: no cover
+                raise PyVMError(
+                    "Unknown bytecode type: %s\n\t%s"
+                    % (
+                        self.format_instruction(
+                            self.frame,
+                            self.opc,
                             bytecode_name,
-                        )
+                            int_arg,
+                            arguments,
+                            offset,
+                            line_number,
+                            False,
+                        ),
+                        bytecode_name,
                     )
-                why = bytecode_fn(*arguments)
+                )
+            why = bytecode_fn(*arguments)
 
         except Exception as e:
             # Deal with exceptions encountered while executing the op.
@@ -788,4 +793,3 @@ class PyVM(object):
         return self.return_value
 
     ## Operators
-

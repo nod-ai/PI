@@ -16,12 +16,12 @@ from shark.compiler.byte_code_interpreter.vmtrace import (
     PyVMEVENT_RETURN,
     PyVMEVENT_YIELD,
 )
-from shark.dialects import func, scf, affine_
+from shark.dialects import func as func_dialect, scf, affine_
 from shark import ir
 from shark.dialects._ods_common import get_op_result_or_value
 
 log = logging.getLogger(__name__)
-# log.setLevel(logging.DEBUG)
+log.setLevel(logging.DEBUG)
 
 
 def identity(x):
@@ -89,6 +89,9 @@ class ByteOp:
             def unary_operator(impl=impl):
                 # TODO(max): fix - use correct way to bind classmethod
                 x = self.vm.pop()
+                if not isinstance(x, ir.Type):
+                    if isinstance(x, (float, int)):
+                        x = self.vm.get_or_make_mlir_constant(x)
                 self.vm.push(impl(x))
 
             setattr(self, op_name, unary_operator)
@@ -120,6 +123,12 @@ class ByteOp:
             def _operator(impl=impl):
                 # TODO(max): fix - use correct way to bind classmethod
                 x, y = self.vm.popn(2)
+                if not isinstance(x, ir.Type):
+                    if isinstance(x, (float, int)):
+                        x = self.vm.get_or_make_mlir_constant(x)
+                if not isinstance(y, ir.Type):
+                    if isinstance(y, (float, int)):
+                        y = self.vm.get_or_make_mlir_constant(y)
                 # TODO(max): store/load context for subscr?
                 # maybe that's only AST?
                 # TODO(max): technically this isn't the correct semantics for
@@ -136,7 +145,7 @@ class ByteOp:
             operator.le,  # <=
             operator.eq,  # ==
             operator.ne,  # !=
-            operator.gt,  # >
+            self.vm.body_builder.compare_gt,  # >
             operator.ge,  # >=
             lambda x, y: x in y,
             lambda x, y: x not in y,
@@ -173,6 +182,9 @@ class ByteOp:
         self.vm.push(container_fn(elts))
 
     def call_function_with_args_resolved(self, func, pos_args, named_args):
+        assert (
+            not named_args
+        ), f"named_args not supported for {func.func_name} @ {func.func_code.co_firstlineno}"
         frame = self.vm.frame
         if hasattr(func, "im_func"):
             # Methods get self as an implicit first parameter.
@@ -286,7 +298,23 @@ class ByteOp:
         if inspect.isfunction(func):
             log.debug("calling native function %s" % func.__name__)
 
-        retval = func(*pos_args, **named_args)
+        if func in self.vm.fn2native_mlir:
+            func_op = self.vm.fn2native_mlir[func]
+            func_op_entry_block = func_op.add_entry_block()
+            with self.vm.mlir_block_scope(func_op_entry_block):
+                retval = func(*list(func_op.arguments), **named_args)
+                mlir_return_val = get_op_result_or_value(retval)
+                func_type = func_op.type
+                canonical_func_type = ir.FunctionType.get(
+                    inputs=func_type.inputs, results=[mlir_return_val.type]
+                )
+                func_op.attributes["function_type"] = ir.TypeAttr.get(
+                    canonical_func_type
+                )
+                func_dialect.ReturnOp((mlir_return_val,))
+        else:
+            retval = func(*pos_args, **named_args)
+
         self.vm.push(retval)
 
     def call_function(self, argc: int, var_args, keyword_args=None) -> Any:
@@ -304,7 +332,7 @@ class ByteOp:
         func = self.vm.pop()
         return self.call_function_with_args_resolved(func, pos_args, named_args)
 
-    def convert_native_to_Function(self, frame, func: Callable) -> Callable:
+    def convert_native_to_function(self, frame, func: Callable) -> Callable:
         assert inspect.isfunction(func) or isinstance(func, Function)
         slots = {"kwdefaults": {}, "annotations": {}}
         if self.vm.version >= (3, 0):
@@ -618,6 +646,7 @@ class ByteOp:
         off the stack, calls the callable object with those arguments,
         and pushes the return value returned by the callable object.
         """
+        # TODO(max): load vars/inputs args here
         try:
             return self.call_function(argc, var_args=[], keyword_args={})
         except TypeError as exc:
@@ -741,6 +770,12 @@ class ByteOp:
     def COMPARE_OP(self, opname):
         """Performs a Boolean operation. The operation name can be found in cmp_op[opname]."""
         x, y = self.vm.popn(2)
+        if not isinstance(x, ir.Type):
+            if isinstance(x, (float, int)):
+                x = self.vm.get_or_make_mlir_constant(x)
+        if not isinstance(y, ir.Type):
+            if isinstance(y, (float, int)):
+                y = self.vm.get_or_make_mlir_constant(y)
         self.vm.push(self.compare_operators[opname](x, y))
 
     def CONTAINS_OP(self, invert: int):
@@ -965,7 +1000,7 @@ class ByteOp:
         start, stop, step = range_iter.start, range_iter.stop, range_iter.step
         if self.vm.scf_fors:
             start, stop, step = [
-                self.vm._get_or_make_mlir_constant(c, index_type=self.vm.scf_fors)
+                self.vm.get_or_make_mlir_constant(c, index_type=self.vm.scf_fors)
                 for c in [start, stop, step]
             ]
             loop = scf.ForOp(start, stop, step, [], loc=self.vm.mlir_location)
@@ -1191,10 +1226,6 @@ class ByteOp:
 
     def LOAD_CONST(self, const):
         """Pushes co_consts[consti] onto the stack."""
-        if isinstance(const, int):
-            log.debug(f"load int const {const}")
-        elif isinstance(const, tuple):
-            log.debug(f"load tuple const {const}")
         self.vm.push(const)
 
     def LOAD_DEREF(self, name):
@@ -1313,6 +1344,8 @@ class ByteOp:
 
         Changed from version 3.6: Flag value 0x04 is a tuple of strings instead of dictionary
         """
+        # TODO(max): create vars
+
         qualname = self.vm.pop()
         name = qualname.split(".")[-1]
         code = self.vm.pop()
@@ -1331,10 +1364,7 @@ class ByteOp:
             if have_param[i]:
                 slot[MAKE_FUNCTION_SLOT_NAMES[i]] = self.vm.pop()
 
-        # FIXME: DRY with code in byteop3{2,4,6}.py
-
         globs = self.vm.frame.f_globals
-
         if not inspect.iscode(code) and hasattr(code, "to_native"):
             code = code.to_native()
 
@@ -1343,6 +1373,8 @@ class ByteOp:
         annotations_tup = slot["annotations"]
         for i in range(0, len(annotations_tup), 2):
             annotations[annotations_tup[i]] = annotations_tup[i + 1]
+
+        assert len(annotations) == code.co_argcount, f"missing annotations for {name}"
 
         fn_vm = Function(
             name=name,
@@ -1361,15 +1393,24 @@ class ByteOp:
 
         if fn_vm._func:
             self.vm.fn2native[fn_vm] = fn_vm._func
+        else:
+            raise Exception("no fn_vm._func")
 
-        func_op = func.FuncOp(
+        func_op = func_dialect.FuncOp(
             name=name,
-            type=((self.vm.f64_type,) * 3, (self.vm.f64_memref_type,)),
-            visibility="public",
+            type=(
+                tuple(
+                    [
+                        self.vm.body_builder.type_mapping[t.__name__]
+                        for _a, t in annotations.items()
+                    ]
+                ),
+                (),
+            ),
+            visibility="private",
             loc=self.vm.mlir_location,
         )
-        func_op_entry_block = func_op.add_entry_block()
-        self.vm.enter_mlir_block_scope(func_op_entry_block, scope_name=name)
+        self.vm.fn2native_mlir[fn_vm] = func_op
         self.vm.push(fn_vm)
 
     def MAP_ADD(self, count):
@@ -1450,12 +1491,14 @@ class ByteOp:
 
     def POP_JUMP_IF_FALSE(self, target):
         """If TOS is false, sets the bytecode counter to target. TOS is popped."""
+        # TODO(max): hack this so it falls through toe the next
         val = self.vm.pop()
         if not val:
             self.vm.jump(target)
 
     def POP_JUMP_IF_TRUE(self, target):
         """If TOS is true, sets the bytecode counter to target. TOS is popped."""
+        # TODO(max): hack this so it falls through toe the next
         val = self.vm.pop()
         if val:
             self.vm.jump(target)
@@ -1488,25 +1531,6 @@ class ByteOp:
         self.vm.return_value = self.vm.pop()
         if self.vm.frame.generator:
             self.vm.frame.generator.finished = True
-
-        if self.vm.return_value is None:
-            assert len(self.vm.frames) == 1
-            assert self.vm.top_level_frame == self.vm.frame
-            scope_name = "module"
-        else:
-            mlir_return_val = get_op_result_or_value(self.vm.return_value)
-            mlir_stack_frame = self.vm.mlir_peek_block_scope()
-            assert isinstance(mlir_stack_frame.block.owner, func.FuncOp)
-            func_op = mlir_stack_frame.block.owner
-            func_type = func_op.type
-            canonical_func_type = ir.FunctionType.get(
-                inputs=func_type.inputs, results=[mlir_return_val.type]
-            )
-            func_op.attributes["function_type"] = ir.TypeAttr.get(canonical_func_type)
-            func.ReturnOp((mlir_return_val,))
-            scope_name = func_op.sym_name.value
-
-        self.vm.exit_mlir_block_scope(scope_name=scope_name)
 
         return "return"
 
@@ -1579,7 +1603,7 @@ class ByteOp:
             func = method
 
         if inspect.isfunction(func):
-            func = self.convert_native_to_Function(self.vm.frame, func)
+            func = self.convert_native_to_function(self.vm.frame, func)
             method = types.MethodType(func, method.__self__)
         return method
 
@@ -1659,6 +1683,11 @@ class ByteOp:
     def STORE_SUBSCR(self):
         """Implements TOS1[TOS] = TOS2."""
         val, obj, subscr = self.vm.popn(3)
+        if not all(isinstance(s, ir.Type) for s in subscr):
+            subscr = list(subscr)
+            for i, s in enumerate(subscr):
+                assert isinstance(s, int)
+                subscr[i] = self.vm.get_or_make_mlir_constant(s, index_type=True)
         self.vm.body_builder.memref_store(obj, val, subscr)
         # TODO(max): this is an opportunity to wrap and keep these refs
         # obj[subscr] = val

@@ -312,6 +312,15 @@ class BodyBuilder:
             return complex.MulOp(lhs, rhs, loc=self.location).result
         raise NotImplementedError("Unsupported 'mul' operands: {lhs}, {rhs}")
 
+    def compare_gt(self, lhs: MLIRValue, rhs: MLIRValue) -> MLIRValue:
+        if _is_floating_point_type(lhs.type):
+            return arith.CmpFOp("ogt", lhs, self.cast("float", rhs), loc=self.location).result
+        if _is_integer_type(lhs.type) :
+            return arith.CmpIOp("sgt", lhs, rhs, loc=self.location).result
+        if _is_index_type(lhs.type):
+            return arith.CmpIOp("ugt", lhs, rhs, loc=self.location).result
+        raise NotImplementedError("Unsupported 'mul' operands: {lhs}, {rhs}")
+
     def binary_max_signed(self, lhs: MLIRValue, rhs: MLIRValue) -> MLIRValue:
         if _is_floating_point_type(lhs.type):
             return arith.MaxFOp(lhs, rhs, loc=self.location).result
