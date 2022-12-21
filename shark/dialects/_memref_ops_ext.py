@@ -1,20 +1,18 @@
 #  Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 #  See https://llvm.org/LICENSE.txt for license information.
 #  SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+from .value_ import _Value
 
 try:
     from ..ir import *
-    from ._ods_common import (
-        get_op_result_or_value as _get_op_result_or_value,
-        get_op_results_or_values as _get_op_results_or_values,
-    )
+    from ._ods_common import get_op_result_or_value, get_op_results_or_values
 except ImportError as e:
     raise RuntimeError("Error loading imports from extension module") from e
 
-from typing import Optional, Sequence, Union
+from typing import Optional, Sequence, Union, Tuple, List
 
 
-class LoadOp:
+class LoadOp(_Value):
     """Specialization for the MemRef load operation."""
 
     def __init__(
@@ -23,7 +21,7 @@ class LoadOp:
         indices: Optional[Union[Operation, OpView, Sequence[Value]]] = None,
         *,
         loc=None,
-        ip=None
+        ip=None,
     ):
         """Creates a memref load operation.
 
@@ -34,8 +32,8 @@ class LoadOp:
           loc: user-visible location of the operation.
           ip: insertion point.
         """
-        memref_resolved = _get_op_result_or_value(memref)
-        indices_resolved = [] if indices is None else _get_op_results_or_values(indices)
+        memref_resolved = get_op_result_or_value(memref)
+        indices_resolved = [] if indices is None else get_op_results_or_values(indices)
         return_type = MemRefType(memref_resolved.type).element_type
         super().__init__(return_type, memref, indices_resolved, loc=loc, ip=ip)
 
@@ -50,7 +48,7 @@ class StoreOp:
         indices: Optional[Union[Operation, OpView, Sequence[Value]]] = None,
         *,
         loc=None,
-        ip=None
+        ip=None,
     ):
         """Creates a memref load operation.
 
@@ -65,9 +63,9 @@ class StoreOp:
 
         # memref.StoreOp(store_value, dst_memref, indices).memref
 
-        memref_resolved = _get_op_result_or_value(memref)
-        value_resolved = _get_op_result_or_value(value)
-        indices_resolved = [] if indices is None else _get_op_results_or_values(indices)
+        memref_resolved = get_op_result_or_value(memref)
+        value_resolved = get_op_result_or_value(value)
+        indices_resolved = [] if indices is None else get_op_results_or_values(indices)
         super().__init__(
             value_resolved, memref_resolved, indices_resolved, loc=loc, ip=ip
         )
@@ -78,11 +76,11 @@ class AllocaOp:
 
     def __init__(
         self,
-        dim_sizes: Union[list[int], tuple[int]],
+        dim_sizes: Union[List[int], Tuple[int]],
         el_type: Type = None,
         *,
         loc=None,
-        ip=None
+        ip=None,
     ):
         """Creates a memref alloca operation.
 
@@ -104,3 +102,15 @@ class AllocaOp:
 
         res_type = MemRefType.get(dim_sizes, el_type)
         super().__init__(res_type, [], [], loc=loc, ip=ip)
+
+    def __getitem__(self, item):
+        from .memref import LoadOp
+
+        load_op = LoadOp(self, item)
+        return load_op
+
+    def __setitem__(self, indices, value):
+        from .memref import StoreOp
+
+        store_op = StoreOp(self, value, indices)
+        return store_op

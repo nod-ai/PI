@@ -19,7 +19,8 @@ from shark.compiler.providers.type import (
     MyTypeInferenceProvider,
     MLIRTypeProvider,
 )
-from shark.compiler.pytype_vm.bytecode_compiler import ByteCodeCompiler
+from shark.compiler.tracing.trace import trace
+
 from shark.ir import (
     Context,
     Module,
@@ -75,15 +76,6 @@ def callback(
 
 
 # TODO(max): this should not be exposed and basically hidden behind "abstract" compile
-def mlir_bytecode_pytype_compile(fn):
-    fp = inspect.getfile(fn)
-    b = ByteCodeCompiler()
-    with open(fp) as f:
-        b.vm.run_program(f.read(), "", maximum_depth=10)
-
-    print(b.mlir_module)
-    # actual = [(op.name, op.line, symbol) for op, symbol, _ in b.ctx.vm.opcode_traces]
-    # pprint(actual)
 
 
 def mlir_bytecode_xpython_compile(fn):
@@ -95,6 +87,21 @@ def mlir_bytecode_xpython_compile(fn):
     mlir_module = run_python_file(
         inspect.getfile(fn),
         [],
+        top_mlir_context,
+        mlir_location,
+        mlir_module,
+    )
+    return mlir_module
+
+
+def mlir_trace(script_path):
+    top_mlir_context = ir.Context()
+    mlir_location = ir.Location.unknown(context=top_mlir_context)
+    with top_mlir_context, mlir_location:
+        mlir_module = ir.Module.create(loc=mlir_location)
+
+    mlir_module = trace(
+        script_path,
         top_mlir_context,
         mlir_location,
         mlir_module,

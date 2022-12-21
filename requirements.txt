@@ -10,3 +10,9 @@ intervaltree
 sortedcontainers
 pytype
 xdis
+pyccolo
+uncompyle6
+bytecode
+cyberbrain
+crosshair-tool
+attrs

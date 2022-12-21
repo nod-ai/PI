@@ -1,5 +1,6 @@
-from shark.compiler.compiler import mlir_compile, mlir_bytecode_xpython_compile, mlir_bytecode_pytype_compile
-from test_numpy import test_mat_mul
+from shark.compiler.compiler import mlir_trace
+# TODO(max): need to figure out how to reload the module so that the bytecode gets run through pycc
+# import matmul
 
-mlir_module = mlir_bytecode_pytype_compile(test_mat_mul)
+mlir_module = mlir_trace("matmul.py")
 print(mlir_module)
