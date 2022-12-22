@@ -10,8 +10,8 @@ import traceback
 import types
 from contextlib import contextmanager
 from pathlib import Path
-from pyccolo import TraceEvent, AstRewriter
-from pyccolo.emit_event import _TRACER_STACK
+from pyccolo import TraceEvent, AstRewriter, Skip, fast
+from pyccolo.emit_event import _TRACER_STACK, SkipAll
 from pytype.pyc.opcodes import dis
 from runpy import run_module
 from typing import Optional, Union, Tuple, List
@@ -71,13 +71,46 @@ def infer_mlir_type(py_val) -> MLIRType:
 def make_constant(
     py_cst: Union[int, float, bool],
     index_type: bool = False,
+    ip: ir.InsertionPoint = None,
 ):
     if index_type:
-        constant = arith.ConstantOp.create_index(py_cst)
+        constant = arith.ConstantOp.create_index(py_cst, ip=ip)
     else:
-        constant = arith.ConstantOp(infer_mlir_type(py_cst), py_cst)
+        constant = arith.ConstantOp(infer_mlir_type(py_cst), py_cst, ip=ip)
 
     return constant
+
+
+class BreakFor(ast.NodeTransformer):
+    def visit_For(self, node: ast.For) -> ast.For:
+        for n in node.body:
+            self.visit(n)
+        if not isinstance(node.body[-1], ast.Break):
+            break_ = ast.Break(lineno=1, col_offset=1)
+            node.body.append(break_)
+        return node
+
+
+class BreakIf(ast.NodeTransformer):
+    def visit_If(self, node: ast.If):
+        # self.generic_visit(node)
+
+        if not node.orelse:
+            return node
+
+        tests = []
+        this_if = node
+        while isinstance(this_if.orelse[0], ast.If):
+            tests.append(this_if.test)
+            this_if = this_if.orelse[0]
+        tests.append(this_if.test)
+        test_all = (
+            ast.parse(f'not ({" and ".join([ast.unparse(t) for t in tests])})')
+            .body[0]
+            .value
+        )
+        this_if.orelse = [ast.If(test=test_all, body=this_if.orelse, orelse=[])]
+        return node
 
 
 class MLIRRewriter(AstRewriter):
@@ -86,12 +119,13 @@ class MLIRRewriter(AstRewriter):
         super(MLIRRewriter, self).__init__(tracers, **kwargs)
 
     def visit(self, node: ast.AST):
-        mod_node = super(MLIRRewriter, self).visit(node)
-        for node in ast.walk(mod_node):
-            if isinstance(node, ast.For):
-                if not isinstance(node.body[-1], ast.Break):
-                    break_ = ast.Break(lineno=1, col_offset=1)
-                    node.body.append(break_)
+        mod_node = BreakFor().visit(node)
+        # mod_node = BreakIf().visit(mod_node)
+        with open("debug_mod_node_before_rewrite.py", "w") as f:
+            f.write(ast.unparse(mod_node))
+        mod_node = super(MLIRRewriter, self).visit(mod_node)
+        with open("debug_mod_node_after_rewrite.py", "w") as f:
+            f.write(ast.unparse(mod_node))
         return mod_node
 
 
@@ -123,6 +157,7 @@ class MLIRTracer(pyc.BaseTracer):
             "float_memref": ir.MemRefType.get((-1,), f64_type, loc=self.mlir_location),
             "int": ir.IntegerType.get_signed(64, context=self.mlir_context),
             "uint": ir.IntegerType.get_unsigned(64, context=self.mlir_context),
+            "bool": ir.IntegerType.get_signless(1, context=self.mlir_context),
         }
         self.pyfunc_to_mlir_func_op = {}
 
@@ -133,6 +168,9 @@ class MLIRTracer(pyc.BaseTracer):
             mlir_context=self.mlir_context or self.mlir_context,
             scope_name="module",
         )
+        self.if_bodies_executed = set()
+        # dirty dirty hack
+        self.compares_executed = {}
 
     def enter_mlir_block_scope(
         self,
@@ -220,7 +258,12 @@ class MLIRTracer(pyc.BaseTracer):
         if name is None:
             name = str(py_cst)
         if (name, index_type) not in self.local_defs:
-            self.local_defs[name, index_type] = make_constant(py_cst, index_type)
+            self.local_defs[name, index_type] = make_constant(
+                py_cst,
+                index_type,
+                # TODO(max): check some stuff here (i.e. whether you're inside a func)
+                ip=ir.InsertionPoint.at_block_begin(self.func_op_entry_block),
+            )
         return self.local_defs[name, index_type]
 
     def should_propagate_handler_exception(
@@ -266,14 +309,17 @@ class MLIRTracer(pyc.BaseTracer):
             loc=self.mlir_location,
         )
         self.pyfunc_to_mlir_func_op[frame.f_code.co_name] = func_op
-        func_op_entry_block = func_op.add_entry_block()
+        # TODO(max): don't do this hacky stuff
+        self.func_op_entry_block = func_op.add_entry_block()
 
         update_frame_locals(
             frame, {full_arg_spec.args[i]: a for i, a in enumerate(func_op.arguments)}
         )
 
         self.enter_mlir_block_scope(
-            func_op_entry_block, scope_name=frame.f_code.co_name
+            # TODO(max): don't do this hacky stuff
+            self.func_op_entry_block,
+            scope_name=frame.f_code.co_name,
         )
 
     @pyc.after_return
@@ -317,7 +363,7 @@ class MLIRTracer(pyc.BaseTracer):
     def make_ast_rewriter(self, **kwargs) -> AstRewriter:
         return self.ast_rewriter_cls(_TRACER_STACK, **kwargs)
 
-    @pyc.before_for_loop_body(reentrant=False)
+    @pyc.before_for_loop_body(reentrant=True)
     def handle_before_for_loop_body(
         self,
         old_ret,
@@ -354,7 +400,7 @@ class MLIRTracer(pyc.BaseTracer):
         self.enter_mlir_block_scope(loop.body)
 
     #
-    @pyc.after_for_loop_iter
+    @pyc.after_for_loop_iter(reentrant=True)
     def handle_after_for_loop_iter(
         self,
         old_ret,
@@ -373,8 +419,8 @@ class MLIRTracer(pyc.BaseTracer):
 
         self.exit_mlir_block_scope()
 
-    @pyc.before_compare
-    @pyc.before_binop
+    @pyc.before_compare(reentrant=True)
+    @pyc.before_binop(reentrant=True)
     def handle_before_binop(
         self,
         old_ret,
@@ -385,25 +431,28 @@ class MLIRTracer(pyc.BaseTracer):
         **kwargs,
     ):
         def eval_op(x, y):
-            x, y = map(
-                lambda v: self.get_or_make_mlir_constant(v)
-                if isinstance(v, (float, int, bool))
-                else v,
-                (x, y),
-            )
-            if isinstance(node, ast.Compare):
-                op = node.ops[0].__class__.__name__.lower()
-            else:
-                # ...god damn it
-                op = node.op.__class__.__name__.lower().replace("mult", "mul")
-            return getattr(value_, op)(x, y)
+            hash = id(x), id(y)
+            if hash not in self.compares_executed:
+                x, y = map(
+                    lambda v: self.get_or_make_mlir_constant(v)
+                    if isinstance(v, (float, int, bool))
+                    else v,
+                    (x, y),
+                )
+                if isinstance(node, ast.Compare):
+                    op = node.ops[0].__class__.__name__.lower()
+                else:
+                    # ...god damn it
+                    op = node.op.__class__.__name__.lower().replace("mult", "mul")
+                self.compares_executed[hash] = getattr(value_, op)(x, y)
+            return self.compares_executed[hash]
 
         return eval_op
 
     # @pyc.before_subscript_slice
     # @pyc.before_subscript_del
-    @pyc.before_subscript_load
-    @pyc.before_subscript_store
+    @pyc.before_subscript_load(reentrant=True)
+    @pyc.before_subscript_store(reentrant=True)
     def handle_subscr(
         self,
         old_ret,
@@ -442,6 +491,51 @@ class MLIRTracer(pyc.BaseTracer):
                 target[indices] = value
 
         return _dummy()
+
+    @pyc.after_if_test(reentrant=True)
+    def handle_if(self, cond, node: ast.If, frame, event, guard_for_spec, **kwargs):
+        # TODO(max): handle affine if
+        has_orelse = len(node.orelse)
+        body_copy = fast.copy_ast(ast.Module(body=node.body, type_ignores=[]))
+        body_copy_str = ast.unparse(body_copy)
+        if has_orelse:
+            orelse_body_copy = fast.copy_ast(
+                ast.Module(body=node.orelse, type_ignores=[])
+            )
+            orelse_body_copy_str = ast.unparse(orelse_body_copy)
+
+        # dirty dirty hack but oh well
+        if body_copy_str not in self.if_bodies_executed:
+            self.if_bodies_executed.add(body_copy_str)
+            if_ = scf.IfOp(
+                cond.result, [], hasElse=len(node.orelse), loc=self.mlir_location
+            )
+            with self.mlir_block_scope(if_.then_block):
+                pyc.exec(body_copy, frame.f_globals, frame.f_locals)
+                yielded_vals = []
+                scf.YieldOp(yielded_vals, loc=self.mlir_location)
+
+            if has_orelse and orelse_body_copy_str not in self.if_bodies_executed:
+                self.if_bodies_executed.add(orelse_body_copy_str)
+                with self.mlir_block_scope(if_.else_block):
+                    pyc.exec(orelse_body_copy, frame.f_globals, frame.f_locals)
+                    yielded_vals = []
+                    scf.YieldOp(yielded_vals, loc=self.mlir_location)
+
+        # need this so the bodies don't actually executed
+        # return lambda: False
+        return False
+
+    # @pyc.before_if_body(reentrant=False)
+    def handle_before_if_body(self, ret, node: ast.If, frame, *_, **__):
+        print()
+
+    # @pyc.after_if_iter(reentrant=False)
+    def handle_if_iter(self, ret, node: ast.If, frame, *_, **__):
+        print()
+        # yielded_vals = []
+        # scf.YieldOp(yielded_vals, loc=self.mlir_location)
+        # self.exit_mlir_block_scope()
 
 
 def get_script_as_module(script: str) -> str:
