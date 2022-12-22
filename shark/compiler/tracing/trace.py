@@ -86,8 +86,23 @@ class BreakFor(ast.NodeTransformer):
         for n in node.body:
             self.visit(n)
         if not isinstance(node.body[-1], ast.Break):
-            break_ = ast.Break(lineno=1, col_offset=1)
+            break_ = ast.Break(lineno=node.body[-1].lineno + 1, col_offset=node.body[-1].col_offset)
             node.body.append(break_)
+        return node
+
+
+class ExplicitReturn(ast.NodeTransformer):
+    def visit_Return(self, node: ast.Return) -> ast.Return:
+        if node.value is None:
+            node.value = ast.Constant(value=None, lineno=node.lineno, col_offset=node.col_offset+len("return "))
+        return node
+
+    def visit_FunctionDef(self, node: ast.FunctionDef) -> ast.FunctionDef:
+        for n in node.body:
+            self.visit(n)
+        if not isinstance(node.body[-1], ast.Return):
+            return_ = ast.Return(value=ast.Constant(value=None))
+            node.body.append(return_)
         return node
 
 
@@ -120,6 +135,7 @@ class MLIRRewriter(AstRewriter):
 
     def visit(self, node: ast.AST):
         mod_node = BreakFor().visit(node)
+        mod_node = ExplicitReturn().visit(mod_node)
         # mod_node = BreakIf().visit(mod_node)
         with open("debug_mod_node_before_rewrite.py", "w") as f:
             f.write(ast.unparse(mod_node))
@@ -335,13 +351,16 @@ class MLIRTracer(pyc.BaseTracer):
         assert frame.f_code.co_name in self.pyfunc_to_mlir_func_op
 
         func_op = self.pyfunc_to_mlir_func_op[frame.f_code.co_name]
-        mlir_return_val = get_op_result_or_value(old_ret)
         func_type = func_op.type
-        canonical_func_type = ir.FunctionType.get(
-            inputs=func_type.inputs, results=[mlir_return_val.type]
-        )
-        func_op.attributes["function_type"] = ir.TypeAttr.get(canonical_func_type)
-        func_dialect.ReturnOp((mlir_return_val,))
+        if old_ret is not None:
+            mlir_return_val = get_op_result_or_value(old_ret)
+            canonical_func_type = ir.FunctionType.get(
+                inputs=func_type.inputs, results=[mlir_return_val.type]
+            )
+            func_op.attributes["function_type"] = ir.TypeAttr.get(canonical_func_type)
+            func_dialect.ReturnOp((mlir_return_val,))
+        else:
+            func_dialect.ReturnOp(())
         self.exit_mlir_block_scope(scope_name=frame.f_code.co_name)
 
         return old_ret

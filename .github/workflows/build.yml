@@ -1,15 +1,15 @@
 name: Build
 
-#on:
-#  pull_request:
-#    branches:
-#      - main
-#  push:
-#    branches:
-#      - main
-#  workflow_dispatch:
-#    branches:
-#      - main
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    branches:
+      - main
 
 jobs:
 

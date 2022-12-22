@@ -1,4 +1,4 @@
-from shark.dialects import memref
+from shark.dialects import memref, linalg
 
 
 def test_mat_mul(a: float, b: float, c: float):
@@ -11,7 +11,6 @@ def test_mat_mul(a: float, b: float, c: float):
             for k in range(20):
                 C[i, k] += A[i, j] * B[j, k] * a
                 c = C[i, k]
-                print(C)
     # print("inside test_mat_mul", i)
     return C
 
@@ -39,5 +38,19 @@ def test_if(a: float, b: float, c: float):
     return A
 
 
+def test_linalg():
+    A = memref.AllocaOp((10, 30))
+    B = memref.AllocaOp((30, 20))
+    C = memref.AllocaOp((10, 20))
+    linalg.matmul(A, B, outs=C)
+    K = memref.AllocaOp((3, 3))
+    output = memref.AllocaOp((7, 17))
+    for i in range(10):
+        linalg.conv_2d(C, K, outs=output)
+
+    return output
+
+
 test_mat_mul(1, 2, 3)
 test_if(10, 2, 3)
+test_linalg()
