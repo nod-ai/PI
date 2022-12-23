@@ -15,11 +15,14 @@ from pyccolo.emit_event import _TRACER_STACK
 from runpy import run_module
 from typing import Optional, Union, Tuple, List
 
-from shark import ir
-from shark.dialects import func as func_dialect, scf, affine_, arith
-from shark.dialects import value_
-from shark.dialects._ods_common import get_op_result_or_value
-from shark.ir import Type as MLIRType, IntegerType, F64Type
+from torch_mlir import ir
+from torch_mlir.dialects import (func as func_dialect, scf,
+                                 # affine_,
+                                torch as torch_dialect,
+                                 arith)
+# from torch_mlir.dialects import value_
+from torch_mlir.dialects._ods_common import get_op_result_or_value
+from torch_mlir.ir import Type as MLIRType, IntegerType, F64Type
 
 
 # from uncompyle6 import main
@@ -161,7 +164,7 @@ class MLIRTracer(pyc.BaseTracer):
         f64_type = ir.F64Type.get(context=self.mlir_context)
         self.type_mapping = {
             "float": f64_type,
-            "float_memref": ir.MemRefType.get((-1,), f64_type, loc=self.mlir_location),
+            # "float_memref": ir.MemRefType.get((-1,), f64_type, loc=self.mlir_location),
             "int": ir.IntegerType.get_signed(64, context=self.mlir_context),
             "i32": ir.IntegerType.get_signless(32, context=self.mlir_context),
             "uint": ir.IntegerType.get_unsigned(64, context=self.mlir_context),
