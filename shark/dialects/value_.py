@@ -1,3 +1,5 @@
+from typing import Any, List
+
 from . import arith, math
 from ._ods_common import get_op_result_or_value
 from .linalg.opdsl.lang.emitter import (
@@ -7,7 +9,37 @@ from .linalg.opdsl.lang.emitter import (
     _get_floating_point_width,
     _is_complex_type,
 )
-from ..ir import Type as MLIRType, Value as MLIRValue, IntegerType, OpView, F64Type
+from ..ir import (
+    Type as MLIRType,
+    Value as MLIRValue,
+    IntegerType,
+    OpView,
+    F64Type,
+    IndexType,
+    BF16Type,
+    F16Type,
+    F32Type,
+)
+
+
+def _isa(obj: Any, cls: type):
+    try:
+        cls(obj)
+    except ValueError:
+        return False
+    return True
+
+
+def _is_any_of(obj: Any, classes: List[type]):
+    return any(_isa(obj, cls) for cls in classes)
+
+
+def _is_integer_like_type(type: MLIRType):
+    return _is_any_of(type, [IntegerType, IndexType])
+
+
+def _is_float_type(type: MLIRType):
+    return _is_any_of(type, [BF16Type, F16Type, F32Type, F64Type])
 
 
 def cast_to_integer(
@@ -39,6 +71,8 @@ def cast_to_floating_point(
     to_type: MLIRType, operand: OpView, is_unsigned_cast: bool
 ) -> OpView:
     operand: MLIRValue = get_op_result_or_value(operand)
+    if _is_index_type(operand.type):
+        operand = arith.IndexCastOp(IntegerType.get_signless(64), operand).out
     operand_type: MLIRType = operand.type
     if _is_integer_type(operand_type):
         if is_unsigned_cast:
@@ -54,6 +88,15 @@ def cast_to_floating_point(
     raise ValueError(
         f"Unable to cast body expression from {operand_type} to " f"{to_type}"
     )
+
+
+def type_promotion(x, y):
+    if not _is_floating_point_type(x.type):
+        x = cast_to_floating_point(F64Type.get(), x, is_unsigned_cast=True)
+    if not _is_floating_point_type(y.type):
+        y = cast_to_floating_point(F64Type.get(), y, is_unsigned_cast=True)
+
+    return x, y
 
 
 # def type_cast_signed(self, type_var_name: str, operand: OpView)-> OpView:
@@ -143,6 +186,8 @@ def mul(lhs, rhs) -> OpView:
     rhs = get_op_result_or_value(rhs)
 
     if _is_floating_point_type(lhs.type):
+        if _is_integer_like_type(rhs.type):
+            rhs = cast_to_floating_point(lhs.type, rhs, is_unsigned_cast=True)
         return arith.MulFOp(lhs, rhs)
     if _is_integer_type(lhs.type) or _is_index_type(lhs.type):
         return arith.MulIOp(lhs, rhs)

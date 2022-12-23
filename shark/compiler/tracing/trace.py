@@ -172,6 +172,7 @@ class MLIRTracer(pyc.BaseTracer):
             "float": f64_type,
             "float_memref": ir.MemRefType.get((-1,), f64_type, loc=self.mlir_location),
             "int": ir.IntegerType.get_signed(64, context=self.mlir_context),
+            "i32": ir.IntegerType.get_signless(32, context=self.mlir_context),
             "uint": ir.IntegerType.get_unsigned(64, context=self.mlir_context),
             "bool": ir.IntegerType.get_signless(1, context=self.mlir_context),
         }
@@ -312,9 +313,15 @@ class MLIRTracer(pyc.BaseTracer):
         full_arg_spec = inspect.getfullargspec(
             frame.f_back.f_locals[frame.f_code.co_name]
         )
-        arg_types = tuple(
-            self.type_mapping[ast.unparse(a.annotation)] for a in node.args.args
-        )
+        arg_types = []
+        for a in node.args.args:
+            if isinstance(a.annotation, ast.Name):
+                arg_types.append(self.type_mapping[a.annotation.id])
+            elif isinstance(a.annotation, ast.Constant):
+                arg_types.append(self.type_mapping[a.annotation.value])
+            else:
+                raise Exception(f"unknown annotation type {a.annotation}")
+        arg_types = tuple(arg_types)
         func_op = func_dialect.FuncOp(
             name=frame.f_code.co_name,
             type=(
