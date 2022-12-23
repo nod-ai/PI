@@ -1,15 +1,15 @@
 name: Build
 
-#on:
-#  pull_request:
-#    branches:
-#      - main
-#  push:
-#    branches:
-#      - main
-#  workflow_dispatch:
-#    branches:
-#      - main
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    branches:
+      - main
 
 jobs:
 
@@ -20,7 +20,9 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        arch: [x86_64, arm64]
+        arch: [x86_64,
+#               arm64
+        ]
         python_version: [
           "3.9",
           "3.10",

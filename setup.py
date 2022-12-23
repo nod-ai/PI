@@ -59,9 +59,9 @@ def get_llvm_package():
 
     TBLGEN_ARCH = os.environ.get("TBLGEN_ARCH", platform.machine())
     tblgen_name = f"mlir-tblgen-15.0.4-{TBLGEN_ARCH}-{system_suffix}-release.exe"
-    if not (here / "llvm_install" / "bin" / tblgen_name).exists():
+    if not (here / "llvm_install" / "bin" / "mlir-tblgen").exists():
         url = f"https://github.com/makslevental/llvm-releases/releases/latest/download/{tblgen_name}"
-        print(f"downloading and extracting {url} ...")
+        print(f"downloading {url} ...")
         ftpstream = urllib.request.urlopen(url)
         os.remove(here / "llvm_install" / "bin" / "mlir-tblgen")
         with open(here / "llvm_install" / "bin" / "mlir-tblgen", "wb") as f:

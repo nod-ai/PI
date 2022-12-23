@@ -1,10 +1,7 @@
-import test_numpy
-from shark.compiler.compiler import mlir_compile
+from shark.compiler.compiler import mlir_trace
 from shark.compiler.utils import run_pipeline_with_repro_report
 
-mlir_module = mlir_compile(test_numpy, use_affine_fors=True)
-
-print(mlir_module)
+mlir_module = mlir_trace("simple_kernels.py")
 
 tile_size = 2
 
