@@ -1,12 +1,6 @@
 from torch_mlir.dialects import memref, linalg, torch, arith, tensor
 from torch_mlir.ir import (
-    FloatAttr,
-    F64Type,
-    RankedTensorType,
-    DictAttr,
-    DenseIntElementsAttr,
     Attribute,
-    ShapedType,
     DenseFPElementsAttr,
 )
 
@@ -59,8 +53,7 @@ linalg_ops(0, 1, 42)
 
 
 def torch_ops():
-    f64 = F64Type.get()
-    z = torch.ConstantFloatOp(value=FloatAttr.get(f64, 256.0))
+    z = torch.ConstantFloatOp(value=256.0)
     attr = DenseFPElementsAttr(Attribute.parse("dense<0.0> : tensor<3x5xf32>"))
     a = torch.ValueTensorLiteralOp(attr)
     b = torch.ValueTensorLiteralOp(attr)

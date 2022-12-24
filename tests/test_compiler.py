@@ -4,3 +4,6 @@ from shark.compiler.compiler import mlir_trace
 
 mlir_module = mlir_trace("simple_kernels.py")
 print(mlir_module)
+
+mlir_module = mlir_trace("nn_module.py")
+print(mlir_module)

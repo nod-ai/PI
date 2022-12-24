@@ -1,13 +1,7 @@
 from torch_mlir import ir
 
 # noinspection PyUnresolvedReferences
-from torch_mlir.dialects import (
-    arith,
-    linalg,
-    math,
-    memref,
-    torch as torch_dialect
-)
+from torch_mlir.dialects import arith, linalg, math, memref, torch as torch_dialect
 
 # noinspection PyUnresolvedReferences
 from shark.dialects import affine_

@@ -16,6 +16,7 @@ from runpy import run_module
 from typing import Optional, Union, Tuple, List
 
 from torch_mlir import ir
+
 # this needs to be all of the dialects that will be used in the user scripts
 # (in order to register ops)
 # noinspection PyUnresolvedReferences
@@ -290,7 +291,7 @@ class MLIRTracer(pyc.BaseTracer):
         return True
 
     def should_instrument_file(self, filename: str) -> bool:
-        return True
+        return "SharkPy/shark" not in filename
 
     # handlers
 

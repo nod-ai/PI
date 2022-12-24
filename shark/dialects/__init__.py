@@ -19,6 +19,9 @@ OVERLOADS = {
     "torch_mlir.dialects._memref_ops_ext": str(
         Path(__file__).parent / "_memref_ops_ext.py"
     ),
+    "torch_mlir.dialects._torch_ops_ext": str(
+        Path(__file__).parent / "_torch_ops_ext.py"
+    ),
 }
 
 
@@ -72,29 +75,32 @@ class Overloader(MetaPathFinder):
                 spec = find_spec(fullname, path)
         else:
             spec = self._find_plain_spec(fullname, path, target)
-        if spec is None or not (
-            hasattr(spec.loader, "get_source") and callable(spec.loader.get_source)
-        ):  # noqa: E128
-            if fullname != "org":
-                # stdlib pickle.py at line 94 contains a ``from
-                # org.python.core for Jython which is always failing,
-                # of course
-                logger.debug("Failed finding spec for %s", fullname)
-            return None
 
-        if not isinstance(spec.loader, SourceFileLoader):
-            return None
-        if fullname in OVERLOADS:
-            # spec = OVERLOADS[fullname]
-            new_path = OVERLOADS[fullname]
-            source_file_loader = SourceFileLoader(fullname, new_path)
-            spec = ModuleSpec(
-                name=fullname,
-                loader=source_file_loader,
-                origin=new_path,
-                is_package=False,
-            )
-            spec.has_location = True
+        if fullname not in OVERLOADS:
+            if spec is None or not (
+                hasattr(spec.loader, "get_source") and callable(spec.loader.get_source)
+            ):  # noqa: E128
+                if fullname != "org":
+                    # stdlib pickle.py at line 94 contains a ``from
+                    # org.python.core for Jython which is always failing,
+                    # of course
+                    logger.debug("Failed finding spec for %s", fullname)
+                return None
+
+            if not isinstance(spec.loader, SourceFileLoader):
+                return None
+            return spec
+
+        logger.debug("patching spec for %s", fullname)
+        new_path = OVERLOADS[fullname]
+        source_file_loader = SourceFileLoader(fullname, new_path)
+        spec = ModuleSpec(
+            name=fullname,
+            loader=source_file_loader,
+            origin=new_path,
+            is_package=False,
+        )
+        spec.has_location = True
         return spec
 
 

@@ -1,7 +1,7 @@
 from typing import Any, List
 
 from torch_mlir.dialects import arith, math
-from ._ods_common import get_op_result_or_value
+from torch_mlir.dialects._ods_common import get_op_result_or_value
 from torch_mlir.dialects.linalg.opdsl.lang.emitter import (
     _is_integer_type,
     _is_floating_point_type,
