@@ -1,4 +1,0 @@
-recursive-include mlir *.so
-recursive-include mlir *.dylib
-recursive-include mlir *.pyi
-

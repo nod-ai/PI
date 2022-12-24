@@ -1,11 +1,11 @@
 #  Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 #  See https://llvm.org/LICENSE.txt for license information.
 #  SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-from .value_ import _Value
 
 try:
-    from ..ir import *
+    from torch_mlir.ir import *
     from ._ods_common import get_op_result_or_value, get_default_loc_context
+    from shark.dialects.value_ import _Value
 
     from typing import Any, List, Union
 except ImportError as e:
