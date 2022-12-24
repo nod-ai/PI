@@ -1,9 +1,8 @@
 - [SharkPy](#sharkpy)
-- [Building](#building)
+- [Installing](#installing)
 - [Minimal example](#minimal-example)
 - [Moderately interesting example](#moderately-interesting-example)
-- [Troubleshooting](#troubleshooting)
-- [Development](#development)
+- [Torch-MLIR](#torch-mlir)
 
 <p align="center">
     <img width="598" alt="image" src="https://user-images.githubusercontent.com/5657668/205545845-544fe701-79d5-43c1-beec-09763f22cc85.png">
