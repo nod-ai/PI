@@ -19,16 +19,9 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
-        arch: [x86_64,
-#               arm64
-        ]
-        python_version: [
-          "3.9",
-          "3.10",
-          "3.11"
-        ]
-        llvm_version: ["15.0.4"]
+        os: [ ubuntu-latest, macos-latest ]
+        arch: [ x86_64 ]
+        python_version: [ "3.10" ]
         exclude:
           - os: ubuntu-latest
             arch: arm64
@@ -37,14 +30,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Get deps
-        run: |
-          if [ x"${{ matrix.os }}" == x"ubuntu-latest" ]; then
-            sudo apt update && sudo apt install -y git build-essential wget ninja-build clang
-          else
-            brew install ninja
-          fi
-
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
@@ -52,23 +37,14 @@ jobs:
 
       - name: Build wheel
         run: |
-          if [ x"${{ matrix.os }}" == x"ubuntu-latest" ]; then
-            PLATFORM_NAME="manylinux2014"
-          else
-            PLATFORM_NAME="macosx_12_0"
-          fi
-
-          if [ x"${{ matrix.arch }}" == x"arm64" ]; then
-            CMAKE_ARGS_="-DCMAKE_CROSSCOMPILING=True;-DCMAKE_OSX_ARCHITECTURES=arm64;-DMACOSX_DEPLOYMENT_TARGET=12.0;-DCMAKE_CXX_FLAGS='-target arm64-apple-macos -mcpu=apple-m1';-DCMAKE_C_FLAGS='-target arm64-apple-macos -mcpu=apple-m1';-DCMAKE_EXE_LINKER_FLAGS='-arch arm64'"
-          else
-            CMAKE_ARGS_=""
-          fi
-
-          python -m pip install wheel numpy pybind11
-          TBLGEN_ARCH=x86_64 LIB_ARCH=${{ matrix.arch }} CMAKE_ARGS="$CMAKE_ARGS_" python setup.py bdist_wheel --plat-name "${PLATFORM_NAME}_${{ matrix.arch }}"
-
+          python -m pip wheel . \
+            --wheel-dir wheelhouse \
+            --pre torch-mlir torchvision \
+            -f https://llvm.github.io/torch-mlir/package-index/ \
+            --extra-index-url https://download.pytorch.org/whl/nightly/cpu
+          
           mkdir -p ${{ github.sha }}
-          mv dist/*.whl ${{ github.sha }}/
+          mv wheelhouse/SharkPy*.whl ${{ github.sha }}/
 
       - name: Upload an artifact
         uses: actions/upload-artifact@v3
@@ -78,48 +54,43 @@ jobs:
           name: build_artifact
           path: ${{ github.sha }}
 
-#  upload-tarballs:
-#
-#    runs-on: ubuntu-latest
-#    permissions:
-#      contents: write
-#
-#    needs: [build]
-#
-#    if: ${{ github.event_name == 'push' }}
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v2
-#
-#      - name: Checkout submodules
-#        run: |
-#          git submodule update --init --recursive --depth 1
-#
-#      - name: Download artifacts
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: build_artifact
-#          path: ${{ github.sha }}
-#
-#      - name: Set up a release page
-#        id: setup_release
-#        run: |
-#          LLVM_VER="15.0.4"
-#          tag_name="llvm-$LLVM_VER"
-#          release_title="LLVM ${LLVM_VER}"
-#          echo "LLVM ${LLVM_VER} created at $(date)" > body.md
-#          echo "tag_name=${tag_name}" >> $GITHUB_OUTPUT
-#          echo "release_title=${release_title}" >> $GITHUB_OUTPUT
-#
-#      - name: Upload tarballs
-#        uses: ncipollo/release-action@v1
-#        with:
-#          artifacts: "${{ github.sha }}/*.whl"
-#          bodyFile: body.md
-#          token: "${{ secrets.SHARK_PY_CI }}"
-#          tag: "${{ steps.setup_release.outputs.tag_name }}"
-#          name: "${{ steps.setup_release.outputs.release_title }}"
-#          removeArtifacts: true
-#          allowUpdates: true
-#          replacesArtifacts: true
-#
+  upload-tarballs:
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    needs: [ build ]
+
+    if: ${{ github.event_name == 'push' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build_artifact
+          path: ${{ github.sha }}
+
+      - name: Set up a release page
+        id: setup_release
+        run: |
+          SHARKPY_VERSION=$(python setup.py --version)
+          tag_name="$SHARKPY_VERSION"
+          release_title="SharkPy $SHARKPY_VERSION"
+          echo "SharkPy $SHARKPY_VERSION created at $(date)" > body.md
+          echo "tag_name=${tag_name}" >> $GITHUB_OUTPUT
+          echo "release_title=${release_title}" >> $GITHUB_OUTPUT
+
+      - name: Upload tarballs
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "${{ github.sha }}/*.whl"
+          bodyFile: body.md
+          token: "${{ secrets.SHARK_PY_CI }}"
+          tag: "${{ steps.setup_release.outputs.tag_name }}"
+          name: "${{ steps.setup_release.outputs.release_title }}"
+          removeArtifacts: true
+          allowUpdates: true
+          replacesArtifacts: true

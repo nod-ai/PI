@@ -1,15 +1,15 @@
 from typing import Any, List
 
-from . import arith, math
+from torch_mlir.dialects import arith, math
 from ._ods_common import get_op_result_or_value
-from .linalg.opdsl.lang.emitter import (
+from torch_mlir.dialects.linalg.opdsl.lang.emitter import (
     _is_integer_type,
     _is_floating_point_type,
     _is_index_type,
     _get_floating_point_width,
     _is_complex_type,
 )
-from ..ir import (
+from torch_mlir.ir import (
     Type as MLIRType,
     Value as MLIRValue,
     IntegerType,

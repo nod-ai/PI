@@ -1,9 +1,8 @@
 - [SharkPy](#sharkpy)
-- [Building](#building)
+- [Installing](#installing)
 - [Minimal example](#minimal-example)
 - [Moderately interesting example](#moderately-interesting-example)
-- [Troubleshooting](#troubleshooting)
-- [Development](#development)
+- [Torch-MLIR](#torch-mlir)
 
 <p align="center">
     <img width="598" alt="image" src="https://user-images.githubusercontent.com/5657668/205545845-544fe701-79d5-43c1-beec-09763f22cc85.png">
@@ -13,16 +12,27 @@
 
 Early days of a Python frontend for MLIR.
 
-# Building
+# Installing
 
 Just 
 
 ```shell
-pip install -r requirements.txt
-pip install .
+pip install . \
+  --pre torch-mlir torchvision \
+  -f https://llvm.github.io/torch-mlir/package-index/ \
+  --extra-index-url https://download.pytorch.org/whl/nightly/cpu
 ```
 
 and you're good to go.
+
+Alternatively, you can install the [latest released wheel](https://github.com/nod-ai/SharkPy/releases/latest):
+
+```shell
+pip install https://github.com/nod-ai/SharkPy/releases/latest/download/SharkPy-$CURRENT_VERSION-py3-none-any.whl \
+  --pre torch-mlir torchvision \
+  -f https://llvm.github.io/torch-mlir/package-index/ \
+  --extra-index-url https://download.pytorch.org/whl/nightly/cpu
+```
 
 # Minimal example
 
@@ -218,23 +228,40 @@ func.func private @saxpy(%arg0: f64, %arg1: f64) -> memref<10x20xf64> {
 }
 ```
 
-# Troubleshooting
+# Torch-MLIR
 
-If you're having trouble installing using `pip`, try
+Preliminary support for the `torch-mlir` dialect is available:
+
+```python
+def torch_ops():
+    f64 = F64Type.get()
+    z = torch.ConstantFloatOp(value=FloatAttr.get(f64, 256.0))
+    attr = DenseFPElementsAttr(Attribute.parse("dense<0.0> : tensor<3x5xf32>"))
+    a = torch.ValueTensorLiteralOp(attr)
+    b = torch.ValueTensorLiteralOp(attr)
+    c = torch.AtenAddTensorOp(a.result.type, a.result, b.result, z)
+    return c
+```
+
+lowers to
+
+```mlir
+func.func private @torch_ops() -> !torch.vtensor<[3,5],f32> {
+  %float2.560000e02 = torch.constant.float 2.560000e+02
+  %0 = torch.vtensor.literal(dense<0.000000e+00> : tensor<3x5xf32>) : !torch.vtensor<[3,5],f32>
+  %1 = torch.vtensor.literal(dense<0.000000e+00> : tensor<3x5xf32>) : !torch.vtensor<[3,5],f32>
+  %2 = torch.aten.add.Tensor %0, %1, %float2.560000e02 : 
+    !torch.vtensor<[3,5],f32>, !torch.vtensor<[3,5],f32>, !torch.float -> !torch.vtensor<[3,5],f32>
+  return %2 : !torch.vtensor<[3,5],f32>
+}
+```
+
+# Build Wheel
 
 ```shell
-$ pip install --no-build-isolation --no-clean . -vvvv
+pip wheel . \
+  --wheel-dir wheelhouse \
+  --pre torch-mlir torchvision \
+  -f https://llvm.github.io/torch-mlir/package-index/ \
+  --extra-index-url https://download.pytorch.org/whl/nightly/cpu
 ```
-
-# Development
-
-You can load the project as a CMake project in your editor of choice with the following defines:
-
-```cmake
--DCMAKE_PREFIX_PATH=<SOMEWHERE>/llvm_install
--DPython3_EXECUTABLE=<SOMEWHERE>/venv/bin/python
--DCMAKE_INSTALL_PREFIX=<SOMEWHERE>/install_bindings
--DMLIR_TABLEGEN_EXE=<SOMEWHERE>/llvm_install/bin/mlir-tblgen
-```
-
-Note, this won't actually build the python wheel.
