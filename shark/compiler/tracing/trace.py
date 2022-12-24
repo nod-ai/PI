@@ -16,13 +16,20 @@ from runpy import run_module
 from typing import Optional, Union, Tuple, List
 
 from torch_mlir import ir
-from torch_mlir.dialects import (func as func_dialect, scf,
-                                 # affine_,
-                                torch as torch_dialect,
-                                 arith)
-# from torch_mlir.dialects import value_
+# this needs to be all of the dialects that will be used in the user scripts
+# (in order to register ops)
+# noinspection PyUnresolvedReferences
+from torch_mlir.dialects import (
+    func as func_dialect,
+    scf,
+    torch as torch_dialect,
+    tensor,
+    arith,
+)
 from torch_mlir.dialects._ods_common import get_op_result_or_value
 from torch_mlir.ir import Type as MLIRType, IntegerType, F64Type
+
+from shark.dialects import affine_, value_
 
 
 # from uncompyle6 import main
