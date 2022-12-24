@@ -1,7 +1,0 @@
-PyYAML
-pyccolo
-
-# Torch-MLIR
--f https://llvm.github.io/torch-mlir/package-index/
-torch-mlir
-torch

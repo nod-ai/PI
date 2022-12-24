@@ -17,11 +17,22 @@ Early days of a Python frontend for MLIR.
 Just 
 
 ```shell
-pip install -r requirements.txt
-pip install .
+pip install . \
+  --pre torch-mlir torchvision \
+  -f https://llvm.github.io/torch-mlir/package-index/ \
+  --extra-index-url https://download.pytorch.org/whl/nightly/cpu
 ```
 
 and you're good to go.
+
+Alternatively, you can install the [latest released wheel](https://github.com/nod-ai/SharkPy/releases/latest):
+
+```shell
+pip install https://github.com/nod-ai/SharkPy/releases/latest/download/SharkPy-$CURRENT_VERSION-py3-none-any.whl \
+  --pre torch-mlir torchvision \
+  -f https://llvm.github.io/torch-mlir/package-index/ \
+  --extra-index-url https://download.pytorch.org/whl/nightly/cpu
+```
 
 # Minimal example
 
@@ -243,4 +254,14 @@ func.func private @torch_ops() -> !torch.vtensor<[3,5],f32> {
     !torch.vtensor<[3,5],f32>, !torch.vtensor<[3,5],f32>, !torch.float -> !torch.vtensor<[3,5],f32>
   return %2 : !torch.vtensor<[3,5],f32>
 }
+```
+
+# Build Wheel
+
+```shell
+pip wheel . \
+  --wheel-dir wheelhouse \
+  --pre torch-mlir torchvision \
+  -f https://llvm.github.io/torch-mlir/package-index/ \
+  --extra-index-url https://download.pytorch.org/whl/nightly/cpu
 ```
