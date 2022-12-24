@@ -1,11 +1,11 @@
 #  Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 #  See https://llvm.org/LICENSE.txt for license information.
 #  SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-from .value_ import _Value
 
 try:
-    from ..ir import *
+    from torch_mlir.ir import *
     from ._ods_common import get_op_result_or_value, get_op_results_or_values
+    from shark.dialects.value_ import _Value
 except ImportError as e:
     raise RuntimeError("Error loading imports from extension module") from e
 
@@ -104,13 +104,13 @@ class AllocaOp:
         super().__init__(res_type, [], [], loc=loc, ip=ip)
 
     def __getitem__(self, item):
-        from .memref import LoadOp
+        from torch_mlir.dialects.memref import LoadOp
 
         load_op = LoadOp(self, item)
         return load_op
 
     def __setitem__(self, indices, value):
-        from .memref import StoreOp
+        from torch_mlir.dialects.memref import StoreOp
 
         store_op = StoreOp(self, value, indices)
         return store_op

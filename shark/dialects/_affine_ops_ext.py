@@ -3,7 +3,7 @@
 #  SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 try:
-    from ..ir import *
+    from torch_mlir.ir import *
     from ._ods_common import get_default_loc_context as _get_default_loc_context
 except ImportError as e:
     raise RuntimeError("Error loading imports from extension module") from e
