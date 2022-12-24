@@ -4,7 +4,8 @@
 
 # Provide a convenient name for sub-packages to resolve the main C-extension
 # with a relative import.
-from .._mlir_libs import _mlir as _cext
+from torch_mlir._mlir_libs import _mlir as _cext
+
 from typing import Sequence as _Sequence, Union as _Union
 
 __all__ = [
@@ -78,11 +79,11 @@ def segmented_accessor(elements, raw_segments, idx):
   Returns a slice of elements corresponding to the idx-th segment.
 
     elements: a sliceable container (operands or results).
-    raw_segments: an mlir.ir.Attribute, of DenseIntElements subclass containing
+    raw_segments: an mlir.ir.Attribute, of DenseI32Array subclass containing
         sizes of the segments.
     idx: index of the segment.
   """
-  segments = _cext.ir.DenseIntElementsAttr(raw_segments)
+  segments = _cext.ir.DenseI32ArrayAttr(raw_segments)
   start = sum(segments[i] for i in range(idx))
   end = start + segments[idx]
   return elements[start:end]

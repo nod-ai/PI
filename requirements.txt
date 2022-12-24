@@ -1,4 +1,7 @@
-# python-graphs @ git+https://github.com/google-research/python-graphs.git
 PyYAML
-numpy
 pyccolo
+
+# Torch-MLIR
+-f https://llvm.github.io/torch-mlir/package-index/
+torch-mlir
+torch
