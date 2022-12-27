@@ -1,10 +1,12 @@
 from typing import List, Tuple, Union, Optional, Any
 
+from shark.tensor import Tensor
+
 from shark.nn.common_types import _size_2_t, _pair, _reverse_repeat_tuple
 from shark.nn.module import Module
-from shark.nn.tensor import Tensor
 from torch_mlir.ir import Value as MLIRValue
 from torch_mlir.dialects import torch as torch_dialect
+import shark
 
 
 class _ConvNd(Module):
@@ -97,15 +99,15 @@ class _ConvNd(Module):
             )
 
         if transposed:
-            self.weight = lambda: Tensor(
+            self.weight = lambda: shark.Empty(
                 (in_channels, out_channels // groups, *kernel_size)
             )
         else:
-            self.weight = lambda: Tensor(
+            self.weight = lambda: shark.Empty(
                 (out_channels, in_channels // groups, *kernel_size)
             )
         if bias:
-            self.bias = lambda: Tensor((out_channels,))
+            self.bias = lambda: shark.Empty((out_channels,))
 
 
 class Conv2d(_ConvNd):
@@ -158,9 +160,17 @@ class Conv2d(_ConvNd):
         #         self.dilation,
         #         self.groups,
         #     )
-        return torch_dialect.AtenConv2dOp(
-            input, weight, bias, self.stride, self.padding, self.dilation, self.groups
-        ).result
+        return Tensor(
+            torch_dialect.AtenConv2dOp(
+                input,
+                weight,
+                bias,
+                self.stride,
+                self.padding,
+                self.dilation,
+                self.groups,
+            )
+        )
 
     def forward(self, input: MLIRValue) -> MLIRValue:
         return self._conv_forward(input, self.weight(), self.bias())

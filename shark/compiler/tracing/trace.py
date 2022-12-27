@@ -1,3 +1,4 @@
+import operator
 import sys
 from collections import namedtuple
 
@@ -5,16 +6,20 @@ import ast
 import ctypes
 import inspect
 import os
+
+# noinspection PyUnresolvedReferences
+import shark.compiler.tracing.handlers
 import pyccolo as pyc
 import traceback
 import types
 from contextlib import contextmanager
 from pathlib import Path
-from pyccolo import TraceEvent, AstRewriter, fast
+from pyccolo import TraceEvent, AstRewriter, fast, register_raw_handler
 from pyccolo.emit_event import _TRACER_STACK
 from runpy import run_module
 from typing import Optional, Union, Tuple, List
 
+import shark
 from torch_mlir import ir
 
 # this needs to be all of the dialects that will be used in the user scripts
@@ -103,8 +108,17 @@ class ExplicitReturn(ast.NodeTransformer):
         for n in node.body:
             self.visit(n)
         if not isinstance(node.body[-1], ast.Return):
-            return_ = ast.Return(value=ast.Constant(value=None))
+            return_ = ast.Return(
+                value=None if node.name == "__init__" else ast.Constant(value=None),
+                lineno=node.body[-1].lineno + 1,
+                col_offset=node.col_offset + len("return "),
+            )
             node.body.append(return_)
+        return node
+
+    def visit_ClassDef(self, node: ast.ClassDef) -> ast.ClassDef:
+        for n in node.body:
+            self.visit(n)
         return node
 
 
@@ -189,7 +203,7 @@ class MLIRTracer(pyc.BaseTracer):
         )
         self.if_bodies_executed = set()
         # dirty dirty hack
-        self.compares_executed = {}
+        self.binops_executed = {}
 
     def enter_mlir_block_scope(
         self,
@@ -294,6 +308,18 @@ class MLIRTracer(pyc.BaseTracer):
         return "SharkPy/shark" not in filename
 
     # handlers
+
+    @TraceEvent.before_class_body
+    def handle_before_class_body(
+        self,
+        old_ret,
+        node,
+        frame: types.FrameType,
+        event,
+        guard_for_spec,
+        **_,
+    ):
+        return False
 
     @pyc.before_function_body
     def handle_before_function_body(
@@ -460,7 +486,7 @@ class MLIRTracer(pyc.BaseTracer):
     ):
         def eval_op(x, y):
             hash = id(x), id(y)
-            if hash not in self.compares_executed:
+            if hash not in self.binops_executed:
                 x, y = map(
                     lambda v: self.get_or_make_mlir_constant(v)
                     if isinstance(v, (float, int, bool))
@@ -472,8 +498,12 @@ class MLIRTracer(pyc.BaseTracer):
                 else:
                     # ...god damn it
                     op = node.op.__class__.__name__.lower().replace("mult", "mul")
-                self.compares_executed[hash] = getattr(value_, op)(x, y)
-            return self.compares_executed[hash]
+                if isinstance(x, shark.Tensor):
+                    assert isinstance(y, shark.Tensor)
+                    self.binops_executed[hash] = getattr(operator, op)(x, y)
+                else:
+                    self.binops_executed[hash] = getattr(value_, op)(x, y)
+            return self.binops_executed[hash]
 
         return eval_op
 

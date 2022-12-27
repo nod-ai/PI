@@ -22,6 +22,10 @@ OVERLOADS = {
     "torch_mlir.dialects._torch_ops_ext": str(
         Path(__file__).parent / "_torch_ops_ext.py"
     ),
+    # TODO(max): upstream to get rid of this hack
+    "pyccolo.trace_events": str(
+        Path(__file__).parent.parent / "compiler" / "tracing" / "trace_events.py"
+    ),
 }
 
 

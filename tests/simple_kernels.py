@@ -57,7 +57,7 @@ def torch_ops():
     attr = DenseFPElementsAttr(Attribute.parse("dense<0.0> : tensor<3x5xf32>"))
     a = torch.ValueTensorLiteralOp(attr)
     b = torch.ValueTensorLiteralOp(attr)
-    c = torch.AtenAddTensorOp(a.result.type, a.result, b.result, z)
+    c = torch.AtenAddTensorOp(a.result, b.result)
     return c
 
 

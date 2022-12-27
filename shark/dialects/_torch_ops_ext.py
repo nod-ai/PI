@@ -118,3 +118,54 @@ class AtenConv2dOp:
             loc=loc,
             ip=ip,
         )
+
+
+class AtenAdd_TensorOp:
+    def __init__(
+        self,
+        lhs,
+        rhs,
+        *,
+        loc=None,
+        ip=None,
+    ):
+        from torch_mlir.dialects import torch as torch_dialect
+
+        # result, self_, other, alpha
+        lhs = get_op_result_or_value(lhs)
+        rhs = get_op_result_or_value(rhs)
+        alpha = torch_dialect.ConstantFloatOp(1.0)
+        super().__init__(lhs.type, lhs, rhs, alpha, loc=loc, ip=ip)
+
+
+class AtenAddTensorOp:
+    def __init__(
+        self,
+        lhs,
+        rhs,
+        *,
+        loc=None,
+        ip=None,
+    ):
+        from torch_mlir.dialects import torch as torch_dialect
+
+        # result, self_, other, alpha
+        lhs = get_op_result_or_value(lhs)
+        rhs = get_op_result_or_value(rhs)
+        alpha = torch_dialect.ConstantFloatOp(1.0)
+        super().__init__(lhs.type, lhs, rhs, alpha, loc=loc, ip=ip)
+
+
+class AtenMulTensorOp:
+    def __init__(
+        self,
+        lhs,
+        rhs,
+        *,
+        loc=None,
+        ip=None,
+    ):
+        # result, self_, other, alpha
+        lhs = get_op_result_or_value(lhs)
+        rhs = get_op_result_or_value(rhs)
+        super().__init__(lhs.type, lhs, rhs, loc=loc, ip=ip)

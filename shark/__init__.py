@@ -8,10 +8,11 @@ from torch_mlir.dialects import torch
 @contextlib.contextmanager
 def mlir_cm():
     with Context() as ctx, Location.unknown():
-        torch.register_dialect(ctx)
+        torch.register_dialect(ctx, True)
         module = Module.create()
         with InsertionPoint(module.body):
             yield module
 
 
 from shark import nn
+from shark.tensor import Empty, Tensor
