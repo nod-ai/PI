@@ -23,3 +23,12 @@ def simple_conv2d():
 
 
 simple_conv2d()
+
+
+class Conv2dNoPaddingModule(Module):
+    def __init__(self):
+        super().__init__()
+        self.conv = nn.Conv2d(2, 10, 3, bias=False)
+
+    def forward(self, x):
+        return self.conv(x)

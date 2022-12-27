@@ -57,5 +57,5 @@ set(MLIR_BINARY_DIR ${CMAKE_BINARY_DIR})
 # message(STATUS "MLIR_TABLEGEN_EXE: ${MLIR_TABLEGEN_EXE}")
 set(MLIR_INCLUDE_TESTS 0)
 
-pybind11_add_module(_tensor cpp_ext/TensorValue.cpp)
+pybind11_add_module(_mlir cpp_ext/MainModule.cpp cpp_ext/TensorValue.cpp)
 

@@ -11,7 +11,9 @@
 
 #include <utility>
 #include <vector>
+#include <iostream>
 
+#include <mlir-c/Bindings/Python/Interop.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -112,6 +114,44 @@ private:
   PyOperationRef parentOperation;
   MlirValue value;
 };
+
+struct PyType : public BaseContextObject {
+  PyType(PyMlirContextRef contextRef, MlirType type)
+      : BaseContextObject(std::move(contextRef)), type(type) {}
+  explicit operator MlirType() const { return type; }
+  [[nodiscard]] MlirType get() const { return type; }
+
+
+  MlirType type;
+};
+
+
+
+template <typename DerivedTy, typename BaseTy = PyType>
+struct PyConcreteType : public BaseTy {
+//  using ClassTy = pybind11::class_<DerivedTy, BaseTy>;
+
+  PyConcreteType() = default;
+  PyConcreteType(PyMlirContextRef contextRef, MlirType t)
+      : BaseTy(std::move(contextRef), t) {}
+
+  static DerivedTy createFromCapsule_(py::capsule& capsule) {
+    MlirType rawType = {capsule.get_pointer()};
+    if (mlirTypeIsNull(rawType))
+      throw py::error_already_set();
+
+    MlirContext ctx = mlirTypeGetContext(rawType);
+    auto *unownedContextWrapper = new PyMlirContext(ctx);
+    auto pyCtxRef = py::reinterpret_steal<py::object>(mlirPythonContextToCapsule(ctx));
+    assert(pyCtxRef && "cast to py::object failed");
+    auto ctxRef = PyMlirContextRef(unownedContextWrapper, std::move(pyCtxRef));
+
+    return {std::move(ctxRef), rawType};
+  }
+
+};
+
+void populateTorchTypes(py::module &m);
 
 }// namespace mlir::python
 
