@@ -15,7 +15,7 @@
 using namespace mlir;
 using namespace mlir::python;
 
-PyTensor PyTensor::createFromCapsule_(const py::capsule &capsule) {
+Torch_Tensor Torch_Tensor::createFromCapsule_(const py::capsule &capsule) {
   MlirValue value = {capsule.get_pointer()};
   if (mlirValueIsNull(value))
     throw py::error_already_set();
@@ -40,4 +40,16 @@ PyTensor PyTensor::createFromCapsule_(const py::capsule &capsule) {
   auto ownerRef = PyOperationRef(unownedOperation, std::move(pyOpRef));
 
   return {ownerRef, value};
+}
+
+void bindValues(py::module &m) {
+  py::object value_ =
+      (py::object) py::module_::import("torch_mlir.ir").attr("Value");
+  py::object op_result_ =
+      (py::object) py::module_::import("torch_mlir.ir").attr("OpResult");
+
+  py::class_<Torch_Tensor>(m, "_Torch_Tensor", value_)
+      .def(py::init<>([](const py::capsule &capsule) {
+        return Torch_Tensor::createFromCapsule_(capsule);
+      }));
 }

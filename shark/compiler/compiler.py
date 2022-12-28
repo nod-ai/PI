@@ -1,3 +1,5 @@
+import os
+
 from torch_mlir import ir
 
 # noinspection PyUnresolvedReferences
@@ -10,6 +12,7 @@ from shark.compiler.tracing.trace import trace
 
 
 def mlir_trace(script_path):
+    assert os.path.isabs(script_path), f"script path must be absolute {script_path}"
     top_mlir_context = ir.Context()
     mlir_location = ir.Location.unknown(context=top_mlir_context)
     with top_mlir_context, mlir_location:

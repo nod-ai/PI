@@ -1,1 +1,1 @@
-from shark.nn.conv import Conv2d
+from .modules import *  # noqa: F403

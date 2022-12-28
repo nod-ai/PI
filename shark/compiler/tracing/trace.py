@@ -7,6 +7,8 @@ import ctypes
 import inspect
 import os
 
+from shark.compiler.annotations import SHARKPY_EXPORT_ATTR_NAME
+
 # noinspection PyUnresolvedReferences
 import shark.compiler.tracing.handlers
 import pyccolo as pyc
@@ -173,11 +175,13 @@ def update_frame_locals(frame, updates: dict):
 class MLIRTracer(pyc.BaseTracer):
     def __init__(
         self,
+        script_path: str,
         mlir_context: ir.Context,
         mlir_location: ir.Location,
         mlir_module: ir.Module,
     ):
         super().__init__()
+        self.script_path = script_path
         self.mlir_context = mlir_context
         self.mlir_location = mlir_location
         self.mlir_module = mlir_module
@@ -201,9 +205,10 @@ class MLIRTracer(pyc.BaseTracer):
             mlir_context=self.mlir_context or self.mlir_context,
             scope_name="module",
         )
-        self.if_bodies_executed = set()
         # dirty dirty hack
+        self.if_bodies_executed = set()
         self.binops_executed = {}
+        self.fn_to_node = {}
 
     def enter_mlir_block_scope(
         self,
@@ -305,7 +310,7 @@ class MLIRTracer(pyc.BaseTracer):
         return True
 
     def should_instrument_file(self, filename: str) -> bool:
-        return "SharkPy/shark" not in filename
+        return filename == self.script_path
 
     # handlers
 
@@ -410,6 +415,9 @@ class MLIRTracer(pyc.BaseTracer):
         guard_for_spec,
         **kwargs,
     ):
+        for loc_name, loc in frame.f_locals.items():
+            if inspect.isfunction(loc) and getattr(loc, SHARKPY_EXPORT_ATTR_NAME, False):
+                print(loc)
         self.exit_mlir_block_scope(scope_name="module")
 
     ast_rewriter_cls = MLIRRewriter
@@ -595,7 +603,12 @@ def get_script_as_module(script: str) -> str:
 
 def trace(script_path, mlir_context, mlir_location, mlir_module) -> ir.Module:
     module_to_run = get_script_as_module(script_path)
-    with MLIRTracer(mlir_context, mlir_location, mlir_module):
+    with MLIRTracer(
+        script_path,
+        mlir_context,
+        mlir_location,
+        mlir_module,
+    ):
         run_module(module_to_run)
 
     return mlir_module

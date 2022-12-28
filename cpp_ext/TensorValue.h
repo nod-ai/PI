@@ -17,9 +17,11 @@ using namespace mlir;
 using namespace mlir::python;
 
 
-struct PyTensor : PyValue {
-  PyTensor(PyOperationRef operationRef, MlirValue value)
+struct Torch_Tensor : PyValue {
+  Torch_Tensor(PyOperationRef operationRef, MlirValue value)
       : PyValue(std::move(operationRef), value) {}
 
-  static PyTensor createFromCapsule_(const py::capsule& capsule);
+  static Torch_Tensor createFromCapsule_(const py::capsule& capsule);
 };
+
+void bindValues(py::module &m);

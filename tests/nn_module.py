@@ -1,11 +1,10 @@
-from shark.nn.module import Module
-
-from shark import Empty
+from shark import empty
 from shark import nn
 
 
-class MyConv2d(Module):
+class MyConv2d(nn.Module):
     def __init__(self):
+        super().__init__()
         self.conv = nn.Conv2d(3, 1, 3)
 
     def forward(self, x):
@@ -16,7 +15,7 @@ class MyConv2d(Module):
 
 
 def simple_conv2d():
-    x = Empty((1, 3, 32, 32))
+    x = empty((1, 3, 32, 32))
     my_conv = MyConv2d()
     y = my_conv(x)
     return y
@@ -25,7 +24,7 @@ def simple_conv2d():
 simple_conv2d()
 
 
-class Conv2dNoPaddingModule(Module):
+class Conv2dNoPaddingModule(nn.Module):
     def __init__(self):
         super().__init__()
         self.conv = nn.Conv2d(2, 10, 3, bias=False)
