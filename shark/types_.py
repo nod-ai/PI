@@ -217,4 +217,4 @@ uint8 = dtype.uint8
 size = Union[List[int], Tuple[int, ...]]
 
 Number = Union[builtins.int, builtins.float, builtins.bool]
-Device = Any
+Generator = Device = Any

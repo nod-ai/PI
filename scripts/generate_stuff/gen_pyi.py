@@ -907,7 +907,7 @@ def gen_pyi(
     )
     fm.write_with_template(
         "_VF.pyi",
-        "_C/_VariableFunctions.pyi.in",
+        "_VariableFunctions.pyi.in",
         lambda: {
             "generated_comment": "@"
             + "generated from torch/_C/_VariableFunctions.pyi.in",

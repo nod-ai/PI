@@ -1,12 +1,50 @@
 import warnings
 from textwrap import dedent
-from typing import List
+from typing import List, Callable
 
 from torch_mlir.dialects.torch.importer.jit_ir.build_tools.registry import (
     JitOperator,
     Registry,
+    _pytype_to_decomposition_fn_pytype,
+    _get_default_value,
+    _rename_python_keyword_parameter_name,
 )
 from torch_mlir.dialects.torch.importer.jit_ir.build_tools.utils import TextEmitter
+from torchgen.api.python import signature_from_schema, FunctionSchema
+
+
+# from scripts.generate_stuff.generate_pytorch_wrappers import (
+#     tensor_method_signatures_dict,
+#     function_signatures_dict,
+# )
+
+
+def _get_function_signature(
+    self,
+    function_kind: str,
+    parameter_decl_builder: Callable[["SIG_ATTR_TYPE"], str],
+    ret_decl_builder: Callable[["SIG_ATTR_TYPE"], str],
+) -> str:
+    mlir_op_name, _ = self.get_mlir_names()
+    # Replace `.` with a valid Python identifier character.
+    # `〇` vaguely looks like `.`.
+    def_name = "〇".join(mlir_op_name.split("."))
+    def_name += f"〡{function_kind}"
+    parameter_decls = list(map(parameter_decl_builder, self.arguments))
+    ret_decls = list(map(ret_decl_builder, self.returns))
+    parameters = ", ".join(parameter_decls)
+    result = ", ".join(ret_decls)
+    if len(ret_decls) >= 2:
+        result = f"Tuple[{result}]"
+
+    if len(ret_decls) == 0:
+        result = "None"
+
+    return f"def {def_name}({parameters}) -> {result}:"
+
+
+JitOperator._get_function_signature = _get_function_signature
+
 
 TORCH_TYPE_TO_ODS_TYPE = {
     "Tensor": "AnyTorchTensorType",
@@ -58,6 +96,7 @@ def convert_type(pyt_type: str):
             "t1": "Tensor",
             "t": "Tensor",
             "Dict(str, t)": "Dict[str, Tensor]",
+            "device": "Device",
         }
         interior = subs.get(pyt_type, pyt_type)
         return interior, interior
@@ -105,6 +144,48 @@ EXISTING = {
 }
 
 
+def py_reserved_keywords(k):
+    subs = {
+        "from": "from_",
+        "self": "self_",
+        "list": "list_",
+    }
+    return subs.get(k, k)
+
+
+def get_wrapper_function_signature(operator):
+    """Gets the Python function signature for this op's decomposition function.
+
+    While this is technically debug-only output, it is useful to copy-paste
+    it from the debug dump into the shape library definitions, as many
+    ops have extra default arguments and stuff that are tedious to write out
+    right.
+    """
+
+    def parameter_decl_builder(arg: "SIG_ATTR_TYPE") -> str:
+        pytype = convert_type(arg["type"])[0]
+        default = _get_default_value(arg)
+        if arg["name"] == "out":
+            default = "= None"
+        parameter_name = py_reserved_keywords(
+            _rename_python_keyword_parameter_name(arg["name"])
+        )
+        return f"{parameter_name}: {pytype}{default}"
+
+    def ret_decl_builder(arg: "SIG_ATTR_TYPE") -> str:
+        ret = convert_type(arg["type"])[0]
+        if not ret:
+            ret = "None"
+        return ret
+
+    return (
+        operator._get_function_signature("", parameter_decl_builder, ret_decl_builder)
+        .replace("〇", "_")
+        .replace("〡", "")
+        .replace("aten_", "")
+    )
+
+
 def raw_emit_op(
     operator: JitOperator,
     emitter_td: TextEmitter,
@@ -114,20 +195,13 @@ def raw_emit_op(
     has_canonicalizer: bool,
 ):
     p_td = lambda *args: emitter_td.print(*args)
+    stub_td = lambda *args: stubs_emitter_td.print(*args)
     op_name, cpp_class_name = operator.get_mlir_names()
     if cpp_class_name in {"QuantizedLinearOp"} | EXISTING:
         return
 
     # Generate unique result names for ops with nameless results
     multiple_results = len(operator.returns) > 1
-
-    def py_reserved_keywords(k):
-        subs = {
-            "from": "from_",
-            "self": "self_",
-            "list": "list_",
-        }
-        return subs.get(k, k)
 
     if any(
         [
@@ -139,11 +213,11 @@ def raw_emit_op(
             for arg in operator.arguments
         ]
     ):
-        warnings.warn(f"{cpp_class_name} has weird args")
+        print(f"{cpp_class_name} has weird args")
         return
 
     if operator.is_vararg:
-        warnings.warn(f"{cpp_class_name} is vararg")
+        print(f"{cpp_class_name} is vararg")
         return
     else:
         args = {
@@ -159,7 +233,7 @@ def raw_emit_op(
         return "result" + (str(i) if multiple_results else "")
 
     if operator.is_varret:
-        warnings.warn(f"{cpp_class_name} is vararg")
+        print(f"{cpp_class_name} is vararg")
         return
     else:
         ret_names = [
@@ -168,7 +242,7 @@ def raw_emit_op(
         ]
 
     if any([ret["type"] == "Device" for ret in operator.returns]):
-        warnings.warn(f"{cpp_class_name} returns device")
+        print(f"{cpp_class_name} returns device")
         return
 
     p_td(f"class {cpp_class_name}:")
@@ -296,6 +370,17 @@ def raw_emit_op(
             p_td("\n")
         p_td("\n")
 
+    stub_td(get_wrapper_function_signature(operator))
+    with stubs_emitter_td.indent():
+        if len(operator.returns):
+            ret = "return "
+        else:
+            ret = ""
+        stub_td(
+            f'{ret}Tensor(torch_dialect.{cpp_class_name}({", ".join([f"{k}" for k, _v in args.items()])}))'
+        )
+        stub_td("\n")
+
 
 import torch_mlir.dialects.torch.importer.jit_ir.build_tools.torch_ods_gen
 
@@ -332,25 +417,40 @@ registry = Registry.load()
 with open("../../shark/dialects/_torch_ops_ext.py", "w") as f_td:
     emitter_td = TextEmitter(f_td)
     emitter_td._INDENT = "    "
-    emitter_td.print(
-        dedent(
-            f"""\
-    try:
-        # from shark import Tensor, Number
-        from torch_mlir.ir import *
-        from torch_mlir.dialects._ods_common import (
-            get_default_loc_context,
-            get_op_result_or_value,
-            get_op_results_or_values,
+    with open("../../shark/nn/wrappers.py", "w") as stubs_td:
+        stubs_emitter_td = TextEmitter(stubs_td)
+        stubs_emitter_td._INDENT = "    "
+        stubs_emitter_td.print(
+            dedent(
+                f"""\
+        from shark import Tensor, Number
+        from typing import List, Optional, Any, Tuple
+
+        from torch_mlir.dialects import torch as torch_dialect
+        
+        """
+            )
         )
-        from ._torch_ops_ext_custom import *
-    except ImportError as e:
-        raise RuntimeError("Error loading imports from extension module") from e
 
-    from typing import List, Optional, Any
+        emitter_td.print(
+            dedent(
+                f"""\
+        try:
+            # from shark import Tensor, Number
+            from torch_mlir.ir import *
+            from torch_mlir.dialects._ods_common import (
+                get_default_loc_context,
+                get_op_result_or_value,
+                get_op_results_or_values,
+            )
+            from ._torch_ops_ext_custom import *
+        except ImportError as e:
+            raise RuntimeError("Error loading imports from extension module") from e
+
+        from typing import List, Optional, Any
 
 
-    """
+        """
+            )
         )
-    )
-    emit_ops(emitter_td, registry)
+        emit_ops(emitter_td, registry)
