@@ -1,7 +1,7 @@
 import builtins
 import re
 from enum import Enum
-from typing import Union, List, Tuple
+from typing import Union, List, Tuple, Any
 
 from shark._mlir import (
     _Torch_IntType,
@@ -84,6 +84,10 @@ class Torch_NonValueTensorType(_Torch_NonValueTensorType):
         type = get_type(type)
         assert is_a_torch_nonvalue_tensor_type(type._CAPIPtr)
         super(Torch_NonValueTensorType, self).__init__(type._CAPIPtr)
+
+
+def is_mlir_value(v):
+    return isinstance(v, (ir.OpView, ir.Operation, ir.Value, ir.OpResultList))
 
 
 # IntegerType.get_signless(32) -> i32
@@ -213,3 +217,4 @@ uint8 = dtype.uint8
 size = Union[List[int], Tuple[int, ...]]
 
 Number = Union[builtins.int, builtins.float, builtins.bool]
+Device = Any

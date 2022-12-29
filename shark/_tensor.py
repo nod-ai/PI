@@ -43,7 +43,7 @@ class Tensor(_Torch_Tensor):
         return torch_dialect.AtenNumelOp(self).result
 
     def __add__(self, other: Tensor) -> Tensor:
-        return Tensor(torch_dialect.AtenAddTensorOp(self, other))
+        return Tensor(torch_dialect.AtenAddTensorOp(self, other, 1.0))
 
     def __mul__(self, other: Tensor) -> Tensor:
         return Tensor(torch_dialect.AtenMulTensorOp(self, other))
@@ -62,5 +62,5 @@ class Tensor(_Torch_Tensor):
     def fill_(self, value: Number):
         return Tensor(torch_dialect.AtenFill_TensorOp(self, value))
 
-    def softmax(self, dim, dtype=dtype):
+    def softmax(self, dim, dtype: dtype = None):
         return Tensor(torch_dialect.AtenSoftmaxIntOp(self, dim, dtype))

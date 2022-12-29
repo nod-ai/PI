@@ -10,11 +10,12 @@ if __name__ == "__main__":
         # z = empty((1, 2, 3))
         # tv = Torch_ValueTensorType(z)
         # print(tv)
-        # t = torch.ConstantIntOp(1).result
+        t = torch.ConstantIntOp(1).result
+        print(t.type)
         # i = IntegerType.get_unsigned(32)
         # print(i)
-        # tt = Torch_IntType(t)
-        # print(tt)
+        tt = Torch_IntType(t)
+        print(tt)
         # print(module)
         # vt = from_numpy(np.random.rand(10, 10))
         # z = vt + vt

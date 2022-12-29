@@ -19,6 +19,9 @@ OVERLOADS = {
     "torch_mlir.dialects._memref_ops_ext": str(
         Path(__file__).parent / "_memref_ops_ext.py"
     ),
+    "torch_mlir.dialects._torch_ops_ext_custom": str(
+        Path(__file__).parent / "_torch_ops_ext_custom.py"
+    ),
     "torch_mlir.dialects._torch_ops_ext": str(
         Path(__file__).parent / "_torch_ops_ext.py"
     ),

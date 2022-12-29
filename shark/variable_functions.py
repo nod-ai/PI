@@ -30,6 +30,7 @@ __all__ = [
     "arange",
     "embedding",
     "embedding_bag",
+    "_log_softmax"
 ]
 
 
@@ -171,3 +172,10 @@ def embedding_bag(
             padding_idx,
         )
     )
+
+
+def _log_softmax(
+    input: Tensor, dim: int, half_to_float: bool, *, out: Optional[Tensor] = None
+) -> Tensor:
+    assert out is None, "out variant not supported"
+    return Tensor(torch_dialect.Aten_LogSoftmaxOp(input, dim, half_to_float))

@@ -67,7 +67,7 @@ def BmmModule_basic(module, tu: TestUtils):
 # class IsFloatingPointInt(shark.nn.Module):
 #     def __init__(self):
 #         super().__init__()
-# 
+#
 #     @annotate_args(
 #         [
 #             None,
@@ -76,20 +76,20 @@ def BmmModule_basic(module, tu: TestUtils):
 #     )
 #     def forward(self, x):
 #         return shark.is_floating_point(x)
-# 
-# 
+#
+#
 # @register_test_case(module_factory=lambda: IsFloatingPointInt())
 # def IsFloatingPointInt_False(module, tu: TestUtils):
 #     return module.forward(tu.randint(3, 3, high=100))
-# 
-# 
+#
+#
 # # ==============================================================================
-# 
-# 
+#
+#
 # class IsFloatingPointFloat(shark.nn.Module):
 #     def __init__(self):
 #         super().__init__()
-# 
+#
 #     @annotate_args(
 #         [
 #             None,
@@ -98,8 +98,8 @@ def BmmModule_basic(module, tu: TestUtils):
 #     )
 #     def forward(self, x):
 #         return shark.is_floating_point(x)
-# 
-# 
+#
+#
 # @register_test_case(module_factory=lambda: IsFloatingPointFloat())
 # def IsFloatingPointFloat_True(module, tu: TestUtils):
 #     return module.forward(tu.rand(3))
@@ -142,7 +142,7 @@ def BmmModule_basic(module, tu: TestUtils):
 # # ==============================================================================
 
 
-# A subgraph with multiple mm 
+# A subgraph with multiple mm
 class MmDagModule(shark.nn.Module):
     def __init__(self):
         super().__init__()
@@ -973,23 +973,23 @@ def SoftmaxIntArgTypeF64Module_basic(module, tu: TestUtils):
 # ==============================================================================
 
 
-# class _LogSoftmaxModule(shark.nn.Module):
-#     def __init__(self):
-#         super().__init__()
-#
-#     @annotate_args(
-#         [
-#             None,
-#             ([-1, -1, -1], shark.float32, True),
-#         ]
-#     )
-#     def forward(self, tensor):
-#         return shark._log_softmax(tensor, dim=0, half_to_float=False)
-#
-#
-# @register_test_case(module_factory=lambda: _LogSoftmaxModule())
-# def _LogSoftmaxModule_basic(module, tu: TestUtils):
-#     return module.forward(tu.randn(3, 2, 4))
+class _LogSoftmaxModule(shark.nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    @annotate_args(
+        [
+            None,
+            ([-1, -1, -1], shark.float32, True),
+        ]
+    )
+    def forward(self, tensor):
+        return shark._log_softmax(tensor, dim=0, half_to_float=False)
+
+
+@register_test_case(module_factory=lambda: _LogSoftmaxModule())
+def _LogSoftmaxModule_basic(module, tu: TestUtils):
+    return module.forward(tu.randn(3, 2, 4))
 
 
 # ==============================================================================
