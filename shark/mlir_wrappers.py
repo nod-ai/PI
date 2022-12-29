@@ -708,6 +708,9 @@ def conv_transpose2d_input(
     )
 
 
+conv_transpose2d = conv_transpose2d_input
+
+
 def conv_transpose3d_input(
     input: Tensor,
     weight: Tensor,
@@ -724,6 +727,7 @@ def conv_transpose3d_input(
         )
     )
 
+conv_transpose3d = conv_transpose3d_input
 
 def convolution(
     input: Tensor,

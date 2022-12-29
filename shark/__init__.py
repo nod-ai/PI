@@ -18,6 +18,25 @@ def mlir_cm(enable_multithreading=False):
 from ._tensor import Tensor
 from .types_ import *
 from shark import nn as nn
-from .variable_functions import *
-from shark.nn.functional import *
+
 # from shark import ops
+
+from .mlir_wrappers import (
+    conv2d,
+    conv_transpose1d,
+    conv_transpose2d,
+    conv_transpose3d,
+    max_pool2d,
+    relu,
+    relu_,
+    embedding,
+    batch_norm,
+    layer_norm,
+    nll_loss_forward as nll_loss_nd,
+    unsqueeze,
+    any,
+    log,
+    div,
+    cat,
+    _embedding_bag as embedding_bag
+)
