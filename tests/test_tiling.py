@@ -1,5 +1,5 @@
-from shark.compiler.compiler import mlir_trace
-from shark.compiler.utils import run_pipeline_with_repro_report
+from pi.compiler.compiler import mlir_trace
+from pi.compiler.utils import run_pipeline_with_repro_report
 
 mlir_module = mlir_trace("simple_kernels.py")
 
