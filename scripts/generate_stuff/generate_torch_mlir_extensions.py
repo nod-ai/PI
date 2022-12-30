@@ -19,6 +19,9 @@ from torchgen.api.python import signature_from_schema, FunctionSchema
 # )
 
 
+ALL = []
+
+
 def _get_function_signature(
     self,
     function_kind: str,
@@ -28,8 +31,7 @@ def _get_function_signature(
     mlir_op_name, _ = self.get_mlir_names()
     # Replace `.` with a valid Python identifier character.
     # `〇` vaguely looks like `.`.
-    def_name = "〇".join(mlir_op_name.split("."))
-    def_name += f"〡{function_kind}"
+    def_name = "_".join(mlir_op_name.split(".")).replace("aten_", "")
     parameter_decls = list(map(parameter_decl_builder, self.arguments))
     ret_decls = list(map(ret_decl_builder, self.returns))
     parameters = ", ".join(parameter_decls)
@@ -40,6 +42,7 @@ def _get_function_signature(
     if len(ret_decls) == 0:
         result = "None"
 
+    ALL.append(def_name)
     return f"def {def_name}({parameters}) -> {result}:"
 
 
@@ -131,7 +134,7 @@ def convert_type_to_op(arg_name, pyt_type, p_td, emitter_td):
         else:
             if arg_name is not None:
                 p_td(
-                    f"assert is_mlir_value({arg_name}), f'{arg_name} should be a Tensor but is {{{arg_name}.type}}'"
+                    f"assert is_mlir_value({arg_name}), f'`{arg_name}` should be a Value but is {{type({arg_name}).__module__}}.{{type({arg_name}).__name__}}'"
                 )
 
 
@@ -178,11 +181,8 @@ def get_wrapper_function_signature(operator):
             ret = "None"
         return ret
 
-    return (
-        operator._get_function_signature("", parameter_decl_builder, ret_decl_builder)
-        .replace("〇", "_")
-        .replace("〡", "")
-        .replace("aten_", "")
+    return operator._get_function_signature(
+        "", parameter_decl_builder, ret_decl_builder
     )
 
 
@@ -225,9 +225,7 @@ def raw_emit_op(
             for arg in operator.arguments
         }
         for k, v in args.items():
-            args[k] = v.replace("Tensor", '"shark.Tensor"').replace(
-                "Number", '"shark.Number"'
-            )
+            args[k] = v.replace("Tensor", "Value").replace("Number", '"Number"')
 
     def generic_result_name(i):
         return "result" + (str(i) if multiple_results else "")
@@ -279,39 +277,39 @@ def raw_emit_op(
                     p_td(f"{arg_name} = get_op_result_or_value({arg_name})")
                     if not_none_arg_type in {"Tensor", "t"}:
                         p_td(
-                            f"""assert str({arg_name}.type).startswith("!torch.vtensor"), f'{arg_name} should a Tensor but is {{{arg_name}.type}}'"""
+                            f"""assert str({arg_name}.type).startswith("!torch.vtensor"), f'`{arg_name}` should be a torch.vtensor but is {{type({arg_name}).__module__}}.{{type({arg_name}).__name__}}'"""
                         )
                     elif not_none_arg_type == "int":
                         p_td(
-                            f"""assert str({arg_name}.type) == '!torch.int', f'{arg_name} should a !torch.int but is {{{arg_name}.type}}'"""
+                            f"""assert str({arg_name}.type) == '!torch.int', f'`{arg_name}` should be a !torch.int but is {{type({arg_name}).__module__}}.{{type({arg_name}).__name__}}'"""
                         )
                     elif not_none_arg_type == "str":
                         p_td(
-                            f"""assert str({arg_name}.type) == '!torch.str', f'{arg_name} should a !torch.str but is {{{arg_name}.type}}'"""
+                            f"""assert str({arg_name}.type) == '!torch.str', f'`{arg_name}` should be a !torch.str but is {{type({arg_name}).__module__}}.{{type({arg_name}).__name__}}'"""
                         )
                     elif not_none_arg_type == "float":
                         p_td(
-                            f"""assert str({arg_name}.type) == '!torch.float', f'{arg_name} should a !torch.float but is {{{arg_name}.type}}'"""
+                            f"""assert str({arg_name}.type) == '!torch.float', f'`{arg_name}` should be a !torch.float but is {{type({arg_name}).__module__}}.{{type({arg_name}).__name__}}'"""
                         )
                     elif not_none_arg_type == "bool":
                         p_td(
-                            f"""assert str({arg_name}.type) == '!torch.bool', f'{arg_name} should a !torch.bool but is {{{arg_name}.type}}'"""
+                            f"""assert str({arg_name}.type) == '!torch.bool', f'`{arg_name}` should be a !torch.bool but is {{type({arg_name}).__module__}}.{{type({arg_name}).__name__}}'"""
                         )
                     elif not_none_arg_type == "Scalar":
                         p_td(
-                            f"""assert str({arg_name}.type) in {{'!torch.float', '!torch.int'}}, f'{arg_name} should a !torch.number but is {{{arg_name}.type}}'"""
+                            f"""assert str({arg_name}.type) in {{'!torch.float', '!torch.int'}}, f'`{arg_name}` should be a !torch.number but is {{type({arg_name}).__module__}}.{{type({arg_name}).__name__}}'"""
                         )
                     elif not_none_arg_type == "Any":
                         p_td(
-                            f"""assert str({arg_name}.type) == '!torch.Any', f'{arg_name} should a !torch.Any but is {{{arg_name}.type}}'"""
+                            f"""assert str({arg_name}.type) == '!torch.Any', f'`{arg_name}` should be a !torch.Any but is {{type({arg_name}).__module__}}.{{type({arg_name}).__name__}}'"""
                         )
                     elif not_none_arg_type == "int[]":
                         p_td(
-                            f"""assert str({arg_name}.type) == '!torch.list<int>', f'{arg_name} should a !torch.list<int> but is {{{arg_name}.type}}'"""
+                            f"""assert str({arg_name}.type) == '!torch.list<int>', f'`{arg_name}` should be a !torch.list<int> but is {{type({arg_name}).__module__}}.{{type({arg_name}).__name__}}'"""
                         )
                     elif not_none_arg_type in {"t[]", "Tensor[]"}:
                         p_td(
-                            f"""assert str({arg_name}.type) == '!torch.list<Tensor>', f'{arg_name} should a !torch.list<Tensor> but is {{{arg_name}.type}}'"""
+                            f"""assert str({arg_name}.type) == '!torch.list<Tensor>', f'`{arg_name}` should be a !torch.list<Tensor> but is {{type({arg_name}).__module__}}.{{type({arg_name}).__name__}}'"""
                         )
                     else:
                         print(
@@ -372,13 +370,39 @@ def raw_emit_op(
 
     stub_td(get_wrapper_function_signature(operator))
     with stubs_emitter_td.indent():
-        if len(operator.returns):
-            ret = "return "
+        for arg in operator.arguments:
+            arg_name = py_reserved_keywords(arg["name"])
+            if arg_name == "dtype":
+                stub_td("if dtype is not None and isinstance(dtype, Enum):")
+                with stubs_emitter_td.indent():
+                    stub_td("dtype = dtype.value")
+            if arg["type"] == "Tensor":
+                stub_td(
+                    f"assert isinstance({arg_name}, Tensor), f'`{arg_name}` should be a {{Tensor.__module__}}.{{Tensor.__name__}} but is {{type({arg_name}).__module__}}.{{type({arg_name}).__name__}}'"
+                )
+                stub_td(f"{arg_name} = {arg_name}.value")
+            elif arg["type"] == "Tensor?":
+                stub_td(f"if {arg_name} is not None:")
+                with stubs_emitter_td.indent():
+                    stub_td(
+                        f"assert isinstance({arg_name}, Tensor), f'`{arg_name}` should be a {{Tensor.__module__}}.{{Tensor.__name__}} but is {{type({arg_name}).__module__}}.{{type({arg_name}).__name__}}'"
+                    )
+                    stub_td(f"{arg_name} = {arg_name}.value")
+            elif arg["type"] == "Tensor[]":
+                stub_td(
+                    f"assert builtins.all(isinstance(t, Tensor) for t in {arg_name})"
+                )
+                stub_td(f"{arg_name} = [t.value for t in {arg_name}]")
+
+        call_str = f'torch_dialect.{cpp_class_name}({", ".join([f"{k}" for k, _v in args.items()])})'
+        if len(operator.returns) == 0:
+            ret = call_str
+        elif len(operator.returns) == 1:
+            ret = f"return Tensor({call_str})"
         else:
-            ret = ""
-        stub_td(
-            f'{ret}Tensor(torch_dialect.{cpp_class_name}({", ".join([f"{k}" for k, _v in args.items()])}))'
-        )
+            stub_td(f"op_results = get_op_results_or_values({call_str})")
+            ret = f"return tuple([Tensor(o) if is_a_torch_tensor(o) else o for o in op_results])"
+        stub_td(f"{ret}")
         stub_td("\n")
 
 
@@ -412,21 +436,32 @@ from torch_mlir.dialects.torch.importer.jit_ir.build_tools.torch_ods_gen import 
 # )
 # tensor_method_sig_groups = get_py_torch_functions(tensor_method_signatures, method=True)
 
+_torch_ops_ext_fp = "../../shark/dialects/_torch_ops_ext.py"
+_torch_wrappers_fp = "../../shark/dialects/_torch_wrappers.py"
 
 registry = Registry.load()
-with open("../../shark/dialects/_torch_ops_ext.py", "w") as f_td:
+with open(_torch_ops_ext_fp, "w") as f_td:
     emitter_td = TextEmitter(f_td)
     emitter_td._INDENT = "    "
-    with open("../../shark/nn/wrappers.py", "w") as stubs_td:
+    with open(_torch_wrappers_fp, "w") as stubs_td:
         stubs_emitter_td = TextEmitter(stubs_td)
         stubs_emitter_td._INDENT = "    "
         stubs_emitter_td.print(
             dedent(
                 f"""\
-        from shark import Tensor, Number
+        from enum import Enum
+        import builtins
+        
+        from .._tensor import Tensor
+        from ..types_ import Number, is_a_torch_tensor
         from typing import List, Optional, Any, Tuple
 
         from torch_mlir.dialects import torch as torch_dialect
+        from torch_mlir.dialects._ods_common import (
+            get_default_loc_context,
+            get_op_result_or_value,
+            get_op_results_or_values,
+        )
         
         """
             )
@@ -454,3 +489,8 @@ with open("../../shark/dialects/_torch_ops_ext.py", "w") as f_td:
             )
         )
         emit_ops(emitter_td, registry)
+
+        assert len(ALL) == len(set(ALL)), "duplicate ALL"
+        ALL = [f"'{a}'" for a in ALL]
+        stubs_emitter_td.print("\n\n")
+        stubs_emitter_td.print(f"__all__ = [{', '.join(ALL)}]")

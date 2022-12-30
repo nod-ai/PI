@@ -3,7 +3,6 @@
 #  SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 try:
-    # from shark import Tensor, Number
     from torch_mlir.ir import *
     from torch_mlir.dialects._ods_common import (
         get_default_loc_context,
@@ -71,9 +70,44 @@ class PrimListConstructOp:
         ip=None,
     ):
         if len(elements):
+            elements = get_op_results_or_values(elements)
             el_type = get_op_result_or_value(elements[0]).type
             el_type_str = el_type_reg.findall(str(el_type))[0]
             res_type = Type.parse(f"!torch.list<{el_type_str}>")
         else:
             res_type = Type.parse(f"!torch.list<int>")
         super().__init__(res_type, elements, loc=loc, ip=ip)
+
+
+class PrimTupleConstructOp:
+    def __init__(
+        self,
+        elements,
+        *,
+        loc=None,
+        ip=None,
+    ):
+        if len(elements):
+            elements = get_op_results_or_values(elements)
+            el_types = ", ".join(
+                [el_type_reg.findall(str(e.type))[0] for e in elements]
+            )
+            res_type = Type.parse(f"!torch.tuple<{el_types}>")
+        else:
+            res_type = Type.parse(f"!torch.tuple<int>")
+        super().__init__(res_type, elements, loc=loc, ip=ip)
+
+
+class AtenScalarImplicitOp:
+    def __init__(self, a: "shark.Tensor", *, loc=None, ip=None):
+        if not is_mlir_value(a):
+            assert is_mlir_value(
+                a
+            ), f"`a` should be a Tensor but is {type(a).__module__}.{type(a).__name__}"
+        else:
+            a = get_op_result_or_value(a)
+            assert str(a.type).startswith(
+                "!torch.vtensor"
+            ), f"`a` should be a Tensor but is {type(a).__module__}.{type(a).__name__}"
+
+        super(AtenScalarImplicitOp, self).__init__(a, loc=loc, ip=ip)

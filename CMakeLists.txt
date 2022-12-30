@@ -17,7 +17,7 @@ if (POLICY CMP0116)
     cmake_policy(SET CMP0116 NEW)
 endif ()
 
-project(mlir-python-bindings LANGUAGES CXX C)
+project(SharkPy LANGUAGES CXX C)
 
 set(CMAKE_BUILD_WITH_INSTALL_NAME_DIR ON)
 
@@ -58,4 +58,5 @@ set(MLIR_BINARY_DIR ${CMAKE_BINARY_DIR})
 set(MLIR_INCLUDE_TESTS 0)
 
 pybind11_add_module(_mlir cpp_ext/MainModule.cpp cpp_ext/TensorValue.cpp cpp_ext/TorchTypes.cpp)
+#target_link_libraries(_mlir PRIVATE MLIRIR MLIRSupport MLIRCAPIInterfaces MLIRCAPIIR)
 

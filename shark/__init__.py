@@ -1,42 +1,43 @@
-import contextlib
-import shark.dialects
+import logging
 
-from torch_mlir.ir import Context, Location, Module, InsertionPoint
-from torch_mlir.dialects import torch as torch_dialect
+logger = logging.getLogger(__name__)
+# noinspection PyUnresolvedReferences
+from .dialects import patch_meta_path_non_context
 
+if __name__ == "shark":
+    # prevent double patching of path during testing
+    # where we've already patched torch -> sharkpy
+    patch_meta_path_non_context()
+else:
+    logger.debug(f"reimporting sharkpy as {__name__}")
 
-@contextlib.contextmanager
-def mlir_cm(enable_multithreading=False):
-    with Context() as ctx, Location.unknown():
-        ctx.enable_multithreading(enable_multithreading)
-        torch_dialect.register_dialect(ctx, True)
-        module = Module.create()
-        with InsertionPoint(module.body):
-            yield module
+# this has to go before the above (otherwise torch extensions won't be picked up)
+# noinspection PyUnresolvedReferences
+from torch_mlir import ir
+import torch_mlir
 
+assert (
+    len(torch_mlir.dialects.torch.AtenConv2dOp.__bases__) > 1
+), "failed to import torch dialect extensions"
 
-from ._tensor import Tensor
+from ._tensor import *
 from .types_ import *
-from shark import nn as nn
+from .dialects._torch_wrappers import *
+from ._ops import _OpNamespace
 
-# from shark import ops
+ops = _OpNamespace("ops")
+_nn = _OpNamespace("_nn")
+_C = _OpNamespace("_C")
+_VF = _OpNamespace("_VF")
+special = _OpNamespace("special")
+linalg = _OpNamespace("linalg")
 
-from .mlir_wrappers import (
-    conv2d,
-    conv_transpose1d,
-    conv_transpose2d,
-    conv_transpose3d,
-    max_pool2d,
-    relu,
-    relu_,
-    embedding,
-    batch_norm,
-    layer_norm,
-    nll_loss_forward as nll_loss_nd,
-    unsqueeze,
-    any,
-    log,
-    div,
-    cat,
-    _embedding_bag as embedding_bag
-)
+
+from . import nn as nn
+
+
+def manual_seed(*_, **__):
+    return
+
+
+DEBUG = True

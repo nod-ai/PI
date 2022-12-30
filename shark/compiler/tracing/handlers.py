@@ -75,9 +75,7 @@ def generic_visit(self, node):
             future_imports = []
             if isinstance(node, ast.Module) and name == "body":
                 node_copy = self.get_copy_node(node)
-                if self.handler_predicate_by_event[
-                    TraceEvent.init_module
-                ](node_copy):
+                if self.handler_predicate_by_event[TraceEvent.init_module](node_copy):
                     with fast.location_of(node):
                         new_field.extend(
                             fast.parse(

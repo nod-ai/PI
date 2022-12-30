@@ -72,10 +72,15 @@ class CMakeBuild(build_ext):
         # EXAMPLE_VERSION_INFO shows you how to pass a value into the C++ code
         # from Python.
         cmake_args = [
+            # f"-DCMAKE_BUILD_TYPE=Debug",
+            # f"-DCMAKE_C_COMPILER=clang",
+            # f"-DCMAKE_CXX_COMPILER=clang++",
             f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={ext_build_lib_dir}{os.sep}shark",
             f"-DCMAKE_PREFIX_PATH={llvm_install_dir}",
+            f"-DCMAKE_MODULE_LINKER_FLAGS=-L{llvm_install_dir}/lib",
+            f"-DCMAKE_SHARED_LINKER_FLAGS=-L{llvm_install_dir}/lib",
+            f"-DCMAKE_EXE_LINKER_FLAGS=-L{llvm_install_dir}/lib",
             f"-DPython3_EXECUTABLE={sys.executable}",
-            f"-DPYTHON_EXECUTABLE={sys.executable}",
             f"-DCMAKE_BUILD_TYPE={cfg}",  # not used on MSVC, but no harm
         ]
         build_args = []
@@ -148,9 +153,9 @@ else:
         author="Maksim Levental",
         author_email="maksim.levental@gmail.com",
         description="Python frontend for MLIR (and torch-mlir)",
-        ext_modules=[CMakeExtension("_tensor")],
-        cmdclass={"build_ext": CMakeBuild},
+        # ext_modules=[CMakeExtension("_tensor")],
+        # cmdclass={"build_ext": CMakeBuild},
         packages=packages,
         zip_safe=False,
-        install_requires=["PyYAML", "pyccolo", "torch-mlir"],
+        install_requires=["PyYAML", "pyccolo", "torch-mlir", "multiprocess"],
     )

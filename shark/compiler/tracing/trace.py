@@ -398,6 +398,8 @@ class MLIRTracer(pyc.BaseTracer):
                 inputs=func_type.inputs, results=[mlir_return_val.type]
             )
             func_op.attributes["function_type"] = ir.TypeAttr.get(canonical_func_type)
+            if isinstance(mlir_return_val, shark.Tensor):
+                mlir_return_val = mlir_return_val.value
             func_dialect.ReturnOp((mlir_return_val,))
         else:
             func_dialect.ReturnOp(())
@@ -416,7 +418,9 @@ class MLIRTracer(pyc.BaseTracer):
         **kwargs,
     ):
         for loc_name, loc in frame.f_locals.items():
-            if inspect.isfunction(loc) and getattr(loc, SHARKPY_EXPORT_ATTR_NAME, False):
+            if inspect.isfunction(loc) and getattr(
+                loc, SHARKPY_EXPORT_ATTR_NAME, False
+            ):
                 print(loc)
         self.exit_mlir_block_scope(scope_name="module")
 
