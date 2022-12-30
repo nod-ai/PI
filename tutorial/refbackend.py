@@ -11,13 +11,13 @@ __all__ = [
     "RefBackendLinalgOnTensorsBackend",
 ]
 
-from shark.ir import Module
-from shark.compiler.config import MLIR_C_RUNNER_UTILS, MLIR_RUNNER_UTILS
-from shark.compiler.utils import run_pipeline_with_repro_report
+from pi.ir import Module
+from pi.compiler.config import MLIR_C_RUNNER_UTILS, MLIR_RUNNER_UTILS
+from pi.compiler.utils import run_pipeline_with_repro_report
 
-from shark.execution_engine import ExecutionEngine
+from pi.execution_engine import ExecutionEngine
 
-from shark.runtime import (
+from pi.runtime import (
     UnrankedMemRefDescriptor,
     unranked_memref_to_numpy,
     get_unranked_memref_descriptor,

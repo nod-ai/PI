@@ -1,4 +1,4 @@
-- [SharkPy](#sharkpy)
+- [PI](#PI)
 - [Installing](#installing)
 - [Minimal example](#minimal-example)
 - [Moderately interesting example](#moderately-interesting-example)
@@ -8,7 +8,7 @@
     <img width="598" alt="image" src="https://user-images.githubusercontent.com/5657668/205545845-544fe701-79d5-43c1-beec-09763f22cc85.png">
 </p>
 
-# SharkPy
+# PI
 
 Early days of a Python frontend for MLIR.
 
@@ -25,10 +25,10 @@ pip install . \
 
 and you're good to go.
 
-Alternatively, you can install the [latest released wheel](https://github.com/nod-ai/SharkPy/releases/latest):
+Alternatively, you can install the [latest released wheel](https://github.com/nod-ai/PI/releases/latest):
 
 ```shell
-pip install https://github.com/nod-ai/SharkPy/releases/latest/download/SharkPy-$CURRENT_VERSION-py3-none-any.whl \
+pip install https://github.com/nod-ai/PI/releases/latest/download/PI-$CURRENT_VERSION-py3-none-any.whl \
   --pre torch-mlir torchvision \
   -f https://llvm.github.io/torch-mlir/package-index/ \
   --extra-index-url https://download.pytorch.org/whl/nightly/cpu
@@ -39,7 +39,7 @@ pip install https://github.com/nod-ai/SharkPy/releases/latest/download/SharkPy-$
 [simple_kernels.py](./tests/simple_kernels.py) (in [tests](./tests)) looks like this
 
 ```python
-from shark.dialects import memref, linalg
+from pi.dialects import memref, linalg
 
 def saxpy(a: float, b: float):
     A = memref.AllocaOp((10, 30))
@@ -233,28 +233,46 @@ func.func private @saxpy(%arg0: f64, %arg1: f64) -> memref<10x20xf64> {
 Preliminary support for the `torch-mlir` dialect is available:
 
 ```python
-def torch_ops():
-    f64 = F64Type.get()
-    z = torch.ConstantFloatOp(value=FloatAttr.get(f64, 256.0))
-    attr = DenseFPElementsAttr(Attribute.parse("dense<0.0> : tensor<3x5xf32>"))
-    a = torch.ValueTensorLiteralOp(attr)
-    b = torch.ValueTensorLiteralOp(attr)
-    c = torch.AtenAddTensorOp(a.result.type, a.result, b.result, z)
-    return c
+class MyConv2d(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.conv = nn.Conv2d(3, 1, 3)
+
+    def forward(self, x):
+        y = self.conv(x)
+        z = y + y
+        w = z * z
+        return w
 ```
 
 lowers to
 
 ```mlir
-func.func private @torch_ops() -> !torch.vtensor<[3,5],f32> {
-  %float2.560000e02 = torch.constant.float 2.560000e+02
-  %0 = torch.vtensor.literal(dense<0.000000e+00> : tensor<3x5xf32>) : !torch.vtensor<[3,5],f32>
-  %1 = torch.vtensor.literal(dense<0.000000e+00> : tensor<3x5xf32>) : !torch.vtensor<[3,5],f32>
-  %2 = torch.aten.add.Tensor %0, %1, %float2.560000e02 : 
-    !torch.vtensor<[3,5],f32>, !torch.vtensor<[3,5],f32>, !torch.float -> !torch.vtensor<[3,5],f32>
-  return %2 : !torch.vtensor<[3,5],f32>
+module {
+  func.func private @simple_conv2d() -> !torch.vtensor {
+    %0 = torch.vtensor.literal(dense<1.000000e+00> : tensor<1x3x32x32xf32>) : !torch.vtensor<[1,3,32,32],f32>
+    %1 = torch.vtensor.literal(dense<1.000000e+00> : tensor<1xf32>) : !torch.vtensor<[1],f32>
+    %2 = torch.vtensor.literal(dense<1.000000e+00> : tensor<1x3x3x3xf32>) : !torch.vtensor<[1,3,3,3],f32>
+    %int1 = torch.constant.int 1
+    %int1_0 = torch.constant.int 1
+    %3 = torch.prim.ListConstruct %int1, %int1_0 : (!torch.int, !torch.int) -> !torch.list<int>
+    %int0 = torch.constant.int 0
+    %int0_1 = torch.constant.int 0
+    %4 = torch.prim.ListConstruct %int0, %int0_1 : (!torch.int, !torch.int) -> !torch.list<int>
+    %int1_2 = torch.constant.int 1
+    %int1_3 = torch.constant.int 1
+    %5 = torch.prim.ListConstruct %int1_2, %int1_3 : (!torch.int, !torch.int) -> !torch.list<int>
+    %int1_4 = torch.constant.int 1
+    %6 = torch.aten.conv2d %0, %2, %1, %3, %4, %5, %int1_4 : !torch.vtensor<[1,3,32,32],f32>, !torch.vtensor<[1,3,3,3],f32>, !torch.vtensor<[1],f32>, !torch.list<int>, !torch.list<int>, !torch.list<int>, !torch.int -> !torch.vtensor
+    %7 = "torch.constant.number"() {value = 1 : i64} : () -> !torch.number
+    %8 = torch.aten.add.Tensor %6, %6, %7 : !torch.vtensor, !torch.vtensor, !torch.number -> !torch.vtensor
+    %9 = torch.aten.mul.Tensor %8, %8 : !torch.vtensor, !torch.vtensor -> !torch.vtensor
+    return %9 : !torch.vtensor
+  }
 }
 ```
+
+This is very rough right now; to get a rough idea of the current status check the [latest tests](https://github.com/nod-ai/PI/actions).
 
 # Build Wheel
 
