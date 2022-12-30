@@ -436,8 +436,8 @@ from torch_mlir.dialects.torch.importer.jit_ir.build_tools.torch_ods_gen import 
 # )
 # tensor_method_sig_groups = get_py_torch_functions(tensor_method_signatures, method=True)
 
-_torch_ops_ext_fp = "../../shark/dialects/_torch_ops_ext.py"
-_torch_wrappers_fp = "../../shark/dialects/_torch_wrappers.py"
+_torch_ops_ext_fp = "../../pi/dialects/_torch_ops_ext.py"
+_torch_wrappers_fp = "../../pi/dialects/_torch_wrappers.py"
 
 registry = Registry.load()
 with open(_torch_ops_ext_fp, "w") as f_td:
@@ -471,7 +471,7 @@ with open(_torch_ops_ext_fp, "w") as f_td:
             dedent(
                 f"""\
         try:
-            # from shark import Tensor, Number
+            # from pi import Tensor, Number
             from torch_mlir.ir import *
             from torch_mlir.dialects._ods_common import (
                 get_default_loc_context,

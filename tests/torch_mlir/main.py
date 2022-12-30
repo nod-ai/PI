@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 # noinspection PyUnresolvedReferences
-import shark
+import pi
 
 # noinspection PyUnresolvedReferences
 import torch_mlir
@@ -13,7 +13,7 @@ import torch_mlir_e2e_test
 
 from xfail import SHARKPY_XFAIL_SET
 
-shark_package_root_path = Path(shark.__file__).parent
+shark_package_root_path = Path(pi.__file__).parent
 torch_mlir_package_root_path = Path(torch_mlir.__file__).parent
 torch_mlir_e2e_test_package_root_path = Path(torch_mlir_e2e_test.__file__).parent
 
@@ -22,17 +22,17 @@ from torch_mlir_e2e_test.test_suite import (
     register_all_tests as torch_mlir_register_all_tests,
 )
 
-from shark.dialects import (
+from pi.dialects import (
     remove_modules,
     ImportOverload,
     BASE_OVERLOADS,
     patch_meta_path,
 )
-from shark.mlir_utils import lower_sharkpy_to_linalg
-from shark.testing.util import (
+from pi.mlir_utils import lower_sharkpy_to_linalg
+from pi.testing.util import (
     SharkPyConfig,
 )
-from shark.testing.util import (
+from pi.testing.util import (
     TorchDialectConfig,
     set_weights,
     lower_torch_mlir_to_linalg,
@@ -69,7 +69,7 @@ def run_torch_mlir_tests():
 
 def run_sharkpy_tests(torch_mlir_linalg_module_strs):
     torch_mlir_register_all_tests()
-    # after remapping, this imports shark test registry
+    # after remapping, this imports pi test registry
     import torch_mlir_e2e_test.registry
 
     tests = sorted(
@@ -168,7 +168,7 @@ def main():
     remove_modules(lambda mod: mod == "torch" or mod.startswith("torch."))
 
     # remap to torch so that isintance works...
-    # remove_modules(lambda mod: mod == "shark" or mod.startswith("shark."))
+    # remove_modules(lambda mod: mod == "pi" or mod.startswith("pi."))
 
     overloads = [
         ImportOverload(

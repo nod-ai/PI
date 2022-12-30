@@ -1,4 +1,4 @@
-- [SharkPy](#sharkpy)
+- [PI](#PI)
 - [Installing](#installing)
 - [Minimal example](#minimal-example)
 - [Moderately interesting example](#moderately-interesting-example)
@@ -8,7 +8,7 @@
     <img width="598" alt="image" src="https://user-images.githubusercontent.com/5657668/205545845-544fe701-79d5-43c1-beec-09763f22cc85.png">
 </p>
 
-# SharkPy
+# PI
 
 Early days of a Python frontend for MLIR.
 
@@ -39,7 +39,7 @@ pip install https://github.com/nod-ai/SharkPy/releases/latest/download/SharkPy-$
 [simple_kernels.py](./tests/simple_kernels.py) (in [tests](./tests)) looks like this
 
 ```python
-from shark.dialects import memref, linalg
+from pi.dialects import memref, linalg
 
 def saxpy(a: float, b: float):
     A = memref.AllocaOp((10, 30))

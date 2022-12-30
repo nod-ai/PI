@@ -1,6 +1,6 @@
 import os.path
 
-from shark.compiler.compiler import mlir_trace
+from pi.compiler.compiler import mlir_trace
 # TODO(max): need to figure out how to reload the module so that the bytecode gets run through pycc
 
 

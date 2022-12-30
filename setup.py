@@ -75,7 +75,7 @@ class CMakeBuild(build_ext):
             # f"-DCMAKE_BUILD_TYPE=Debug",
             # f"-DCMAKE_C_COMPILER=clang",
             # f"-DCMAKE_CXX_COMPILER=clang++",
-            f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={ext_build_lib_dir}{os.sep}shark",
+            f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={ext_build_lib_dir}{os.sep}pi",
             f"-DCMAKE_PREFIX_PATH={llvm_install_dir}",
             f"-DCMAKE_MODULE_LINKER_FLAGS=-L{llvm_install_dir}/lib",
             f"-DCMAKE_SHARED_LINKER_FLAGS=-L{llvm_install_dir}/lib",
@@ -136,8 +136,8 @@ class CMakeBuild(build_ext):
 
 packages = find_namespace_packages(
     include=[
-        "shark",
-        "shark.*",
+        "pi",
+        "pi.*",
     ],
 )
 

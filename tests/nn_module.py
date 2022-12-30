@@ -1,5 +1,5 @@
-from shark import empty
-from shark import nn
+from pi import empty
+from pi import nn
 
 
 class MyConv2d(nn.Module):

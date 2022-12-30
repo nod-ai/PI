@@ -8,7 +8,7 @@ from refbackend import (
     BUFFERIZATION_PIPELINE,
     LOWER_LLVM_PIPELINE,
 )
-from shark.ir import (
+from pi.ir import (
     Context,
     Location,
     Module,
@@ -16,9 +16,9 @@ from shark.ir import (
     RankedTensorType,
     F64Type,
 )
-from shark.compiler.config import MLIR_C_RUNNER_UTILS, MLIR_RUNNER_UTILS
-from shark.compiler.utils import run_pipeline_with_repro_report
-from shark.dialects import func, linalg
+from pi.compiler.config import MLIR_C_RUNNER_UTILS, MLIR_RUNNER_UTILS
+from pi.compiler.utils import run_pipeline_with_repro_report
+from pi.dialects import func, linalg
 
 M = 32
 N = 32
