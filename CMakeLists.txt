@@ -17,7 +17,7 @@ if (POLICY CMP0116)
     cmake_policy(SET CMP0116 NEW)
 endif ()
 
-project(SharkPy LANGUAGES CXX C)
+project(PI LANGUAGES CXX C)
 
 set(CMAKE_BUILD_WITH_INSTALL_NAME_DIR ON)
 

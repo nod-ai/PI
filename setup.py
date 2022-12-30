@@ -148,7 +148,7 @@ if len(sys.argv) > 1 and sys.argv[1] == "--version":
     print(VERSION)
 else:
     setup(
-        name="SharkPy",
+        name="PI",
         version=VERSION,
         author="Maksim Levental",
         author_email="maksim.levental@gmail.com",

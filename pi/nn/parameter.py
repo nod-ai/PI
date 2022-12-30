@@ -3,7 +3,7 @@ from functools import partial
 from typing import Union, List, Tuple
 
 # this is the right way to import in order to not screw up the tests (torch.dtype vs pi.type)
-from ..types_ import dtype as shark_dtype
+from ..types_ import dtype as pi_dtype
 
 # import pi
 from .._tensor import Tensor, empty
@@ -16,7 +16,7 @@ class Parameter(Tensor):
 
 class Uninitialized(partial):
     size: Union[List[int], Tuple[int, ...]]
-    dtype: shark_dtype = None
+    dtype: pi_dtype = None
 
     def __new__(cls, *args, **keywords):
         func = args[0]
@@ -35,8 +35,8 @@ class Uninitialized(partial):
         if "dtype" in keywords and keywords["dtype"] is not None:
             dtype = keywords["dtype"]
             assert isinstance(
-                dtype, shark_dtype
-            ), f"unknown dtype {type(dtype).__module__}.{type(dtype).__name__} (should be {shark_dtype.__module__}.{shark_dtype.__name__})"
+                dtype, pi_dtype
+            ), f"unknown dtype {type(dtype).__module__}.{type(dtype).__name__} (should be {pi_dtype.__module__}.{pi_dtype.__name__})"
             instance.dtype = dtype
 
         return instance

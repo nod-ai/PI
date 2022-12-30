@@ -14,7 +14,7 @@ from torch_mlir.ir import (
 )
 
 import pi
-from .types_ import dtype as shark_dtype
+from .types_ import dtype as pi_dtype
 
 
 class TorchTensorWrapper(type):
@@ -37,14 +37,14 @@ class TorchTensorWrapper(type):
     @classmethod
     def __instancecheck__(cls, instance):
         try:
-            return instance.is_shark_tensor
+            return instance.is_pi_tensor
         except:
             return False
 
 
 class Tensor(metaclass=TorchTensorWrapper):
     @property
-    def is_shark_tensor(self):
+    def is_pi_tensor(self):
         return True
 
     @property
@@ -2192,7 +2192,7 @@ def tensor(data: Any, dtype: Optional["pi.dtype"] = None) -> Tensor:
 
 
 def LongTensor(data: Any) -> Tensor:
-    return from_numpy(np.array(data, dtype=shark_dtype.int64.to_np_type()))
+    return from_numpy(np.array(data, dtype=pi_dtype.int64.to_np_type()))
 
 
 def clone(x: Tensor, **kwargs):

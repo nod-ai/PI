@@ -6,10 +6,10 @@ from .dialects import patch_meta_path_non_context
 
 if __name__ == "pi":
     # prevent double patching of path during testing
-    # where we've already patched torch -> sharkpy
+    # where we've already patched torch -> pi
     patch_meta_path_non_context()
 else:
-    logger.debug(f"reimporting sharkpy as {__name__}")
+    logger.debug(f"reimporting pi as {__name__}")
 
 # this has to go before the above (otherwise torch extensions won't be picked up)
 # noinspection PyUnresolvedReferences

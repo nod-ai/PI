@@ -89,7 +89,7 @@ class TorchDialectConfig:
 SMOKE_TEST = False
 
 
-class SharkPyConfig:
+class PIConfig:
     def compile(self, test_case: Test, test_module: nn.Module) -> Any:
         tu = TestUtils()
         with mlir_cm() as module:

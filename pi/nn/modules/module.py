@@ -5,7 +5,7 @@ from collections import OrderedDict
 from typing import Dict, Optional, Callable, Union
 
 from ..._tensor import Tensor
-from ...types_ import dtype as shark_dtype
+from ...types_ import dtype as pi_dtype
 from ..parameter import (
     Parameter,
     UninitializedParameter,
@@ -214,7 +214,7 @@ class Module:
             self._initialize_hook.remove()
             delattr(self, "_initialize_hook")
 
-    def to(self, dtype: shark_dtype):
+    def to(self, dtype: pi_dtype):
         if initialized_param := self.not_uninitialized():
             raise RuntimeError(
                 f"module {self.__class__.__name__} has already been initialized; {initialized_param}"

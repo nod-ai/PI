@@ -77,7 +77,7 @@ def run_pipeline_with_repro_report(
         sys.stderr = original_stderr
 
 
-def lower_sharkpy_to_linalg(module):
+def lower_pi_to_linalg(module):
     run_pipeline_with_repro_report(
         module,
         "builtin.module("

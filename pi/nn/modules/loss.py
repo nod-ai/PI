@@ -107,7 +107,7 @@ class NLLLoss2d(NLLLoss):
         warnings.warn(
             "NLLLoss2d has been deprecated. "
             "Please use NLLLoss instead as a drop-in replacement and see "
-            "https://pyshark.org/docs/master/nn.html#shark.nn.NLLLoss for more details."
+            "https://pytorch.org/docs/master/nn.html#torch.nn.NLLLoss for more details."
         )
         super(NLLLoss2d, self).__init__(
             weight, size_average, ignore_index, reduce, reduction

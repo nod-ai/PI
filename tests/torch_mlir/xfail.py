@@ -1,4 +1,4 @@
-SHARKPY_XFAIL_SET = {
+PI_XFAIL_SET = {
     # view op
     "ElementwiseFlattenBroadcastModule_basic",
     "FlattenDynamicModule_basic",

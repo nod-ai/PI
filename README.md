@@ -25,10 +25,10 @@ pip install . \
 
 and you're good to go.
 
-Alternatively, you can install the [latest released wheel](https://github.com/nod-ai/SharkPy/releases/latest):
+Alternatively, you can install the [latest released wheel](https://github.com/nod-ai/PI/releases/latest):
 
 ```shell
-pip install https://github.com/nod-ai/SharkPy/releases/latest/download/SharkPy-$CURRENT_VERSION-py3-none-any.whl \
+pip install https://github.com/nod-ai/PI/releases/latest/download/PI-$CURRENT_VERSION-py3-none-any.whl \
   --pre torch-mlir torchvision \
   -f https://llvm.github.io/torch-mlir/package-index/ \
   --extra-index-url https://download.pytorch.org/whl/nightly/cpu
@@ -272,7 +272,7 @@ module {
 }
 ```
 
-This is very rough right now; to get a rough idea of the current status check the [latest tests](https://github.com/nod-ai/SharkPy/actions?query=branch%3Ann_module+) on the `nn_module` branch.
+This is very rough right now; to get a rough idea of the current status check the [latest tests](https://github.com/nod-ai/PI/actions?query=branch%3Ann_module+) on the `nn_module` branch.
 
 # Build Wheel
 

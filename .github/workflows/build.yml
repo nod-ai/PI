@@ -1,12 +1,11 @@
 name: Build
 
 on:
-  pull_request:
-    branches:
-      - main
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: [ "Test" ]
+    types:
+      - completed
+    branches: [ main ]
   workflow_dispatch:
     branches:
       - main
@@ -44,7 +43,7 @@ jobs:
             --extra-index-url https://download.pytorch.org/whl/nightly/cpu
           
           mkdir -p ${{ github.sha }}
-          mv wheelhouse/SharkPy*.whl ${{ github.sha }}/
+          mv wheelhouse/PI*.whl ${{ github.sha }}/
 
       - name: Upload an artifact
         uses: actions/upload-artifact@v3
@@ -76,10 +75,10 @@ jobs:
       - name: Set up a release page
         id: setup_release
         run: |
-          SHARKPY_VERSION=$(python setup.py --version)
-          tag_name="$SHARKPY_VERSION"
-          release_title="SharkPy $SHARKPY_VERSION"
-          echo "SharkPy $SHARKPY_VERSION created at $(date)" > body.md
+          PI_VERSION=$(python setup.py --version)
+          tag_name="$PI_VERSION"
+          release_title="PI $PI_VERSION"
+          echo "PI $PI_VERSION created at $(date)" > body.md
           echo "tag_name=${tag_name}" >> $GITHUB_OUTPUT
           echo "release_title=${release_title}" >> $GITHUB_OUTPUT
 
@@ -88,7 +87,7 @@ jobs:
         with:
           artifacts: "${{ github.sha }}/*.whl"
           bodyFile: body.md
-          token: "${{ secrets.SHARK_PY_CI }}"
+          token: "${{ secrets.PI_CI }}"
           tag: "${{ steps.setup_release.outputs.tag_name }}"
           name: "${{ steps.setup_release.outputs.release_title }}"
           removeArtifacts: true

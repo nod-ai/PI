@@ -2,8 +2,6 @@ from torch_mlir.dialects import memref, linalg, torch, arith, tensor
 from torch_mlir.ir import Attribute, DenseFPElementsAttr, DenseElementsAttr
 import numpy as np
 
-from pi.compiler.annotations import sharkpile
-
 
 def saxpy(a: float, b: float):
     A = memref.AllocaOp((10, 30))

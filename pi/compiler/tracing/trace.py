@@ -7,7 +7,7 @@ import ctypes
 import inspect
 import os
 
-from pi.compiler.annotations import SHARKPY_EXPORT_ATTR_NAME
+from pi.compiler.annotations import PI_EXPORT_ATTR_NAME
 
 # noinspection PyUnresolvedReferences
 import pi.compiler.tracing.handlers
@@ -419,7 +419,7 @@ class MLIRTracer(pyc.BaseTracer):
     ):
         for loc_name, loc in frame.f_locals.items():
             if inspect.isfunction(loc) and getattr(
-                loc, SHARKPY_EXPORT_ATTR_NAME, False
+                loc, PI_EXPORT_ATTR_NAME, False
             ):
                 print(loc)
         self.exit_mlir_block_scope(scope_name="module")

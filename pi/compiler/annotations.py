@@ -13,12 +13,12 @@ from torch_mlir.dialects.torch.importer.jit_ir.build_tools.torch_ods_gen import 
 )
 from torch_mlir import ir
 
-SHARKPY_EXPORT_ATTR_NAME = "_SHARKPY_EXPORT"
-SHARKPY_ARG_ANNOTATIONS_ATTR_NAME = "_SHARKPY_ARG_ANNOTATIONS"
+PI_EXPORT_ATTR_NAME = "_PI_EXPORT"
+PI_ARG_ANNOTATIONS_ATTR_NAME = "_PI_ARG_ANNOTATIONS"
 
 
 def export(fn):
-    # setattr(fn, SHARKPY_EXPORT_ATTR_NAME, True)
+    # setattr(fn, PI_EXPORT_ATTR_NAME, True)
     return fn
 
 
@@ -84,7 +84,7 @@ def convert_annotations_to_placeholders(forward_method):
 
     These placeholders are suitable for being passed to `torch_mlir.compile`.
     """
-    annotations = getattr(forward_method, SHARKPY_ARG_ANNOTATIONS_ATTR_NAME)
+    annotations = getattr(forward_method, PI_ARG_ANNOTATIONS_ATTR_NAME)
     placeholders = []
     # Skip the "self" annotation.
     for annotation in annotations[1:]:
@@ -92,7 +92,7 @@ def convert_annotations_to_placeholders(forward_method):
     return placeholders
 
 
-def sharkpile(annotations: List[Optional[ArgAnnotation]]):
+def pipile(annotations: List[Optional[ArgAnnotation]]):
     def actual_decorator(func):
         func = export(func)
         if len(annotations):
