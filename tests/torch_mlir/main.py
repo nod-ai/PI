@@ -1,8 +1,22 @@
 import difflib
-import sys
+import importlib
+import logging
 import traceback
 from pathlib import Path
 
+
+FORMAT = "%(asctime)s, %(levelname)-8s [%(filename)s:%(module)s:%(funcName)s:%(lineno)d] %(message)s"
+formatter = logging.Formatter(FORMAT)
+
+
+logging.basicConfig(level=logging.DEBUG, format=FORMAT)
+logger = logging.getLogger(__name__)
+
+# Create handlers
+# c_handler = logging.StreamHandler()
+f_handler = logging.FileHandler("file.log")
+# c_handler.setLevel(logging.DEBUG)
+f_handler.setLevel(logging.DEBUG)
 
 # noinspection PyUnresolvedReferences
 import pi

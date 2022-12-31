@@ -174,6 +174,8 @@ def patch_meta_path(overloads=None) -> Generator[None, None, None]:
     try:
         cleanup_callback = patch_meta_path_non_context(overloads)
         yield
+    except:
+        raise
     finally:
         if cleanup_callback is not None:
             cleanup_callback()
