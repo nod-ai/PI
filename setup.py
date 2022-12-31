@@ -157,5 +157,5 @@ else:
         # cmdclass={"build_ext": CMakeBuild},
         packages=packages,
         zip_safe=False,
-        install_requires=["PyYAML", "pyccolo", "torch-mlir", "multiprocess"],
+        install_requires=["PyYAML", "pyccolo", "torch-mlir", "multiprocess, plum-dispatch"]
     )

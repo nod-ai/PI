@@ -45,6 +45,11 @@ class ConstantBoolOp:
         super().__init__(IntegerAttr.get(i1, int(value)))
 
 
+class ConstantDeviceOp:
+    def __init__(self, value: str):
+        super().__init__(StringAttr.get(value))
+
+
 class ConstantNumberOp:
     def __init__(self, value: Union[int, float]):
         if isinstance(value, int):

@@ -4,12 +4,13 @@ import logging
 import traceback
 from pathlib import Path
 
+import plum
 
 FORMAT = "%(asctime)s, %(levelname)-8s [%(filename)s:%(module)s:%(funcName)s:%(lineno)d] %(message)s"
 formatter = logging.Formatter(FORMAT)
 
 
-logging.basicConfig(level=logging.DEBUG, format=FORMAT)
+# logging.basicConfig(level=logging.DEBUG, format=FORMAT)
 logger = logging.getLogger(__name__)
 
 # Create handlers
@@ -58,7 +59,6 @@ def run_torch_mlir_tests():
     import torch_mlir_e2e_test.registry
     import torch_mlir_e2e_test.framework
 
-    tu = torch_mlir_e2e_test.framework.TestUtils()
     tests = sorted(
         torch_mlir_e2e_test.registry.GLOBAL_TEST_REGISTRY, key=lambda t: t.unique_name
     )
@@ -122,9 +122,13 @@ def run_pi_tests(torch_mlir_linalg_module_strs):
             print(f"FAIL pi compile NotImplementedError")
             FAIL += 1
             continue
-        except Exception as e:
+        except plum.function.NotFoundLookupError as e:
             print(traceback.format_exc())
             print(f"{e}")
+            print(f"FAIL plum error")
+            FAIL += 1
+            continue
+        except Exception as e:
             print("\ntorch_mlir module\n")
             print(torch_mlir_linalg_module_str)
             # torch_script_compiled = torchscript_config.compile(mod)

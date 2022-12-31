@@ -31,8 +31,8 @@ class TorchTensorWrapper(type):
     #     return type.__new__(mcs, name, bases, class_dict)
 
     def __subclasscheck__(cls, subclass):
-        print(cls, subclass)
-        return False
+        r = super(TorchTensorWrapper, cls).__subclasscheck__(subclass)
+        return r
 
     @classmethod
     def __instancecheck__(cls, instance):
@@ -1816,7 +1816,7 @@ class Tensor(metaclass=TorchTensorWrapper):
         raise NotImplementedError
 
     def __add__(self, *args, **kwargs):
-        return pi.add_Tensor(self, args[0])
+        return pi.add(self, args[0])
 
     def __and__(self, *args, **kwargs):
         raise NotImplementedError
@@ -1920,7 +1920,7 @@ class Tensor(metaclass=TorchTensorWrapper):
 
     #
     def __mul__(self, *args, **kwargs):
-        return pi.mul_Tensor(self, args[0])
+        return pi.mul(self, args[0])
 
     def __ne__(self, *args, **kwargs):
         raise NotImplementedError

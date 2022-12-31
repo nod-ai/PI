@@ -208,7 +208,8 @@ uint8 = dtype.uint8
 size = Union[List[int], Tuple[int, ...]]
 
 Number = Union[builtins.int, builtins.float, builtins.bool]
-Generator = Device = Any
+Generator = Any
+Device = str
 
 
 class BroadcastingListCls(object):
