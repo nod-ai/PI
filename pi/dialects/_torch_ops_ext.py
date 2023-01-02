@@ -1,5 +1,4 @@
 try:
-    # from pi import Tensor, Number
     from torch_mlir.ir import *
     from torch_mlir.dialects._ods_common import (
         get_default_loc_context,

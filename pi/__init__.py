@@ -22,7 +22,7 @@ assert (
 
 from ._tensor import *
 from .types_ import *
-from .dialects._torch_wrappers import *
+from ._torch_wrappers import *
 from ._ops import _OpNamespace
 
 ops = _OpNamespace("ops")

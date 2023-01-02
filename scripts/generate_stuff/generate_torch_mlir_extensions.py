@@ -21,6 +21,7 @@ from torchgen.api.python import signature_from_schema, FunctionSchema
 
 
 ALL = []
+DEBUG = False
 
 
 def _get_function_signature(
@@ -414,20 +415,26 @@ def emit_torch_wrappers(operators, all):
                     stub_td(
                         f"assert builtins.all(isinstance(t, Tensor) or t is None for t in {arg_name})"
                     )
-                    stub_td(f"{arg_name} = [(t.value if t is not None else None) for t in {arg_name}]")
+                    stub_td(
+                        f"{arg_name} = [(t.value if t is not None else None) for t in {arg_name}]"
+                    )
 
-            call_str = f'torch_dialect.{cpp_class_name}({", ".join([f"{k}" for k, _v in args.items()])})'
-            if len(operator.returns) == 0:
-                ret = call_str
-            elif len(operator.returns) == 1:
-                if operator.returns[0]["pytype"] == "Tensor":
-                    ret = f"return Tensor({call_str})"
-                else:
-                    ret = f"return {call_str}.result"
+            if DEBUG:
+                stub_td(f"print('running {get_wrapper_function_signature(operator)}')")
+                stub_td(f"return")
             else:
-                stub_td(f"op_results = get_op_results_or_values({call_str})")
-                ret = f"return tuple([Tensor(o) if is_a_torch_tensor(o) else o for o in op_results])"
-            stub_td(f"{ret}")
+                call_str = f'torch_dialect.{cpp_class_name}({", ".join([f"{k}" for k, _v in args.items()])})'
+                if len(operator.returns) == 0:
+                    ret = call_str
+                elif len(operator.returns) == 1:
+                    if operator.returns[0]["pytype"] == "Tensor":
+                        ret = f"return Tensor({call_str})"
+                    else:
+                        ret = f"return {call_str}.result"
+                else:
+                    stub_td(f"op_results = get_op_results_or_values({call_str})")
+                    ret = f"return tuple([Tensor(o) if is_a_torch_tensor(o) else o for o in op_results])"
+                stub_td(f"{ret}")
             stub_td("\n")
 
 
@@ -462,7 +469,7 @@ from torch_mlir.dialects.torch.importer.jit_ir.build_tools.torch_ods_gen import 
 # tensor_method_sig_groups = get_py_torch_functions(tensor_method_signatures, method=True)
 
 _torch_ops_ext_fp = "../../pi/dialects/_torch_ops_ext.py"
-_torch_wrappers_fp = "../../pi/dialects/_torch_wrappers.py"
+_torch_wrappers_fp = "../../pi/_torch_wrappers.py"
 
 registry = Registry.load()
 with open(_torch_ops_ext_fp, "w") as f_td:
@@ -473,7 +480,6 @@ with open(_torch_ops_ext_fp, "w") as f_td:
             dedent(
                 f"""\
         try:
-            # from pi import Tensor, Number
             from torch_mlir.ir import *
             from torch_mlir.dialects._ods_common import (
                 get_default_loc_context,
@@ -501,14 +507,14 @@ with open(_torch_ops_ext_fp, "w") as f_td:
         stubs_emitter_td.print(
             dedent(
                 f"""\
-        from plum import dispatch
         from enum import Enum
         import builtins
         from numbers import Number
-        
-        from .._tensor import Tensor
-        from ..types_ import is_a_torch_tensor, Device, Generator
         from typing import List, Optional, Any, Tuple, Dict
+        
+        from ._tensor import Tensor
+        from .types_ import is_a_torch_tensor, Device, Generator
+        from .dispatcher import dispatch
 
         from torch_mlir.dialects import torch as torch_dialect
         from torch_mlir.dialects._ods_common import (
@@ -521,10 +527,13 @@ with open(_torch_ops_ext_fp, "w") as f_td:
             )
         )
 
-        BLACKLIST = {"str", "ones", "dtype", "device", "zeros", "randn"}
-        TORCH_WRAPPERS = [t for t in TORCH_WRAPPERS if t.unqualified_name not in BLACKLIST]
+        BLACKLIST = {"str", "ones", "dtype", "device", "zeros", "randn", "tensor"}
+        TORCH_WRAPPERS = sorted(TORCH_WRAPPERS, key=lambda t: t.unqualified_name)
+        TORCH_WRAPPERS = [
+            t for t in TORCH_WRAPPERS if t.unqualified_name not in BLACKLIST
+        ]
         ALL = [t for t in ALL if t not in BLACKLIST]
         emit_torch_wrappers(TORCH_WRAPPERS, ALL)
-        ALL = set([f"'{a}'" for a in ALL])
         stubs_emitter_td.print("\n\n")
-        stubs_emitter_td.print(f"__all__ = [{', '.join(ALL)}]")
+        all = [f'"{t.unqualified_name}"' for t in TORCH_WRAPPERS]
+        stubs_emitter_td.print(f"__all__ = [{', '.join(all)}]")

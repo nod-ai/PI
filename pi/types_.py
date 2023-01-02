@@ -48,8 +48,6 @@ def is_a_torch_tensor(t):
         return False
 
 
-
-
 # IntegerType.get_signless(32) -> i32
 # IntegerType.get_signed(32) -> si32
 # IntegerType.get_unsigned(32) -> ui32
@@ -209,7 +207,7 @@ size = Union[List[int], Tuple[int, ...]]
 
 Number = Union[builtins.int, builtins.float, builtins.bool]
 Generator = Any
-Device = str
+Device = str | Any
 
 
 class BroadcastingListCls(object):

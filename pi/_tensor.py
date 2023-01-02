@@ -31,20 +31,22 @@ class TorchTensorWrapper(type):
     #     return type.__new__(mcs, name, bases, class_dict)
 
     def __subclasscheck__(cls, subclass):
-        r = super(TorchTensorWrapper, cls).__subclasscheck__(subclass)
-        return r
+        try:
+            return subclass._is_pi_tensor()
+        except:
+            return super(TorchTensorWrapper, cls).__subclasscheck__(subclass)
 
     @classmethod
     def __instancecheck__(cls, instance):
         try:
-            return instance.is_pi_tensor
+            return instance._is_pi_tensor()
         except:
             return False
 
 
 class Tensor(metaclass=TorchTensorWrapper):
-    @property
-    def is_pi_tensor(self):
+    @classmethod
+    def _is_pi_tensor(self):
         return True
 
     @property
@@ -2155,6 +2157,9 @@ def randint(low: int, high: int, size: Tuple[int, ...]) -> Tensor:
 
 
 def randn(*size: Tuple[int, ...]) -> Tensor:
+    if size == ((),):
+        return from_numpy(np.random.randn())
+
     return from_numpy(np.random.randn(*size))
 
 
@@ -2163,9 +2168,9 @@ def uniform(low: float, high: float, size: Tuple[int, ...]) -> Tensor:
 
 
 def rand(*size: Tuple[int, ...], **kwargs) -> Tensor:
-    dtype = kwargs.get("dtype", None)
-    if dtype is not None:
-        dtype = dtype.to_np_type()
+    if size == ((),):
+        return from_numpy(np.random.rand())
+
     return from_numpy(np.random.rand(*size))
 
 

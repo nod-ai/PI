@@ -1,6 +1,6 @@
 import types
 
-from .dialects import _torch_wrappers
+from . import _torch_wrappers
 
 all_ops = {o: _torch_wrappers.__dict__[o] for o in _torch_wrappers.__all__}
 

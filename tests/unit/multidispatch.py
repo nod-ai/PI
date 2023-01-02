@@ -1,25 +1,23 @@
-from numbers import Number
+import pi
+from pi.mlir_utils import mlir_cm
+import torch
 
-from plum import dispatch
-
-
-@dispatch
-def f(x: str):
-    return "This is a string!"
+Tensor = pi.Tensor
 
 
-@dispatch
-def f(x: int):
-    return "This is an integer!"
-#
-#
-@dispatch
-def f(x: Number):
-    return "This is a general number, but I don't know which type."
-#
+conv2d = pi.conv2d
 
-print(f("1"))
 
-print(f(1))
+# def std(self_: Tensor, unbiased: bool = True):
+# def std(self_: Tensor, dim: Optional[List[int]], unbiased: bool = True, keepdim: bool = False):
+# def std(self_: Tensor, dim: Optional[List[int]] = None, correction: Optional[int] = None, keepdim: bool = False):
+with mlir_cm() as module:
+    # z = Tensor(None)
+    # pi.std(z, True)
+    # pi.std(z, unbiased=True)
+    # pi.std(z)
+    # pi.__contains__([1, 2, 3], 4)
+    z = pi.empty((1,2,3))
+    pi.abs(z)
 
-print(f(1.0))
+    print(module)

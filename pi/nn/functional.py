@@ -401,9 +401,7 @@ def lp_pool1d(
             input.pow(norm_type), kernel_size, padding=0, ceil_mode=ceil_mode
         )
 
-    return (
-        (pi.sign(out) * relu(pi.abs(out))).mul(kernel_size).pow(1.0 / norm_type)
-    )
+    return (pi.sign(out) * relu(pi.abs(out))).mul(kernel_size).pow(1.0 / norm_type)
 
 
 def adaptive_max_pool1d_with_indices(
@@ -1654,9 +1652,7 @@ def multi_margin_loss(
         if weight.dim() != 1:
             raise ValueError("weight must be one-dimensional")
 
-    return pi._C._nn.multi_margin_loss(
-        input, target, p, margin, weight, reduction_enum
-    )
+    return pi._C._nn.multi_margin_loss(input, target, p, margin, weight, reduction_enum)
 
 
 # pixel_shuffle = pi.pixel_shuffle
@@ -1761,8 +1757,8 @@ def interpolate(
                 (
                     pi.floor(
                         (
-                                input.size(i + 2).float()
-                                * pi.tensor(scale_factors[i], dtype=pi.float32)
+                            input.size(i + 2).float()
+                            * pi.tensor(scale_factors[i], dtype=pi.float32)
                         ).float()
                     )
                 )
@@ -2382,7 +2378,7 @@ def multi_head_attention_forward(
             attn_mask = attn_mask.to(pi.bool)
         else:
             assert (
-                    attn_mask.is_floating_point() or attn_mask.dtype == pi.bool
+                attn_mask.is_floating_point() or attn_mask.dtype == pi.bool
             ), f"Only float, byte, and bool types are supported for attn_mask, not {attn_mask.dtype}"
         # ensure attn_mask's dim is 3
         if attn_mask.dim() == 2:

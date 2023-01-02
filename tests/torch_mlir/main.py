@@ -1,10 +1,8 @@
 import difflib
-import importlib
 import logging
 import traceback
 from pathlib import Path
 
-import plum
 
 FORMAT = "%(asctime)s, %(levelname)-8s [%(filename)s:%(module)s:%(funcName)s:%(lineno)d] %(message)s"
 formatter = logging.Formatter(FORMAT)
@@ -92,6 +90,7 @@ def run_pi_tests(torch_mlir_linalg_module_strs):
     assert tests, "failed to load tests"
 
     from torch import nn
+    from torch.dispatcher.function import NotFoundLookupError, AmbiguousLookupError
 
     assert (
         nn.__spec__.origin == f"{pi_package_root_path}/nn/__init__.py"
@@ -122,10 +121,16 @@ def run_pi_tests(torch_mlir_linalg_module_strs):
             print(f"FAIL pi compile NotImplementedError")
             FAIL += 1
             continue
-        except plum.function.NotFoundLookupError as e:
+        except (NotFoundLookupError, AmbiguousLookupError) as e:
             print(traceback.format_exc())
             print(f"{e}")
-            print(f"FAIL plum error")
+            print(f"FAIL dispatcher error")
+            FAIL += 1
+            continue
+        except (NotFoundLookupError, AmbiguousLookupError) as e:
+            print(traceback.format_exc())
+            print(f"{e}")
+            print(f"FAIL dispatcher error")
             FAIL += 1
             continue
         except Exception as e:
