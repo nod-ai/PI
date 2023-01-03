@@ -266,7 +266,7 @@ class memory_format(Enum):
     channels_last_3d = 3
 
 
-contiguous_format = memory_format.contiguous_format.value
-preserve_format = memory_format.preserve_format.value
-channels_last = memory_format.channels_last.value
-channels_last_3d = memory_format.channels_last_3d.value
+contiguous_format = memory_format.contiguous_format
+preserve_format = memory_format.preserve_format
+channels_last = memory_format.channels_last
+channels_last_3d = memory_format.channels_last_3d

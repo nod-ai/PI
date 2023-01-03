@@ -103,6 +103,7 @@ def convert_type(pyt_type: str):
             "device": "Device",
         }
         interior = subs.get(pyt_type, pyt_type)
+
         return interior, interior
 
 
@@ -167,6 +168,27 @@ def get_wrapper_function_signature(operator):
         if arg["name"] == "out":
             default = " = None"
             pytype = f"Optional[{pytype}]"
+        if "dtype" in arg["name"]:
+            if arg["type"][-1] == "?":
+                default = " = None"
+                pytype = f"Optional[pi_dtype]"
+            else:
+                default = ""
+                pytype = f"pi_dtype"
+        if "layout" in arg["name"]:
+            if arg["type"][-1] == "?":
+                default = " = None"
+                pytype = f"Optional[pi_layout]"
+            else:
+                default = ""
+                pytype = f"pi_layout"
+        if "memory_format" in arg["name"]:
+            if arg["type"][-1] == "?":
+                default = " = None"
+                pytype = f"Optional[pi_memory_format]"
+            else:
+                default = ""
+                pytype = f"pi_memory_format"
         parameter_name = py_reserved_keywords(
             _rename_python_keyword_parameter_name(arg["name"])
         )
@@ -386,32 +408,34 @@ def emit_torch_wrappers(operators, all):
         with stubs_emitter_td.indent():
             for arg in operator.arguments:
                 arg_name = py_reserved_keywords(arg["name"])
-                if arg_name == "dtype":
-                    stub_td("if dtype is not None and isinstance(dtype, Enum):")
+                if "dtype" in arg_name:
+                    stub_td(f"if {arg_name} is not None:")
                     with stubs_emitter_td.indent():
-                        stub_td("dtype = dtype.value")
-                if arg_name == "layout":
-                    stub_td("if layout is not None and isinstance(layout, Enum):")
+                        stub_td(f"assert isinstance({arg_name}, pi_dtype), f'expected pi_dtype, got {{type({arg_name})}}'")
+                        stub_td(f"{arg_name} = {arg_name}.value")
+                if "layout" in arg_name:
+                    stub_td(f"if {arg_name} is not None:")
                     with stubs_emitter_td.indent():
-                        stub_td("layout = layout.value")
+                        stub_td(f"assert isinstance({arg_name}, pi_layout), f'expected pi_layout, got {{type({arg_name})}}'")
+                        stub_td(f"{arg_name} = {arg_name}.value")
+                if "memory_format" in arg_name:
+                    stub_td(f"if {arg_name} is not None:")
+                    with stubs_emitter_td.indent():
+                        stub_td(f"assert isinstance({arg_name}, pi_memory_format), f'expected pi_memory_format, got {{type({arg_name})}}'")
+                        stub_td(f"{arg_name} = {arg_name}.value")
                 if arg["type"] == "Tensor":
                     stub_td(
-                        f"assert isinstance({arg_name}, Tensor), f'`{arg_name}` should be a {{Tensor.__module__}}.{{Tensor.__name__}} but is {{type({arg_name}).__module__}}.{{type({arg_name}).__name__}}'"
+                        f"assert is_a_torch_tensor({arg_name}), f'`{arg_name}` should be a {{Tensor.__module__}}.{{Tensor.__name__}} but is {{type({arg_name}).__module__}}.{{type({arg_name}).__name__}}'"
                     )
-                    stub_td(f"{arg_name} = {arg_name}.value")
                 elif arg["type"] == "Tensor?":
                     stub_td(f"if {arg_name} is not None:")
                     with stubs_emitter_td.indent():
                         stub_td(
-                            f"assert isinstance({arg_name}, Tensor), f'`{arg_name}` should be a {{Tensor.__module__}}.{{Tensor.__name__}} but is {{type({arg_name}).__module__}}.{{type({arg_name}).__name__}}'"
+                            f"assert is_a_torch_tensor({arg_name}), f'`{arg_name}` should be a {{Tensor.__module__}}.{{Tensor.__name__}} but is {{type({arg_name}).__module__}}.{{type({arg_name}).__name__}}'"
                         )
-                        stub_td(f"{arg_name} = {arg_name}.value")
                 elif arg["type"] in {"Tensor[]", "Tensor?[]"}:
                     stub_td(
-                        f"assert builtins.all(isinstance(t, Tensor) or t is None for t in {arg_name})"
-                    )
-                    stub_td(
-                        f"{arg_name} = [(t.value if t is not None else None) for t in {arg_name}]"
+                        f"assert builtins.all(is_a_torch_tensor(t) or t is None for t in {arg_name})"
                     )
                 elif arg["type"] == "int[]":
                     stub_td(
@@ -518,19 +542,16 @@ with open(_torch_ops_ext_fp, "w") as f_td:
         stubs_emitter_td.print(
             dedent(
                 f"""\
-        from enum import Enum
         import builtins
         from numbers import Number
-        from typing import List, Optional, Any, Tuple, Dict
+        from typing import List, Optional, Any, Dict
         
         from ._tensor import Tensor, ScalarImplicit
-        from .types_ import is_a_torch_tensor, Device, Generator
+        from .types_ import is_a_torch_tensor, Device, Generator, dtype as pi_dtype, layout as pi_layout, memory_format as pi_memory_format
         from .dispatcher import dispatch
 
         from torch_mlir.dialects import torch as torch_dialect
         from torch_mlir.dialects._ods_common import (
-            get_default_loc_context,
-            get_op_result_or_value,
             get_op_results_or_values,
         )
         

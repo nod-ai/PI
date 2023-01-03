@@ -1,16 +1,45 @@
 import difflib
 import functools
+import inspect
 import logging
 import operator
 import traceback
-from itertools import repeat
-from pathlib import Path
-import multiprocess as mp
+from multiprocessing import cpu_count
 from multiprocess.pool import Pool
+
+# noinspection PyUnresolvedReferences
+import pi
+
+# noinspection PyUnresolvedReferences
+import torch_mlir
+import torch_mlir_e2e_test
+import torch_mlir_e2e_test.registry
+
+from xfail import PI_XFAIL_SET
+
+from torch_mlir_e2e_test.test_suite import COMMON_TORCH_MLIR_LOWERING_XFAILS
+from torch_mlir_e2e_test.test_suite import (
+    register_all_tests as torch_mlir_register_all_tests,
+)
+
+from pi.dialects import (
+    remove_modules,
+    RewriteOverload,
+    patch_meta_path,
+)
+from pi.mlir_utils import lower_pi_to_linalg
+from pi.testing.util import (
+    PIConfig,
+    TorchDialectConfig,
+    set_weights,
+    lower_torch_mlir_to_linalg,
+)
+from pi.testing.registry import GLOBAL_TEST_REGISTRY as PI_GLOBAL_TEST_REGISTRY
+from pi.dispatcher.function import NotFoundLookupError, AmbiguousLookupError
+
 
 FORMAT = "%(asctime)s, %(levelname)-8s [%(filename)s:%(module)s:%(funcName)s:%(lineno)d] %(message)s"
 formatter = logging.Formatter(FORMAT)
-
 
 # logging.basicConfig(level=logging.DEBUG, format=FORMAT)
 logger = logging.getLogger(__name__)
@@ -21,39 +50,12 @@ f_handler = logging.FileHandler("file.log")
 # c_handler.setLevel(logging.DEBUG)
 f_handler.setLevel(logging.DEBUG)
 
-# noinspection PyUnresolvedReferences
-import pi
 
-# noinspection PyUnresolvedReferences
-import torch_mlir
-import torch_mlir_e2e_test
-
-from xfail import PI_XFAIL_SET
-
-pi_package_root_path = Path(pi.__file__).parent
-torch_mlir_package_root_path = Path(torch_mlir.__file__).parent
-torch_mlir_e2e_test_package_root_path = Path(torch_mlir_e2e_test.__file__).parent
-
-from torch_mlir_e2e_test.test_suite import COMMON_TORCH_MLIR_LOWERING_XFAILS
-from torch_mlir_e2e_test.test_suite import (
-    register_all_tests as torch_mlir_register_all_tests,
-)
-
-from pi.dialects import (
-    remove_modules,
-    ImportOverload,
-    BASE_OVERLOADS,
-    patch_meta_path,
-)
-from pi.mlir_utils import lower_pi_to_linalg
-from pi.testing.util import (
-    PIConfig,
-)
-from pi.testing.util import (
-    TorchDialectConfig,
-    set_weights,
-    lower_torch_mlir_to_linalg,
-)
+# def sig_handler(signum, frame):
+#     print(f"segfault {signum}")
+#
+#
+# signal.signal(signal.SIGSEGV, sig_handler)
 
 
 def run_torch_mlir_tests():
@@ -71,7 +73,7 @@ def run_torch_mlir_tests():
             tests,
         )
     )
-    num_processes = min(int(mp.cpu_count() * 1.1), len(tests))
+    num_processes = min(int(cpu_count() * 1.1), len(tests))
 
     torch_dialect_config = TorchDialectConfig()
     pool = Pool(num_processes)
@@ -81,42 +83,26 @@ def run_torch_mlir_tests():
         set_weights(mod)
         mod.eval()
         torch_mlir_module = torch_dialect_config.compile(mod)
-        return test.unique_name, str(lower_torch_mlir_to_linalg(torch_mlir_module))
+        torch_mlir_module_str = str(torch_mlir_module)
+        return test.unique_name, str(lower_torch_mlir_to_linalg(torch_mlir_module)), torch_mlir_module_str
 
     handles = pool.map_async(compile_and_run_test, tests)
     # handles = map(compile_and_run_test, tests)
     torch_mlir_linalg_module_strs = {}
-    for name, s in handles.get():
+    for name, linalg_module, torch_module in handles.get():
         # for name, s in handles:
-        torch_mlir_linalg_module_strs[name] = s
+        torch_mlir_linalg_module_strs[name] = linalg_module, torch_module
 
     return torch_mlir_linalg_module_strs
 
 
 def run_pi_tests(torch_mlir_linalg_module_strs):
     torch_mlir_register_all_tests()
-    # after remapping, this imports pi test registry
-    import torch_mlir_e2e_test.registry
-
-    tests = sorted(
-        torch_mlir_e2e_test.registry.GLOBAL_TEST_REGISTRY, key=lambda t: t.unique_name
-    )
+    tests = sorted(PI_GLOBAL_TEST_REGISTRY, key=lambda t: t.unique_name)
     assert tests, "failed to load tests"
 
-    from torch import nn
-    from pi.dispatcher.function import NotFoundLookupError, AmbiguousLookupError
-    from torch.dispatcher.function import (
-        NotFoundLookupError as torch_NotFoundLookupError,
-        AmbiguousLookupError as torch_AmbiguousLookupError,
-    )
+    pi.nn.Module.train = lambda *args, **kwargs: None
 
-    assert (
-        nn.__spec__.origin == f"{pi_package_root_path}/nn/__init__.py"
-    ), f"monkey patch failed {nn.__spec__.origin}"
-    # for compatibility
-    nn.Module.train = lambda *args, **kwargs: None
-
-    # torchscript_config = TorchScriptTestConfig()
     pi_config = PIConfig()
     torch_dialect_config = TorchDialectConfig()
     (
@@ -124,12 +110,11 @@ def run_pi_tests(torch_mlir_linalg_module_strs):
         NotImplementedErrorFAIL,
         NotFoundLookupErrorFAIL,
         AmbiguousLookupErrorFAIL,
-        compileFAIL,
         lower_to_linalg_FAIL,
         irFAIL,
         TOTAL,
         SKIP,
-    ) = (0, 0, 0, 0, 0, 0, 0, 0, 0)
+    ) = (0, 0, 0, 0, 0, 0, 0, 0)
     for test in tests:
         TOTAL += 1
         if test.unique_name in PI_XFAIL_SET | COMMON_TORCH_MLIR_LOWERING_XFAILS:
@@ -139,7 +124,7 @@ def run_pi_tests(torch_mlir_linalg_module_strs):
         print(f"running {test.unique_name}")
 
         test_module = test.program_factory()
-        torch_mlir_linalg_module_str = torch_mlir_linalg_module_strs[test.unique_name]
+        torch_linalg_module, torch_dialect_module = torch_mlir_linalg_module_strs[test.unique_name]
 
         try:
             pi_mlir_module = pi_config.compile(test, test_module)
@@ -150,38 +135,46 @@ def run_pi_tests(torch_mlir_linalg_module_strs):
             NotImplementedErrorFAIL += 1
             print()
             continue
-        except (NotFoundLookupError, torch_NotFoundLookupError) as e:
+        except NotFoundLookupError as e:
             print(traceback.format_exc())
             print(f"{e}")
             print(f"FAIL dispatcher error")
             NotFoundLookupErrorFAIL += 1
             print()
             continue
-        except (AmbiguousLookupError, torch_AmbiguousLookupError) as e:
+        except AmbiguousLookupError as e:
             print(traceback.format_exc())
             print(f"{e}")
             print(f"FAIL dispatcher error")
             AmbiguousLookupErrorFAIL += 1
+            print("\ntorch_mlir module\n")
+            print(torch_dialect_module)
+            print(torch_linalg_module)
             print()
             continue
         except Exception as e:
             print("\ntorch_mlir module\n")
-            print(torch_mlir_linalg_module_str)
+            print(torch_dialect_module)
+            print(torch_linalg_module)
             # torch_script_compiled = torchscript_config.compile(mod)
             # frozen = torch.jit.freeze(torch_script_compiled)
             # torch_mlir_module = torch_dialect_config.compile(mod)
             # print("frozen.graph\n", frozen.graph)
             # print("torch_mlir_module\n", torch_mlir_module)
             print(f"FAIL pi compile Exception")
-            compileFAIL += 1
             raise e
 
+        pi_torch_dialect_module_str = str(pi_mlir_module)
         try:
-            pi_mlir_linalg_module_str = str(lower_pi_to_linalg(pi_mlir_module))
+            pi_linalg_module_str = str(lower_pi_to_linalg(pi_mlir_module, enable_ir_printing=False))
         except Exception as e:
             print(traceback.format_exc())
+            print("\npi_mlir_module\n")
+            print(pi_torch_dialect_module_str)
+            print(pi_mlir_module)
             print("\ntorch_mlir module\n")
-            print(torch_mlir_linalg_module_str)
+            print(torch_dialect_module)
+            print(torch_linalg_module)
             print(f"FAIL lower_pi_to_linalg Exception")
             lower_to_linalg_FAIL += 1
             print()
@@ -189,8 +182,8 @@ def run_pi_tests(torch_mlir_linalg_module_strs):
 
         diff = list(
             difflib.unified_diff(
-                str(pi_mlir_linalg_module_str).splitlines(),
-                str(torch_mlir_linalg_module_str).splitlines(),
+                str(pi_linalg_module_str).splitlines(),
+                str(torch_linalg_module).splitlines(),
                 lineterm="",
             )
         )
@@ -222,7 +215,6 @@ def run_pi_tests(torch_mlir_linalg_module_strs):
                 NotImplementedErrorFAIL,
                 NotFoundLookupErrorFAIL,
                 AmbiguousLookupErrorFAIL,
-                compileFAIL,
                 lower_to_linalg_FAIL,
                 irFAIL,
                 SKIP,
@@ -231,53 +223,37 @@ def run_pi_tests(torch_mlir_linalg_module_strs):
         )
         == TOTAL
     )
+    assert NotImplementedErrorFAIL == 0, "missing torch_wrappers impl; you probably need to run generate_torch_mlir_extensions.py"
+    assert NotFoundLookupErrorFAIL == 0, "pytorch api changed; good luck"
     print(
-        f"\n{''.join('*' * 10)}\n\n{PASS=}\n{NotImplementedErrorFAIL=}\n{NotFoundLookupErrorFAIL=}\n{AmbiguousLookupErrorFAIL=}\n{compileFAIL=}\n{lower_to_linalg_FAIL=}\n{irFAIL=}\n{SKIP=}\nout of {TOTAL=}\n\n{''.join('*' * 10)}\n"
+        f"\n{''.join('*' * 10)}\n\n{PASS=}\n{NotImplementedErrorFAIL=}\n{NotFoundLookupErrorFAIL=}\n{AmbiguousLookupErrorFAIL=}\n{lower_to_linalg_FAIL=}\n{irFAIL=}\n{SKIP=}\nout of {TOTAL=}\n\n{''.join('*' * 10)}\n"
     )
 
 
 def main():
     torch_mlir_linalg_module_strs = run_torch_mlir_tests()
+    overloads = [
+        RewriteOverload(
+            f"torch_mlir_e2e_test.test_suite.{k}",
+            {
+                "torch.": "pi.",
+                "from torch import nn": "from pi import nn",
+                "torch_mlir_e2e_test.annotations": "pi.compiler.annotations",
+                "torch_mlir_e2e_test": "pi.testing",
+                "import torchvision.models as models": "",
+                "import torch": "import pi",
+                "import functorch": "",
+            },
+        )
+        for k, v in torch_mlir_e2e_test.test_suite.__dict__.items()
+        if inspect.ismodule(v)
+    ]
+    torch_mlir_e2e_test.registry.GLOBAL_TEST_REGISTRY = []
+    torch_mlir_e2e_test.registry._SEEN_UNIQUE_NAMES = set()
     remove_modules(lambda mod: mod.startswith("torch_mlir_e2e_test"))
     remove_modules(lambda mod: mod == "torch" or mod.startswith("torch."))
 
-    # remap to torch so that isintance works...
-    # remove_modules(lambda mod: mod == "pi" or mod.startswith("pi."))
-
-    overloads = [
-        ImportOverload(
-            "torch_mlir_e2e_test.framework",
-            pi_package_root_path / "testing/framework.py",
-            False,
-        ),
-        ImportOverload(
-            "torch_mlir_e2e_test.registry",
-            pi_package_root_path / "testing/registry.py",
-            False,
-        ),
-        ImportOverload(
-            "torch_mlir_e2e_test.annotations",
-            pi_package_root_path / "compiler/annotations.py",
-            False,
-        ),
-        ImportOverload(
-            "torch",
-            pi_package_root_path / "__init__.py",
-            True,
-        ),
-        ImportOverload(
-            "torch.jit._shape_functions",
-            Path(""),
-            False,
-        ),
-        # ImportOverload(
-        #     "torch._functorch",
-        #     pi_package_root_path / "_torch/_functorch/__init__.py",
-        #     True,
-        # ),
-    ]
     overloads = {o.name: o for o in overloads}
-    overloads.update(BASE_OVERLOADS)
     with patch_meta_path(overloads):
         run_pi_tests(torch_mlir_linalg_module_strs)
 

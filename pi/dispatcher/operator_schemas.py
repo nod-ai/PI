@@ -12,6 +12,7 @@ from typing import (
     NamedTuple,
 )
 
+from ..types_ import Device, Number, Size, dtype
 
 __all__ = [
     "ArgsKwargsPair",
@@ -33,21 +34,27 @@ class ArgsKwargsPair(NamedTuple):
 
 _manual_overrides: Dict[Callable, List[inspect.Signature]] = {}
 
+_type_eval_globals = {
+    "Device": Device,
+    "Size": Size,
+    "pi_dtype": dtype,
+    "Number": Number
+    # "Layout": torch.layout,
+    # "number": numbers.Number,
+    # "Future": torch.jit.Future,
+    # "AnyEnumType": enum.Enum,
+    # "QScheme": torch.qscheme,
+    # "__torch__": _FakeGlobalNamespace(),
+    # "NoneType": type(None),
+    # "t": typing.TypeVar("t"),
+}
+for k in dir(typing):
+    _type_eval_globals[k] = getattr(typing, k)
 
-def _nonzero_schemas():
-    signatures = []
 
-    def nonzero(self):
-        pass
-
-    signatures.append(inspect.signature(nonzero))
-
-    def nonzero(self, *, as_tuple: bool):  # type: ignore[no-redef]
-        pass
-
-    signatures.append(inspect.signature(nonzero))
-
-    return signatures
+def type_str_to_python_type(type_str) -> Any:
+    from pi import Tensor
+    return eval(type_str, _type_eval_globals | {"Tensor": Tensor})
 
 
 def create_type_hint(x):
@@ -78,20 +85,22 @@ def create_type_hint(x):
     except Exception as e:
         # We tried to create a type hint for list but failed.
         warnings.warn(
-            f"We were not able to successfully create type hint from the type {x}"
+            f"We were not able to successfully create type hint from the type {x} because of {e}"
         )
         pass
     return x
 
 
 def type_matches(signature_type: Any, argument_type: Any):
+    if isinstance(signature_type, str):
+        signature_type = type_str_to_python_type(signature_type)
+    assert not isinstance(signature_type, str), f"signature_type should be a real type {signature_type=}"
     # both sig type and arg type should be produced by type hints
     sig_origin_type = getattr(signature_type, "__origin__", signature_type)
 
     # hack because type annotations in ._tensor are actually strings (from __future__)
-    if signature_type is argument_type or (
-        signature_type == "Tensor" and argument_type is pi.Tensor
-    ):
+    # TODO(max): figure out how to annotate class methods correctly (in the dispatcher)
+    if signature_type is argument_type:
         return True
 
     # Union types in signature. Given type needs to match one of the

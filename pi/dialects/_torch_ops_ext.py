@@ -622,6 +622,102 @@ class AtenLogicalOr_Op:
         super(AtenLogicalOr_Op, self).__init__(result_type, self_, other, loc=loc, ip=ip)
         
     
+class AtenLogicalAndOp:
+    def __init__(self, self_: Value, other: Value, *, loc=None, ip=None):
+        if not is_mlir_value(self_):
+            assert is_mlir_value(self_), f'`self_` should be a Value but is {type(self_).__module__}.{type(self_).__name__}'
+        else:
+            self_ = get_op_result_or_value(self_)
+            assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
+            
+        if not is_mlir_value(other):
+            assert is_mlir_value(other), f'`other` should be a Value but is {type(other).__module__}.{type(other).__name__}'
+        else:
+            other = get_op_result_or_value(other)
+            assert str(other.type).startswith("!torch.vtensor"), f'`other` should be a torch.vtensor but is {type(other).__module__}.{type(other).__name__}'
+            
+        result_type = Type.parse("!torch.vtensor")
+        super(AtenLogicalAndOp, self).__init__(result_type, self_, other, loc=loc, ip=ip)
+        
+    
+class AtenLogicalAnd_Op:
+    def __init__(self, self_: Value, other: Value, *, loc=None, ip=None):
+        if not is_mlir_value(self_):
+            assert is_mlir_value(self_), f'`self_` should be a Value but is {type(self_).__module__}.{type(self_).__name__}'
+        else:
+            self_ = get_op_result_or_value(self_)
+            assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
+            
+        if not is_mlir_value(other):
+            assert is_mlir_value(other), f'`other` should be a Value but is {type(other).__module__}.{type(other).__name__}'
+        else:
+            other = get_op_result_or_value(other)
+            assert str(other.type).startswith("!torch.vtensor"), f'`other` should be a torch.vtensor but is {type(other).__module__}.{type(other).__name__}'
+            
+        result_type = Type.parse("!torch.vtensor")
+        super(AtenLogicalAnd_Op, self).__init__(result_type, self_, other, loc=loc, ip=ip)
+        
+    
+class AtenLogicalXorOp:
+    def __init__(self, self_: Value, other: Value, *, loc=None, ip=None):
+        if not is_mlir_value(self_):
+            assert is_mlir_value(self_), f'`self_` should be a Value but is {type(self_).__module__}.{type(self_).__name__}'
+        else:
+            self_ = get_op_result_or_value(self_)
+            assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
+            
+        if not is_mlir_value(other):
+            assert is_mlir_value(other), f'`other` should be a Value but is {type(other).__module__}.{type(other).__name__}'
+        else:
+            other = get_op_result_or_value(other)
+            assert str(other.type).startswith("!torch.vtensor"), f'`other` should be a torch.vtensor but is {type(other).__module__}.{type(other).__name__}'
+            
+        result_type = Type.parse("!torch.vtensor")
+        super(AtenLogicalXorOp, self).__init__(result_type, self_, other, loc=loc, ip=ip)
+        
+    
+class AtenLogicalXor_Op:
+    def __init__(self, self_: Value, other: Value, *, loc=None, ip=None):
+        if not is_mlir_value(self_):
+            assert is_mlir_value(self_), f'`self_` should be a Value but is {type(self_).__module__}.{type(self_).__name__}'
+        else:
+            self_ = get_op_result_or_value(self_)
+            assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
+            
+        if not is_mlir_value(other):
+            assert is_mlir_value(other), f'`other` should be a Value but is {type(other).__module__}.{type(other).__name__}'
+        else:
+            other = get_op_result_or_value(other)
+            assert str(other.type).startswith("!torch.vtensor"), f'`other` should be a torch.vtensor but is {type(other).__module__}.{type(other).__name__}'
+            
+        result_type = Type.parse("!torch.vtensor")
+        super(AtenLogicalXor_Op, self).__init__(result_type, self_, other, loc=loc, ip=ip)
+        
+    
+class AtenLogicalNotOp:
+    def __init__(self, self_: Value, *, loc=None, ip=None):
+        if not is_mlir_value(self_):
+            assert is_mlir_value(self_), f'`self_` should be a Value but is {type(self_).__module__}.{type(self_).__name__}'
+        else:
+            self_ = get_op_result_or_value(self_)
+            assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
+            
+        result_type = Type.parse("!torch.vtensor")
+        super(AtenLogicalNotOp, self).__init__(result_type, self_, loc=loc, ip=ip)
+        
+    
+class AtenLogicalNot_Op:
+    def __init__(self, self_: Value, *, loc=None, ip=None):
+        if not is_mlir_value(self_):
+            assert is_mlir_value(self_), f'`self_` should be a Value but is {type(self_).__module__}.{type(self_).__name__}'
+        else:
+            self_ = get_op_result_or_value(self_)
+            assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
+            
+        result_type = Type.parse("!torch.vtensor")
+        super(AtenLogicalNot_Op, self).__init__(result_type, self_, loc=loc, ip=ip)
+        
+    
 class AtenLerpTensorOp:
     def __init__(self, self_: Value, end: Value, weight: Value, *, loc=None, ip=None):
         if not is_mlir_value(self_):
@@ -10747,6 +10843,38 @@ class AtenNativeDropoutBackwardOp:
             
         result_type = Type.parse("!torch.vtensor")
         super(AtenNativeDropoutBackwardOp, self).__init__(result_type, grad_output, mask, scale, loc=loc, ip=ip)
+        
+    
+class AtenLeakyReluBackwardOp:
+    def __init__(self, grad_output: Value, self_: Value, negative_slope: Number, self_is_result: bool, *, loc=None, ip=None):
+        from torch_mlir.dialects import torch as torch_dialect
+        
+        if not is_mlir_value(grad_output):
+            assert is_mlir_value(grad_output), f'`grad_output` should be a Value but is {type(grad_output).__module__}.{type(grad_output).__name__}'
+        else:
+            grad_output = get_op_result_or_value(grad_output)
+            assert str(grad_output.type).startswith("!torch.vtensor"), f'`grad_output` should be a torch.vtensor but is {type(grad_output).__module__}.{type(grad_output).__name__}'
+            
+        if not is_mlir_value(self_):
+            assert is_mlir_value(self_), f'`self_` should be a Value but is {type(self_).__module__}.{type(self_).__name__}'
+        else:
+            self_ = get_op_result_or_value(self_)
+            assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
+            
+        if not is_mlir_value(negative_slope):
+            negative_slope = torch_dialect.ConstantNumberOp(negative_slope)
+        else:
+            negative_slope = get_op_result_or_value(negative_slope)
+            assert str(negative_slope.type) in {'!torch.float', '!torch.int'}, f'`negative_slope` should be a !torch.number but is {type(negative_slope).__module__}.{type(negative_slope).__name__}'
+            
+        if not is_mlir_value(self_is_result):
+            self_is_result = torch_dialect.ConstantBoolOp(self_is_result)
+        else:
+            self_is_result = get_op_result_or_value(self_is_result)
+            assert str(self_is_result.type) == '!torch.bool', f'`self_is_result` should be a !torch.bool but is {type(self_is_result).__module__}.{type(self_is_result).__name__}'
+            
+        result_type = Type.parse("!torch.vtensor")
+        super(AtenLeakyReluBackwardOp, self).__init__(result_type, grad_output, self_, negative_slope, self_is_result, loc=loc, ip=ip)
         
     
 class PrimLayoutOp:

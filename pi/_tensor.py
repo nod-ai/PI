@@ -28,23 +28,10 @@ from .types_ import (
     Device,
     memory_format,
     contiguous_format,
+    is_a_torch_tensor
 )
 from .dispatcher import dispatch
-
-
-class TorchTensorWrapper(type):
-    def __subclasscheck__(cls, subclass):
-        try:
-            return subclass._is_pi_tensor()
-        except:
-            return super(TorchTensorWrapper, cls).__subclasscheck__(subclass)
-
-    @classmethod
-    def __instancecheck__(cls, instance):
-        try:
-            return instance._is_pi_tensor()
-        except:
-            return False
+from pi._mlir import _Torch_Tensor
 
 
 class ComplexReturnType:
@@ -52,7 +39,7 @@ class ComplexReturnType:
         self.name = name
 
 
-class Tensor(metaclass=TorchTensorWrapper):
+class Tensor(_Torch_Tensor):
     requires_grad: bool
     shape: Size
     data: Tensor
@@ -85,16 +72,9 @@ class Tensor(metaclass=TorchTensorWrapper):
     def __class__(self):
         return MLIRValue
 
-    @property
-    def type(self):
-        return self._value.type
-
-    @property
-    def value(self):
-        return self._value
-
     def __init__(self, tensor: MLIRValue):
-        self._value = get_op_result_or_value(tensor)
+        tensor = get_op_result_or_value(tensor)
+        super(Tensor, self).__init__(tensor._CAPIPtr)
 
     def __abs__(self: Tensor) -> Tensor:
         return pi.abs(self)
@@ -138,7 +118,18 @@ class Tensor(metaclass=TorchTensorWrapper):
     def __getitem__(
         self: Tensor, indices: Union[None, int, slice, Tensor, List, Tuple]
     ) -> Tensor:
-        raise NotImplementedError("__getitem__")
+        if not isinstance(indices, Sequence):
+            indices = [indices]
+
+        t = self
+        for i, ind in enumerate(indices):
+            if isinstance(ind, int):
+                t = pi.slice(t, ind)
+            elif isinstance(ind, slice):
+                t = pi.slice(t, dim=i, start=ind.start, end=ind.stop, step=ind.step or 1)
+
+        return t
+
 
     def __gt__(self: Tensor, other: Any) -> Tensor:
         return pi.gt(self, other)
@@ -347,6 +338,9 @@ class Tensor(metaclass=TorchTensorWrapper):
     @dispatch
     def __xor__(self: Tensor, other: Any) -> Tensor:
         raise NotImplementedError("__xor__")
+
+    def __repr__(self):
+        return "Tensor" + str(self)
 
     def _addmm_activation(
         self: Tensor,
@@ -2087,16 +2081,16 @@ class Tensor(metaclass=TorchTensorWrapper):
         raise NotImplementedError("logdet")
 
     def logical_and(self: Tensor, other: Tensor) -> Tensor:
-        raise NotImplementedError("logical_and")
+        return pi.logical_and(self, other)
 
     def logical_and_(self: Tensor, other: Tensor) -> Tensor:
-        raise NotImplementedError("logical_and_")
+        return pi.logical_and_(self, other)
 
     def logical_not(self: Tensor) -> Tensor:
-        raise NotImplementedError("logical_not")
+        return pi.logical_not(self)
 
     def logical_not_(self: Tensor) -> Tensor:
-        raise NotImplementedError("logical_not_")
+        return pi.logical_not_(self)
 
     def logical_or(self: Tensor, other: Tensor) -> Tensor:
         return pi.logical_or(self, other)
@@ -2105,10 +2099,10 @@ class Tensor(metaclass=TorchTensorWrapper):
         return pi.logical_or_(self, other)
 
     def logical_xor(self: Tensor, other: Tensor) -> Tensor:
-        raise NotImplementedError("logical_xor")
+        return pi.logical_xor(self, other)
 
     def logical_xor_(self: Tensor, other: Tensor) -> Tensor:
-        raise NotImplementedError("logical_xor_")
+        return pi.logical_xor_(self, other)
 
     def logit(self: Tensor, eps: Optional[float] = None) -> Tensor:
         raise NotImplementedError("logit")
@@ -3750,6 +3744,9 @@ def ones(*size: Tuple[int, ...], **kwargs) -> Tensor:
     dtype = kwargs.get("dtype", None)
     if dtype is not None:
         dtype = dtype.to_np_type()
+    if isinstance(size[0], tuple):
+        assert len(size) == 1, f"malformed size tuple {size}"
+        size = size[0]
     return from_numpy(np.ones(size, dtype=dtype))
 
 
@@ -3776,13 +3773,13 @@ def clone(x: Tensor, **kwargs):
 
 
 def torch_cast(x: Tensor, dtype: pi_dtype):
-    assert isinstance(x, Tensor), f"x should be a Tensor but is {type(x)}"
-    return Tensor(torch_dialect.AtenToDtypeOp(x.value, dtype.value, False, False, None))
+    assert is_a_torch_tensor(x), f"x should be a Tensor but is {type(x)}"
+    return Tensor(torch_dialect.AtenToDtypeOp(x, dtype.value, False, False, None))
 
 
 def ScalarImplicit(x: Tensor):
-    assert isinstance(x, Tensor), f"x should be a Tensor but is {type(x)}"
-    return Tensor(torch_dialect.AtenScalarImplicitOp(x.value))
+    assert is_a_torch_tensor(x), f"x should be a Tensor but is {type(x)}"
+    return Tensor(torch_dialect.AtenScalarImplicitOp(x))
 
 
 __all__ = [

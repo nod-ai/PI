@@ -62,33 +62,21 @@ class Function:
         elif len(candidates) == 1:
             return candidates[0]
         else:
-            if args_types is not None or kwargs_types is not None:
-                args_types = args_types if args_types else cast(Tuple[Any], ())
-                kwargs_types = kwargs_types if kwargs_types else {}
-                for candidate_signature in self._overloads.keys():
-                    sig_matches = True
-                    try:
-                        bound_types = candidate_signature.bind(
-                            *args_types, **kwargs_types
+            args_types = args_types if args_types else cast(Tuple[Any], ())
+            kwargs_types = kwargs_types if kwargs_types else {}
+            for candidate_signature in self._overloads.keys():
+                sig_matches = True
+                try:
+                    bound_types = candidate_signature.bind(*args_types, **kwargs_types)
+                    for arg_name, arg_type in bound_types.arguments.items():
+                        param = candidate_signature.parameters[arg_name]
+                        sig_matches = sig_matches and type_matches(
+                            param.annotation, arg_type
                         )
-                        for arg_name, arg_type in bound_types.arguments.items():
-                            param = candidate_signature.parameters[arg_name]
-                            sig_matches = sig_matches and type_matches(
-                                param.annotation, arg_type
-                            )
-                    except TypeError as e:
-                        sig_matches = False
-                    if sig_matches:
-                        return candidate_signature
-            else:
-                # Matched more than one overload. In this situation, the caller must provide the types of
-                # the arguments of the overload they expect.
-                schema_printouts = "\n".join(str(sig) for sig in candidates)
-                raise AmbiguousLookupError(
-                    f"Tried to normalize arguments to {self._f.__name__} but "
-                    f"the schema match was ambiguous! Please provide argument types to "
-                    f"the normalize_arguments() call. Available schemas:\n{schema_printouts}"
-                )
+                except TypeError as e:
+                    sig_matches = False
+                if sig_matches:
+                    return candidate_signature
 
         args = indent("\n".join(map(str, args)), "\t\t")
         kwargs = indent("\n".join(map(str, kwargs.items())), "\t\t")
