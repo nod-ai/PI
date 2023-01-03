@@ -3,7 +3,7 @@ import builtins
 from numbers import Number
 from typing import List, Optional, Any, Tuple, Dict
 
-from ._tensor import Tensor
+from ._tensor import Tensor, ScalarImplicit
 from .types_ import is_a_torch_tensor, Device, Generator
 from .dispatcher import dispatch
 
@@ -89,11 +89,6 @@ def Print():
 def RaiseException(msg: str, cls: Optional[str] = None):
     torch_dialect.PrimRaiseExceptionOp(msg, cls)
     
-def ScalarImplicit(a: Tensor):
-    assert isinstance(a, Tensor), f'`a` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(a).__module__}.{type(a).__name__}'
-    a = a.value
-    return torch_dialect.AtenScalarImplicitOp(a).result
-    
 def TupleIndex(tup: Any, i: int):
     return torch_dialect.PrimTupleIndexOp(tup, i).result
     
@@ -125,6 +120,8 @@ def __contains__(dict: Dict[str, Tensor], key: str):
 # overload int_list
 @dispatch
 def __contains__(l: List[int], item: int):
+    if not isinstance(l, (tuple, builtins.list)):
+        l = [l]
     return torch_dialect.Aten__Contains__IntListOp(l, item).result
     
 def __derive_index(index: int, start: int, step: int):
@@ -161,6 +158,14 @@ def _convolution(input: Tensor, weight: Tensor, bias: Optional[Tensor], stride: 
     if bias is not None:
         assert isinstance(bias, Tensor), f'`bias` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(bias).__module__}.{type(bias).__name__}'
         bias = bias.value
+    if not isinstance(stride, (tuple, builtins.list)):
+        stride = [stride]
+    if not isinstance(padding, (tuple, builtins.list)):
+        padding = [padding]
+    if not isinstance(dilation, (tuple, builtins.list)):
+        dilation = [dilation]
+    if not isinstance(output_padding, (tuple, builtins.list)):
+        output_padding = [output_padding]
     return Tensor(torch_dialect.Aten_ConvolutionOp(input, weight, bias, stride, padding, dilation, transposed, output_padding, groups, benchmark, deterministic, cudnn_enabled, allow_tf32))
     
 # overload deprecated
@@ -173,6 +178,14 @@ def _convolution(input: Tensor, weight: Tensor, bias: Optional[Tensor], stride: 
     if bias is not None:
         assert isinstance(bias, Tensor), f'`bias` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(bias).__module__}.{type(bias).__name__}'
         bias = bias.value
+    if not isinstance(stride, (tuple, builtins.list)):
+        stride = [stride]
+    if not isinstance(padding, (tuple, builtins.list)):
+        padding = [padding]
+    if not isinstance(dilation, (tuple, builtins.list)):
+        dilation = [dilation]
+    if not isinstance(output_padding, (tuple, builtins.list)):
+        output_padding = [output_padding]
     return Tensor(torch_dialect.Aten_ConvolutionDeprecatedOp(input, weight, bias, stride, padding, dilation, transposed, output_padding, groups, benchmark, deterministic, cudnn_enabled))
     
 def _embedding_bag(weight: Tensor, indices: Tensor, offsets: Tensor, scale_grad_by_freq: bool = False, mode: int = 0, sparse: bool = False, per_sample_weights: Optional[Tensor] = None, include_last_offset: bool = False, padding_idx: int = -1):
@@ -221,11 +234,19 @@ def _log_softmax_backward_data(grad_output: Tensor, output: Tensor, dim: int, in
 def _reshape_alias(self_: Tensor, size: List[int], stride: List[int]):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if not isinstance(size, (tuple, builtins.list)):
+        size = [size]
+    if not isinstance(stride, (tuple, builtins.list)):
+        stride = [stride]
     return Tensor(torch_dialect.Aten_ReshapeAliasOp(self_, size, stride))
     
 def _reshape_alias_copy(self_: Tensor, size: List[int], stride: List[int]):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if not isinstance(size, (tuple, builtins.list)):
+        size = [size]
+    if not isinstance(stride, (tuple, builtins.list)):
+        stride = [stride]
     return Tensor(torch_dialect.Aten_ReshapeAliasCopyOp(self_, size, stride))
     
 # overload str
@@ -260,11 +281,15 @@ def _to_copy(self_: Tensor, dtype: Optional[int] = None, layout: Optional[int] =
     self_ = self_.value
     if dtype is not None and isinstance(dtype, Enum):
         dtype = dtype.value
+    if layout is not None and isinstance(layout, Enum):
+        layout = layout.value
     return Tensor(torch_dialect.Aten_ToCopyOp(self_, dtype, layout, device, pin_memory, non_blocking, memory_format))
     
 def _unsafe_view(self_: Tensor, size: List[int]):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if not isinstance(size, (tuple, builtins.list)):
+        size = [size]
     return Tensor(torch_dialect.Aten_UnsafeViewOp(self_, size))
     
 @dispatch
@@ -286,6 +311,8 @@ def abs_(self_: Tensor):
 def adaptive_avg_pool2d(self_: Tensor, output_size: List[int]):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if not isinstance(output_size, (tuple, builtins.list)):
+        output_size = [output_size]
     return Tensor(torch_dialect.AtenAdaptiveAvgPool2dOp(self_, output_size))
     
 # overload Tensor
@@ -408,6 +435,8 @@ def all(self_: List[bool]):
 def amax(self_: Tensor, dim: List[int] = (), keepdim: bool = False):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if not isinstance(dim, (tuple, builtins.list)):
+        dim = [dim]
     return Tensor(torch_dialect.AtenAmaxOp(self_, dim, keepdim))
     
 @dispatch
@@ -436,6 +465,8 @@ def append(self_: List[Tensor], el: Tensor):
 def arange(end: Number, dtype: Optional[int] = None, layout: Optional[int] = None, device: Optional[Device] = None, pin_memory: Optional[bool] = None):
     if dtype is not None and isinstance(dtype, Enum):
         dtype = dtype.value
+    if layout is not None and isinstance(layout, Enum):
+        layout = layout.value
     return Tensor(torch_dialect.AtenArangeOp(end, dtype, layout, device, pin_memory))
     
 # overload start
@@ -443,6 +474,8 @@ def arange(end: Number, dtype: Optional[int] = None, layout: Optional[int] = Non
 def arange(start: Number, end: Number, dtype: Optional[int] = None, layout: Optional[int] = None, device: Optional[Device] = None, pin_memory: Optional[bool] = None):
     if dtype is not None and isinstance(dtype, Enum):
         dtype = dtype.value
+    if layout is not None and isinstance(layout, Enum):
+        layout = layout.value
     return Tensor(torch_dialect.AtenArangeStartOp(start, end, dtype, layout, device, pin_memory))
     
 # overload start_step
@@ -450,6 +483,8 @@ def arange(start: Number, end: Number, dtype: Optional[int] = None, layout: Opti
 def arange(start: Number, end: Number, step: Number = 1, dtype: Optional[int] = None, layout: Optional[int] = None, device: Optional[Device] = None, pin_memory: Optional[bool] = None):
     if dtype is not None and isinstance(dtype, Enum):
         dtype = dtype.value
+    if layout is not None and isinstance(layout, Enum):
+        layout = layout.value
     return Tensor(torch_dialect.AtenArangeStartStepOp(start, end, step, dtype, layout, device, pin_memory))
     
 # overload start_out
@@ -467,6 +502,10 @@ def argmax(self_: Tensor, dim: Optional[int] = None, keepdim: bool = False):
 def as_strided_copy(self_: Tensor, size: List[int], stride: List[int], storage_offset: Optional[int] = None):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if not isinstance(size, (tuple, builtins.list)):
+        size = [size]
+    if not isinstance(stride, (tuple, builtins.list)):
+        stride = [stride]
     return Tensor(torch_dialect.AtenAsStridedCopyOp(self_, size, stride, storage_offset))
     
 def as_strided_scatter(self_: Tensor, src: Tensor, size: List[int], stride: List[int], storage_offset: Optional[int] = None):
@@ -474,6 +513,10 @@ def as_strided_scatter(self_: Tensor, src: Tensor, size: List[int], stride: List
     self_ = self_.value
     assert isinstance(src, Tensor), f'`src` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(src).__module__}.{type(src).__name__}'
     src = src.value
+    if not isinstance(size, (tuple, builtins.list)):
+        size = [size]
+    if not isinstance(stride, (tuple, builtins.list)):
+        stride = [stride]
     return Tensor(torch_dialect.AtenAsStridedScatterOp(self_, src, size, stride, storage_offset))
     
 def atan2(self_: Tensor, other: Tensor):
@@ -493,6 +536,12 @@ def atan2_(self_: Tensor, other: Tensor):
 def avg_pool2d(self_: Tensor, kernel_size: List[int], stride: List[int] = (), padding: List[int] = (0, 0), ceil_mode: bool = False, count_include_pad: bool = True, divisor_override: Optional[int] = None):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if not isinstance(kernel_size, (tuple, builtins.list)):
+        kernel_size = [kernel_size]
+    if not isinstance(stride, (tuple, builtins.list)):
+        stride = [stride]
+    if not isinstance(padding, (tuple, builtins.list)):
+        padding = [padding]
     return Tensor(torch_dialect.AtenAvgPool2dOp(self_, kernel_size, stride, padding, ceil_mode, count_include_pad, divisor_override))
     
 def baddbmm(self_: Tensor, batch1: Tensor, batch2: Tensor, beta: Number = 1, alpha: Number = 1):
@@ -621,6 +670,8 @@ def bmm(self_: Tensor, mat2: Tensor):
 def broadcast_to(self_: Tensor, size: List[int]):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if not isinstance(size, (tuple, builtins.list)):
+        size = [size]
     return Tensor(torch_dialect.AtenBroadcastToOp(self_, size))
     
 # overload Tensor
@@ -695,6 +746,8 @@ def clone(self_: Tensor, memory_format: Optional[int] = None):
 def constant_pad_nd(self_: Tensor, pad: List[int], value: Number = 0):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if not isinstance(pad, (tuple, builtins.list)):
+        pad = [pad]
     return Tensor(torch_dialect.AtenConstantPadNdOp(self_, pad, value))
     
 def contiguous(self_: Tensor, memory_format: int = 0):
@@ -710,6 +763,12 @@ def conv2d(input: Tensor, weight: Tensor, bias: Optional[Tensor] = None, stride:
     if bias is not None:
         assert isinstance(bias, Tensor), f'`bias` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(bias).__module__}.{type(bias).__name__}'
         bias = bias.value
+    if not isinstance(stride, (tuple, builtins.list)):
+        stride = [stride]
+    if not isinstance(padding, (tuple, builtins.list)):
+        padding = [padding]
+    if not isinstance(dilation, (tuple, builtins.list)):
+        dilation = [dilation]
     return Tensor(torch_dialect.AtenConv2dOp(input, weight, bias, stride, padding, dilation, groups))
     
 def conv_transpose1d(input: Tensor, weight: Tensor, bias: Optional[Tensor] = None, stride: List[int] = (1), padding: List[int] = (0), output_padding: List[int] = (0), groups: int = 1, dilation: List[int] = (1)):
@@ -720,6 +779,14 @@ def conv_transpose1d(input: Tensor, weight: Tensor, bias: Optional[Tensor] = Non
     if bias is not None:
         assert isinstance(bias, Tensor), f'`bias` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(bias).__module__}.{type(bias).__name__}'
         bias = bias.value
+    if not isinstance(stride, (tuple, builtins.list)):
+        stride = [stride]
+    if not isinstance(padding, (tuple, builtins.list)):
+        padding = [padding]
+    if not isinstance(output_padding, (tuple, builtins.list)):
+        output_padding = [output_padding]
+    if not isinstance(dilation, (tuple, builtins.list)):
+        dilation = [dilation]
     return Tensor(torch_dialect.AtenConvTranspose1dOp(input, weight, bias, stride, padding, output_padding, groups, dilation))
     
 # overload input
@@ -731,6 +798,14 @@ def conv_transpose2d(input: Tensor, weight: Tensor, bias: Optional[Tensor] = Non
     if bias is not None:
         assert isinstance(bias, Tensor), f'`bias` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(bias).__module__}.{type(bias).__name__}'
         bias = bias.value
+    if not isinstance(stride, (tuple, builtins.list)):
+        stride = [stride]
+    if not isinstance(padding, (tuple, builtins.list)):
+        padding = [padding]
+    if not isinstance(output_padding, (tuple, builtins.list)):
+        output_padding = [output_padding]
+    if not isinstance(dilation, (tuple, builtins.list)):
+        dilation = [dilation]
     return Tensor(torch_dialect.AtenConvTranspose2dInputOp(input, weight, bias, stride, padding, output_padding, groups, dilation))
     
 # overload input
@@ -742,6 +817,14 @@ def conv_transpose3d(input: Tensor, weight: Tensor, bias: Optional[Tensor] = Non
     if bias is not None:
         assert isinstance(bias, Tensor), f'`bias` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(bias).__module__}.{type(bias).__name__}'
         bias = bias.value
+    if not isinstance(stride, (tuple, builtins.list)):
+        stride = [stride]
+    if not isinstance(padding, (tuple, builtins.list)):
+        padding = [padding]
+    if not isinstance(output_padding, (tuple, builtins.list)):
+        output_padding = [output_padding]
+    if not isinstance(dilation, (tuple, builtins.list)):
+        dilation = [dilation]
     return Tensor(torch_dialect.AtenConvTranspose3dInputOp(input, weight, bias, stride, padding, output_padding, groups, dilation))
     
 def convert_element_type(a: Tensor, dtype: int):
@@ -759,6 +842,14 @@ def convolution(input: Tensor, weight: Tensor, bias: Optional[Tensor], stride: L
     if bias is not None:
         assert isinstance(bias, Tensor), f'`bias` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(bias).__module__}.{type(bias).__name__}'
         bias = bias.value
+    if not isinstance(stride, (tuple, builtins.list)):
+        stride = [stride]
+    if not isinstance(padding, (tuple, builtins.list)):
+        padding = [padding]
+    if not isinstance(dilation, (tuple, builtins.list)):
+        dilation = [dilation]
+    if not isinstance(output_padding, (tuple, builtins.list)):
+        output_padding = [output_padding]
     return Tensor(torch_dialect.AtenConvolutionOp(input, weight, bias, stride, padding, dilation, transposed, output_padding, groups))
     
 def convolution_backward(grad_output: Tensor, input: Tensor, weight: Tensor, bias_sizes: Optional[List[int]], stride: List[int], padding: List[int], dilation: List[int], transposed: bool, output_padding: List[int], groups: int, output_mask: List[bool]):
@@ -768,6 +859,16 @@ def convolution_backward(grad_output: Tensor, input: Tensor, weight: Tensor, bia
     input = input.value
     assert isinstance(weight, Tensor), f'`weight` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(weight).__module__}.{type(weight).__name__}'
     weight = weight.value
+    if bias_sizes is not None and not isinstance(bias_sizes, (tuple, builtins.list)):
+        bias_sizes = [bias_sizes]
+    if not isinstance(stride, (tuple, builtins.list)):
+        stride = [stride]
+    if not isinstance(padding, (tuple, builtins.list)):
+        padding = [padding]
+    if not isinstance(dilation, (tuple, builtins.list)):
+        dilation = [dilation]
+    if not isinstance(output_padding, (tuple, builtins.list)):
+        output_padding = [output_padding]
     op_results = get_op_results_or_values(torch_dialect.AtenConvolutionBackwardOp(grad_output, input, weight, bias_sizes, stride, padding, dilation, transposed, output_padding, groups, output_mask))
     return tuple([Tensor(o) if is_a_torch_tensor(o) else o for o in op_results])
     
@@ -778,6 +879,14 @@ def convolution_backward_overrideable(grad_output: Tensor, input: Tensor, weight
     input = input.value
     assert isinstance(weight, Tensor), f'`weight` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(weight).__module__}.{type(weight).__name__}'
     weight = weight.value
+    if not isinstance(stride, (tuple, builtins.list)):
+        stride = [stride]
+    if not isinstance(padding, (tuple, builtins.list)):
+        padding = [padding]
+    if not isinstance(dilation, (tuple, builtins.list)):
+        dilation = [dilation]
+    if not isinstance(output_padding, (tuple, builtins.list)):
+        output_padding = [output_padding]
     op_results = get_op_results_or_values(torch_dialect.AtenConvolutionBackwardOverrideableOp(grad_output, input, weight, stride, padding, dilation, transposed, output_padding, groups, output_mask))
     return tuple([Tensor(o) if is_a_torch_tensor(o) else o for o in op_results])
     
@@ -789,6 +898,14 @@ def convolution_overrideable(input: Tensor, weight: Tensor, bias: Optional[Tenso
     if bias is not None:
         assert isinstance(bias, Tensor), f'`bias` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(bias).__module__}.{type(bias).__name__}'
         bias = bias.value
+    if not isinstance(stride, (tuple, builtins.list)):
+        stride = [stride]
+    if not isinstance(padding, (tuple, builtins.list)):
+        padding = [padding]
+    if not isinstance(dilation, (tuple, builtins.list)):
+        dilation = [dilation]
+    if not isinstance(output_padding, (tuple, builtins.list)):
+        output_padding = [output_padding]
     return Tensor(torch_dialect.AtenConvolutionOverrideableOp(input, weight, bias, stride, padding, dilation, transposed, output_padding, groups))
     
 def copy(self_: Tensor, src: Tensor, non_blocking: bool = False):
@@ -958,8 +1075,12 @@ def embedding_dense_backward(grad_output: Tensor, indices: Tensor, num_weights: 
     
 # overload memory_format
 def empty(size: List[int], dtype: Optional[int] = None, layout: Optional[int] = None, device: Optional[Device] = None, pin_memory: Optional[bool] = None, memory_format: Optional[int] = None):
+    if not isinstance(size, (tuple, builtins.list)):
+        size = [size]
     if dtype is not None and isinstance(dtype, Enum):
         dtype = dtype.value
+    if layout is not None and isinstance(layout, Enum):
+        layout = layout.value
     return Tensor(torch_dialect.AtenEmptyMemoryFormatOp(size, dtype, layout, device, pin_memory, memory_format))
     
 def empty_like(self_: Tensor, dtype: Optional[int] = None, layout: Optional[int] = None, device: Optional[Device] = None, pin_memory: Optional[bool] = None, memory_format: Optional[int] = None):
@@ -967,6 +1088,8 @@ def empty_like(self_: Tensor, dtype: Optional[int] = None, layout: Optional[int]
     self_ = self_.value
     if dtype is not None and isinstance(dtype, Enum):
         dtype = dtype.value
+    if layout is not None and isinstance(layout, Enum):
+        layout = layout.value
     return Tensor(torch_dialect.AtenEmptyLikeOp(self_, dtype, layout, device, pin_memory, memory_format))
     
 # overload Tensor
@@ -988,6 +1111,10 @@ def eq(self_: Tensor, other: Number):
 # overload int_list
 @dispatch
 def eq(a: List[int], b: List[int]):
+    if not isinstance(a, (tuple, builtins.list)):
+        a = [a]
+    if not isinstance(b, (tuple, builtins.list)):
+        b = [b]
     return torch_dialect.AtenEqIntListOp(a, b).result
     
 # overload str
@@ -1049,6 +1176,8 @@ def exp_(self_: Tensor):
 def expand(self_: Tensor, size: List[int], implicit: bool = False):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if not isinstance(size, (tuple, builtins.list)):
+        size = [size]
     return Tensor(torch_dialect.AtenExpandOp(self_, size, implicit))
     
 def expand_as(self_: Tensor, other: Tensor):
@@ -1061,6 +1190,8 @@ def expand_as(self_: Tensor, other: Tensor):
 def expand_copy(self_: Tensor, size: List[int], implicit: bool = False):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if not isinstance(size, (tuple, builtins.list)):
+        size = [size]
     return Tensor(torch_dialect.AtenExpandCopyOp(self_, size, implicit))
     
 def expm1(self_: Tensor):
@@ -1119,6 +1250,8 @@ def flatten(self_: Tensor, start_dim: int = 0, end_dim: int = -1):
 def flip(self_: Tensor, dims: List[int]):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if not isinstance(dims, (tuple, builtins.list)):
+        dims = [dims]
     return Tensor(torch_dialect.AtenFlipOp(self_, dims))
     
 def floor(self_: Tensor):
@@ -1169,11 +1302,17 @@ def format(self_: str):
 def frobenius_norm(self_: Tensor, dim: List[int], keepdim: bool = False):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if not isinstance(dim, (tuple, builtins.list)):
+        dim = [dim]
     return Tensor(torch_dialect.AtenFrobeniusNormDimOp(self_, dim, keepdim))
     
 def full(size: List[int], fill_value: Number, dtype: Optional[int] = None, layout: Optional[int] = None, device: Optional[Device] = None, pin_memory: Optional[bool] = None):
+    if not isinstance(size, (tuple, builtins.list)):
+        size = [size]
     if dtype is not None and isinstance(dtype, Enum):
         dtype = dtype.value
+    if layout is not None and isinstance(layout, Enum):
+        layout = layout.value
     return Tensor(torch_dialect.AtenFullOp(size, fill_value, dtype, layout, device, pin_memory))
     
 def full_like(self_: Tensor, fill_value: Number, dtype: Optional[int] = None, layout: Optional[int] = None, device: Optional[Device] = None, pin_memory: Optional[bool] = None, memory_format: Optional[int] = None):
@@ -1181,6 +1320,8 @@ def full_like(self_: Tensor, fill_value: Number, dtype: Optional[int] = None, la
     self_ = self_.value
     if dtype is not None and isinstance(dtype, Enum):
         dtype = dtype.value
+    if layout is not None and isinstance(layout, Enum):
+        layout = layout.value
     return Tensor(torch_dialect.AtenFullLikeOp(self_, fill_value, dtype, layout, device, pin_memory, memory_format))
     
 def gather(self_: Tensor, dim: int, index: Tensor, sparse_grad: bool = False):
@@ -1421,6 +1562,8 @@ def keys(self_: Dict[str, Tensor]):
 def layer_norm(input: Tensor, normalized_shape: List[int], weight: Optional[Tensor] = None, bias: Optional[Tensor] = None, eps: float = 1.0000000000000001e-05, cudnn_enable: bool = True):
     assert isinstance(input, Tensor), f'`input` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(input).__module__}.{type(input).__name__}'
     input = input.value
+    if not isinstance(normalized_shape, (tuple, builtins.list)):
+        normalized_shape = [normalized_shape]
     if weight is not None:
         assert isinstance(weight, Tensor), f'`weight` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(weight).__module__}.{type(weight).__name__}'
         weight = weight.value
@@ -1523,9 +1666,11 @@ def lift_fresh_copy(self_: Tensor):
     self_ = self_.value
     return Tensor(torch_dialect.AtenLiftFreshCopyOp(self_))
     
-def linalg_vector_norm(self_: Tensor, ord: Number = 2, dim: Optional[List[int]] = None, keepdim: bool = False, dtype: Optional[int] = None):
+def vector_norm(self_: Tensor, ord: Number = 2, dim: Optional[List[int]] = None, keepdim: bool = False, dtype: Optional[int] = None):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if dim is not None and not isinstance(dim, (tuple, builtins.list)):
+        dim = [dim]
     if dtype is not None and isinstance(dtype, Enum):
         dtype = dtype.value
     return Tensor(torch_dialect.AtenLinalgVectorNormOp(self_, ord, dim, keepdim, dtype))
@@ -1588,30 +1733,6 @@ def log_softmax(self_: Tensor, dim: int, dtype: Optional[int] = None):
         dtype = dtype.value
     return Tensor(torch_dialect.AtenLogSoftmaxIntOp(self_, dim, dtype))
     
-def logical_and(self_: Tensor, other: Tensor):
-    assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
-    self_ = self_.value
-    assert isinstance(other, Tensor), f'`other` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(other).__module__}.{type(other).__name__}'
-    other = other.value
-    return Tensor(torch_dialect.AtenLogicalAndOp(self_, other))
-    
-def logical_and_(self_: Tensor, other: Tensor):
-    assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
-    self_ = self_.value
-    assert isinstance(other, Tensor), f'`other` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(other).__module__}.{type(other).__name__}'
-    other = other.value
-    return Tensor(torch_dialect.AtenLogicalAnd_Op(self_, other))
-    
-def logical_not(self_: Tensor):
-    assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
-    self_ = self_.value
-    return Tensor(torch_dialect.AtenLogicalNotOp(self_))
-    
-def logical_not_(self_: Tensor):
-    assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
-    self_ = self_.value
-    return Tensor(torch_dialect.AtenLogicalNot_Op(self_))
-    
 def logical_or(self_: Tensor, other: Tensor):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
@@ -1626,23 +1747,11 @@ def logical_or_(self_: Tensor, other: Tensor):
     other = other.value
     return Tensor(torch_dialect.AtenLogicalOr_Op(self_, other))
     
-def logical_xor(self_: Tensor, other: Tensor):
-    assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
-    self_ = self_.value
-    assert isinstance(other, Tensor), f'`other` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(other).__module__}.{type(other).__name__}'
-    other = other.value
-    return Tensor(torch_dialect.AtenLogicalXorOp(self_, other))
-    
-def logical_xor_(self_: Tensor, other: Tensor):
-    assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
-    self_ = self_.value
-    assert isinstance(other, Tensor), f'`other` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(other).__module__}.{type(other).__name__}'
-    other = other.value
-    return Tensor(torch_dialect.AtenLogicalXor_Op(self_, other))
-    
 def logsumexp(self_: Tensor, dim: List[int], keepdim: bool = False):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if not isinstance(dim, (tuple, builtins.list)):
+        dim = [dim]
     return Tensor(torch_dialect.AtenLogsumexpOp(self_, dim, keepdim))
     
 # overload Tensor
@@ -1763,6 +1872,8 @@ def max(self_: Tensor, dim: int, keepdim: bool = False):
 # overload self_int
 @dispatch
 def max(self_: List[int]):
+    if not isinstance(self_, (tuple, builtins.list)):
+        self_ = [self_]
     return torch_dialect.PrimMaxSelfIntOp(self_).result
     
 # overload int
@@ -1773,11 +1884,27 @@ def max(a: int, b: int):
 def max_pool2d(self_: Tensor, kernel_size: List[int], stride: List[int] = (), padding: List[int] = (0, 0), dilation: List[int] = (1, 1), ceil_mode: bool = False):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if not isinstance(kernel_size, (tuple, builtins.list)):
+        kernel_size = [kernel_size]
+    if not isinstance(stride, (tuple, builtins.list)):
+        stride = [stride]
+    if not isinstance(padding, (tuple, builtins.list)):
+        padding = [padding]
+    if not isinstance(dilation, (tuple, builtins.list)):
+        dilation = [dilation]
     return Tensor(torch_dialect.AtenMaxPool2dOp(self_, kernel_size, stride, padding, dilation, ceil_mode))
     
 def max_pool2d_with_indices(self_: Tensor, kernel_size: List[int], stride: List[int] = (), padding: List[int] = (0, 0), dilation: List[int] = (1, 1), ceil_mode: bool = False):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if not isinstance(kernel_size, (tuple, builtins.list)):
+        kernel_size = [kernel_size]
+    if not isinstance(stride, (tuple, builtins.list)):
+        stride = [stride]
+    if not isinstance(padding, (tuple, builtins.list)):
+        padding = [padding]
+    if not isinstance(dilation, (tuple, builtins.list)):
+        dilation = [dilation]
     op_results = get_op_results_or_values(torch_dialect.AtenMaxPool2dWithIndicesOp(self_, kernel_size, stride, padding, dilation, ceil_mode))
     return tuple([Tensor(o) if is_a_torch_tensor(o) else o for o in op_results])
     
@@ -1786,6 +1913,14 @@ def max_pool2d_with_indices_backward(grad_output: Tensor, self_: Tensor, kernel_
     grad_output = grad_output.value
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if not isinstance(kernel_size, (tuple, builtins.list)):
+        kernel_size = [kernel_size]
+    if not isinstance(stride, (tuple, builtins.list)):
+        stride = [stride]
+    if not isinstance(padding, (tuple, builtins.list)):
+        padding = [padding]
+    if not isinstance(dilation, (tuple, builtins.list)):
+        dilation = [dilation]
     assert isinstance(indices, Tensor), f'`indices` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(indices).__module__}.{type(indices).__name__}'
     indices = indices.value
     return Tensor(torch_dialect.AtenMaxPool2dWithIndicesBackwardOp(grad_output, self_, kernel_size, stride, padding, dilation, ceil_mode, indices))
@@ -1802,6 +1937,8 @@ def maximum(self_: Tensor, other: Tensor):
 def mean(self_: Tensor, dim: Optional[List[int]], keepdim: bool = False, dtype: Optional[int] = None):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if dim is not None and not isinstance(dim, (tuple, builtins.list)):
+        dim = [dim]
     if dtype is not None and isinstance(dtype, Enum):
         dtype = dtype.value
     return Tensor(torch_dialect.AtenMeanDimOp(self_, dim, keepdim, dtype))
@@ -1817,6 +1954,8 @@ def mean(self_: Tensor, dtype: Optional[int] = None):
 # overload self_int
 @dispatch
 def min(self_: List[int]):
+    if not isinstance(self_, (tuple, builtins.list)):
+        self_ = [self_]
     return torch_dialect.PrimMinSelfIntOp(self_).result
     
 # overload int
@@ -1961,6 +2100,8 @@ def native_dropout_backward(grad_output: Tensor, mask: Tensor, scale: float):
 def native_layer_norm(input: Tensor, normalized_shape: List[int], weight: Optional[Tensor], bias: Optional[Tensor], eps: float):
     assert isinstance(input, Tensor), f'`input` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(input).__module__}.{type(input).__name__}'
     input = input.value
+    if not isinstance(normalized_shape, (tuple, builtins.list)):
+        normalized_shape = [normalized_shape]
     if weight is not None:
         assert isinstance(weight, Tensor), f'`weight` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(weight).__module__}.{type(weight).__name__}'
         weight = weight.value
@@ -1975,6 +2116,8 @@ def native_layer_norm_backward(grad_out: Tensor, input: Tensor, normalized_shape
     grad_out = grad_out.value
     assert isinstance(input, Tensor), f'`input` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(input).__module__}.{type(input).__name__}'
     input = input.value
+    if not isinstance(normalized_shape, (tuple, builtins.list)):
+        normalized_shape = [normalized_shape]
     assert isinstance(mean, Tensor), f'`mean` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(mean).__module__}.{type(mean).__name__}'
     mean = mean.value
     assert isinstance(rstd, Tensor), f'`rstd` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(rstd).__module__}.{type(rstd).__name__}'
@@ -2007,6 +2150,10 @@ def ne(self_: Tensor, other: Number):
 # overload int_list
 @dispatch
 def ne(a: List[int], b: List[int]):
+    if not isinstance(a, (tuple, builtins.list)):
+        a = [a]
+    if not isinstance(b, (tuple, builtins.list)):
+        b = [b]
     return torch_dialect.AtenNeIntListOp(a, b).result
     
 # overload int
@@ -2064,22 +2211,34 @@ def neg_(self_: Tensor):
 def new_empty(self_: Tensor, size: List[int], dtype: Optional[int] = None, layout: Optional[int] = None, device: Optional[Device] = None, pin_memory: Optional[bool] = None):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if not isinstance(size, (tuple, builtins.list)):
+        size = [size]
     if dtype is not None and isinstance(dtype, Enum):
         dtype = dtype.value
+    if layout is not None and isinstance(layout, Enum):
+        layout = layout.value
     return Tensor(torch_dialect.AtenNewEmptyOp(self_, size, dtype, layout, device, pin_memory))
     
 def new_ones(self_: Tensor, size: List[int], dtype: Optional[int] = None, layout: Optional[int] = None, device: Optional[Device] = None, pin_memory: Optional[bool] = None):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if not isinstance(size, (tuple, builtins.list)):
+        size = [size]
     if dtype is not None and isinstance(dtype, Enum):
         dtype = dtype.value
+    if layout is not None and isinstance(layout, Enum):
+        layout = layout.value
     return Tensor(torch_dialect.AtenNewOnesOp(self_, size, dtype, layout, device, pin_memory))
     
 def new_zeros(self_: Tensor, size: List[int], dtype: Optional[int] = None, layout: Optional[int] = None, device: Optional[Device] = None, pin_memory: Optional[bool] = None):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if not isinstance(size, (tuple, builtins.list)):
+        size = [size]
     if dtype is not None and isinstance(dtype, Enum):
         dtype = dtype.value
+    if layout is not None and isinstance(layout, Enum):
+        layout = layout.value
     return Tensor(torch_dialect.AtenNewZerosOp(self_, size, dtype, layout, device, pin_memory))
     
 def nll_loss_backward(grad_output: Tensor, self_: Tensor, target: Tensor, weight: Optional[Tensor], reduction: int, ignore_index: int, total_weight: Tensor):
@@ -2117,26 +2276,43 @@ def numpy_T(self_: Tensor):
     self_ = self_.value
     return Tensor(torch_dialect.AtenNumpyTOp(self_))
     
+def ones(size: List[int], dtype: Optional[int] = None, layout: Optional[int] = None, device: Optional[Device] = None, pin_memory: Optional[bool] = None):
+    if not isinstance(size, (tuple, builtins.list)):
+        size = [size]
+    if dtype is not None and isinstance(dtype, Enum):
+        dtype = dtype.value
+    if layout is not None and isinstance(layout, Enum):
+        layout = layout.value
+    return Tensor(torch_dialect.AtenOnesOp(size, dtype, layout, device, pin_memory))
+    
 def ones_like(self_: Tensor, dtype: Optional[int] = None, layout: Optional[int] = None, device: Optional[Device] = None, pin_memory: Optional[bool] = None, memory_format: Optional[int] = None):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
     if dtype is not None and isinstance(dtype, Enum):
         dtype = dtype.value
+    if layout is not None and isinstance(layout, Enum):
+        layout = layout.value
     return Tensor(torch_dialect.AtenOnesLikeOp(self_, dtype, layout, device, pin_memory, memory_format))
     
 def pad(self_: Tensor, pad: List[int], mode: str = "constant", value: Optional[float] = None):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if not isinstance(pad, (tuple, builtins.list)):
+        pad = [pad]
     return Tensor(torch_dialect.AtenPadOp(self_, pad, mode, value))
     
 def permute(self_: Tensor, dims: List[int]):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if not isinstance(dims, (tuple, builtins.list)):
+        dims = [dims]
     return Tensor(torch_dialect.AtenPermuteOp(self_, dims))
     
 def permute_copy(self_: Tensor, dims: List[int]):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if not isinstance(dims, (tuple, builtins.list)):
+        dims = [dims]
     return Tensor(torch_dialect.AtenPermuteCopyOp(self_, dims))
     
 # overload Tensor_Scalar
@@ -2167,13 +2343,40 @@ def rand_like(self_: Tensor, dtype: Optional[int] = None, layout: Optional[int] 
     self_ = self_.value
     if dtype is not None and isinstance(dtype, Enum):
         dtype = dtype.value
+    if layout is not None and isinstance(layout, Enum):
+        layout = layout.value
     return Tensor(torch_dialect.AtenRandLikeOp(self_, dtype, layout, device, pin_memory, memory_format))
     
 # overload low
 def randint(low: int, high: int, size: List[int], dtype: Optional[int] = 4, layout: Optional[int] = None, device: Optional[Device] = None, pin_memory: Optional[bool] = None):
+    if not isinstance(size, (tuple, builtins.list)):
+        size = [size]
     if dtype is not None and isinstance(dtype, Enum):
         dtype = dtype.value
+    if layout is not None and isinstance(layout, Enum):
+        layout = layout.value
     return Tensor(torch_dialect.AtenRandintLowOp(low, high, size, dtype, layout, device, pin_memory))
+    
+@dispatch
+def randn(size: List[int], dtype: Optional[int] = None, layout: Optional[int] = None, device: Optional[Device] = None, pin_memory: Optional[bool] = None):
+    if not isinstance(size, (tuple, builtins.list)):
+        size = [size]
+    if dtype is not None and isinstance(dtype, Enum):
+        dtype = dtype.value
+    if layout is not None and isinstance(layout, Enum):
+        layout = layout.value
+    return Tensor(torch_dialect.AtenRandnOp(size, dtype, layout, device, pin_memory))
+    
+# overload generator
+@dispatch
+def randn(size: List[int], generator: Optional[Generator], dtype: Optional[int] = None, layout: Optional[int] = None, device: Optional[Device] = None, pin_memory: Optional[bool] = None):
+    if not isinstance(size, (tuple, builtins.list)):
+        size = [size]
+    if dtype is not None and isinstance(dtype, Enum):
+        dtype = dtype.value
+    if layout is not None and isinstance(layout, Enum):
+        layout = layout.value
+    return Tensor(torch_dialect.AtenRandnGeneratorOp(size, generator, dtype, layout, device, pin_memory))
     
 def reciprocal(self_: Tensor):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
@@ -2220,21 +2423,31 @@ def remainder(self_: Tensor, other: Number):
 def repeat(self_: Tensor, repeats: List[int]):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if not isinstance(repeats, (tuple, builtins.list)):
+        repeats = [repeats]
     return Tensor(torch_dialect.AtenRepeatOp(self_, repeats))
     
 def reshape(self_: Tensor, shape: List[int]):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if not isinstance(shape, (tuple, builtins.list)):
+        shape = [shape]
     return Tensor(torch_dialect.AtenReshapeOp(self_, shape))
     
 def resize_(self_: Tensor, size: List[int], memory_format: Optional[int] = None):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if not isinstance(size, (tuple, builtins.list)):
+        size = [size]
     return Tensor(torch_dialect.AtenResize_Op(self_, size, memory_format))
     
 def roll(self_: Tensor, shifts: List[int], dims: List[int] = ()):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if not isinstance(shifts, (tuple, builtins.list)):
+        shifts = [shifts]
+    if not isinstance(dims, (tuple, builtins.list)):
+        dims = [dims]
     return Tensor(torch_dialect.AtenRollOp(self_, shifts, dims))
     
 def round(self_: Tensor):
@@ -2374,6 +2587,8 @@ def softplus(self_: Tensor, beta: Number = 1, threshold: Number = 20):
     
 # overload int
 def sort(self_: List[int], reverse: bool = False):
+    if not isinstance(self_, (tuple, builtins.list)):
+        self_ = [self_]
     torch_dialect.AtenSortIntOp(self_, reverse)
     
 @dispatch
@@ -2444,6 +2659,8 @@ def std(self_: Tensor, unbiased: bool = True):
 def std(self_: Tensor, dim: Optional[List[int]], unbiased: bool = True, keepdim: bool = False):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if dim is not None and not isinstance(dim, (tuple, builtins.list)):
+        dim = [dim]
     return Tensor(torch_dialect.AtenStdDimOp(self_, dim, unbiased, keepdim))
     
 # overload correction
@@ -2451,7 +2668,12 @@ def std(self_: Tensor, dim: Optional[List[int]], unbiased: bool = True, keepdim:
 def std(self_: Tensor, dim: Optional[List[int]] = None, correction: Optional[int] = None, keepdim: bool = False):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if dim is not None and not isinstance(dim, (tuple, builtins.list)):
+        dim = [dim]
     return Tensor(torch_dialect.AtenStdCorrectionOp(self_, dim, correction, keepdim))
+    
+def str(elem: Tensor):
+    return torch_dialect.AtenStrOp(elem).result
     
 # overload Tensor
 @dispatch
@@ -2512,6 +2734,8 @@ def sum(self_: Tensor, dtype: Optional[int] = None):
 def sum(self_: Tensor, dim: Optional[List[int]], keepdim: bool = False, dtype: Optional[int] = None):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if dim is not None and not isinstance(dim, (tuple, builtins.list)):
+        dim = [dim]
     if dtype is not None and isinstance(dtype, Enum):
         dtype = dtype.value
     return Tensor(torch_dialect.AtenSumDimIntListOp(self_, dim, keepdim, dtype))
@@ -2542,6 +2766,33 @@ def tanh_backward(grad_output: Tensor, output: Tensor):
     assert isinstance(output, Tensor), f'`output` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(output).__module__}.{type(output).__name__}'
     output = output.value
     return Tensor(torch_dialect.AtenTanhBackwardOp(grad_output, output))
+    
+@dispatch
+def tensor(data: List[Tensor], dtype: Optional[int] = None, device: Optional[Device] = None, requires_grad: bool = False):
+    if dtype is not None and isinstance(dtype, Enum):
+        dtype = dtype.value
+    return Tensor(torch_dialect.AtenTensorOp(data, dtype, device, requires_grad))
+    
+# overload bool
+@dispatch
+def tensor(t: bool, dtype: Optional[int] = None, device: Optional[Device] = None, requires_grad: bool = False):
+    if dtype is not None and isinstance(dtype, Enum):
+        dtype = dtype.value
+    return Tensor(torch_dialect.AtenTensorBoolOp(t, dtype, device, requires_grad))
+    
+# overload int
+@dispatch
+def tensor(t: int, dtype: Optional[int] = None, device: Optional[Device] = None, requires_grad: bool = False):
+    if dtype is not None and isinstance(dtype, Enum):
+        dtype = dtype.value
+    return Tensor(torch_dialect.AtenTensorIntOp(t, dtype, device, requires_grad))
+    
+# overload float
+@dispatch
+def tensor(t: float, dtype: Optional[int] = None, device: Optional[Device] = None, requires_grad: bool = False):
+    if dtype is not None and isinstance(dtype, Enum):
+        dtype = dtype.value
+    return Tensor(torch_dialect.AtenTensorFloatOp(t, dtype, device, requires_grad))
     
 def threshold(self_: Tensor, threshold: Number, value: Number):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
@@ -2576,6 +2827,8 @@ def to(self_: Tensor, dtype: Optional[int] = None, layout: Optional[int] = None,
     self_ = self_.value
     if dtype is not None and isinstance(dtype, Enum):
         dtype = dtype.value
+    if layout is not None and isinstance(layout, Enum):
+        layout = layout.value
     return Tensor(torch_dialect.AtenToDtypeLayoutOp(self_, dtype, layout, device, pin_memory, non_blocking, copy, memory_format))
     
 # overload other
@@ -2643,9 +2896,6 @@ def type_as(self_: Tensor, other: Tensor):
     other = other.value
     return Tensor(torch_dialect.AtenTypeAsOp(self_, other))
     
-def unchecked_cast(x: Tensor):
-    return torch_dialect.PrimUncheckedCastOp(x).result
-    
 def unfold_copy(self_: Tensor, dimension: int, size: int, step: int):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
@@ -2679,11 +2929,17 @@ def unsqueeze_copy(self_: Tensor, dim: int):
 def upsample_nearest2d(self_: Tensor, output_size: List[int], scales_h: Optional[float] = None, scales_w: Optional[float] = None):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if not isinstance(output_size, (tuple, builtins.list)):
+        output_size = [output_size]
     return Tensor(torch_dialect.AtenUpsampleNearest2dOp(self_, output_size, scales_h, scales_w))
     
 def upsample_nearest2d_backward(grad_output: Tensor, output_size: List[int], input_size: List[int], scales_h: Optional[float] = None, scales_w: Optional[float] = None):
     assert isinstance(grad_output, Tensor), f'`grad_output` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(grad_output).__module__}.{type(grad_output).__name__}'
     grad_output = grad_output.value
+    if not isinstance(output_size, (tuple, builtins.list)):
+        output_size = [output_size]
+    if not isinstance(input_size, (tuple, builtins.list)):
+        input_size = [input_size]
     return Tensor(torch_dialect.AtenUpsampleNearest2dBackwardOp(grad_output, output_size, input_size, scales_h, scales_w))
     
 @dispatch
@@ -2697,6 +2953,8 @@ def var(self_: Tensor, unbiased: bool = True):
 def var(self_: Tensor, dim: Optional[List[int]], unbiased: bool = True, keepdim: bool = False):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if dim is not None and not isinstance(dim, (tuple, builtins.list)):
+        dim = [dim]
     return Tensor(torch_dialect.AtenVarDimOp(self_, dim, unbiased, keepdim))
     
 # overload correction
@@ -2704,6 +2962,8 @@ def var(self_: Tensor, dim: Optional[List[int]], unbiased: bool = True, keepdim:
 def var(self_: Tensor, dim: Optional[List[int]] = None, correction: Optional[int] = None, keepdim: bool = False):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if dim is not None and not isinstance(dim, (tuple, builtins.list)):
+        dim = [dim]
     return Tensor(torch_dialect.AtenVarCorrectionOp(self_, dim, correction, keepdim))
     
 # overload correction
@@ -2711,6 +2971,8 @@ def var(self_: Tensor, dim: Optional[List[int]] = None, correction: Optional[int
 def var_mean(self_: Tensor, dim: Optional[List[int]] = None, correction: Optional[int] = None, keepdim: bool = False):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if dim is not None and not isinstance(dim, (tuple, builtins.list)):
+        dim = [dim]
     op_results = get_op_results_or_values(torch_dialect.AtenVarMeanCorrectionOp(self_, dim, correction, keepdim))
     return tuple([Tensor(o) if is_a_torch_tensor(o) else o for o in op_results])
     
@@ -2724,12 +2986,16 @@ def var_mean(self_: Tensor, unbiased: bool = True):
 def view(self_: Tensor, size: List[int]):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if not isinstance(size, (tuple, builtins.list)):
+        size = [size]
     return Tensor(torch_dialect.AtenViewOp(self_, size))
     
 @dispatch
 def view_copy(self_: Tensor, size: List[int]):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
+    if not isinstance(size, (tuple, builtins.list)):
+        size = [size]
     return Tensor(torch_dialect.AtenViewCopyOp(self_, size))
     
 # overload dtype
@@ -2787,13 +3053,24 @@ def zero_(self_: Tensor):
     self_ = self_.value
     return Tensor(torch_dialect.AtenZero_Op(self_))
     
+def zeros(size: List[int], dtype: Optional[int] = None, layout: Optional[int] = None, device: Optional[Device] = None, pin_memory: Optional[bool] = None):
+    if not isinstance(size, (tuple, builtins.list)):
+        size = [size]
+    if dtype is not None and isinstance(dtype, Enum):
+        dtype = dtype.value
+    if layout is not None and isinstance(layout, Enum):
+        layout = layout.value
+    return Tensor(torch_dialect.AtenZerosOp(size, dtype, layout, device, pin_memory))
+    
 def zeros_like(self_: Tensor, dtype: Optional[int] = None, layout: Optional[int] = None, device: Optional[Device] = None, pin_memory: Optional[bool] = None, memory_format: Optional[int] = None):
     assert isinstance(self_, Tensor), f'`self_` should be a {Tensor.__module__}.{Tensor.__name__} but is {type(self_).__module__}.{type(self_).__name__}'
     self_ = self_.value
     if dtype is not None and isinstance(dtype, Enum):
         dtype = dtype.value
+    if layout is not None and isinstance(layout, Enum):
+        layout = layout.value
     return Tensor(torch_dialect.AtenZerosLikeOp(self_, dtype, layout, device, pin_memory, memory_format))
     
 
 
-__all__ = ["Bool", "Bool", "Bool", "Delete", "Float", "Float", "Float", "FloatImplicit", "Int", "Int", "Int", "IntImplicit", "NumToTensor", "Print", "RaiseException", "ScalarImplicit", "TupleIndex", "TupleUnpack", "Uninitialized", "__and__", "__and__", "__contains__", "__contains__", "__derive_index", "__getitem__", "__getitem__", "__is__", "__isnot__", "__not__", "__range_length", "_convolution", "_convolution", "_embedding_bag", "_index_put_impl", "_index_put_impl_", "_log_softmax", "_log_softmax_backward_data", "_reshape_alias", "_reshape_alias_copy", "_set_item", "_set_item", "_shape_as_tensor", "_softmax", "_softmax_backward_data", "_to_copy", "_unsafe_view", "abs", "abs", "abs_", "adaptive_avg_pool2d", "add", "add", "add", "add", "add", "add", "add", "add_", "add_", "addcdiv", "addcdiv_", "addcmul", "addcmul_", "addmm", "alias_copy", "all", "all", "amax", "any", "any", "any", "append", "arange", "arange", "arange", "arange", "argmax", "as_strided_copy", "as_strided_scatter", "atan2", "atan2_", "avg_pool2d", "baddbmm", "baddbmm_", "batch_norm", "bernoulli", "bernoulli", "bernoulli_", "bernoulli_", "bincount", "bitwise_and", "bitwise_and_", "bitwise_not", "bitwise_not_", "bitwise_or", "bitwise_or_", "bmm", "broadcast_to", "bucketize", "cat", "ceil", "ceil", "ceil", "ceil_", "clamp", "clamp_", "clamp_max", "clamp_max_", "clamp_min", "clamp_min_", "clone", "constant_pad_nd", "contiguous", "conv2d", "conv_transpose1d", "conv_transpose2d", "conv_transpose3d", "convert_element_type", "convolution", "convolution_backward", "convolution_backward_overrideable", "convolution_overrideable", "copy", "copy_", "cos", "cos_", "cpu", "cumsum", "detach", "detach_copy", "diagonal_copy", "diagonal_scatter", "dim", "div", "div", "div", "div", "div", "div", "div_", "div_", "div_", "dropout", "dropout_", "embedding", "embedding_bag", "embedding_dense_backward", "empty", "empty_like", "eq", "eq", "eq", "eq", "eq", "eq", "eq", "eq_", "eq_", "erf", "erf_", "exp", "exp_", "expand", "expand_as", "expand_copy", "expm1", "expm1_", "fft_fft", "fill", "fill", "fill_", "fill_", "flatten", "flip", "floor", "floor_", "floor_divide", "floor_divide", "floordiv", "fmod", "fmod_", "format", "frobenius_norm", "full", "full_like", "gather", "ge", "ge", "ge", "ge", "ge", "ge_", "ge_", "gelu", "gelu_backward", "get", "gt", "gt", "gt", "gt", "gt", "gt_", "gt_", "hardsigmoid", "hardsigmoid_", "hardswish", "hardswish_", "hardtanh", "hardtanh_", "index", "index", "index_put", "index_put", "index_put_", "index_put_", "index_select", "insert", "is_floating_point", "item", "join", "keys", "layer_norm", "layout", "le", "le", "le", "le_", "le_", "leaky_relu", "leaky_relu_", "len", "len", "len", "lerp", "lerp_", "lift_fresh_copy", "linalg_vector_norm", "linear", "list", "log", "log", "log1p", "log1p_", "log2", "log2_", "log_", "log_softmax", "logical_and", "logical_and_", "logical_not", "logical_not_", "logical_or", "logical_or_", "logical_xor", "logical_xor_", "logsumexp", "lt", "lt", "lt", "lt", "lt", "lt_", "lt_", "masked_fill", "masked_fill", "masked_fill_", "masked_fill_", "masked_select", "matmul", "max", "max", "max", "max", "max_pool2d", "max_pool2d_with_indices", "max_pool2d_with_indices_backward", "maximum", "mean", "mean", "min", "min", "minimum", "mish", "mm", "mse_loss", "mul", "mul", "mul", "mul", "mul_", "mul_", "mv", "narrow", "native_batch_norm", "native_batch_norm_backward", "native_dropout", "native_dropout_backward", "native_layer_norm", "native_layer_norm_backward", "ne", "ne", "ne", "ne", "ne", "ne", "ne_", "ne_", "neg", "neg", "neg", "neg_", "new_empty", "new_ones", "new_zeros", "nll_loss_backward", "nll_loss_forward", "numel", "numpy_T", "ones_like", "pad", "permute", "permute_copy", "pow", "pow", "prelu", "rand_like", "randint", "reciprocal", "reciprocal_", "relu", "relu6", "relu6_", "relu_", "remainder", "remainder", "repeat", "reshape", "resize_", "roll", "round", "round_", "rsqrt", "rsqrt_", "rsub", "scatter_add", "select", "select_copy", "select_scatter", "sigmoid", "sigmoid_", "silu", "silu_", "sin", "sin_", "size", "size", "slice", "slice", "slice_copy", "slice_scatter", "softmax", "softplus", "sort", "sqrt", "sqrt", "sqrt_", "square", "square_", "squeeze", "squeeze", "squeeze_copy", "squeeze_copy", "stack", "std", "std", "std", "sub", "sub", "sub", "sub", "sub", "sub_", "sub_", "sum", "sum", "t", "t_copy", "tanh", "tanh_", "tanh_backward", "threshold", "threshold_", "threshold_backward", "to", "to", "to", "to", "to", "tolist", "topk", "transpose", "transpose_copy", "triu", "triu_", "type_as", "unchecked_cast", "unfold_copy", "uniform", "uniform_", "unsqueeze", "unsqueeze_", "unsqueeze_copy", "upsample_nearest2d", "upsample_nearest2d_backward", "var", "var", "var", "var_mean", "var_mean", "view", "view_copy", "view_copy", "where", "where", "where", "where", "zero", "zero_", "zeros_like"]
+__all__ = ['ScalarImplicit', "Bool", "Delete", "Float", "FloatImplicit", "Int", "IntImplicit", "NumToTensor", "Print", "RaiseException", "TupleIndex", "TupleUnpack", "Uninitialized", "__and__", "__contains__", "__derive_index", "__getitem__", "__is__", "__isnot__", "__not__", "__range_length", "_convolution", "_embedding_bag", "_index_put_impl", "_index_put_impl_", "_log_softmax", "_log_softmax_backward_data", "_reshape_alias", "_reshape_alias_copy", "_set_item", "_shape_as_tensor", "_softmax", "_softmax_backward_data", "_to_copy", "_unsafe_view", "abs", "abs_", "adaptive_avg_pool2d", "add", "add_", "addcdiv", "addcdiv_", "addcmul", "addcmul_", "addmm", "alias_copy", "all", "amax", "any", "append", "arange", "argmax", "as_strided_copy", "as_strided_scatter", "atan2", "atan2_", "avg_pool2d", "baddbmm", "baddbmm_", "batch_norm", "bernoulli", "bernoulli_", "bincount", "bitwise_and", "bitwise_and_", "bitwise_not", "bitwise_not_", "bitwise_or", "bitwise_or_", "bmm", "broadcast_to", "bucketize", "cat", "ceil", "ceil_", "clamp", "clamp_", "clamp_max", "clamp_max_", "clamp_min", "clamp_min_", "clone", "constant_pad_nd", "contiguous", "conv2d", "conv_transpose1d", "conv_transpose2d", "conv_transpose3d", "convert_element_type", "convolution", "convolution_backward", "convolution_backward_overrideable", "convolution_overrideable", "copy", "copy_", "cos", "cos_", "cpu", "cumsum", "detach", "detach_copy", "diagonal_copy", "diagonal_scatter", "dim", "div", "div_", "dropout", "dropout_", "embedding", "embedding_bag", "embedding_dense_backward", "empty", "empty_like", "eq", "eq_", "erf", "erf_", "exp", "exp_", "expand", "expand_as", "expand_copy", "expm1", "expm1_", "fft_fft", "fill", "fill_", "flatten", "flip", "floor", "floor_", "floor_divide", "floordiv", "fmod", "fmod_", "format", "frobenius_norm", "full", "full_like", "gather", "ge", "ge_", "gelu", "gelu_backward", "get", "gt", "gt_", "hardsigmoid", "hardsigmoid_", "hardswish", "hardswish_", "hardtanh", "hardtanh_", "index", "index_put", "index_put_", "index_select", "insert", "is_floating_point", "item", "join", "keys", "layer_norm", "layout", "le", "le_", "leaky_relu", "leaky_relu_", "len", "lerp", "lerp_", "lift_fresh_copy", "linear", "list", "log", "log1p", "log1p_", "log2", "log2_", "log_", "log_softmax", "logical_or", "logical_or_", "logsumexp", "lt", "lt_", "masked_fill", "masked_fill_", "masked_select", "matmul", "max", "max_pool2d", "max_pool2d_with_indices", "max_pool2d_with_indices_backward", "maximum", "mean", "min", "minimum", "mish", "mm", "mse_loss", "mul", "mul_", "mv", "narrow", "native_batch_norm", "native_batch_norm_backward", "native_dropout", "native_dropout_backward", "native_layer_norm", "native_layer_norm_backward", "ne", "ne_", "neg", "neg_", "new_empty", "new_ones", "new_zeros", "nll_loss_backward", "nll_loss_forward", "numel", "numpy_T", "ones", "ones_like", "pad", "permute", "permute_copy", "pow", "prelu", "rand_like", "randint", "randn", "reciprocal", "reciprocal_", "relu", "relu6", "relu6_", "relu_", "remainder", "repeat", "reshape", "resize_", "roll", "round", "round_", "rsqrt", "rsqrt_", "rsub", "scatter_add", "select", "select_copy", "select_scatter", "sigmoid", "sigmoid_", "silu", "silu_", "sin", "sin_", "size", "slice", "slice_copy", "slice_scatter", "softmax", "softplus", "sort", "sqrt", "sqrt_", "square", "square_", "squeeze", "squeeze_copy", "stack", "std", "str", "sub", "sub_", "sum", "t", "t_copy", "tanh", "tanh_", "tanh_backward", "tensor", "threshold", "threshold_", "threshold_backward", "to", "tolist", "topk", "transpose", "transpose_copy", "triu", "triu_", "type_as", "unfold_copy", "uniform", "uniform_", "unsqueeze", "unsqueeze_", "unsqueeze_copy", "upsample_nearest2d", "upsample_nearest2d_backward", "var", "var_mean", "vector_norm", "view", "view_copy", "where", "zero", "zero_", "zeros", "zeros_like"]

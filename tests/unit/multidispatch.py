@@ -18,6 +18,10 @@ with mlir_cm() as module:
     # pi.std(z)
     # pi.__contains__([1, 2, 3], 4)
     z = pi.empty((1,2,3))
+
     pi.abs(z)
+
+    w = pi.empty((4, 5, 6))
+    z.bitwise_and(w)
 
     print(module)

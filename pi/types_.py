@@ -2,7 +2,7 @@ import builtins
 import re
 import weakref
 from enum import Enum
-from typing import Union, List, Tuple, Any
+from typing import Union, List, Tuple, Any, NewType
 
 import numpy as np
 from torch_mlir import ir
@@ -33,10 +33,6 @@ def get_type(t: Union[MLIRType, MLIRValue]):
         ), f"unknown type {type(t).__module__}.{type(t).__name__})"
         t = t.type
     return t
-
-
-# def is_mlir_value(v):
-#     return isinstance(v, (ir.OpView, ir.Operation, ir.Value, ir.OpResultList, Tensor))
 
 
 def is_a_torch_tensor(t):
@@ -90,12 +86,11 @@ class dtype(Enum):
     quint8 = 13
     # qint32 14
     bfloat16 = 15
+
     # qint4x2 16
     # qint2x4 17
 
     def to_mlir_type(self):
-        # if ctx is None:
-        #     ctx = get_default_loc_context()
         match self:
             case dtype.bfloat16:
                 return ir.BF16Type.get()
@@ -125,8 +120,6 @@ class dtype(Enum):
                 raise NotImplementedError("Something's wrong with the internet")
 
     def to_np_type(self):
-        # if ctx is None:
-        #     ctx = get_default_loc_context()
         match self:
             case dtype.bfloat16 | dtype.float16:
                 return np.half
@@ -182,9 +175,6 @@ class dtype(Enum):
                 raise NotImplementedError(f"Something's wrong with the internet {t}")
 
 
-# attr = DenseFPElementsAttr(Attribute.parse("dense<0.0> : tensor<3x5xf32>"))
-
-
 bfloat16 = dtype.bfloat16
 bool = dtype.bool
 complex32 = dtype.complex32
@@ -200,15 +190,11 @@ qint8 = dtype.qint8
 quint8 = dtype.quint8
 uint8 = dtype.uint8
 
-# _int = builtins.int
-# _float = builtins.float
-# _bool = builtins.bool
-size = Union[List[int], Tuple[int, ...]]
+Size = size = Union[List[int], Tuple[int, ...]]
 
 Number = Union[builtins.int, builtins.float, builtins.bool]
 Generator = Any
-Device = str | Any
-
+device = Device = NewType("Device", str)
 
 class BroadcastingListCls(object):
     def __getitem__(self, types):
@@ -227,12 +213,6 @@ boolean_dispatched: "weakref.WeakKeyDictionary[Callable, Dict[str, Callable]]" =
 def boolean_dispatch(
     arg_name, arg_index, default, if_true, if_false, module_name, func_name
 ):
-    """
-    Dispatches to either of 2 script functions based on a boolean argument.
-    In TorchScript, the boolean argument must be constant so that the correct
-    function to use can be determined at compile time.
-    """
-
     def fn(*args, **kwargs):
         dispatch_flag = False
         if arg_name in kwargs:
@@ -244,19 +224,6 @@ def boolean_dispatch(
             return if_true(*args, **kwargs)
         else:
             return if_false(*args, **kwargs)
-
-    if if_true.__doc__ is None and if_false.__doc__ is not None:
-        doc = if_false.__doc__
-        if_true.__doc__ = doc
-    elif if_false.__doc__ is None and if_true.__doc__ is not None:
-        doc = if_true.__doc__
-        if_false.__doc__ = doc
-    elif if_false.__doc__ is None and if_true.__doc__ is None:
-        # neither function has a docstring
-        doc = None
-    else:
-        raise RuntimeError("only one function can have a docstring")
-    fn.__doc__ = doc
 
     if module_name is not None:
         fn.__module__ = module_name
@@ -273,32 +240,23 @@ def boolean_dispatch(
     return fn
 
 
-# def _overload(func):
-#     qual_name = func.__name__
-#     global _overloaded_fns
-#     fn_overload_list = _overloaded_fns.get(qual_name)
-#     if fn_overload_list is None:
-#         fn_overload_list = []
-#         _overloaded_fns[qual_name] = fn_overload_list
-#     fn_overload_list.append(func)
-#     return func
+class layout(Enum):
+    strided = 1
+    sparse_coo = 2
+    sparse_csr = 3
+    sparse_csc = 4
+    sparse_bsr = 5
+    sparse_bsc = 6
+    _mkldnn = 7
 
-Size = Union[List[int], Tuple[int, ...]]
 
-# namespace c10 {
-# enum class MemoryFormat : int8_t {
-#   Contiguous,
-#   Preserve,
-#   ChannelsLast,
-#   ChannelsLast3d,
-#   NumOptions
-# };
-# enum MemoryFormat {
-#   Contiguous,
-#   Preserve,
-#   ChannelsLast,
-#   ChannelsLast3d
-# };
+strided: layout = layout.strided
+sparse_coo: layout = layout.sparse_coo
+sparse_csr: layout = layout.sparse_csr
+sparse_csc: layout = layout.sparse_csc
+sparse_bsr: layout = layout.sparse_bsr
+sparse_bsc: layout = layout.sparse_bsc
+_mkldnn: layout = layout._mkldnn
 
 
 class memory_format(Enum):

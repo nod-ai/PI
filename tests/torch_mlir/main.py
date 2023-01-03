@@ -1,8 +1,12 @@
 import difflib
+import functools
 import logging
+import operator
 import traceback
+from itertools import repeat
 from pathlib import Path
-
+import multiprocess as mp
+from multiprocess.pool import Pool
 
 FORMAT = "%(asctime)s, %(levelname)-8s [%(filename)s:%(module)s:%(funcName)s:%(lineno)d] %(message)s"
 formatter = logging.Formatter(FORMAT)
@@ -60,21 +64,31 @@ def run_torch_mlir_tests():
     tests = sorted(
         torch_mlir_e2e_test.registry.GLOBAL_TEST_REGISTRY, key=lambda t: t.unique_name
     )
+    tests = list(
+        filter(
+            lambda t: t.unique_name
+            not in PI_XFAIL_SET | COMMON_TORCH_MLIR_LOWERING_XFAILS,
+            tests,
+        )
+    )
+    num_processes = min(int(mp.cpu_count() * 1.1), len(tests))
 
     torch_dialect_config = TorchDialectConfig()
-    torch_mlir_linalg_module_strs = {}
-    for test in tests:
-        if test.unique_name in PI_XFAIL_SET | COMMON_TORCH_MLIR_LOWERING_XFAILS:
-            continue
+    pool = Pool(num_processes)
 
+    def compile_and_run_test(test):
         mod = test.program_factory()
         set_weights(mod)
         mod.eval()
         torch_mlir_module = torch_dialect_config.compile(mod)
-        torch_mlir_linalg_module_strs[test.unique_name] = str(
-            lower_torch_mlir_to_linalg(torch_mlir_module)
-        )
-        # test.program_invoker(mod, tu)
+        return test.unique_name, str(lower_torch_mlir_to_linalg(torch_mlir_module))
+
+    handles = pool.map_async(compile_and_run_test, tests)
+    # handles = map(compile_and_run_test, tests)
+    torch_mlir_linalg_module_strs = {}
+    for name, s in handles.get():
+        # for name, s in handles:
+        torch_mlir_linalg_module_strs[name] = s
 
     return torch_mlir_linalg_module_strs
 
@@ -90,7 +104,11 @@ def run_pi_tests(torch_mlir_linalg_module_strs):
     assert tests, "failed to load tests"
 
     from torch import nn
-    from torch.dispatcher.function import NotFoundLookupError, AmbiguousLookupError
+    from pi.dispatcher.function import NotFoundLookupError, AmbiguousLookupError
+    from torch.dispatcher.function import (
+        NotFoundLookupError as torch_NotFoundLookupError,
+        AmbiguousLookupError as torch_AmbiguousLookupError,
+    )
 
     assert (
         nn.__spec__.origin == f"{pi_package_root_path}/nn/__init__.py"
@@ -101,7 +119,17 @@ def run_pi_tests(torch_mlir_linalg_module_strs):
     # torchscript_config = TorchScriptTestConfig()
     pi_config = PIConfig()
     torch_dialect_config = TorchDialectConfig()
-    PASS, FAIL, TOTAL, SKIP = 0, 0, 0, 0
+    (
+        PASS,
+        NotImplementedErrorFAIL,
+        NotFoundLookupErrorFAIL,
+        AmbiguousLookupErrorFAIL,
+        compileFAIL,
+        lower_to_linalg_FAIL,
+        irFAIL,
+        TOTAL,
+        SKIP,
+    ) = (0, 0, 0, 0, 0, 0, 0, 0, 0)
     for test in tests:
         TOTAL += 1
         if test.unique_name in PI_XFAIL_SET | COMMON_TORCH_MLIR_LOWERING_XFAILS:
@@ -119,19 +147,22 @@ def run_pi_tests(torch_mlir_linalg_module_strs):
             print(traceback.format_exc(-2))
             print(f"{e}")
             print(f"FAIL pi compile NotImplementedError")
-            FAIL += 1
+            NotImplementedErrorFAIL += 1
+            print()
             continue
-        except (NotFoundLookupError, AmbiguousLookupError) as e:
+        except (NotFoundLookupError, torch_NotFoundLookupError) as e:
             print(traceback.format_exc())
             print(f"{e}")
             print(f"FAIL dispatcher error")
-            FAIL += 1
+            NotFoundLookupErrorFAIL += 1
+            print()
             continue
-        except (NotFoundLookupError, AmbiguousLookupError) as e:
+        except (AmbiguousLookupError, torch_AmbiguousLookupError) as e:
             print(traceback.format_exc())
             print(f"{e}")
             print(f"FAIL dispatcher error")
-            FAIL += 1
+            AmbiguousLookupErrorFAIL += 1
+            print()
             continue
         except Exception as e:
             print("\ntorch_mlir module\n")
@@ -142,20 +173,19 @@ def run_pi_tests(torch_mlir_linalg_module_strs):
             # print("frozen.graph\n", frozen.graph)
             # print("torch_mlir_module\n", torch_mlir_module)
             print(f"FAIL pi compile Exception")
-            FAIL += 1
+            compileFAIL += 1
             raise e
 
         try:
-            pi_mlir_linalg_module_str = str(
-                lower_pi_to_linalg(pi_mlir_module)
-            )
+            pi_mlir_linalg_module_str = str(lower_pi_to_linalg(pi_mlir_module))
         except Exception as e:
             print(traceback.format_exc())
             print("\ntorch_mlir module\n")
             print(torch_mlir_linalg_module_str)
             print(f"FAIL lower_pi_to_linalg Exception")
-            FAIL += 1
-            raise e
+            lower_to_linalg_FAIL += 1
+            print()
+            continue
 
         diff = list(
             difflib.unified_diff(
@@ -172,7 +202,7 @@ def run_pi_tests(torch_mlir_linalg_module_strs):
             # print("torch_mlir_linalg_module_str:\n", torch_mlir_linalg_module_str)
             # print("pi_mlir_linalg_module_str:\n", pi_mlir_linalg_module_str)
             print(f"FAIL IR diff")
-            FAIL += 1
+            irFAIL += 1
 
             # torch_script_compiled = torchscript_config.compile(mod)
             # frozen = torch.jit.freeze(torch_script_compiled)
@@ -182,8 +212,28 @@ def run_pi_tests(torch_mlir_linalg_module_strs):
         else:
             print("PASS")
             PASS += 1
+        print()
 
-    print(f"\n{''.join('*' * 10)}\n\n{PASS=} {FAIL=} {SKIP=} out of {TOTAL=}\n\n{''.join('*' * 10)}\n")
+    assert (
+        functools.reduce(
+            operator.add,
+            (
+                PASS,
+                NotImplementedErrorFAIL,
+                NotFoundLookupErrorFAIL,
+                AmbiguousLookupErrorFAIL,
+                compileFAIL,
+                lower_to_linalg_FAIL,
+                irFAIL,
+                SKIP,
+            ),
+            0,
+        )
+        == TOTAL
+    )
+    print(
+        f"\n{''.join('*' * 10)}\n\n{PASS=}\n{NotImplementedErrorFAIL=}\n{NotFoundLookupErrorFAIL=}\n{AmbiguousLookupErrorFAIL=}\n{compileFAIL=}\n{lower_to_linalg_FAIL=}\n{irFAIL=}\n{SKIP=}\nout of {TOTAL=}\n\n{''.join('*' * 10)}\n"
+    )
 
 
 def main():

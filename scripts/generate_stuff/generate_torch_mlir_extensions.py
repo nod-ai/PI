@@ -43,6 +43,7 @@ def _get_function_signature(
 
     # TODO: leave off return annot because plum tries to promote
     # return f"def {def_name}({parameters}) -> {result}:"
+    def_name = SUBS.get(def_name, def_name)
     return f"def {def_name}({parameters}):"
 
 
@@ -122,7 +123,7 @@ def convert_type_to_op(arg_name, pyt_type, p_td, emitter_td):
             # p_td(f"{arg_name} = get_op_results_or_values({arg_name})")
         else:
             op = convert_type_to_op(None, pyt_type[:-2], p_td, emitter_td)
-            p_td(f"{arg_name} = list(map({op}, {arg_name}))")
+            p_td(f"{arg_name} = [{op}(a) if not is_mlir_value(a) else a for a in {arg_name}]")
         p_td(f"{arg_name} = torch_dialect.PrimListConstructOp({arg_name})")
     else:
         if interior in {"int", "bool", "float", "Number", "str", "Device"}:
@@ -144,6 +145,9 @@ EXISTING = {
     "ConstantStrOp",
     "ConstantBoolOp",
     "PrimListConstructOp",
+    "PrimUncheckedCastOp",
+    "PrimTupleConstructOp",
+    "AtenScalarImplicitOp",
 }
 
 
@@ -203,19 +207,6 @@ def raw_emit_op(
 
     # Generate unique result names for ops with nameless results
     multiple_results = len(operator.returns) > 1
-
-    if any(
-        [
-            arg["type"].endswith("?[]")
-            or arg["type"].endswith("[]?")
-            or "Dict" in arg["type"]
-            or "Device" in arg["type"]
-            or "Generator" in arg["type"]
-            for arg in operator.arguments
-        ]
-    ):
-        print(f"{cpp_class_name} has weird args")
-        # return
 
     if operator.is_vararg:
         print(f"{cpp_class_name} is vararg")
@@ -399,6 +390,10 @@ def emit_torch_wrappers(operators, all):
                     stub_td("if dtype is not None and isinstance(dtype, Enum):")
                     with stubs_emitter_td.indent():
                         stub_td("dtype = dtype.value")
+                if arg_name == "layout":
+                    stub_td("if layout is not None and isinstance(layout, Enum):")
+                    with stubs_emitter_td.indent():
+                        stub_td("layout = layout.value")
                 if arg["type"] == "Tensor":
                     stub_td(
                         f"assert isinstance({arg_name}, Tensor), f'`{arg_name}` should be a {{Tensor.__module__}}.{{Tensor.__name__}} but is {{type({arg_name}).__module__}}.{{type({arg_name}).__name__}}'"
@@ -418,6 +413,22 @@ def emit_torch_wrappers(operators, all):
                     stub_td(
                         f"{arg_name} = [(t.value if t is not None else None) for t in {arg_name}]"
                     )
+                elif arg["type"] == "int[]":
+                    stub_td(
+                        f"if not isinstance({arg_name}, (tuple, builtins.list)):"
+                    )
+                    with stubs_emitter_td.indent():
+                        stub_td(
+                            f"{arg_name} = [{arg_name}]"
+                        )
+                elif arg["type"] == "int[]?":
+                    stub_td(
+                        f"if {arg_name} is not None and not isinstance({arg_name}, (tuple, builtins.list)):"
+                    )
+                    with stubs_emitter_td.indent():
+                        stub_td(
+                            f"{arg_name} = [{arg_name}]"
+                        )
 
             if DEBUG:
                 stub_td(f"print('running {get_wrapper_function_signature(operator)}')")
@@ -512,7 +523,7 @@ with open(_torch_ops_ext_fp, "w") as f_td:
         from numbers import Number
         from typing import List, Optional, Any, Tuple, Dict
         
-        from ._tensor import Tensor
+        from ._tensor import Tensor, ScalarImplicit
         from .types_ import is_a_torch_tensor, Device, Generator
         from .dispatcher import dispatch
 
@@ -527,7 +538,8 @@ with open(_torch_ops_ext_fp, "w") as f_td:
             )
         )
 
-        BLACKLIST = {"str", "ones", "dtype", "device", "zeros", "randn", "tensor"}
+        BLACKLIST = {"dtype", "PrimUncheckedCastOp", "device"}
+        SUBS = {"linalg_vector_norm": "vector_norm"}
         TORCH_WRAPPERS = sorted(TORCH_WRAPPERS, key=lambda t: t.unqualified_name)
         TORCH_WRAPPERS = [
             t for t in TORCH_WRAPPERS if t.unqualified_name not in BLACKLIST
@@ -535,5 +547,5 @@ with open(_torch_ops_ext_fp, "w") as f_td:
         ALL = [t for t in ALL if t not in BLACKLIST]
         emit_torch_wrappers(TORCH_WRAPPERS, ALL)
         stubs_emitter_td.print("\n\n")
-        all = [f'"{t.unqualified_name}"' for t in TORCH_WRAPPERS]
-        stubs_emitter_td.print(f"__all__ = [{', '.join(all)}]")
+        all = [f'"{SUBS.get(t.unqualified_name, t.unqualified_name)}"' for t in TORCH_WRAPPERS]
+        stubs_emitter_td.print(f"__all__ = ['ScalarImplicit', {', '.join(sorted(set(all)))}]")

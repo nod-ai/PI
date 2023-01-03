@@ -88,7 +88,10 @@ def type_matches(signature_type: Any, argument_type: Any):
     # both sig type and arg type should be produced by type hints
     sig_origin_type = getattr(signature_type, "__origin__", signature_type)
 
-    if signature_type is argument_type:
+    # hack because type annotations in ._tensor are actually strings (from __future__)
+    if signature_type is argument_type or (
+        signature_type == "Tensor" and argument_type is pi.Tensor
+    ):
         return True
 
     # Union types in signature. Given type needs to match one of the

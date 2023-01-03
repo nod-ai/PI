@@ -622,102 +622,6 @@ class AtenLogicalOr_Op:
         super(AtenLogicalOr_Op, self).__init__(result_type, self_, other, loc=loc, ip=ip)
         
     
-class AtenLogicalAndOp:
-    def __init__(self, self_: Value, other: Value, *, loc=None, ip=None):
-        if not is_mlir_value(self_):
-            assert is_mlir_value(self_), f'`self_` should be a Value but is {type(self_).__module__}.{type(self_).__name__}'
-        else:
-            self_ = get_op_result_or_value(self_)
-            assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
-            
-        if not is_mlir_value(other):
-            assert is_mlir_value(other), f'`other` should be a Value but is {type(other).__module__}.{type(other).__name__}'
-        else:
-            other = get_op_result_or_value(other)
-            assert str(other.type).startswith("!torch.vtensor"), f'`other` should be a torch.vtensor but is {type(other).__module__}.{type(other).__name__}'
-            
-        result_type = Type.parse("!torch.vtensor")
-        super(AtenLogicalAndOp, self).__init__(result_type, self_, other, loc=loc, ip=ip)
-        
-    
-class AtenLogicalAnd_Op:
-    def __init__(self, self_: Value, other: Value, *, loc=None, ip=None):
-        if not is_mlir_value(self_):
-            assert is_mlir_value(self_), f'`self_` should be a Value but is {type(self_).__module__}.{type(self_).__name__}'
-        else:
-            self_ = get_op_result_or_value(self_)
-            assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
-            
-        if not is_mlir_value(other):
-            assert is_mlir_value(other), f'`other` should be a Value but is {type(other).__module__}.{type(other).__name__}'
-        else:
-            other = get_op_result_or_value(other)
-            assert str(other.type).startswith("!torch.vtensor"), f'`other` should be a torch.vtensor but is {type(other).__module__}.{type(other).__name__}'
-            
-        result_type = Type.parse("!torch.vtensor")
-        super(AtenLogicalAnd_Op, self).__init__(result_type, self_, other, loc=loc, ip=ip)
-        
-    
-class AtenLogicalXorOp:
-    def __init__(self, self_: Value, other: Value, *, loc=None, ip=None):
-        if not is_mlir_value(self_):
-            assert is_mlir_value(self_), f'`self_` should be a Value but is {type(self_).__module__}.{type(self_).__name__}'
-        else:
-            self_ = get_op_result_or_value(self_)
-            assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
-            
-        if not is_mlir_value(other):
-            assert is_mlir_value(other), f'`other` should be a Value but is {type(other).__module__}.{type(other).__name__}'
-        else:
-            other = get_op_result_or_value(other)
-            assert str(other.type).startswith("!torch.vtensor"), f'`other` should be a torch.vtensor but is {type(other).__module__}.{type(other).__name__}'
-            
-        result_type = Type.parse("!torch.vtensor")
-        super(AtenLogicalXorOp, self).__init__(result_type, self_, other, loc=loc, ip=ip)
-        
-    
-class AtenLogicalXor_Op:
-    def __init__(self, self_: Value, other: Value, *, loc=None, ip=None):
-        if not is_mlir_value(self_):
-            assert is_mlir_value(self_), f'`self_` should be a Value but is {type(self_).__module__}.{type(self_).__name__}'
-        else:
-            self_ = get_op_result_or_value(self_)
-            assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
-            
-        if not is_mlir_value(other):
-            assert is_mlir_value(other), f'`other` should be a Value but is {type(other).__module__}.{type(other).__name__}'
-        else:
-            other = get_op_result_or_value(other)
-            assert str(other.type).startswith("!torch.vtensor"), f'`other` should be a torch.vtensor but is {type(other).__module__}.{type(other).__name__}'
-            
-        result_type = Type.parse("!torch.vtensor")
-        super(AtenLogicalXor_Op, self).__init__(result_type, self_, other, loc=loc, ip=ip)
-        
-    
-class AtenLogicalNotOp:
-    def __init__(self, self_: Value, *, loc=None, ip=None):
-        if not is_mlir_value(self_):
-            assert is_mlir_value(self_), f'`self_` should be a Value but is {type(self_).__module__}.{type(self_).__name__}'
-        else:
-            self_ = get_op_result_or_value(self_)
-            assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
-            
-        result_type = Type.parse("!torch.vtensor")
-        super(AtenLogicalNotOp, self).__init__(result_type, self_, loc=loc, ip=ip)
-        
-    
-class AtenLogicalNot_Op:
-    def __init__(self, self_: Value, *, loc=None, ip=None):
-        if not is_mlir_value(self_):
-            assert is_mlir_value(self_), f'`self_` should be a Value but is {type(self_).__module__}.{type(self_).__name__}'
-        else:
-            self_ = get_op_result_or_value(self_)
-            assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
-            
-        result_type = Type.parse("!torch.vtensor")
-        super(AtenLogicalNot_Op, self).__init__(result_type, self_, loc=loc, ip=ip)
-        
-    
 class AtenLerpTensorOp:
     def __init__(self, self_: Value, end: Value, weight: Value, *, loc=None, ip=None):
         if not is_mlir_value(self_):
@@ -2870,7 +2774,7 @@ class AtenRandintLowOp:
             assert str(high.type) == '!torch.int', f'`high` should be a !torch.int but is {type(high).__module__}.{type(high).__name__}'
             
         if not is_mlir_value(size):
-            size = list(map(torch_dialect.ConstantIntOp, size))
+            size = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in size]
             size = torch_dialect.PrimListConstructOp(size)
         else:
             size = get_op_result_or_value(size)
@@ -2981,7 +2885,7 @@ class AtenRandnOp:
         from torch_mlir.dialects import torch as torch_dialect
         
         if not is_mlir_value(size):
-            size = list(map(torch_dialect.ConstantIntOp, size))
+            size = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in size]
             size = torch_dialect.PrimListConstructOp(size)
         else:
             size = get_op_result_or_value(size)
@@ -3032,7 +2936,7 @@ class AtenRandnGeneratorOp:
         from torch_mlir.dialects import torch as torch_dialect
         
         if not is_mlir_value(size):
-            size = list(map(torch_dialect.ConstantIntOp, size))
+            size = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in size]
             size = torch_dialect.PrimListConstructOp(size)
         else:
             size = get_op_result_or_value(size)
@@ -3427,21 +3331,21 @@ class AtenConv2dOp:
             assert str(bias.type).startswith("!torch.vtensor"), f'`bias` should be a torch.vtensor but is {type(bias).__module__}.{type(bias).__name__}'
             
         if not is_mlir_value(stride):
-            stride = list(map(torch_dialect.ConstantIntOp, stride))
+            stride = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in stride]
             stride = torch_dialect.PrimListConstructOp(stride)
         else:
             stride = get_op_result_or_value(stride)
             assert str(stride.type) == '!torch.list<int>', f'`stride` should be a !torch.list<int> but is {type(stride).__module__}.{type(stride).__name__}'
             
         if not is_mlir_value(padding):
-            padding = list(map(torch_dialect.ConstantIntOp, padding))
+            padding = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in padding]
             padding = torch_dialect.PrimListConstructOp(padding)
         else:
             padding = get_op_result_or_value(padding)
             assert str(padding.type) == '!torch.list<int>', f'`padding` should be a !torch.list<int> but is {type(padding).__module__}.{type(padding).__name__}'
             
         if not is_mlir_value(dilation):
-            dilation = list(map(torch_dialect.ConstantIntOp, dilation))
+            dilation = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in dilation]
             dilation = torch_dialect.PrimListConstructOp(dilation)
         else:
             dilation = get_op_result_or_value(dilation)
@@ -3483,21 +3387,21 @@ class AtenConvTranspose1dOp:
             assert str(bias.type).startswith("!torch.vtensor"), f'`bias` should be a torch.vtensor but is {type(bias).__module__}.{type(bias).__name__}'
             
         if not is_mlir_value(stride):
-            stride = list(map(torch_dialect.ConstantIntOp, stride))
+            stride = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in stride]
             stride = torch_dialect.PrimListConstructOp(stride)
         else:
             stride = get_op_result_or_value(stride)
             assert str(stride.type) == '!torch.list<int>', f'`stride` should be a !torch.list<int> but is {type(stride).__module__}.{type(stride).__name__}'
             
         if not is_mlir_value(padding):
-            padding = list(map(torch_dialect.ConstantIntOp, padding))
+            padding = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in padding]
             padding = torch_dialect.PrimListConstructOp(padding)
         else:
             padding = get_op_result_or_value(padding)
             assert str(padding.type) == '!torch.list<int>', f'`padding` should be a !torch.list<int> but is {type(padding).__module__}.{type(padding).__name__}'
             
         if not is_mlir_value(output_padding):
-            output_padding = list(map(torch_dialect.ConstantIntOp, output_padding))
+            output_padding = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in output_padding]
             output_padding = torch_dialect.PrimListConstructOp(output_padding)
         else:
             output_padding = get_op_result_or_value(output_padding)
@@ -3510,7 +3414,7 @@ class AtenConvTranspose1dOp:
             assert str(groups.type) == '!torch.int', f'`groups` should be a !torch.int but is {type(groups).__module__}.{type(groups).__name__}'
             
         if not is_mlir_value(dilation):
-            dilation = list(map(torch_dialect.ConstantIntOp, dilation))
+            dilation = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in dilation]
             dilation = torch_dialect.PrimListConstructOp(dilation)
         else:
             dilation = get_op_result_or_value(dilation)
@@ -3546,21 +3450,21 @@ class AtenConvTranspose2dInputOp:
             assert str(bias.type).startswith("!torch.vtensor"), f'`bias` should be a torch.vtensor but is {type(bias).__module__}.{type(bias).__name__}'
             
         if not is_mlir_value(stride):
-            stride = list(map(torch_dialect.ConstantIntOp, stride))
+            stride = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in stride]
             stride = torch_dialect.PrimListConstructOp(stride)
         else:
             stride = get_op_result_or_value(stride)
             assert str(stride.type) == '!torch.list<int>', f'`stride` should be a !torch.list<int> but is {type(stride).__module__}.{type(stride).__name__}'
             
         if not is_mlir_value(padding):
-            padding = list(map(torch_dialect.ConstantIntOp, padding))
+            padding = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in padding]
             padding = torch_dialect.PrimListConstructOp(padding)
         else:
             padding = get_op_result_or_value(padding)
             assert str(padding.type) == '!torch.list<int>', f'`padding` should be a !torch.list<int> but is {type(padding).__module__}.{type(padding).__name__}'
             
         if not is_mlir_value(output_padding):
-            output_padding = list(map(torch_dialect.ConstantIntOp, output_padding))
+            output_padding = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in output_padding]
             output_padding = torch_dialect.PrimListConstructOp(output_padding)
         else:
             output_padding = get_op_result_or_value(output_padding)
@@ -3573,7 +3477,7 @@ class AtenConvTranspose2dInputOp:
             assert str(groups.type) == '!torch.int', f'`groups` should be a !torch.int but is {type(groups).__module__}.{type(groups).__name__}'
             
         if not is_mlir_value(dilation):
-            dilation = list(map(torch_dialect.ConstantIntOp, dilation))
+            dilation = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in dilation]
             dilation = torch_dialect.PrimListConstructOp(dilation)
         else:
             dilation = get_op_result_or_value(dilation)
@@ -3609,21 +3513,21 @@ class AtenConvTranspose3dInputOp:
             assert str(bias.type).startswith("!torch.vtensor"), f'`bias` should be a torch.vtensor but is {type(bias).__module__}.{type(bias).__name__}'
             
         if not is_mlir_value(stride):
-            stride = list(map(torch_dialect.ConstantIntOp, stride))
+            stride = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in stride]
             stride = torch_dialect.PrimListConstructOp(stride)
         else:
             stride = get_op_result_or_value(stride)
             assert str(stride.type) == '!torch.list<int>', f'`stride` should be a !torch.list<int> but is {type(stride).__module__}.{type(stride).__name__}'
             
         if not is_mlir_value(padding):
-            padding = list(map(torch_dialect.ConstantIntOp, padding))
+            padding = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in padding]
             padding = torch_dialect.PrimListConstructOp(padding)
         else:
             padding = get_op_result_or_value(padding)
             assert str(padding.type) == '!torch.list<int>', f'`padding` should be a !torch.list<int> but is {type(padding).__module__}.{type(padding).__name__}'
             
         if not is_mlir_value(output_padding):
-            output_padding = list(map(torch_dialect.ConstantIntOp, output_padding))
+            output_padding = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in output_padding]
             output_padding = torch_dialect.PrimListConstructOp(output_padding)
         else:
             output_padding = get_op_result_or_value(output_padding)
@@ -3636,7 +3540,7 @@ class AtenConvTranspose3dInputOp:
             assert str(groups.type) == '!torch.int', f'`groups` should be a !torch.int but is {type(groups).__module__}.{type(groups).__name__}'
             
         if not is_mlir_value(dilation):
-            dilation = list(map(torch_dialect.ConstantIntOp, dilation))
+            dilation = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in dilation]
             dilation = torch_dialect.PrimListConstructOp(dilation)
         else:
             dilation = get_op_result_or_value(dilation)
@@ -3672,21 +3576,21 @@ class AtenConvolutionOp:
             assert str(bias.type).startswith("!torch.vtensor"), f'`bias` should be a torch.vtensor but is {type(bias).__module__}.{type(bias).__name__}'
             
         if not is_mlir_value(stride):
-            stride = list(map(torch_dialect.ConstantIntOp, stride))
+            stride = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in stride]
             stride = torch_dialect.PrimListConstructOp(stride)
         else:
             stride = get_op_result_or_value(stride)
             assert str(stride.type) == '!torch.list<int>', f'`stride` should be a !torch.list<int> but is {type(stride).__module__}.{type(stride).__name__}'
             
         if not is_mlir_value(padding):
-            padding = list(map(torch_dialect.ConstantIntOp, padding))
+            padding = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in padding]
             padding = torch_dialect.PrimListConstructOp(padding)
         else:
             padding = get_op_result_or_value(padding)
             assert str(padding.type) == '!torch.list<int>', f'`padding` should be a !torch.list<int> but is {type(padding).__module__}.{type(padding).__name__}'
             
         if not is_mlir_value(dilation):
-            dilation = list(map(torch_dialect.ConstantIntOp, dilation))
+            dilation = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in dilation]
             dilation = torch_dialect.PrimListConstructOp(dilation)
         else:
             dilation = get_op_result_or_value(dilation)
@@ -3699,7 +3603,7 @@ class AtenConvolutionOp:
             assert str(transposed.type) == '!torch.bool', f'`transposed` should be a !torch.bool but is {type(transposed).__module__}.{type(transposed).__name__}'
             
         if not is_mlir_value(output_padding):
-            output_padding = list(map(torch_dialect.ConstantIntOp, output_padding))
+            output_padding = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in output_padding]
             output_padding = torch_dialect.PrimListConstructOp(output_padding)
         else:
             output_padding = get_op_result_or_value(output_padding)
@@ -3741,21 +3645,21 @@ class AtenConvolutionOverrideableOp:
             assert str(bias.type).startswith("!torch.vtensor"), f'`bias` should be a torch.vtensor but is {type(bias).__module__}.{type(bias).__name__}'
             
         if not is_mlir_value(stride):
-            stride = list(map(torch_dialect.ConstantIntOp, stride))
+            stride = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in stride]
             stride = torch_dialect.PrimListConstructOp(stride)
         else:
             stride = get_op_result_or_value(stride)
             assert str(stride.type) == '!torch.list<int>', f'`stride` should be a !torch.list<int> but is {type(stride).__module__}.{type(stride).__name__}'
             
         if not is_mlir_value(padding):
-            padding = list(map(torch_dialect.ConstantIntOp, padding))
+            padding = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in padding]
             padding = torch_dialect.PrimListConstructOp(padding)
         else:
             padding = get_op_result_or_value(padding)
             assert str(padding.type) == '!torch.list<int>', f'`padding` should be a !torch.list<int> but is {type(padding).__module__}.{type(padding).__name__}'
             
         if not is_mlir_value(dilation):
-            dilation = list(map(torch_dialect.ConstantIntOp, dilation))
+            dilation = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in dilation]
             dilation = torch_dialect.PrimListConstructOp(dilation)
         else:
             dilation = get_op_result_or_value(dilation)
@@ -3768,7 +3672,7 @@ class AtenConvolutionOverrideableOp:
             assert str(transposed.type) == '!torch.bool', f'`transposed` should be a !torch.bool but is {type(transposed).__module__}.{type(transposed).__name__}'
             
         if not is_mlir_value(output_padding):
-            output_padding = list(map(torch_dialect.ConstantIntOp, output_padding))
+            output_padding = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in output_padding]
             output_padding = torch_dialect.PrimListConstructOp(output_padding)
         else:
             output_padding = get_op_result_or_value(output_padding)
@@ -3810,21 +3714,21 @@ class Aten_ConvolutionOp:
             assert str(bias.type).startswith("!torch.vtensor"), f'`bias` should be a torch.vtensor but is {type(bias).__module__}.{type(bias).__name__}'
             
         if not is_mlir_value(stride):
-            stride = list(map(torch_dialect.ConstantIntOp, stride))
+            stride = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in stride]
             stride = torch_dialect.PrimListConstructOp(stride)
         else:
             stride = get_op_result_or_value(stride)
             assert str(stride.type) == '!torch.list<int>', f'`stride` should be a !torch.list<int> but is {type(stride).__module__}.{type(stride).__name__}'
             
         if not is_mlir_value(padding):
-            padding = list(map(torch_dialect.ConstantIntOp, padding))
+            padding = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in padding]
             padding = torch_dialect.PrimListConstructOp(padding)
         else:
             padding = get_op_result_or_value(padding)
             assert str(padding.type) == '!torch.list<int>', f'`padding` should be a !torch.list<int> but is {type(padding).__module__}.{type(padding).__name__}'
             
         if not is_mlir_value(dilation):
-            dilation = list(map(torch_dialect.ConstantIntOp, dilation))
+            dilation = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in dilation]
             dilation = torch_dialect.PrimListConstructOp(dilation)
         else:
             dilation = get_op_result_or_value(dilation)
@@ -3837,7 +3741,7 @@ class Aten_ConvolutionOp:
             assert str(transposed.type) == '!torch.bool', f'`transposed` should be a !torch.bool but is {type(transposed).__module__}.{type(transposed).__name__}'
             
         if not is_mlir_value(output_padding):
-            output_padding = list(map(torch_dialect.ConstantIntOp, output_padding))
+            output_padding = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in output_padding]
             output_padding = torch_dialect.PrimListConstructOp(output_padding)
         else:
             output_padding = get_op_result_or_value(output_padding)
@@ -3903,21 +3807,21 @@ class Aten_ConvolutionDeprecatedOp:
             assert str(bias.type).startswith("!torch.vtensor"), f'`bias` should be a torch.vtensor but is {type(bias).__module__}.{type(bias).__name__}'
             
         if not is_mlir_value(stride):
-            stride = list(map(torch_dialect.ConstantIntOp, stride))
+            stride = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in stride]
             stride = torch_dialect.PrimListConstructOp(stride)
         else:
             stride = get_op_result_or_value(stride)
             assert str(stride.type) == '!torch.list<int>', f'`stride` should be a !torch.list<int> but is {type(stride).__module__}.{type(stride).__name__}'
             
         if not is_mlir_value(padding):
-            padding = list(map(torch_dialect.ConstantIntOp, padding))
+            padding = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in padding]
             padding = torch_dialect.PrimListConstructOp(padding)
         else:
             padding = get_op_result_or_value(padding)
             assert str(padding.type) == '!torch.list<int>', f'`padding` should be a !torch.list<int> but is {type(padding).__module__}.{type(padding).__name__}'
             
         if not is_mlir_value(dilation):
-            dilation = list(map(torch_dialect.ConstantIntOp, dilation))
+            dilation = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in dilation]
             dilation = torch_dialect.PrimListConstructOp(dilation)
         else:
             dilation = get_op_result_or_value(dilation)
@@ -3930,7 +3834,7 @@ class Aten_ConvolutionDeprecatedOp:
             assert str(transposed.type) == '!torch.bool', f'`transposed` should be a !torch.bool but is {type(transposed).__module__}.{type(transposed).__name__}'
             
         if not is_mlir_value(output_padding):
-            output_padding = list(map(torch_dialect.ConstantIntOp, output_padding))
+            output_padding = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in output_padding]
             output_padding = torch_dialect.PrimListConstructOp(output_padding)
         else:
             output_padding = get_op_result_or_value(output_padding)
@@ -3975,14 +3879,14 @@ class AtenRollOp:
             assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(shifts):
-            shifts = list(map(torch_dialect.ConstantIntOp, shifts))
+            shifts = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in shifts]
             shifts = torch_dialect.PrimListConstructOp(shifts)
         else:
             shifts = get_op_result_or_value(shifts)
             assert str(shifts.type) == '!torch.list<int>', f'`shifts` should be a !torch.list<int> but is {type(shifts).__module__}.{type(shifts).__name__}'
             
         if not is_mlir_value(dims):
-            dims = list(map(torch_dialect.ConstantIntOp, dims))
+            dims = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in dims]
             dims = torch_dialect.PrimListConstructOp(dims)
         else:
             dims = get_op_result_or_value(dims)
@@ -4016,7 +3920,7 @@ class AtenConvolutionBackwardOp:
             
         if not is_mlir_value(bias_sizes):
             if bias_sizes is not None:
-                bias_sizes = list(map(torch_dialect.ConstantIntOp, bias_sizes))
+                bias_sizes = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in bias_sizes]
                 bias_sizes = torch_dialect.PrimListConstructOp(bias_sizes)
             else:
                 bias_sizes = torch_dialect.ConstantNoneOp()
@@ -4025,21 +3929,21 @@ class AtenConvolutionBackwardOp:
             assert str(bias_sizes.type) == '!torch.list<int>', f'`bias_sizes` should be a !torch.list<int> but is {type(bias_sizes).__module__}.{type(bias_sizes).__name__}'
             
         if not is_mlir_value(stride):
-            stride = list(map(torch_dialect.ConstantIntOp, stride))
+            stride = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in stride]
             stride = torch_dialect.PrimListConstructOp(stride)
         else:
             stride = get_op_result_or_value(stride)
             assert str(stride.type) == '!torch.list<int>', f'`stride` should be a !torch.list<int> but is {type(stride).__module__}.{type(stride).__name__}'
             
         if not is_mlir_value(padding):
-            padding = list(map(torch_dialect.ConstantIntOp, padding))
+            padding = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in padding]
             padding = torch_dialect.PrimListConstructOp(padding)
         else:
             padding = get_op_result_or_value(padding)
             assert str(padding.type) == '!torch.list<int>', f'`padding` should be a !torch.list<int> but is {type(padding).__module__}.{type(padding).__name__}'
             
         if not is_mlir_value(dilation):
-            dilation = list(map(torch_dialect.ConstantIntOp, dilation))
+            dilation = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in dilation]
             dilation = torch_dialect.PrimListConstructOp(dilation)
         else:
             dilation = get_op_result_or_value(dilation)
@@ -4052,7 +3956,7 @@ class AtenConvolutionBackwardOp:
             assert str(transposed.type) == '!torch.bool', f'`transposed` should be a !torch.bool but is {type(transposed).__module__}.{type(transposed).__name__}'
             
         if not is_mlir_value(output_padding):
-            output_padding = list(map(torch_dialect.ConstantIntOp, output_padding))
+            output_padding = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in output_padding]
             output_padding = torch_dialect.PrimListConstructOp(output_padding)
         else:
             output_padding = get_op_result_or_value(output_padding)
@@ -4065,7 +3969,7 @@ class AtenConvolutionBackwardOp:
             assert str(groups.type) == '!torch.int', f'`groups` should be a !torch.int but is {type(groups).__module__}.{type(groups).__name__}'
             
         if not is_mlir_value(output_mask):
-            output_mask = list(map(torch_dialect.ConstantBoolOp, output_mask))
+            output_mask = [torch_dialect.ConstantBoolOp(a) if not is_mlir_value(a) else a for a in output_mask]
             output_mask = torch_dialect.PrimListConstructOp(output_mask)
         else:
             output_mask = get_op_result_or_value(output_mask)
@@ -4101,21 +4005,21 @@ class AtenConvolutionBackwardOverrideableOp:
             assert str(weight.type).startswith("!torch.vtensor"), f'`weight` should be a torch.vtensor but is {type(weight).__module__}.{type(weight).__name__}'
             
         if not is_mlir_value(stride):
-            stride = list(map(torch_dialect.ConstantIntOp, stride))
+            stride = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in stride]
             stride = torch_dialect.PrimListConstructOp(stride)
         else:
             stride = get_op_result_or_value(stride)
             assert str(stride.type) == '!torch.list<int>', f'`stride` should be a !torch.list<int> but is {type(stride).__module__}.{type(stride).__name__}'
             
         if not is_mlir_value(padding):
-            padding = list(map(torch_dialect.ConstantIntOp, padding))
+            padding = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in padding]
             padding = torch_dialect.PrimListConstructOp(padding)
         else:
             padding = get_op_result_or_value(padding)
             assert str(padding.type) == '!torch.list<int>', f'`padding` should be a !torch.list<int> but is {type(padding).__module__}.{type(padding).__name__}'
             
         if not is_mlir_value(dilation):
-            dilation = list(map(torch_dialect.ConstantIntOp, dilation))
+            dilation = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in dilation]
             dilation = torch_dialect.PrimListConstructOp(dilation)
         else:
             dilation = get_op_result_or_value(dilation)
@@ -4128,7 +4032,7 @@ class AtenConvolutionBackwardOverrideableOp:
             assert str(transposed.type) == '!torch.bool', f'`transposed` should be a !torch.bool but is {type(transposed).__module__}.{type(transposed).__name__}'
             
         if not is_mlir_value(output_padding):
-            output_padding = list(map(torch_dialect.ConstantIntOp, output_padding))
+            output_padding = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in output_padding]
             output_padding = torch_dialect.PrimListConstructOp(output_padding)
         else:
             output_padding = get_op_result_or_value(output_padding)
@@ -4141,7 +4045,7 @@ class AtenConvolutionBackwardOverrideableOp:
             assert str(groups.type) == '!torch.int', f'`groups` should be a !torch.int but is {type(groups).__module__}.{type(groups).__name__}'
             
         if not is_mlir_value(output_mask):
-            output_mask = list(map(torch_dialect.ConstantBoolOp, output_mask))
+            output_mask = [torch_dialect.ConstantBoolOp(a) if not is_mlir_value(a) else a for a in output_mask]
             output_mask = torch_dialect.PrimListConstructOp(output_mask)
         else:
             output_mask = get_op_result_or_value(output_mask)
@@ -4165,7 +4069,7 @@ class AtenFlipOp:
             assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(dims):
-            dims = list(map(torch_dialect.ConstantIntOp, dims))
+            dims = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in dims]
             dims = torch_dialect.PrimListConstructOp(dims)
         else:
             dims = get_op_result_or_value(dims)
@@ -4330,7 +4234,7 @@ class AtenLayerNormOp:
             assert str(input.type).startswith("!torch.vtensor"), f'`input` should be a torch.vtensor but is {type(input).__module__}.{type(input).__name__}'
             
         if not is_mlir_value(normalized_shape):
-            normalized_shape = list(map(torch_dialect.ConstantIntOp, normalized_shape))
+            normalized_shape = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in normalized_shape]
             normalized_shape = torch_dialect.PrimListConstructOp(normalized_shape)
         else:
             normalized_shape = get_op_result_or_value(normalized_shape)
@@ -4381,7 +4285,7 @@ class AtenNativeLayerNormOp:
             assert str(input.type).startswith("!torch.vtensor"), f'`input` should be a torch.vtensor but is {type(input).__module__}.{type(input).__name__}'
             
         if not is_mlir_value(normalized_shape):
-            normalized_shape = list(map(torch_dialect.ConstantIntOp, normalized_shape))
+            normalized_shape = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in normalized_shape]
             normalized_shape = torch_dialect.PrimListConstructOp(normalized_shape)
         else:
             normalized_shape = get_op_result_or_value(normalized_shape)
@@ -4428,28 +4332,28 @@ class AtenMaxPool2dOp:
             assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(kernel_size):
-            kernel_size = list(map(torch_dialect.ConstantIntOp, kernel_size))
+            kernel_size = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in kernel_size]
             kernel_size = torch_dialect.PrimListConstructOp(kernel_size)
         else:
             kernel_size = get_op_result_or_value(kernel_size)
             assert str(kernel_size.type) == '!torch.list<int>', f'`kernel_size` should be a !torch.list<int> but is {type(kernel_size).__module__}.{type(kernel_size).__name__}'
             
         if not is_mlir_value(stride):
-            stride = list(map(torch_dialect.ConstantIntOp, stride))
+            stride = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in stride]
             stride = torch_dialect.PrimListConstructOp(stride)
         else:
             stride = get_op_result_or_value(stride)
             assert str(stride.type) == '!torch.list<int>', f'`stride` should be a !torch.list<int> but is {type(stride).__module__}.{type(stride).__name__}'
             
         if not is_mlir_value(padding):
-            padding = list(map(torch_dialect.ConstantIntOp, padding))
+            padding = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in padding]
             padding = torch_dialect.PrimListConstructOp(padding)
         else:
             padding = get_op_result_or_value(padding)
             assert str(padding.type) == '!torch.list<int>', f'`padding` should be a !torch.list<int> but is {type(padding).__module__}.{type(padding).__name__}'
             
         if not is_mlir_value(dilation):
-            dilation = list(map(torch_dialect.ConstantIntOp, dilation))
+            dilation = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in dilation]
             dilation = torch_dialect.PrimListConstructOp(dilation)
         else:
             dilation = get_op_result_or_value(dilation)
@@ -4476,28 +4380,28 @@ class AtenMaxPool2dWithIndicesOp:
             assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(kernel_size):
-            kernel_size = list(map(torch_dialect.ConstantIntOp, kernel_size))
+            kernel_size = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in kernel_size]
             kernel_size = torch_dialect.PrimListConstructOp(kernel_size)
         else:
             kernel_size = get_op_result_or_value(kernel_size)
             assert str(kernel_size.type) == '!torch.list<int>', f'`kernel_size` should be a !torch.list<int> but is {type(kernel_size).__module__}.{type(kernel_size).__name__}'
             
         if not is_mlir_value(stride):
-            stride = list(map(torch_dialect.ConstantIntOp, stride))
+            stride = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in stride]
             stride = torch_dialect.PrimListConstructOp(stride)
         else:
             stride = get_op_result_or_value(stride)
             assert str(stride.type) == '!torch.list<int>', f'`stride` should be a !torch.list<int> but is {type(stride).__module__}.{type(stride).__name__}'
             
         if not is_mlir_value(padding):
-            padding = list(map(torch_dialect.ConstantIntOp, padding))
+            padding = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in padding]
             padding = torch_dialect.PrimListConstructOp(padding)
         else:
             padding = get_op_result_or_value(padding)
             assert str(padding.type) == '!torch.list<int>', f'`padding` should be a !torch.list<int> but is {type(padding).__module__}.{type(padding).__name__}'
             
         if not is_mlir_value(dilation):
-            dilation = list(map(torch_dialect.ConstantIntOp, dilation))
+            dilation = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in dilation]
             dilation = torch_dialect.PrimListConstructOp(dilation)
         else:
             dilation = get_op_result_or_value(dilation)
@@ -4531,28 +4435,28 @@ class AtenMaxPool2dWithIndicesBackwardOp:
             assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(kernel_size):
-            kernel_size = list(map(torch_dialect.ConstantIntOp, kernel_size))
+            kernel_size = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in kernel_size]
             kernel_size = torch_dialect.PrimListConstructOp(kernel_size)
         else:
             kernel_size = get_op_result_or_value(kernel_size)
             assert str(kernel_size.type) == '!torch.list<int>', f'`kernel_size` should be a !torch.list<int> but is {type(kernel_size).__module__}.{type(kernel_size).__name__}'
             
         if not is_mlir_value(stride):
-            stride = list(map(torch_dialect.ConstantIntOp, stride))
+            stride = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in stride]
             stride = torch_dialect.PrimListConstructOp(stride)
         else:
             stride = get_op_result_or_value(stride)
             assert str(stride.type) == '!torch.list<int>', f'`stride` should be a !torch.list<int> but is {type(stride).__module__}.{type(stride).__name__}'
             
         if not is_mlir_value(padding):
-            padding = list(map(torch_dialect.ConstantIntOp, padding))
+            padding = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in padding]
             padding = torch_dialect.PrimListConstructOp(padding)
         else:
             padding = get_op_result_or_value(padding)
             assert str(padding.type) == '!torch.list<int>', f'`padding` should be a !torch.list<int> but is {type(padding).__module__}.{type(padding).__name__}'
             
         if not is_mlir_value(dilation):
-            dilation = list(map(torch_dialect.ConstantIntOp, dilation))
+            dilation = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in dilation]
             dilation = torch_dialect.PrimListConstructOp(dilation)
         else:
             dilation = get_op_result_or_value(dilation)
@@ -4585,21 +4489,21 @@ class AtenAvgPool2dOp:
             assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(kernel_size):
-            kernel_size = list(map(torch_dialect.ConstantIntOp, kernel_size))
+            kernel_size = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in kernel_size]
             kernel_size = torch_dialect.PrimListConstructOp(kernel_size)
         else:
             kernel_size = get_op_result_or_value(kernel_size)
             assert str(kernel_size.type) == '!torch.list<int>', f'`kernel_size` should be a !torch.list<int> but is {type(kernel_size).__module__}.{type(kernel_size).__name__}'
             
         if not is_mlir_value(stride):
-            stride = list(map(torch_dialect.ConstantIntOp, stride))
+            stride = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in stride]
             stride = torch_dialect.PrimListConstructOp(stride)
         else:
             stride = get_op_result_or_value(stride)
             assert str(stride.type) == '!torch.list<int>', f'`stride` should be a !torch.list<int> but is {type(stride).__module__}.{type(stride).__name__}'
             
         if not is_mlir_value(padding):
-            padding = list(map(torch_dialect.ConstantIntOp, padding))
+            padding = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in padding]
             padding = torch_dialect.PrimListConstructOp(padding)
         else:
             padding = get_op_result_or_value(padding)
@@ -4725,7 +4629,7 @@ class AtenAdaptiveAvgPool2dOp:
             assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(output_size):
-            output_size = list(map(torch_dialect.ConstantIntOp, output_size))
+            output_size = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in output_size]
             output_size = torch_dialect.PrimListConstructOp(output_size)
         else:
             output_size = get_op_result_or_value(output_size)
@@ -4811,7 +4715,7 @@ class AtenPermuteOp:
             assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(dims):
-            dims = list(map(torch_dialect.ConstantIntOp, dims))
+            dims = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in dims]
             dims = torch_dialect.PrimListConstructOp(dims)
         else:
             dims = get_op_result_or_value(dims)
@@ -4899,7 +4803,7 @@ class AtenLogsumexpOp:
             assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(dim):
-            dim = list(map(torch_dialect.ConstantIntOp, dim))
+            dim = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in dim]
             dim = torch_dialect.PrimListConstructOp(dim)
         else:
             dim = get_op_result_or_value(dim)
@@ -4927,7 +4831,7 @@ class AtenMeanDimOp:
             
         if not is_mlir_value(dim):
             if dim is not None:
-                dim = list(map(torch_dialect.ConstantIntOp, dim))
+                dim = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in dim]
                 dim = torch_dialect.PrimListConstructOp(dim)
             else:
                 dim = torch_dialect.ConstantNoneOp()
@@ -5053,7 +4957,7 @@ class AtenStdDimOp:
             
         if not is_mlir_value(dim):
             if dim is not None:
-                dim = list(map(torch_dialect.ConstantIntOp, dim))
+                dim = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in dim]
                 dim = torch_dialect.PrimListConstructOp(dim)
             else:
                 dim = torch_dialect.ConstantNoneOp()
@@ -5089,7 +4993,7 @@ class AtenStdCorrectionOp:
             
         if not is_mlir_value(dim):
             if dim is not None:
-                dim = list(map(torch_dialect.ConstantIntOp, dim))
+                dim = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in dim]
                 dim = torch_dialect.PrimListConstructOp(dim)
             else:
                 dim = torch_dialect.ConstantNoneOp()
@@ -5148,7 +5052,7 @@ class AtenVarDimOp:
             
         if not is_mlir_value(dim):
             if dim is not None:
-                dim = list(map(torch_dialect.ConstantIntOp, dim))
+                dim = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in dim]
                 dim = torch_dialect.PrimListConstructOp(dim)
             else:
                 dim = torch_dialect.ConstantNoneOp()
@@ -5184,7 +5088,7 @@ class AtenVarCorrectionOp:
             
         if not is_mlir_value(dim):
             if dim is not None:
-                dim = list(map(torch_dialect.ConstantIntOp, dim))
+                dim = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in dim]
                 dim = torch_dialect.PrimListConstructOp(dim)
             else:
                 dim = torch_dialect.ConstantNoneOp()
@@ -5223,7 +5127,7 @@ class AtenVarMeanCorrectionOp:
             
         if not is_mlir_value(dim):
             if dim is not None:
-                dim = list(map(torch_dialect.ConstantIntOp, dim))
+                dim = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in dim]
                 dim = torch_dialect.PrimListConstructOp(dim)
             else:
                 dim = torch_dialect.ConstantNoneOp()
@@ -5414,7 +5318,7 @@ class AtenLinalgVectorNormOp:
             
         if not is_mlir_value(dim):
             if dim is not None:
-                dim = list(map(torch_dialect.ConstantIntOp, dim))
+                dim = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in dim]
                 dim = torch_dialect.PrimListConstructOp(dim)
             else:
                 dim = torch_dialect.ConstantNoneOp()
@@ -5452,7 +5356,7 @@ class AtenFrobeniusNormDimOp:
             assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(dim):
-            dim = list(map(torch_dialect.ConstantIntOp, dim))
+            dim = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in dim]
             dim = torch_dialect.PrimListConstructOp(dim)
         else:
             dim = get_op_result_or_value(dim)
@@ -5505,14 +5409,14 @@ class AtenUpsampleNearest2dBackwardOp:
             assert str(grad_output.type).startswith("!torch.vtensor"), f'`grad_output` should be a torch.vtensor but is {type(grad_output).__module__}.{type(grad_output).__name__}'
             
         if not is_mlir_value(output_size):
-            output_size = list(map(torch_dialect.ConstantIntOp, output_size))
+            output_size = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in output_size]
             output_size = torch_dialect.PrimListConstructOp(output_size)
         else:
             output_size = get_op_result_or_value(output_size)
             assert str(output_size.type) == '!torch.list<int>', f'`output_size` should be a !torch.list<int> but is {type(output_size).__module__}.{type(output_size).__name__}'
             
         if not is_mlir_value(input_size):
-            input_size = list(map(torch_dialect.ConstantIntOp, input_size))
+            input_size = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in input_size]
             input_size = torch_dialect.PrimListConstructOp(input_size)
         else:
             input_size = get_op_result_or_value(input_size)
@@ -5551,7 +5455,7 @@ class AtenConstantPadNdOp:
             assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(pad):
-            pad = list(map(torch_dialect.ConstantIntOp, pad))
+            pad = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in pad]
             pad = torch_dialect.PrimListConstructOp(pad)
         else:
             pad = get_op_result_or_value(pad)
@@ -5578,7 +5482,7 @@ class AtenPadOp:
             assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(pad):
-            pad = list(map(torch_dialect.ConstantIntOp, pad))
+            pad = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in pad]
             pad = torch_dialect.PrimListConstructOp(pad)
         else:
             pad = get_op_result_or_value(pad)
@@ -5711,7 +5615,7 @@ class AtenOnesOp:
         from torch_mlir.dialects import torch as torch_dialect
         
         if not is_mlir_value(size):
-            size = list(map(torch_dialect.ConstantIntOp, size))
+            size = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in size]
             size = torch_dialect.PrimListConstructOp(size)
         else:
             size = get_op_result_or_value(size)
@@ -5768,7 +5672,7 @@ class AtenNewOnesOp:
             assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(size):
-            size = list(map(torch_dialect.ConstantIntOp, size))
+            size = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in size]
             size = torch_dialect.PrimListConstructOp(size)
         else:
             size = get_op_result_or_value(size)
@@ -5819,7 +5723,7 @@ class AtenZerosOp:
         from torch_mlir.dialects import torch as torch_dialect
         
         if not is_mlir_value(size):
-            size = list(map(torch_dialect.ConstantIntOp, size))
+            size = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in size]
             size = torch_dialect.PrimListConstructOp(size)
         else:
             size = get_op_result_or_value(size)
@@ -5876,7 +5780,7 @@ class AtenNewZerosOp:
             assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(size):
-            size = list(map(torch_dialect.ConstantIntOp, size))
+            size = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in size]
             size = torch_dialect.PrimListConstructOp(size)
         else:
             size = get_op_result_or_value(size)
@@ -6065,7 +5969,7 @@ class AtenAllBoolOp:
         from torch_mlir.dialects import torch as torch_dialect
         
         if not is_mlir_value(self_):
-            self_ = list(map(torch_dialect.ConstantBoolOp, self_))
+            self_ = [torch_dialect.ConstantBoolOp(a) if not is_mlir_value(a) else a for a in self_]
             self_ = torch_dialect.PrimListConstructOp(self_)
         else:
             self_ = get_op_result_or_value(self_)
@@ -6805,7 +6709,7 @@ class AtenNewEmptyOp:
             assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(size):
-            size = list(map(torch_dialect.ConstantIntOp, size))
+            size = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in size]
             size = torch_dialect.PrimListConstructOp(size)
         else:
             size = get_op_result_or_value(size)
@@ -6974,7 +6878,7 @@ class AtenEmptyMemoryFormatOp:
         from torch_mlir.dialects import torch as torch_dialect
         
         if not is_mlir_value(size):
-            size = list(map(torch_dialect.ConstantIntOp, size))
+            size = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in size]
             size = torch_dialect.PrimListConstructOp(size)
         else:
             size = get_op_result_or_value(size)
@@ -7040,7 +6944,7 @@ class AtenExpandOp:
             assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(size):
-            size = list(map(torch_dialect.ConstantIntOp, size))
+            size = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in size]
             size = torch_dialect.PrimListConstructOp(size)
         else:
             size = get_op_result_or_value(size)
@@ -7085,7 +6989,7 @@ class AtenBroadcastToOp:
             assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(size):
-            size = list(map(torch_dialect.ConstantIntOp, size))
+            size = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in size]
             size = torch_dialect.PrimListConstructOp(size)
         else:
             size = get_op_result_or_value(size)
@@ -7288,7 +7192,7 @@ class AtenRepeatOp:
             assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(repeats):
-            repeats = list(map(torch_dialect.ConstantIntOp, repeats))
+            repeats = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in repeats]
             repeats = torch_dialect.PrimListConstructOp(repeats)
         else:
             repeats = get_op_result_or_value(repeats)
@@ -7309,7 +7213,7 @@ class AtenReshapeOp:
             assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(shape):
-            shape = list(map(torch_dialect.ConstantIntOp, shape))
+            shape = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in shape]
             shape = torch_dialect.PrimListConstructOp(shape)
         else:
             shape = get_op_result_or_value(shape)
@@ -7330,14 +7234,14 @@ class Aten_ReshapeAliasOp:
             assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(size):
-            size = list(map(torch_dialect.ConstantIntOp, size))
+            size = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in size]
             size = torch_dialect.PrimListConstructOp(size)
         else:
             size = get_op_result_or_value(size)
             assert str(size.type) == '!torch.list<int>', f'`size` should be a !torch.list<int> but is {type(size).__module__}.{type(size).__name__}'
             
         if not is_mlir_value(stride):
-            stride = list(map(torch_dialect.ConstantIntOp, stride))
+            stride = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in stride]
             stride = torch_dialect.PrimListConstructOp(stride)
         else:
             stride = get_op_result_or_value(stride)
@@ -7358,7 +7262,7 @@ class AtenResize_Op:
             assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(size):
-            size = list(map(torch_dialect.ConstantIntOp, size))
+            size = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in size]
             size = torch_dialect.PrimListConstructOp(size)
         else:
             size = get_op_result_or_value(size)
@@ -7477,7 +7381,7 @@ class AtenSumDimIntListOp:
             
         if not is_mlir_value(dim):
             if dim is not None:
-                dim = list(map(torch_dialect.ConstantIntOp, dim))
+                dim = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in dim]
                 dim = torch_dialect.PrimListConstructOp(dim)
             else:
                 dim = torch_dialect.ConstantNoneOp()
@@ -7554,7 +7458,7 @@ class AtenAmaxOp:
             assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(dim):
-            dim = list(map(torch_dialect.ConstantIntOp, dim))
+            dim = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in dim]
             dim = torch_dialect.PrimListConstructOp(dim)
         else:
             dim = get_op_result_or_value(dim)
@@ -7843,7 +7747,7 @@ class AtenViewOp:
             assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(size):
-            size = list(map(torch_dialect.ConstantIntOp, size))
+            size = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in size]
             size = torch_dialect.PrimListConstructOp(size)
         else:
             size = get_op_result_or_value(size)
@@ -7864,7 +7768,7 @@ class Aten_UnsafeViewOp:
             assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(size):
-            size = list(map(torch_dialect.ConstantIntOp, size))
+            size = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in size]
             size = torch_dialect.PrimListConstructOp(size)
         else:
             size = get_op_result_or_value(size)
@@ -8300,7 +8204,7 @@ class AtenFullOp:
         from torch_mlir.dialects import torch as torch_dialect
         
         if not is_mlir_value(size):
-            size = list(map(torch_dialect.ConstantIntOp, size))
+            size = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in size]
             size = torch_dialect.PrimListConstructOp(size)
         else:
             size = get_op_result_or_value(size)
@@ -8554,14 +8458,14 @@ class AtenAsStridedCopyOp:
             assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(size):
-            size = list(map(torch_dialect.ConstantIntOp, size))
+            size = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in size]
             size = torch_dialect.PrimListConstructOp(size)
         else:
             size = get_op_result_or_value(size)
             assert str(size.type) == '!torch.list<int>', f'`size` should be a !torch.list<int> but is {type(size).__module__}.{type(size).__name__}'
             
         if not is_mlir_value(stride):
-            stride = list(map(torch_dialect.ConstantIntOp, stride))
+            stride = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in stride]
             stride = torch_dialect.PrimListConstructOp(stride)
         else:
             stride = get_op_result_or_value(stride)
@@ -8623,7 +8527,7 @@ class AtenExpandCopyOp:
             assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(size):
-            size = list(map(torch_dialect.ConstantIntOp, size))
+            size = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in size]
             size = torch_dialect.PrimListConstructOp(size)
         else:
             size = get_op_result_or_value(size)
@@ -8650,7 +8554,7 @@ class AtenPermuteCopyOp:
             assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(dims):
-            dims = list(map(torch_dialect.ConstantIntOp, dims))
+            dims = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in dims]
             dims = torch_dialect.PrimListConstructOp(dims)
         else:
             dims = get_op_result_or_value(dims)
@@ -8671,14 +8575,14 @@ class Aten_ReshapeAliasCopyOp:
             assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(size):
-            size = list(map(torch_dialect.ConstantIntOp, size))
+            size = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in size]
             size = torch_dialect.PrimListConstructOp(size)
         else:
             size = get_op_result_or_value(size)
             assert str(size.type) == '!torch.list<int>', f'`size` should be a !torch.list<int> but is {type(size).__module__}.{type(size).__name__}'
             
         if not is_mlir_value(stride):
-            stride = list(map(torch_dialect.ConstantIntOp, stride))
+            stride = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in stride]
             stride = torch_dialect.PrimListConstructOp(stride)
         else:
             stride = get_op_result_or_value(stride)
@@ -8871,7 +8775,7 @@ class AtenViewCopyOp:
             assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(size):
-            size = list(map(torch_dialect.ConstantIntOp, size))
+            size = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in size]
             size = torch_dialect.PrimListConstructOp(size)
         else:
             size = get_op_result_or_value(size)
@@ -9070,14 +8974,14 @@ class AtenAsStridedScatterOp:
             assert str(src.type).startswith("!torch.vtensor"), f'`src` should be a torch.vtensor but is {type(src).__module__}.{type(src).__name__}'
             
         if not is_mlir_value(size):
-            size = list(map(torch_dialect.ConstantIntOp, size))
+            size = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in size]
             size = torch_dialect.PrimListConstructOp(size)
         else:
             size = get_op_result_or_value(size)
             assert str(size.type) == '!torch.list<int>', f'`size` should be a !torch.list<int> but is {type(size).__module__}.{type(size).__name__}'
             
         if not is_mlir_value(stride):
-            stride = list(map(torch_dialect.ConstantIntOp, stride))
+            stride = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in stride]
             stride = torch_dialect.PrimListConstructOp(stride)
         else:
             stride = get_op_result_or_value(stride)
@@ -9107,7 +9011,7 @@ class AtenUpsampleNearest2dOp:
             assert str(self_.type).startswith("!torch.vtensor"), f'`self_` should be a torch.vtensor but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(output_size):
-            output_size = list(map(torch_dialect.ConstantIntOp, output_size))
+            output_size = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in output_size]
             output_size = torch_dialect.PrimListConstructOp(output_size)
         else:
             output_size = get_op_result_or_value(output_size)
@@ -9160,7 +9064,7 @@ class Aten__Contains__IntListOp:
         from torch_mlir.dialects import torch as torch_dialect
         
         if not is_mlir_value(l):
-            l = list(map(torch_dialect.ConstantIntOp, l))
+            l = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in l]
             l = torch_dialect.PrimListConstructOp(l)
         else:
             l = get_op_result_or_value(l)
@@ -9349,14 +9253,14 @@ class AtenEqIntListOp:
         from torch_mlir.dialects import torch as torch_dialect
         
         if not is_mlir_value(a):
-            a = list(map(torch_dialect.ConstantIntOp, a))
+            a = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in a]
             a = torch_dialect.PrimListConstructOp(a)
         else:
             a = get_op_result_or_value(a)
             assert str(a.type) == '!torch.list<int>', f'`a` should be a !torch.list<int> but is {type(a).__module__}.{type(a).__name__}'
             
         if not is_mlir_value(b):
-            b = list(map(torch_dialect.ConstantIntOp, b))
+            b = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in b]
             b = torch_dialect.PrimListConstructOp(b)
         else:
             b = get_op_result_or_value(b)
@@ -9447,14 +9351,14 @@ class AtenNeIntListOp:
         from torch_mlir.dialects import torch as torch_dialect
         
         if not is_mlir_value(a):
-            a = list(map(torch_dialect.ConstantIntOp, a))
+            a = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in a]
             a = torch_dialect.PrimListConstructOp(a)
         else:
             a = get_op_result_or_value(a)
             assert str(a.type) == '!torch.list<int>', f'`a` should be a !torch.list<int> but is {type(a).__module__}.{type(a).__name__}'
             
         if not is_mlir_value(b):
-            b = list(map(torch_dialect.ConstantIntOp, b))
+            b = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in b]
             b = torch_dialect.PrimListConstructOp(b)
         else:
             b = get_op_result_or_value(b)
@@ -9468,7 +9372,7 @@ class AtenAnyBoolOp:
         from torch_mlir.dialects import torch as torch_dialect
         
         if not is_mlir_value(self_):
-            self_ = list(map(torch_dialect.ConstantBoolOp, self_))
+            self_ = [torch_dialect.ConstantBoolOp(a) if not is_mlir_value(a) else a for a in self_]
             self_ = torch_dialect.PrimListConstructOp(self_)
         else:
             self_ = get_op_result_or_value(self_)
@@ -9483,7 +9387,7 @@ class AtenSortIntOp:
         from torch_mlir.dialects import torch as torch_dialect
         
         if not is_mlir_value(self_):
-            self_ = list(map(torch_dialect.ConstantIntOp, self_))
+            self_ = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in self_]
             self_ = torch_dialect.PrimListConstructOp(self_)
         else:
             self_ = get_op_result_or_value(self_)
@@ -9571,7 +9475,7 @@ class AtenJoinOp:
             assert str(self_.type) == '!torch.str', f'`self_` should be a !torch.str but is {type(self_).__module__}.{type(self_).__name__}'
             
         if not is_mlir_value(values):
-            values = list(map(torch_dialect.ConstantStrOp, values))
+            values = [torch_dialect.ConstantStrOp(a) if not is_mlir_value(a) else a for a in values]
             values = torch_dialect.PrimListConstructOp(values)
         else:
             values = get_op_result_or_value(values)
@@ -10519,17 +10423,6 @@ class AtenNarrowOp:
         super(AtenNarrowOp, self).__init__(result_type, self_, dim, start, length, loc=loc, ip=ip)
         
     
-class AtenScalarImplicitOp:
-    def __init__(self, a: Value, *, loc=None, ip=None):
-        if not is_mlir_value(a):
-            assert is_mlir_value(a), f'`a` should be a Value but is {type(a).__module__}.{type(a).__name__}'
-        else:
-            a = get_op_result_or_value(a)
-            assert str(a.type).startswith("!torch.vtensor"), f'`a` should be a torch.vtensor but is {type(a).__module__}.{type(a).__name__}'
-            
-        super(AtenScalarImplicitOp, self).__init__(a, loc=loc, ip=ip)
-        
-    
 class Aten_SoftmaxBackwardDataOp:
     def __init__(self, grad_output: Value, output: Value, dim: int, input_dtype: int, *, loc=None, ip=None):
         from torch_mlir.dialects import torch as torch_dialect
@@ -10655,7 +10548,7 @@ class AtenNativeLayerNormBackwardOp:
             assert str(input.type).startswith("!torch.vtensor"), f'`input` should be a torch.vtensor but is {type(input).__module__}.{type(input).__name__}'
             
         if not is_mlir_value(normalized_shape):
-            normalized_shape = list(map(torch_dialect.ConstantIntOp, normalized_shape))
+            normalized_shape = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in normalized_shape]
             normalized_shape = torch_dialect.PrimListConstructOp(normalized_shape)
         else:
             normalized_shape = get_op_result_or_value(normalized_shape)
@@ -10692,7 +10585,7 @@ class AtenNativeLayerNormBackwardOp:
             assert str(bias.type).startswith("!torch.vtensor"), f'`bias` should be a torch.vtensor but is {type(bias).__module__}.{type(bias).__name__}'
             
         if not is_mlir_value(output_mask):
-            output_mask = list(map(torch_dialect.ConstantBoolOp, output_mask))
+            output_mask = [torch_dialect.ConstantBoolOp(a) if not is_mlir_value(a) else a for a in output_mask]
             output_mask = torch_dialect.PrimListConstructOp(output_mask)
         else:
             output_mask = get_op_result_or_value(output_mask)
@@ -10817,7 +10710,7 @@ class AtenNativeBatchNormBackwardOp:
             assert str(eps.type) == '!torch.float', f'`eps` should be a !torch.float but is {type(eps).__module__}.{type(eps).__name__}'
             
         if not is_mlir_value(output_mask):
-            output_mask = list(map(torch_dialect.ConstantBoolOp, output_mask))
+            output_mask = [torch_dialect.ConstantBoolOp(a) if not is_mlir_value(a) else a for a in output_mask]
             output_mask = torch_dialect.PrimListConstructOp(output_mask)
         else:
             output_mask = get_op_result_or_value(output_mask)
@@ -10927,7 +10820,7 @@ class PrimMinSelfIntOp:
         from torch_mlir.dialects import torch as torch_dialect
         
         if not is_mlir_value(self_):
-            self_ = list(map(torch_dialect.ConstantIntOp, self_))
+            self_ = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in self_]
             self_ = torch_dialect.PrimListConstructOp(self_)
         else:
             self_ = get_op_result_or_value(self_)
@@ -10960,7 +10853,7 @@ class PrimMaxSelfIntOp:
         from torch_mlir.dialects import torch as torch_dialect
         
         if not is_mlir_value(self_):
-            self_ = list(map(torch_dialect.ConstantIntOp, self_))
+            self_ = [torch_dialect.ConstantIntOp(a) if not is_mlir_value(a) else a for a in self_]
             self_ = torch_dialect.PrimListConstructOp(self_)
         else:
             self_ = get_op_result_or_value(self_)
@@ -11013,18 +10906,6 @@ class PrimRaiseExceptionOp:
 class PrimUninitializedOp:
     def __init__(self, *, loc=None, ip=None):
         super(PrimUninitializedOp, self).__init__(loc=loc, ip=ip)
-        
-    
-class PrimUncheckedCastOp:
-    def __init__(self, x: Value, *, loc=None, ip=None):
-        if not is_mlir_value(x):
-            assert is_mlir_value(x), f'`x` should be a Value but is {type(x).__module__}.{type(x).__name__}'
-        else:
-            x = get_op_result_or_value(x)
-            assert str(x.type).startswith("!torch.vtensor"), f'`x` should be a torch.vtensor but is {type(x).__module__}.{type(x).__name__}'
-            
-        result_type = Type.parse("!torch.vtensor")
-        super(PrimUncheckedCastOp, self).__init__(result_type, x, loc=loc, ip=ip)
         
     
 class PrimAbsScalarOp:

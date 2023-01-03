@@ -1,3 +1,5 @@
+import functools
+from textwrap import indent
 from typing import Tuple, Any, Optional, Dict, cast
 
 
@@ -15,14 +17,16 @@ class NotFoundLookupError(LookupError):
 class Function:
     def __init__(self, f):
         self._f = f
-        self._precedences = {}
 
         self._cache = {}
         self._overloads = {}
 
-        self.__name__ = "Dispatcher" + f.__name__
-        self.__qualname__ = "Dispatcher" + f.__qualname__
-        self.__module__ = "Dispatcher" + f.__module__
+        # self.__name__ = "Dispatcher" + f.__name__
+        # self.__qualname__ = "Dispatcher" + f.__qualname__
+        # self.__module__ = "Dispatcher" + f.__module__
+        self.__name__ = f.__name__
+        self.__qualname__ = f.__qualname__
+        self.__module__ = f.__module__
 
     def register(
         self,
@@ -39,8 +43,8 @@ class Function:
         self,
         args: Tuple[Any],
         kwargs: Optional[Dict[str, Any]] = None,
-        arg_types: Optional[Tuple[Any]] = None,
-        kwarg_types: Optional[Dict[str, Any]] = None,
+        args_types: Optional[Tuple[Any]] = None,
+        kwargs_types: Optional[Dict[str, Any]] = None,
     ):
         candidates = []
         for candidate_signature in self._overloads:
@@ -58,14 +62,14 @@ class Function:
         elif len(candidates) == 1:
             return candidates[0]
         else:
-            if arg_types is not None or kwarg_types is not None:
-                arg_types = arg_types if arg_types else cast(Tuple[Any], ())
-                kwarg_types = kwarg_types if kwarg_types else {}
+            if args_types is not None or kwargs_types is not None:
+                args_types = args_types if args_types else cast(Tuple[Any], ())
+                kwargs_types = kwargs_types if kwargs_types else {}
                 for candidate_signature in self._overloads.keys():
                     sig_matches = True
                     try:
                         bound_types = candidate_signature.bind(
-                            *arg_types, **kwarg_types
+                            *args_types, **kwargs_types
                         )
                         for arg_name, arg_type in bound_types.arguments.items():
                             param = candidate_signature.parameters[arg_name]
@@ -73,7 +77,6 @@ class Function:
                                 param.annotation, arg_type
                             )
                     except TypeError as e:
-                        print(e)
                         sig_matches = False
                     if sig_matches:
                         return candidate_signature
@@ -87,8 +90,13 @@ class Function:
                     f"the normalize_arguments() call. Available schemas:\n{schema_printouts}"
                 )
 
+        args = indent("\n".join(map(str, args)), "\t\t")
+        kwargs = indent("\n".join(map(str, kwargs.items())), "\t\t")
+        args_types = indent("\n".join(map(str, args_types)), "\t\t")
+        kwargs_types = indent("\n".join(map(str, kwargs_types.items())), "\t\t")
+        candidates = indent("\n".join(map(str, candidates)), "\t\t")
         raise AmbiguousLookupError(
-            f"Tried to normalize arguments to {self._f.__name__} but failed for {args=} {kwargs=} {arg_types=} {kwarg_types=}; tried {candidates=}"
+            f"Tried to normalize arguments to {self._f.__name__} but failed for\n args:\n{args}\n kwargs:\n{kwargs}\n args_types:\n{args_types}\n kwargs_types:\n{kwargs_types}\n tried candidates:\n{candidates}\n"
         )
 
     def resolve_overload(self, signature):
@@ -106,3 +114,13 @@ class Function:
 
     def __repr__(self):
         return f"<function {self._f} with " f"{len(self._overloads)} overload(s)>"
+
+
+class ClassFunction:
+    _pending = []
+
+    def __init__(self, construct_function):
+        self.function = construct_function
+
+    def __get__(self, instance, owner):
+        return functools.partial(self.function, instance)
