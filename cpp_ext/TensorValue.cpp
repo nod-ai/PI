@@ -8,8 +8,10 @@
 //===----------------------------------------------------------------------===//
 
 #include "TensorValue.h"
+#include "TorchTypes.h"
 #include "TorchTypesCAPI.h"
 
+#include "mlir/Bindings/Python/PybindAdaptors.h"
 #include "mlir/CAPI/Support.h"
 
 using namespace mlir;
@@ -73,8 +75,6 @@ PYBIND11_NOINLINE bool try_load_foreign_module_local(py::handle src) {
 }
 
 void bindValues(py::module &m) {
-  py::object op_result_ =
-      (py::object) py::module_::import("torch_mlir.ir").attr("OpResult");
   py::object value_ =
       (py::object) py::module_::import("torch_mlir.ir").attr("Value");
 
@@ -85,7 +85,12 @@ void bindValues(py::module &m) {
   });
 
   py::class_<Torch_Tensor>(m, "_Torch_Tensor", value_)
-      .def(py::init<>([](const py::capsule &capsule) {
+      .def(py::init<>([](const py::handle apiObject) {
+        auto capsule = pybind11::detail::mlirApiObjectToCapsule(apiObject);
         return Torch_Tensor::createFromCapsule_(capsule);
-      }));
+      }))
+      .def_property_readonly("type", [](PyValue &self) {
+        return Torch_ValueTensorType(self.parentOperation->getContext(),
+                                     mlirValueGetType(self.get()));
+      });
 }
