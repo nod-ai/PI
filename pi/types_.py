@@ -1,134 +1,122 @@
 import builtins
-import re
 import weakref
 from enum import Enum
-from typing import Union, List, Tuple, Any, NewType
+from inspect import isclass
+from typing import Any, Optional, Tuple
+from typing import Generic, TypeVar
+from typing import Union, List, NewType, Sequence
 
 import numpy as np
+
+# noinspection PyUnresolvedReferences
+from pi._mlir import (
+    TorchListOfValueTensorType as TorchListOfTensor,
+    TorchListOfTorchBoolType as TorchListOfTorchBool,
+    TorchListOfTorchIntType as TorchListOfTorchInt,
+    TorchListOfTorchFloatType as TorchListOfTorchFloat,
+    TorchListOfTorchStringType as TorchListOfTorchString,
+)
+from pi._mlir import (
+    Torch_BoolType,
+    Torch_FloatType,
+    Torch_IntType,
+    Torch_StringType,
+    Torch_Value as _Torch_Value,
+    Torch_List as _Torch_List,
+    Torch_Tensor as Tensor,
+)
 from torch_mlir import ir
-from torch_mlir.dialects._ods_common import (
-    get_op_result_or_value,
-)
-from torch_mlir._mlir_libs._mlir.ir import (
-    AttrBuilder,
-    BoolAttr,
-    IntegerAttr,
-    IndexType,
-    IntegerType,
-    StringAttr,
-    DenseElementsAttr,
-)
+from torch_mlir._mlir_libs._mlir.ir import IntegerAttr, IntegerType, FloatAttr, F64Type
 from torch_mlir.ir import (
-    Type as MLIRType,
-    Value as MLIRValue,
     register_attribute_builder,
 )
-
-from pi._mlir import (
-    is_a_TorchListOfTorchBoolType,
-    is_a_TorchListOfTorchIntType,
-    is_a_TorchListOfTorchStringType,
-    is_a_TorchListOfValueTensorType,
-    _TorchListOfTorchBoolType,
-    _TorchListOfTorchFloatType,
-    _TorchListOfTorchIntType,
-    _TorchListOfTorchStringType,
-    _TorchListOfValueTensorType,
-    is_a_TorchScalarType,
-    is_a_Torch_AnyType,
-    is_a_Torch_BoolType,
-    is_a_Torch_DeviceType,
-    is_a_Torch_DictType,
-    is_a_Torch_FloatType,
-    is_a_Torch_GeneratorType,
-    is_a_Torch_IntType,
-    is_a_Torch_StringType,
-    is_a_Torch_ValueTensorType,
-    _torch_list_of_type,
-    _Torch_AnyType,
-    _Torch_BoolType,
-    _Torch_DeviceType,
-    _Torch_FloatType,
-    _Torch_IntType,
-    _Torch_NumberType,
-    _Torch_StringType,
-    _Torch_ValueTensorType,
-    is_dtype,
-    _Torch_Value,
+from typeguard import (
+    TypeCheckError,
+    TypeCheckerCallable,
+    TypeCheckMemo,
+    checker_lookup_functions,
+    check_type,
 )
 
 
-# !torch.vtensor<[1,2,3],f32>
-# reg = re.compile(r"!torch.vtensor<\[(.*)\],(.*)>")
+T = TypeVar("T", Torch_FloatType, Torch_BoolType, Torch_StringType, Torch_IntType)
 
 
-# def parse_sizes_from_tensor_type_str(t: ir.OpView) -> List[int]:
-#     # TODO(max): pull straight from the ranked type
-#     t = get_op_result_or_value(t)
-#     sizes, dtype = reg.findall(str(t.type))[0]
-#     sizes = [s if s != "?" else "-1" for s in sizes.split(",")]
-#     return list(map(int, sizes)), dtype
-#
-# #
-# def get_type(t: Union[MLIRType, MLIRValue]):
-#     if not isinstance(t, MLIRType):
-#         assert isinstance(
-#             t, MLIRValue
-#         ), f"unknown type {type(t).__module__}.{type(t).__name__})"
-#         t = t.type
-#     return t
-#
+class Torch_Value(_Torch_Value, Generic[T]):
+    def __init__(self, v):
+        super().__init__(v)
+
+    @property
+    def type(self) -> T:
+        return super().type
 
 
-def is_a_torch_tensor(t):
+class Torch_List(_Torch_List, Generic[T]):
+    def __init__(self, v):
+        super().__init__(v)
+
+    @property
+    def type(self) -> T:
+        return super().type
+
+
+class Torch_Dict:
+    ...
+    # def __init__(self, v):
+    #     super().__init__(v)
+    #
+    # @property
+    # def type(self) -> T:
+    #     return super().type
+
+
+def check_simple_torch_value(
+    value: Any, origin_type: Any, type_var_args: Tuple[Any, ...], memo: TypeCheckMemo
+) -> None:
+    assert len(type_var_args) == 1, f"multiple type var args to Torch_Value not handled"
+    type_var_arg = type_var_args[0]
+    if not isinstance(value, Torch_Value):
+        raise TypeCheckError(f"Not Torch_Value: {value}")
     try:
-        t = get_op_result_or_value(t)
-        return is_a_Torch_ValueTensorType(t.type)
-    except:
-        return False
+        check_type(value.type, type_var_arg)
+    except TypeCheckError:
+        raise TypeCheckError(f"Not correct type param ({type_var_arg}): {value.type}")
 
 
-class TorchBool(_Torch_BoolType):
-    pass
+def check_simple_torch_list(
+    value: Any, origin_type: Any, type_var_args: Tuple[Any, ...], memo: TypeCheckMemo
+) -> None:
+    assert len(type_var_args) == 1, f"multiple type var args to Torch_List not handled"
+    type_var_arg = type_var_args[0]
+    if not isinstance(value, Torch_List):
+        raise TypeCheckError(f"Not Torch_Value: {value}")
+    try:
+        check_type(value.el_type, type_var_arg)
+    except TypeCheckError:
+        raise TypeCheckError(f"Not correct type param ({type_var_arg}): {value.el_type}")
 
 
-class TorchFloat(_Torch_FloatType):
-    pass
+def check_tensor(
+    value: Any, origin_type: Any, type_var_args: Tuple[Any, ...], memo: TypeCheckMemo
+) -> None:
+    if not isinstance(value, Tensor):
+        raise TypeCheckError(f"Not Torch_Tensor: {value}")
 
 
-class TorchInt(_Torch_IntType):
-    pass
+def torch_value_checker_lookup(
+    origin_type: Any, type_var_args: Tuple[Any, ...], extras: Tuple[Any, ...]
+) -> Optional[TypeCheckerCallable]:
+    if isclass(origin_type) and issubclass(origin_type, Torch_List):
+        return check_simple_torch_list
+    elif isclass(origin_type) and issubclass(origin_type, Torch_Value):
+        return check_simple_torch_value
+    elif isclass(origin_type) and issubclass(origin_type, Tensor):
+        return check_tensor
+
+    return None
 
 
-class TorchString(_Torch_StringType):
-    pass
-
-
-class TorchValue(_Torch_Value):
-    pass
-
-
-class TorchListOfTorchTensorType(_TorchListOfValueTensorType):
-    pass
-
-
-class TorchListOfTorchBoolType(_TorchListOfTorchBoolType):
-    pass
-
-
-class TorchListOfTorchFloatType(_TorchListOfTorchFloatType):
-    pass
-
-
-class TorchListOfTorchIntType(_TorchListOfTorchIntType):
-    pass
-
-
-class TorchListOfTorchStringType(_TorchListOfTorchStringType):
-    pass
-
-
-TorchNumber = Union[builtins.int, builtins.float, builtins.bool, TorchInt, TorchFloat]
+checker_lookup_functions.insert(0, torch_value_checker_lookup)
 
 
 class dtype(Enum):
@@ -311,7 +299,8 @@ uint8 = dtype.uint8
 Size = size = Union[List[int], Tuple[int, ...]]
 
 Generator = Any
-device = Device = NewType("Device", str)
+
+device = Device = TorchDevice = NewType("Device", str)
 
 
 class BroadcastingListCls(object):
@@ -393,3 +382,24 @@ channels_last_3d = memory_format.channels_last_3d
 @register_attribute_builder("AnyI64Attr")
 def _i64Attr(x, context):
     return IntegerAttr.get(IntegerType.get_signless(64, context=context), x)
+
+
+@register_attribute_builder("I1Attr")
+def _i1Attr(x, context):
+    return IntegerAttr.get(IntegerType.get_signless(1, context=context), int(x))
+
+
+@register_attribute_builder("F64Attr")
+def _f64Attr(x, context):
+    return FloatAttr.get(F64Type.get(context=context), x)
+
+
+# ConstantNumberOp
+@register_attribute_builder("anonymous_443")
+def _numberAttr(x, context):
+    if isinstance(x, builtins.float):
+        return FloatAttr.get(F64Type.get(context=context), x)
+    elif isinstance(x, builtins.int):
+        return IntegerAttr.get(IntegerType.get_signless(64, context=context), x)
+    else:
+        raise TypeError(f"unhandled Number/Scalar {x}")

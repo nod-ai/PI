@@ -31,12 +31,12 @@ class PyOperation;
 
 /// Template for a reference to a concrete type which captures a python
 /// reference to its underlying python object.
-template<typename T>
-class PyObjectRef {
+template <typename T> class PyObjectRef {
 public:
   PyObjectRef(T *referrent, pybind11::object object)
       : referrent(referrent), object(std::move(object)) {
-    assert(this->referrent && "cannot construct PyObjectRef with null referrent");
+    assert(this->referrent &&
+           "cannot construct PyObjectRef with null referrent");
     assert(this->object && "cannot construct PyObjectRef with null object");
   }
   PyObjectRef(PyObjectRef &&other)
@@ -81,8 +81,10 @@ using PyMlirContextRef = PyObjectRef<PyMlirContext>;
 
 class BaseContextObject {
 public:
-  explicit BaseContextObject(PyMlirContextRef ref) : contextRef(std::move(ref)) {
-    assert(this->contextRef && "context object constructed with null context ref");
+  explicit BaseContextObject(PyMlirContextRef ref)
+      : contextRef(std::move(ref)) {
+    assert(this->contextRef &&
+           "context object constructed with null context ref");
   }
   PyMlirContextRef contextRef;
   PyMlirContextRef &getContext() { return contextRef; }
@@ -91,7 +93,8 @@ public:
 class PyOperation : public BaseContextObject {
 public:
   PyOperation &getOperation() { return *this; }
-  PyOperation(PyMlirContextRef contextRef, MlirOperation operation) : BaseContextObject(std::move(contextRef)), operation(operation){};
+  PyOperation(PyMlirContextRef contextRef, MlirOperation operation)
+      : BaseContextObject(std::move(contextRef)), operation(operation){};
 
   pybind11::handle handle;
   MlirOperation operation;
@@ -109,7 +112,7 @@ class PyValue {
 public:
   PyValue(PyOperationRef parentOperation, MlirValue value)
       : parentOperation(std::move(parentOperation)), value(value) {}
-  explicit operator MlirValue() const { return value; }
+  operator MlirValue() const { return value; }
   MlirValue get() { return value; }
 
   PyOperationRef parentOperation;
@@ -121,13 +124,15 @@ private:
 struct PyType : public BaseContextObject {
   PyType(PyMlirContextRef contextRef, MlirType type)
       : BaseContextObject(std::move(contextRef)), type(type) {}
-  operator MlirType() const { return type; } // NOLINT(google-explicit-constructor)
+  operator MlirType() const {
+    return type;
+  } // NOLINT(google-explicit-constructor)
   [[nodiscard]] MlirType get() const { return type; }
 
   MlirType type;
 };
 
-template<typename DerivedTy, typename BaseTy = PyType>
+template <typename DerivedTy, typename BaseTy = PyType>
 struct PyConcreteType : public BaseTy {
   //  using ClassTy = pybind11::class_<DerivedTy, BaseTy>;
 
@@ -141,7 +146,8 @@ struct PyConcreteType : public BaseTy {
 
     MlirContext ctx = mlirTypeGetContext(rawType);
     auto *unownedContextWrapper = new PyMlirContext(ctx);
-    auto pyCtxRef = py::reinterpret_steal<py::object>(mlirPythonContextToCapsule(ctx));
+    auto pyCtxRef =
+        py::reinterpret_steal<py::object>(mlirPythonContextToCapsule(ctx));
     assert(pyCtxRef && "cast to py::object failed");
     auto ctxRef = PyMlirContextRef(unownedContextWrapper, std::move(pyCtxRef));
 
@@ -164,7 +170,7 @@ struct PyPrintAccumulator {
       PyPrintAccumulator *printAccum =
           static_cast<PyPrintAccumulator *>(userData);
       pybind11::str pyPart(part.data,
-                           part.length);// Decodes as UTF-8 by default.
+                           part.length); // Decodes as UTF-8 by default.
       printAccum->parts.append(std::move(pyPart));
     };
   }
@@ -175,6 +181,6 @@ struct PyPrintAccumulator {
   }
 };
 
-}// namespace mlir::python
+} // namespace mlir::python
 
-#endif// MLIR_BINDINGS_PYTHON_IRMODULES_H
+#endif // MLIR_BINDINGS_PYTHON_IRMODULES_H

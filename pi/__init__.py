@@ -33,16 +33,6 @@ assert (
     len(torch_mlir.dialects.torch.AtenConv2dOp.__bases__) == 1
 ), "failed to import torch dialect extensions; you probably tried to import torch_mlir before pi"
 
-if __name__ == "pi":
-    # prevent double type registration when we've patched torch -> pi
-    # noinspection PyUnresolvedReferences
-    from . import _mlir
-
-    # try:
-    #     from . import _mlir
-    # except ImportError as e:
-    #     assert str(e) == 'generic_type: type "_Torch_Tensor" is already registered!'
-
 from .types_ import *
 from . import _torch_wrappers
 from ._torch_wrappers import *

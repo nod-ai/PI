@@ -1,6 +1,7 @@
 from __future__ import annotations
 import builtins
 import functools
+import re
 import warnings
 from numbers import Number
 from typing import (
@@ -24,14 +25,15 @@ from torch_mlir.ir import Value as MLIRValue
 from .types_ import (
     dtype as pi_dtype,
     Size,
-    device,
     layout,
     Device,
     memory_format,
     contiguous_format,
 )
 from .dispatcher import dispatch
-from pi._mlir import _Torch_Tensor, is_a_Torch_ValueTensorType
+
+# noinspection PyUnresolvedReferences
+from pi._mlir import Torch_Tensor
 
 
 class ComplexReturnType:
@@ -39,9 +41,9 @@ class ComplexReturnType:
         self.name = name
 
 
-class Tensor(_Torch_Tensor):
+class Tensor(Torch_Tensor):
     shape: Size
-    device: device
+    device: Device
     dtype: pi_dtype
     layout: layout
     ndim: int
@@ -58,6 +60,10 @@ class Tensor(_Torch_Tensor):
     @property
     def dtype(self):
         return super(Tensor, self).type.dtype
+
+    @property
+    def sizes(self):
+        return super(Tensor, self).type.sizes
 
     def __abs__(self: Tensor) -> Tensor:
         return pi.abs(self)
@@ -323,9 +329,6 @@ class Tensor(_Torch_Tensor):
     def __xor__(self: Tensor, other: Any) -> Tensor:
         raise NotImplementedError("__xor__")
 
-    def __repr__(self):
-        return "Tensor" + str(self)
-
     def _addmm_activation(
         self: Tensor,
         mat1: Tensor,
@@ -381,7 +384,7 @@ class Tensor(_Torch_Tensor):
         require_grad: bool = False,
         dispatch_strides: bool = False,
         dispatch_device: bool = False,
-        device_for_backend_keys: Optional[device] = None,
+        device_for_backend_keys: Optional[Device] = None,
     ) -> Tensor:
         raise NotImplementedError("_make_subclass")
 
@@ -1062,7 +1065,7 @@ class Tensor(_Torch_Tensor):
 
     def cuda(
         self: Tensor,
-        device: Optional[Union[device, int, str]] = None,
+        device: Optional[Union[Device, int, str]] = None,
         non_blocking: bool = False,
     ) -> Tensor:
         raise NotImplementedError("cuda")
@@ -1267,7 +1270,7 @@ class Tensor(_Torch_Tensor):
         raise NotImplementedError("dot")
 
     def double(self: Tensor) -> Tensor:
-        return torch_cast(self, pi_dtype.float64)
+        return pi.to(self, pi_dtype.float64)
 
     @dispatch
     def dsplit(self: Tensor, sections: int) -> List[Tensor]:
@@ -1841,7 +1844,7 @@ class Tensor(_Torch_Tensor):
     is_ort: bool
 
     def is_pinned(
-        self: Tensor, device: Optional[Union[device, str, None]] = None
+        self: Tensor, device: Optional[Union[Device, str, None]] = None
     ) -> bool:
         raise NotImplementedError("is_pinned")
 
@@ -2462,7 +2465,7 @@ class Tensor(_Torch_Tensor):
         *,
         dtype: Optional[pi_dtype] = None,
         layout: Optional[layout] = None,
-        device: Optional[Union[device, str, None]] = None,
+        device: Optional[Union[Device, str, None]] = None,
         pin_memory: Optional[bool] = False,
         requires_grad: Optional[bool] = False,
     ) -> Tensor:
@@ -2476,7 +2479,7 @@ class Tensor(_Torch_Tensor):
         *size: int,
         dtype: Optional[pi_dtype] = None,
         layout: Optional[layout] = None,
-        device: Optional[Union[device, str, None]] = None,
+        device: Optional[Union[Device, str, None]] = None,
         pin_memory: Optional[bool] = False,
         requires_grad: Optional[bool] = False,
     ) -> Tensor:
@@ -2489,7 +2492,7 @@ class Tensor(_Torch_Tensor):
         *,
         dtype: Optional[pi_dtype] = None,
         layout: Optional[layout] = None,
-        device: Optional[Union[device, str, None]] = None,
+        device: Optional[Union[Device, str, None]] = None,
         pin_memory: Optional[bool] = False,
         requires_grad: Optional[bool] = False,
     ) -> Tensor:
@@ -2502,7 +2505,7 @@ class Tensor(_Torch_Tensor):
         *,
         dtype: Optional[pi_dtype] = None,
         layout: Optional[layout] = None,
-        device: Optional[Union[device, str, None]] = None,
+        device: Optional[Union[Device, str, None]] = None,
         pin_memory: Optional[bool] = False,
         requires_grad: Optional[bool] = False,
     ) -> Tensor:
@@ -2525,7 +2528,7 @@ class Tensor(_Torch_Tensor):
         *,
         dtype: Optional[pi_dtype] = None,
         layout: Optional[layout] = None,
-        device: Optional[Union[device, str, None]] = None,
+        device: Optional[Union[Device, str, None]] = None,
         pin_memory: Optional[bool] = False,
         requires_grad: Optional[bool] = False,
     ) -> Tensor:
@@ -2537,7 +2540,7 @@ class Tensor(_Torch_Tensor):
         *size: int,
         dtype: Optional[pi_dtype] = None,
         layout: Optional[layout] = None,
-        device: Optional[Union[device, str, None]] = None,
+        device: Optional[Union[Device, str, None]] = None,
         pin_memory: Optional[bool] = False,
         requires_grad: Optional[bool] = False,
     ) -> Tensor:
@@ -2559,7 +2562,7 @@ class Tensor(_Torch_Tensor):
         *,
         dtype: Optional[pi_dtype] = None,
         layout: Optional[layout] = None,
-        device: Optional[Union[device, str, None]] = None,
+        device: Optional[Union[Device, str, None]] = None,
         pin_memory: Optional[bool] = False,
         requires_grad: Optional[bool] = False,
     ) -> Tensor:
@@ -2573,7 +2576,7 @@ class Tensor(_Torch_Tensor):
         *size: int,
         dtype: Optional[pi_dtype] = None,
         layout: Optional[layout] = None,
-        device: Optional[Union[device, str, None]] = None,
+        device: Optional[Union[Device, str, None]] = None,
         pin_memory: Optional[bool] = False,
         requires_grad: Optional[bool] = False,
     ) -> Tensor:
@@ -2648,7 +2651,7 @@ class Tensor(_Torch_Tensor):
         return pi.permute(self, dims)
 
     def pin_memory(
-        self: Tensor, device: Optional[Union[device, str, None]] = None
+        self: Tensor, device: Optional[Union[Device, str, None]] = None
     ) -> Tensor:
         raise NotImplementedError("pin_memory")
 
@@ -3415,7 +3418,7 @@ class Tensor(_Torch_Tensor):
     @dispatch
     def to(
         self: Tensor,
-        device: Optional[Union[device, str]] = None,
+        device: Optional[Union[Device, str]] = None,
         dtype: Optional[pi_dtype] = None,
         non_blocking: bool = False,
         copy: bool = False,
@@ -3710,13 +3713,15 @@ def _np_wrapper(*size: Tuple[int, ...], **kwargs):
     dtype = kwargs.get("dtype", None)
     # this is hella stupid
     try:
-        if dtype is not None:
+        if dtype is not None and factory is not np.random.rand:
             res = factory(size, dtype=dtype.to_np_type())
         else:
             res = factory(size)
     except TypeError as e:
-        assert str(e) == "'tuple' object cannot be interpreted as an integer", str(e)
-        if dtype is not None:
+        assert re.match(
+            "'(tuple|list)' object cannot be interpreted as an integer", str(e)
+        ), str(e)
+        if dtype is not None and factory is not np.random.rand:
             res = factory(*size, dtype=dtype.to_np_type())
         else:
             res = factory(*size)
@@ -3749,16 +3754,6 @@ def clone(x: Tensor, **kwargs):
     return x
 
 
-def torch_cast(x: Tensor, dtype: pi_dtype):
-    assert is_a_Torch_ValueTensorType(x.type), f"x should be a Tensor but is {type(x)}"
-    return Tensor(torch_dialect.AtenToDtypeOp(x, dtype.value, False, False, None))
-
-
-def ScalarImplicit(x: Tensor):
-    assert is_a_Torch_ValueTensorType(x.type), f"x should be a Tensor but is {type(x)}"
-    return Tensor(torch_dialect.AtenScalarImplicitOp(x))
-
-
 __all__ = [
     "from_numpy",
     "empty",
@@ -3771,5 +3766,4 @@ __all__ = [
     "Tensor",
     "LongTensor",
     "zeros",
-    "ScalarImplicit",
 ]

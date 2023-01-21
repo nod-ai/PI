@@ -66,6 +66,7 @@ class _NormBase(Module):
             )
             self.running_mean: Optional[Tensor]
             self.running_var: Optional[Tensor]
+            factory_kwargs["optional"] = True
             self.register_buffer(
                 "num_batches_tracked",
                 UninitializedBuffer(
@@ -253,7 +254,7 @@ class _BatchNorm(_NormBase):
 
 class BatchNorm1d(_BatchNorm):
     def _check_input_dim(self, input):
-        if input.dim() != 2 and input.dim() != 3:
+        if len(input.sizes) != 2 and len(input.sizes) != 3:
             raise ValueError(
                 "expected 2D or 3D input (got {}D input)".format(input.dim())
             )
@@ -272,7 +273,7 @@ class BatchNorm1d(_BatchNorm):
 
 class BatchNorm2d(_BatchNorm):
     def _check_input_dim(self, input):
-        if input.dim() != 4:
+        if len(input.sizes) != 4:
             raise ValueError("expected 4D input (got {}D input)".format(input.dim()))
 
 
@@ -287,7 +288,7 @@ class BatchNorm2d(_BatchNorm):
 
 class BatchNorm3d(_BatchNorm):
     def _check_input_dim(self, input):
-        if input.dim() != 5:
+        if len(input.sizes) != 5:
             raise ValueError("expected 5D input (got {}D input)".format(input.dim()))
 
 

@@ -1,149 +1,48 @@
 import argparse
+import inspect
+import re
 import tempfile
 import warnings
 from collections import Counter
+from dataclasses import dataclass
 from pathlib import Path
 from textwrap import dedent
-from typing import List, Callable
+from typing import List, Any, Union
+import black
+import torch_ods_type_predicates
 
 from torch_mlir.dialects.torch.importer.jit_ir.build_tools.registry import (
     JitOperator,
     Registry,
     _get_default_value,
-    _rename_python_keyword_parameter_name,
 )
 from torch_mlir.dialects.torch.importer.jit_ir.build_tools.utils import TextEmitter
-
-# from scripts.generate_stuff.generate_pytorch_wrappers import (
-#     tensor_method_signatures_dict,
-#     function_signatures_dict,
-# )
+from torch_mlir.dialects import torch as torch_dialect
 
 
 ALL_OPS = []
 DEBUG = False
-BLACKLIST = {"dtype", "PrimUncheckedCastOp", "device"}
-SUBS = {"linalg_vector_norm": "vector_norm"}
-UNIQUE_OPS = []
-
-TORCH_TYPE_TO_ODS_TYPE = {
-    "Any": "Torch_AnyType",
-    "Device": "Torch_DeviceType",
-    "Device?": "Torch_DeviceType",
-    "Dict": "Torch_DictType",
-    "Dict(str, t)": "Torch_DictType",
-    "Generator": "Torch_GeneratorType",
-    "Generator?": "Torch_GeneratorType",
-    "Scalar": "TorchScalarType",
-    "Scalar?": "TorchScalarType",
-    "Tensor": "Torch_ValueTensorType",
-    "Tensor?": "Torch_ValueTensorType",
-    "Tensor?[]": "TorchListOfValueTensorType",
-    "Tensor[]": "TorchListOfValueTensorType",
-    "__torch__.torch.classes.quantized.LinearPackedParamsBase": "Torch_LinearParamsType",
-    "bool": "Torch_BoolType",
-    "bool?": "Torch_BoolType",
-    "bool[]": "TorchListOfTorchBoolType",
-    "float": "Torch_FloatType",
-    "float?": "Torch_FloatType",
-    "float[]": "TorchListOfTorchFloatType",
-    "float[]?": "TorchListOfTorchFloatType",
-    "int": "Torch_IntType",
-    "int?": "Torch_IntType",
-    "int[]": "TorchListOfTorchIntType",
-    "int[]?": "TorchListOfTorchIntType",
-    "str": "Torch_StringType",
-    "str?": "Torch_StringType",
-    "str[]": "TorchListOfTorchStringType",
-    "t": "Torch_ValueTensorType",
-    "t1": "Torch_ValueTensorType",
-    "t2": "Torch_ValueTensorType",
-    "t[]": "TorchListOfValueTensorType",
-}
-
-EXISTING = {
-    "ConstantFloatOp",
-    "ConstantIntOp",
-    "ConstantStrOp",
-    "ConstantBoolOp",
-    "PrimListConstructOp",
-    "PrimUncheckedCastOp",
-    "PrimTupleConstructOp",
-    "AtenScalarImplicitOp",
+BLACKLIST = {
+    "QuantizedLinearOp",
     "PrimsSqrtOp",
-}
-
-SCALAR_TYPES = {
-    "int",
-    "bool",
+    "dtype",
+    "PrimUncheckedCastOp",
+    "device",
+    "ScalarImplicit",
+    "unchecked_cast",
+    "TupleIndex",
+    "Uninitialized",
+    "_set_item",
+    "__getitem__",
+    "__is__",
+    "__isnot__",
+    "append",
+    "get",
+    "insert",
     "str",
-    "float",
-    "Any",
-    "Device",
-    "Scalar",
 }
-
-
-def _get_function_signature(
-    self,
-    function_kind: str,
-    parameter_decl_builder: Callable[["SIG_ATTR_TYPE"], str],
-    ret_decl_builder: Callable[["SIG_ATTR_TYPE"], str],
-) -> str:
-    def_name = self.unqualified_name
-    parameter_decls = list(map(parameter_decl_builder, self.arguments))
-    ret_decls = list(map(ret_decl_builder, self.returns))
-    parameters = ", ".join(parameter_decls)
-    result = ", ".join(ret_decls)
-    if len(ret_decls) >= 2:
-        result = f"Tuple[{result}]"
-    elif len(ret_decls) == 0:
-        result = "None"
-    else:
-        # one return
-        pass
-
-    def_name = SUBS.get(def_name, def_name)
-    return f"def {def_name}({parameters}) -> {result}:"  # return f"def {def_name}({parameters}):"
-
-
-#         _Torch_AnyType,
-#         _Torch_BoolType,
-#         _Torch_DeviceType,
-#         _Torch_FloatType,
-#         _Torch_IntType,
-#         _Torch_NumberType,
-#         _Torch_StringType,
-#         _Torch_ValueTensorType,
-
-
-# pyt_type is reversed
-def convert_pytorch_type_to_typehints(pyt_type: str, ret=False):
-    """notice that pytorch types can be read off right to left"""
-    pyt_type_subs = {
-        "t2": "Tensor",
-        "t1": "Tensor",
-        "t": "Tensor",
-        "Dict(str, t)": "Dict[str, Tensor]",
-        "device": "Device",
-        "Scalar": "TorchNumber",
-        "bool": "TorchBool",
-        "float": "TorchFloat",
-        "int": "TorchInt",
-        "str": "TorchString",
-    }
-
-    if pyt_type.endswith("?"):
-        nested, interior = convert_pytorch_type_to_typehints(pyt_type[:-1], ret)
-        return f"Optional[{nested}]", interior
-    elif pyt_type.endswith("[]"):
-        nested, interior = convert_pytorch_type_to_typehints(pyt_type[:-2], ret)
-        return f"List[{nested}]", interior
-    else:
-        interior = pyt_type_subs.get(pyt_type, pyt_type)
-        if not ret and interior != "TorchNumber" and "Torch" in interior:
-            interior = f"Union[{interior}, {pyt_type}]"
-        return interior, interior
+OP_NAME_SUBS = {"linalg_vector_norm": "vector_norm"}
+UNIQUE_OPS = []
 
 
 def py_reserved_keywords(k):
@@ -155,87 +54,89 @@ def py_reserved_keywords(k):
     return subs.get(k, k)
 
 
-def get_wrapper_function_signature(operator):
-    def parameter_decl_builder(arg: "SIG_ATTR_TYPE") -> str:
-        pytype = convert_pytorch_type_to_typehints(arg["type"])[0]
-        default = _get_default_value(arg)
-        if arg["name"] == "out":
-            default = " = None"
-            pytype = f"Optional[{pytype}]"
-        if "dtype" in arg["name"]:
-            if arg["type"][-1] == "?":
-                default = " = None"
-                pytype = f"Optional[pi_dtype]"
-            else:
-                default = ""
-                pytype = f"pi_dtype"
-        if "layout" in arg["name"]:
-            if arg["type"][-1] == "?":
-                default = " = None"
-                pytype = f"Optional[pi_layout]"
-            else:
-                default = ""
-                pytype = f"pi_layout"
-        if "memory_format" in arg["name"]:
-            if arg["type"][-1] == "?":
-                default = " = None"
-                pytype = f"Optional[pi_memory_format]"
-            else:
-                default = ""
-                pytype = f"pi_memory_format"
-        parameter_name = py_reserved_keywords(
-            _rename_python_keyword_parameter_name(arg["name"])
-        )
-        return f"{parameter_name}: {pytype}{default}"
+from torch_mlir.dialects.torch.importer.jit_ir.build_tools.torch_ods_gen import (
+    get_ods_type,
+)
 
-    def ret_decl_builder(arg: "SIG_ATTR_TYPE") -> str:
-        ret = convert_pytorch_type_to_typehints(arg["type"], ret=True)[0]
-        if not ret:
-            ret = "None"
-        return ret
 
-    return _get_function_signature(
-        operator, "", parameter_decl_builder, ret_decl_builder
+@dataclass
+class PyTorchType:
+    name: str
+    optional_el: bool
+    list: bool
+    optional: bool
+    original: str
+
+    def ods_type(self):
+        return get_ods_type(self.original)
+
+
+def get_full_pytorch_type(arg):
+    pytorch_type = arg["type"]
+    if pytorch_type == "Tensor?[]":
+        return PyTorchType("Tensor", True, False, False, pytorch_type)
+    assert "?[]" not in pytorch_type
+    full_type = re.match(
+        r"(?P<name>\w+)(?P<list>\[\])?(?P<optional>\?)?", pytorch_type
+    ).groupdict()
+    return PyTorchType(
+        full_type["name"],
+        False,
+        full_type["list"] is not None,
+        full_type["optional"] is not None,
+        pytorch_type,
     )
 
 
-def convert_pytorch_type_to_torch_dialect_op(arg_name, pyt_type, p_td, emitter_td):
-    _, interior = convert_pytorch_type_to_typehints(pyt_type)
-
-    if pyt_type.endswith("?"):
-        p_td(f"if {arg_name} is not None:")
-        with emitter_td.indent():
-            convert_pytorch_type_to_torch_dialect_op(
-                arg_name, pyt_type[:-1], p_td, emitter_td
-            )
-        p_td(f"else:")
-        with emitter_td.indent():
-            p_td(f"{arg_name} = torch_dialect.ConstantNoneOp()")
-        p_td("")
-    elif pyt_type.endswith("[]"):
-        if interior == "Tensor":
-            pass  # p_td(f"{arg_name} = get_op_results_or_values({arg_name})")
-        else:
-            op = convert_pytorch_type_to_torch_dialect_op(
-                None, pyt_type[:-2], p_td, emitter_td
-            )
-            assert op is not None
-            p_td(
-                f"{arg_name} = [{op}(a) if not is_mlir_value(a) else a for a in {arg_name}]"
-            )
-        p_td(f"{arg_name} = torch_dialect.PrimListConstructOp({arg_name})")
+def pretty_print_type_hint(hint: Any) -> str:
+    if isinstance(hint, type) and not str(type(hint)) == "<class 'typing.GenericMeta'>":
+        hint_str = hint.__name__
     else:
-        if interior in {"int", "bool", "float", "Number", "str", "Device"}:
-            op = f"torch_dialect.Constant{interior.capitalize()}Op"
-            if arg_name is not None:
-                p_td(f"{arg_name} = {op}({arg_name})")
-            else:
-                return op
-        else:
-            if arg_name is not None:
-                p_td(
-                    f"assert is_mlir_value({arg_name}), f'`{arg_name}` should be a Value but is {{type({arg_name})}}'"
-                )
+        hint_str = str(hint)
+    return (
+        hint_str.replace("typing.", "")
+        .replace("NoneType", "None")
+        .replace("torch_ods_type_predicates.", "")
+    )
+
+
+def _pytype_to_fn_pytype_common(arg) -> str:
+    full_pytorch_type = get_full_pytorch_type(arg)
+    ods_type_annot = getattr(torch_ods_type_predicates, full_pytorch_type.ods_type())
+    pretty_type_annot = pretty_print_type_hint(ods_type_annot)
+    if match := re.findall(r"(dtype|layout|memory_format)", arg["name"]):
+        match = match[0]
+        pretty_type_annot = pretty_type_annot.replace("int", f"int, pi_{match}")
+    return pretty_type_annot
+
+
+def get_wrapper_function_signature(op):
+    def parameter_decl_builder(arg) -> str:
+        pytype = _pytype_to_fn_pytype_common(arg)
+        default = _get_default_value(arg)
+        parameter_name = py_reserved_keywords(arg["name"])
+        if parameter_name == "out":
+            assert "alias_info" in arg
+            assert default == ""
+            default = "= None"
+        return f"{parameter_name}: {pytype}{default}"
+
+    def ret_decl_builder(arg) -> str:
+        ret_type = _pytype_to_fn_pytype_common(arg)
+        return ret_type
+
+    def_name = OP_NAME_SUBS.get(op.unqualified_name, op.unqualified_name)
+    parameter_decls = list(map(parameter_decl_builder, op.arguments))
+    ret_decls = list(map(ret_decl_builder, op.returns))
+    parameters = ", ".join(parameter_decls)
+    result = ", ".join(ret_decls)
+    if len(ret_decls) >= 2:
+        result = f"Tuple[{result}]"
+
+    if result == "":
+        result = None
+
+    return f"def {def_name}({parameters}) -> {result}:"
 
 
 def emit_torch_wrappers(
@@ -246,86 +147,157 @@ def emit_torch_wrappers(
     counts = Counter(all)
     stub_td = lambda *args: stubs_emitter_td.print(*args)
     for operator in operators:
-        args = {
-            py_reserved_keywords(arg["name"]): convert_pytorch_type_to_typehints(
-                arg["type"]
-            )[0]
-            for arg in operator.arguments
-        }
-        op_name, cpp_class_name = operator.get_mlir_names()
         if operator.overload_name:
             stub_td(f"# overload {operator.overload_name}")
         if counts[operator.unqualified_name] > 1:
             stub_td("@dispatch")
+
+        _op_name, cpp_class_name = operator.get_mlir_names()
         stub_td(get_wrapper_function_signature(operator))
         with stubs_emitter_td.indent():
+            stub_td("assert check_argument_types()")
+            args = {}
             for arg in operator.arguments:
                 arg_name = py_reserved_keywords(arg["name"])
-                if "dtype" in arg_name:
-                    stub_td(f"if {arg_name} is not None:")
-                    with stubs_emitter_td.indent():
-                        stub_td(
-                            f"assert isinstance({arg_name}, pi_dtype), f'expected pi_dtype, got {{type({arg_name})}}'"
-                        )
-                        stub_td(f"{arg_name} = {arg_name}.value")
-                if "layout" in arg_name:
-                    stub_td(f"if {arg_name} is not None:")
-                    with stubs_emitter_td.indent():
-                        stub_td(
-                            f"assert isinstance({arg_name}, pi_layout), f'expected pi_layout, got {{type({arg_name})}}'"
-                        )
-                        stub_td(f"{arg_name} = {arg_name}.value")
-                if "memory_format" in arg_name:
-                    stub_td(f"if {arg_name} is not None:")
-                    with stubs_emitter_td.indent():
-                        stub_td(
-                            f"assert isinstance({arg_name}, pi_memory_format), f'expected pi_memory_format, got {{type({arg_name})}}'"
-                        )
-                        stub_td(f"{arg_name} = {arg_name}.value")
-                if arg["type"] == "Tensor":
-                    stub_td(
-                        f"assert is_a_torch_tensor({arg_name}), f'`{arg_name}` should be a Tensor but is {{type({arg_name})}}'"
-                    )
-                elif arg["type"] == "Tensor?":
-                    stub_td(f"if {arg_name} is not None:")
-                    with stubs_emitter_td.indent():
-                        stub_td(
-                            f"assert is_a_torch_tensor({arg_name}), f'`{arg_name}` should be a Tensor but is {{type({arg_name})}}'"
-                        )
-                elif arg["type"] in {"Tensor[]", "Tensor?[]"}:
-                    stub_td(
-                        f"assert builtins.all(is_a_torch_tensor(t) or t is None for t in {arg_name})"
-                    )
-                elif arg["type"] == "int[]":
-                    stub_td(f"if not isinstance({arg_name}, (tuple, builtins.list)):")
-                    with stubs_emitter_td.indent():
-                        stub_td(f"{arg_name} = [{arg_name}]")
-                elif arg["type"] == "int[]?":
-                    stub_td(
-                        f"if {arg_name} is not None and not isinstance({arg_name}, (tuple, builtins.list)):"
-                    )
-                    with stubs_emitter_td.indent():
-                        stub_td(f"{arg_name} = [{arg_name}]")
+                arg_type = _pytype_to_fn_pytype_common(arg)
+                pytorch_type = arg["type"]
+                pytype = arg["pytype"]
+                args[arg_name] = arg_type
 
-            if DEBUG:
-                stub_td(f"print('running {get_wrapper_function_signature(operator)}')")
-                stub_td(f"return")
+                if pytorch_type.startswith("Scalar"):
+                    stub_td(
+                        f"if isinstance({arg_name}, (builtins.int, builtins.float)):"
+                    )
+                    with stubs_emitter_td.indent():
+                        stub_td(
+                            f"{arg_name} = torch_dialect.ConstantNumberOp({arg_name}).result"
+                        )
+
+                if "device" in arg_name:
+                    stub_td(f"if isinstance({arg_name}, str):")
+                    with stubs_emitter_td.indent():
+                        stub_td(
+                            f"{arg_name} = torch_dialect.ConstantStrOp({arg_name}).result"
+                        )
+
+                if match := re.findall(r"(dtype|layout|memory_format)", arg_name):
+                    match = match[0]
+                    stub_td(f"if isinstance({arg_name}, pi_{match}):")
+                    with stubs_emitter_td.indent():
+                        stub_td(f"{arg_name} = {arg_name}.value")
+
+                if match := re.findall(r"^(bool|int|float|str)(\[\])?", pytorch_type):
+                    match = match[0]
+                    el_type, is_list = match
+                    if is_list:
+                        # torch_dialect.PrimListConstructOp(TorchListOfTorchBool(), [t, tt]).result
+                        stub_td(
+                            f"if isinstance({arg_name}, (builtins.list, builtins.tuple)) and builtins.len({arg_name}):"
+                        )
+                        with stubs_emitter_td.indent():
+                            stub_td(f"{arg_name} = builtins.list({arg_name})")
+                            stub_td(f"for i, a in enumerate({arg_name}):")
+                            with stubs_emitter_td.indent():
+                                stub_td(
+                                    f"if not isinstance(a, builtins.{el_type}): assert isinstance(a, Torch_Value), f'wrong type: {{a}}; should be {el_type}'"
+                                )
+                                stub_td(
+                                    f"else:"
+                                )
+                                with stubs_emitter_td.indent():
+                                    stub_td(f"{arg_name}[i] = torch_dialect.Constant{el_type.capitalize()}Op(a).result")
+
+                            if el_type == "str":
+                                el_type = "string"
+
+                            stub_td(
+                                f"ls_type = Torch_List.of(Torch_{el_type.capitalize()}Type())"
+                            )
+                            stub_td(
+                                f"{arg_name} = torch_dialect.PrimListConstructOp(ls_type, {arg_name}).result"
+                            )
+                    else:
+                        stub_td(f"if isinstance({arg_name}, builtins.{el_type}):")
+                        with stubs_emitter_td.indent():
+                            stub_td(
+                                f"{arg_name} = torch_dialect.Constant{el_type.capitalize()}Op({arg_name}).result"
+                            )
+
+                if pytype.startswith("Optional"):
+                    stub_td(f"if {arg_name} is None:")
+                    with stubs_emitter_td.indent():
+                        stub_td(f"{arg_name} = torch_dialect.ConstantNoneOp().result")
+
+                if pytorch_type == "Tensor[]":
+                    stub_td(
+                        f"if isinstance({arg_name}, (builtins.list, builtins.tuple)) and builtins.len({arg_name}):"
+                    )
+                    with stubs_emitter_td.indent():
+                        stub_td(
+                            f"assert builtins.all([isinstance(a, Tensor) for a in {arg_name}])"
+                        )
+                        stub_td(
+                            f"ls_type = Torch_List.of(Torch_ValueTensorType())"
+                        )
+                        stub_td(
+                            f"{arg_name} = torch_dialect.PrimListConstructOp(ls_type, {arg_name}).result"
+                        )
+
+                if pytorch_type == "Tensor?[]":
+                    stub_td(f"{arg_name} = builtins.list({arg_name})")
+                    stub_td(f"for i, a in enumerate({arg_name}):")
+                    with stubs_emitter_td.indent():
+                        stub_td(
+                            f"if a is not None: assert isinstance(a, Tensor)"
+                        )
+                        stub_td(
+                            f"else:"
+                        )
+                        with stubs_emitter_td.indent():
+                            stub_td(f"{arg_name}[i] = torch_dialect.ConstantNoneOp().result")
+
+                    stub_td(
+                        f"{arg_name} = torch_dialect.PrimListConstructOp(TorchListOfOptionalTensorType(), {arg_name}).result"
+                    )
+
+            init_lines = inspect.getsource(
+                getattr(torch_dialect, cpp_class_name).__init__
+            )
+            if not "InferTypeOpInterface" in init_lines and operator.returns:
+                res_type_names = []
+                for i, r in enumerate(operator.returns):
+                    if r["pytype"] == 'List[t]':
+                        res_type = "Torch_List.of(Torch_AnyType())"
+                    elif r["pytype"] == 'List[str]':
+                        res_type = "Torch_List.of(Torch_StringType())"
+                    elif r["pytype"] == 'List[int]':
+                        res_type = "Torch_List.of(Torch_IntType())"
+                    else:
+                        res_type = _pytype_to_fn_pytype_common(r)
+                        if res_type == "Tensor":
+                            res_type = "Torch_ValueTensorType()"
+                        elif res_type == "TorchNumber":
+                            res_type = "Torch_NumberType()"
+                        elif "Union" in res_type or "Sequence" in res_type:
+                            raise Exception(res_type, r["pytype"])
+                    res_type_name = f"result{i}_type"
+                    res_type_names.append(res_type_name)
+                    stub_td(f"{res_type_name} = {res_type}")
+                call_str = f'torch_dialect.{cpp_class_name}({", ".join(res_type_names)}, {", ".join([f"{k}" for k, _v in args.items()])})'
             else:
                 call_str = f'torch_dialect.{cpp_class_name}({", ".join([f"{k}" for k, _v in args.items()])})'
-                if len(operator.returns) == 0:
-                    ret = call_str
-                elif len(operator.returns) == 1:
-                    if operator.returns[0]["pytype"] == "Tensor":
-                        ret = f"return Tensor({call_str})"
-                    else:
-                        ret = convert_pytorch_type_to_typehints(
-                            operator.returns[0]["type"], ret=True
-                        )[0]
-                        ret = f"return {ret}({call_str}.result)"
+
+            if len(operator.returns) == 0:
+                ret = call_str
+            elif len(operator.returns) == 1:
+                if operator.returns[0]["pytype"] == "Tensor":
+                    ret = f"return Tensor({call_str})"
                 else:
-                    stub_td(f"op_results = get_op_results_or_values({call_str})")
-                    ret = f"return tuple([Tensor(o) if is_a_torch_tensor(o) else o for o in op_results])"
-                stub_td(f"{ret}")
+                    ret = f"return Torch_Value({call_str}.result)"
+            else:
+                stub_td(f"op_results = get_op_results_or_values({call_str})")
+                ret = f"return tuple([Tensor(o) for o in op_results])"
+            stub_td(f"{ret}")
             stub_td("\n")
 
 
@@ -338,27 +310,54 @@ def generate_torch_wrappers(torch_ops_ext_dir: Path):
             dedent(
                 f"""\
             import builtins
-            from typing import List, Optional, Any, Dict, Tuple, Union
+            from typing import List, Optional, Any, Dict, Tuple, Union, Sequence
 
-            from ._tensor import Tensor, ScalarImplicit
+            from ._tensor import Tensor
             from .types_ import (
-                is_a_torch_tensor,
-                Device,
-                Generator,
                 dtype as pi_dtype,
                 layout as pi_layout,
                 memory_format as pi_memory_format,
-                TorchBool,
-                TorchInt,
-                TorchFloat,
-                TorchNumber,
-                TorchString,
+                Torch_Value,
+                Torch_List,
+                Torch_Dict,
+            )
+            # noinspection PyUnresolvedReferences
+            from pi._mlir import (
+                TorchListOfTorchBoolType,
+                TorchListOfTorchFloatType,
+                TorchListOfTorchIntType,
+                TorchListOfTorchStringType,
+                TorchListOfValueTensorType,
+                
+                TorchListOfOptionalTensorType,
+                
+                TorchOptionalBoolType,
+                TorchOptionalFloatType,
+                TorchOptionalIntType,
+                TorchOptionalStringType,
+                TorchOptionalDeviceType,
+                TorchOptionalGeneratorType,
+                TorchOptionalValueTensorType,
+                
+                Torch_AnyType,
+                Torch_BoolType,
+                Torch_DeviceType,
+                Torch_FloatType,
+                Torch_IntType,
+                Torch_NumberType,
+                Torch_StringType,
+                Torch_ValueTensorType,
+                Torch_GeneratorType
             )
             from .dispatcher import dispatch
             from torch_mlir.dialects import torch as torch_dialect
             from torch_mlir.dialects._ods_common import (
                 get_op_results_or_values,
             )
+            from typeguard import check_argument_types
+            
+            TorchNumber = Union[Torch_Value[Torch_IntType], Torch_Value[Torch_FloatType], int, float]
+            
             """
             )
         )
@@ -371,12 +370,14 @@ def generate_torch_wrappers(torch_ops_ext_dir: Path):
         emit_torch_wrappers(TORCH_WRAPPERS, ALL, stubs_emitter_td)
         stubs_emitter_td.print("\n\n")
         all = [
-            f'"{SUBS.get(t.unqualified_name, t.unqualified_name)}"'
+            f'"{OP_NAME_SUBS.get(t.unqualified_name, t.unqualified_name)}"'
             for t in TORCH_WRAPPERS
         ]
-        stubs_emitter_td.print(
-            f"__all__ = ['ScalarImplicit', {', '.join(sorted(set(all)))}]"
-        )
+        stubs_emitter_td.print(f"__all__ = [{', '.join(sorted(set(all)))}]")
+
+    black.format_file_in_place(
+        torch_wrappers_fp, fast=False, mode=black.Mode(), write_back=black.WriteBack.YES
+    )
 
 
 def raw_emit_op(
@@ -387,29 +388,15 @@ def raw_emit_op(
     has_folder: bool,
     has_canonicalizer: bool,
 ):
-    p_td = lambda *args: emitter_td.print(*args)
     op_name, cpp_class_name = operator.get_mlir_names()
-    if cpp_class_name in {"QuantizedLinearOp"} | EXISTING:
+    if cpp_class_name in BLACKLIST:
         return
     if operator.unqualified_name == "torch.quantized.linear":
         return
 
-    # Generate unique result names for ops with nameless results
-    multiple_results = len(operator.returns) > 1
-
     if operator.is_vararg:
         warnings.warn(f"{cpp_class_name} is vararg; skipping")
         return
-    else:
-        args = {}
-        for arg in operator.arguments:
-            arg_name = py_reserved_keywords(arg["name"])
-            arg_pytorch_type = arg["type"]
-            arg_type_hint = convert_pytorch_type_to_typehints(arg["type"])[0]
-            args[arg_name] = arg_type_hint
-
-    def generic_result_name(i):
-        return "result" + (str(i) if multiple_results else "")
 
     if operator.is_varret:
         warnings.warn(f"{cpp_class_name} is vararg; skipping")
@@ -417,84 +404,6 @@ def raw_emit_op(
 
     UNIQUE_OPS.append(operator)
     ALL_OPS.append(operator.unqualified_name)
-
-    # print(operator)
-    # print(f"{has_folder=}, {has_canonicalizer=}")
-    #
-    # p_td(f"class {cpp_class_name}:")
-    #
-    # with emitter_td.indent():
-    #     # generate __init__ args
-    #     args_str = ", ".join([f"{k}: {v}" for k, v in args.items()])
-    #     if args_str:
-    #         args_str = f" {args_str},"
-    #     p_td(f"def __init__(self,{args_str} *, loc=None, ip=None): pass")
-    #
-    #     return
-    #
-    #     with emitter_td.indent():
-    #         # check if we need torch_Constant* ops
-    #         if any(
-    #             [
-    #                 convert_pytorch_type_to_typehints(arg["type"])[1] != "Tensor"
-    #                 or "?" in arg["type"]
-    #                 or "[]" in arg["type"]
-    #                 for arg in operator.arguments
-    #             ]
-    #         ):
-    #             p_td(f"from torch_mlir.dialects import torch as torch_dialect\n\n")
-    #
-    #         arg_names = []
-    #         for arg in operator.arguments:
-    #             arg_name = py_reserved_keywords(arg["name"])
-    #             arg_pytorch_type = arg["type"]
-    #             arg_pytype = arg["pytype"]
-    #             # we check for python None
-    #             ods_type = TORCH_TYPE_TO_ODS_TYPE[arg_pytorch_type]
-    #             p_td(f"if not is_mlir_value({arg_name}):")
-    #             with emitter_td.indent():
-    #                 convert_pytorch_type_to_torch_dialect_op(
-    #                     arg_name, arg_pytorch_type, p_td, emitter_td
-    #                 )
-    #             p_td(f"else:")
-    #             with emitter_td.indent():
-    #                 p_td(f"{arg_name} = get_op_result_or_value({arg_name})")
-    #                 p_td(
-    #                     f"""assert is_a_{ods_type}({arg_name}.type), f'`{arg_name}` should be a {ods_type} but is {{type({arg_name})}}'"""
-    #                 )
-    #
-    #                 p_td("\n")
-    #
-    #             arg_names.append(arg_name)
-    #
-    #         ret_type_names = []
-    #         for e, ret in enumerate(operator.returns):
-    #             ret_name = py_reserved_keywords(ret["name"])
-    #             ret_pytorch_type = ret["type"]
-    #             # we want to check for Scalar types but ScalarType isn't a real type (it's NumberType)
-    #             ods_type = TORCH_TYPE_TO_ODS_TYPE[ret_pytorch_type].replace(
-    #                 "Scalar", "_Number"
-    #             )
-    #             if "List" in ods_type or "Tensor" in ods_type:
-    #                 name = f"{ret_name or generic_result_name(e)}"
-    #                 p_td(f"""{name}_type = _{ods_type}()""")
-    #                 ret_type_names.append(f"{name}_type")
-    #
-    #         if ret_type_names:
-    #             ret_type_names = f"{', '.join(ret_type_names)}, "
-    #         else:
-    #             ret_type_names = ""
-    #
-    #         if arg_names:
-    #             arg_names = f"{', '.join(arg_names)}, "
-    #         else:
-    #             arg_names = ""
-    #
-    #         p_td(
-    #             f"super({cpp_class_name}, self).__init__({ret_type_names}{arg_names}loc=loc, ip=ip)"
-    #         )
-    #         p_td("\n")
-    #     p_td("\n")
 
 
 import torch_mlir.dialects.torch.importer.jit_ir.build_tools.torch_ods_gen
@@ -506,96 +415,24 @@ torch_mlir.dialects.torch.importer.jit_ir.build_tools.torch_ods_gen.raw_emit_op 
 from torch_mlir.dialects.torch.importer.jit_ir.build_tools.torch_ods_gen import emit_ops
 
 
-def generate_exts(torch_ops_ext_dir: Path):
-    torch_ops_ext_fp = torch_ops_ext_dir / "_torch_ops_ext.py"
+def generate_exts():
     registry = Registry.load()
-    with tempfile.NamedTemporaryFile()   as f_td:
+    with open("JitOperatorRegistry.txt", "w") as f:
+        for op in registry.by_unique_key.values():
+            print(op, file=f)
+
+    with tempfile.NamedTemporaryFile() as f_td:
         emitter_td = TextEmitter(f_td)
-        # emitter_td._INDENT = "    "
-        # emitter_td.print(
-        #     dedent(
-        #         f"""\
-        # try:
-        #     from torch_mlir.ir import *
-        #     from torch_mlir.ir import Type as MLIRType
-        #     from torch_mlir.dialects._ods_common import (
-        #         get_default_loc_context,
-        #         get_op_result_or_value,
-        #         get_op_results_or_values,
-        #     )
-        #     from ._torch_ops_ext_custom import *
-        #     from pi._mlir import (
-        #         is_a_TorchListOfTorchBoolType,
-        #         is_a_TorchListOfTorchIntType,
-        #         is_a_TorchListOfTorchStringType,
-        #         is_a_TorchListOfValueTensorType,
-        #         _TorchListOfTorchBoolType,
-        #         _TorchListOfTorchFloatType,
-        #         _TorchListOfTorchIntType,
-        #         _TorchListOfTorchStringType,
-        #         _TorchListOfValueTensorType,
-        #         is_a_TorchScalarType,
-        #         is_a_Torch_AnyType,
-        #         is_a_Torch_BoolType,
-        #         is_a_Torch_DeviceType,
-        #         is_a_Torch_DictType,
-        #         is_a_Torch_FloatType,
-        #         is_a_Torch_GeneratorType,
-        #         is_a_Torch_IntType,
-        #         is_a_Torch_StringType,
-        #         is_a_Torch_ValueTensorType,
-        #         _Torch_AnyType,
-        #         _Torch_BoolType,
-        #         _Torch_DeviceType,
-        #         _Torch_FloatType,
-        #         _Torch_IntType,
-        #         _Torch_NumberType,
-        #         _Torch_StringType,
-        #         _Torch_ValueTensorType,
-        #         _Torch_Tensor,
-        #         is_dtype,
-        #     )
-        #     from pi.types_ import (
-        #         is_a_torch_tensor,
-        #         Device,
-        #         Generator,
-        #         dtype as pi_dtype,
-        #         layout as pi_layout,
-        #         memory_format as pi_memory_format,
-        #         TorchBool,
-        #         TorchInt,
-        #         TorchFloat,
-        #         TorchNumber,
-        #         TorchString,
-        #     )
-        #
-        # except ImportError as e:
-        #     raise RuntimeError("Error loading imports from extension module") from e
-        #
-        # from numbers import Number
-        # from typing import List, Optional, Any, Generator, Dict, Union
-        # Device = str
-        # Tensor = _Torch_Tensor
-        #
-        # """
-        #     )
-        # )
         emit_ops(emitter_td, registry)
 
 
 def main(args):
-    generate_exts(args.ext_dir)
+    generate_exts()
     generate_torch_wrappers(args.wrapper_dir)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate PI wrappers")
-    parser.add_argument(
-        "--ext_dir",
-        help="directory where torch-mlir python binding extensions should be placed",
-        default="../../pi/dialects",
-        type=Path,
-    )
     parser.add_argument(
         "--wrapper_dir",
         help="directory where PyTorch wrappers should be placed",

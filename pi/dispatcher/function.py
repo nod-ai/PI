@@ -1,9 +1,12 @@
 import functools
 from textwrap import indent
-from typing import Tuple, Any, Optional, Dict, cast
+from typing import Tuple, Any, Optional, Dict
 
-
-from .operator_schemas import type_matches, create_type_hint, map_aggregate
+from typeguard import (
+    check_argument_types,
+    CallMemo,
+    TypeCheckError,
+)
 
 
 class AmbiguousLookupError(LookupError):
@@ -43,48 +46,21 @@ class Function:
         self,
         args: Tuple[Any],
         kwargs: Optional[Dict[str, Any]] = None,
-        args_types: Optional[Tuple[Any]] = None,
-        kwargs_types: Optional[Dict[str, Any]] = None,
     ):
-        candidates = []
-        for candidate_signature in self._overloads:
+        for candidate_signature, (func, _precedence) in self._overloads.items():
             try:
                 candidate_signature.bind(*args, **kwargs)
-                candidates.append(candidate_signature)
-            except TypeError as e:
+                memo = CallMemo(func, {}, args=args, kwargs=kwargs)
+                check_argument_types(memo)
+                return candidate_signature
+            except (TypeError, TypeCheckError) as e:
                 continue
-
-        if len(candidates) == 0:
-            raise NotFoundLookupError(
-                f'For function "{self._f.__name__}", '
-                f"signature {args}, {kwargs} could not be resolved."
-            )
-        elif len(candidates) == 1:
-            return candidates[0]
-        else:
-            args_types = args_types if args_types else cast(Tuple[Any], ())
-            kwargs_types = kwargs_types if kwargs_types else {}
-            for candidate_signature in self._overloads.keys():
-                sig_matches = True
-                try:
-                    bound_types = candidate_signature.bind(*args_types, **kwargs_types)
-                    for arg_name, arg_type in bound_types.arguments.items():
-                        param = candidate_signature.parameters[arg_name]
-                        sig_matches = sig_matches and type_matches(
-                            param.annotation, arg_type
-                        )
-                except TypeError as e:
-                    sig_matches = False
-                if sig_matches:
-                    return candidate_signature
 
         args = indent("\n".join(map(str, args)), "\t\t")
         kwargs = indent("\n".join(map(str, kwargs.items())), "\t\t")
-        args_types = indent("\n".join(map(str, args_types)), "\t\t")
-        kwargs_types = indent("\n".join(map(str, kwargs_types.items())), "\t\t")
-        candidates = indent("\n".join(map(str, candidates)), "\t\t")
-        raise AmbiguousLookupError(
-            f"Tried to normalize arguments to {self._f.__name__} but failed for\n args:\n{args}\n kwargs:\n{kwargs}\n args_types:\n{args_types}\n kwargs_types:\n{kwargs_types}\n tried candidates:\n{candidates}\n"
+        candidates = indent("\n".join(map(str, list(self._overloads.keys()))), "\t\t")
+        raise NotFoundLookupError(
+            f"Tried to normalize arguments to `{self._f.__name__}` but failed for\n args:\n{args}\n kwargs:\n{kwargs}\n tried candidates:\n{candidates}\n"
         )
 
     def resolve_overload(self, signature):
@@ -92,11 +68,7 @@ class Function:
         return f
 
     def __call__(self, *args, **kwargs):
-        args_types = map_aggregate(args, type)
-        assert isinstance(args_types, tuple)
-        args_types = tuple([create_type_hint(i) for i in args_types])
-        kwargs_types = {k: type(v) for k, v in kwargs.items()}
-        signature = self.resolve_signature(args, kwargs, args_types, kwargs_types)
+        signature = self.resolve_signature(args, kwargs)
         f = self.resolve_overload(signature)
         return f(*args, **kwargs)
 

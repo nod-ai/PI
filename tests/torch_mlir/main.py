@@ -123,11 +123,10 @@ def run_pi_tests(torch_mlir_linalg_module_strs):
             continue
         print(f"running {test.unique_name}")
 
-        test_module = test.program_factory()
         torch_linalg_module, torch_dialect_module = torch_mlir_linalg_module_strs[test.unique_name]
 
         try:
-            pi_mlir_module = pi_config.compile(test, test_module)
+            pi_mlir_module = pi_config.compile(test)
         except NotImplementedError as e:
             print(traceback.format_exc(-2))
             print(f"{e}")
@@ -223,11 +222,11 @@ def run_pi_tests(torch_mlir_linalg_module_strs):
         )
         == TOTAL
     )
-    assert NotImplementedErrorFAIL == 0, "missing torch_wrappers impl; you probably need to run generate_torch_mlir_extensions.py"
-    assert NotFoundLookupErrorFAIL == 0, "pytorch api changed; good luck"
     print(
         f"\n{''.join('*' * 10)}\n\n{PASS=}\n{NotImplementedErrorFAIL=}\n{NotFoundLookupErrorFAIL=}\n{AmbiguousLookupErrorFAIL=}\n{lower_to_linalg_FAIL=}\n{irFAIL=}\n{SKIP=}\nout of {TOTAL=}\n\n{''.join('*' * 10)}\n"
     )
+    assert NotImplementedErrorFAIL == 0, f"missing torch_wrappers impl; you probably need to run generate_torch_mlir_extensions.py: {NotImplementedErrorFAIL=}"
+    assert NotFoundLookupErrorFAIL == 0, f"pytorch api changed; good luck: {NotFoundLookupErrorFAIL=}"
 
 
 def main():

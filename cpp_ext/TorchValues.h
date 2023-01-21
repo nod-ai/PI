@@ -16,7 +16,6 @@
 using namespace mlir;
 using namespace mlir::python;
 
-
 struct Torch_Tensor : PyValue {
   Torch_Tensor(PyOperationRef operationRef, MlirValue value)
       : PyValue(std::move(operationRef), value) {}
@@ -24,6 +23,11 @@ struct Torch_Tensor : PyValue {
 
 struct Torch_Value : PyValue {
   Torch_Value(PyOperationRef operationRef, MlirValue value)
+      : PyValue(std::move(operationRef), value) {}
+};
+
+struct Torch_List : PyValue {
+  Torch_List(PyOperationRef operationRef, MlirValue value)
       : PyValue(std::move(operationRef), value) {}
 };
 

@@ -90,9 +90,10 @@ SMOKE_TEST = False
 
 
 class PIConfig:
-    def compile(self, test_case: Test, test_module: nn.Module) -> Any:
+    def compile(self, test_case: Test) -> Any:
         tu = TestUtils()
         with mlir_cm() as module:
+            test_module = test_case.program_factory()
             module.operation.attributes["torch.debug_module_name"] = ir.StringAttr.get(
                 test_module.__class__.__name__ + ("SMOKE_TEST" if SMOKE_TEST else "")
             )
@@ -142,7 +143,8 @@ class PIConfig:
                 # functions created from python can't return multiple results
                 if len(results) > 1:
                     print("multiple results", results)
-                    results = [torch_dialect.PrimTupleConstructOp(results).result]
+                    res_type = ir.Type.parse(f"!torch.tuple<>")
+                    results = [torch_dialect.PrimTupleConstructOp(res_type, results).result]
 
                 canonical_func_type = ir.FunctionType.get(
                     inputs=[b.type for b in block_args],

@@ -14,18 +14,18 @@ using namespace mlir::python;
 namespace llvm {
 int DisableABIBreakingChecks = 1;
 int EnableABIBreakingChecks = 0;
-}// namespace llvm
+} // namespace llvm
 
 PYBIND11_MODULE(_mlir, m) {
   dylib lib2("TorchMLIRAggregateCAPI");
 
   if (!lib2.has_symbol("mlirValueIsAOpResult")) {
-    throw std::runtime_error("symbol 'mlirValueIsAOpResult' not found in 'TorchMLIRAggregateCAPI' lib");
+    throw std::runtime_error("symbol 'mlirValueIsAOpResult' not found in "
+                             "'TorchMLIRAggregateCAPI' lib");
   }
 
-  m.def("get_pybind11_module_local_id", []() { return PYBIND11_MODULE_LOCAL_ID; });
-//  m.def("bind_all", [&m]() {
-//  });
+  m.def("get_pybind11_module_local_id",
+        []() { return PYBIND11_MODULE_LOCAL_ID; });
   bindValues(m);
   bindTypes(m);
   bindTypeHelpers(m);

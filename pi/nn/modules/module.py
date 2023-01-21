@@ -1,5 +1,6 @@
 import inspect
 import itertools
+import warnings
 from abc import abstractmethod
 from collections import OrderedDict
 from typing import Dict, Optional, Callable, Union
@@ -23,6 +24,7 @@ class Module:
     _forward_pre_hooks: OrderedDict[str, Callable]
     _forward_post_hooks: OrderedDict[str, Callable]
     _forward: Callable
+    training = False
 
     def __init__(self):
         _set = super().__setattr__
@@ -150,7 +152,8 @@ class Module:
                 self.register_module(name, value)
             else:
                 if name in self._buffers:
-                    assert value is None, f"{type(value)} cannot override buffer {name}"
+                    # assert value is None, f"{type(value)} cannot override buffer {name}"
+                    warnings.warn(f"{type(value)} overriding buffer {name} in {self.__class__.__name__}")
                     self.register_buffer(name, value)
                 else:
                     super().__setattr__(name, value)
@@ -195,11 +198,11 @@ class Module:
                 parameters[name] = param()
 
     def has_uninitialized_params(self):
-        params = self._parameters.values()
-        buffers = self._buffers.values()
-        for param in itertools.chain(params, buffers):
+        params = self._parameters.items()
+        buffers = self._buffers.items()
+        for param_name, param in itertools.chain(params, buffers):
             if is_uninitialized(param):
-                return param
+                return param_name, param
         return None
 
     def not_uninitialized(self):
