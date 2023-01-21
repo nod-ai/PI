@@ -21,14 +21,14 @@ using namespace mlir::python;
 
 void bindTypes(py::module &m) {
   py::object type_ =
-      (py::object) py::module_::import("torch_mlir.ir").attr("Type");
+      (py::object) py::module_::import(MAKE_MLIR_PYTHON_QUALNAME("ir")).attr("Type");
 
   py::object location =
-      (py::object) py::module_::import("torch_mlir.ir").attr("Location");
+      (py::object) py::module_::import(MAKE_MLIR_PYTHON_QUALNAME("ir")).attr("Location");
 
 #define DEFINE_PYBIND(TTT) py::class_<Torch_##TTT##Type>(m, "_Torch_" #TTT "Type", type_)                 \
                                .def(py::init<>([]() {                                                     \
-                                 auto src = py::module::import("torch_mlir.ir")                           \
+                                 auto src = py::module::import(MAKE_MLIR_PYTHON_QUALNAME("ir"))           \
                                                 .attr("Context")                                          \
                                                 .attr("current");                                         \
                                  py::capsule ctxCapsule = mlirApiObjectToCapsule(src);                    \
@@ -42,14 +42,14 @@ void bindTypes(py::module &m) {
                                }))                                                                        \
                                .def("__repr__", [](PyType &self) {                                        \
                                  PyPrintAccumulator printAccum;                                           \
-                                 printAccum.parts.append(#TTT "(");                                       \
+                                 printAccum.parts.append("Torch" #TTT "(");                               \
                                  mlirTypePrint(self, printAccum.getCallback(), printAccum.getUserData()); \
                                  printAccum.parts.append(")");                                            \
                                  return printAccum.join();                                                \
                                })                                                                         \
                                .def("__str__", [](PyType &self) {                                         \
                                  PyPrintAccumulator printAccum;                                           \
-                                 printAccum.parts.append(#TTT "(");                                       \
+                                 printAccum.parts.append("Torch" #TTT "(");                               \
                                  mlirTypePrint(self, printAccum.getCallback(), printAccum.getUserData()); \
                                  printAccum.parts.append(")");                                            \
                                  return printAccum.join();                                                \
@@ -61,7 +61,7 @@ void bindTypes(py::module &m) {
 #define DEFINE_PYBIND(TTT)                                                                                               \
   py::class_<Torch_##TTT##Type>(m, "_Torch_" #TTT "Type", type_)                                                         \
       .def(py::init<>([](const py::handle optionalSizesHandle, const py::handle optionalDtypeHandle) {                   \
-             auto src = py::module::import("torch_mlir.ir")                                                              \
+             auto src = py::module::import(MAKE_MLIR_PYTHON_QUALNAME("ir"))                                              \
                             .attr("Context")                                                                             \
                             .attr("current");                                                                            \
              py::capsule ctxCapsule = mlirApiObjectToCapsule(src);                                                       \
@@ -112,53 +112,90 @@ void bindTypes(py::module &m) {
   TORCH_MLIR_FORALL_TENSOR_TYPES(DEFINE_PYBIND)
 #undef DEFINE_PYBIND
 
-#define DEFINE_PYBIND(TTT)                                                                                            \
-  m.def("_TorchListOf" #TTT "Type", ([](const py::handle optionalSizesHandle, const py::handle optionalDtypeHandle) { \
-          auto src = py::module::import("torch_mlir.ir")                                                              \
-                         .attr("Context")                                                                             \
-                         .attr("current");                                                                            \
-          py::capsule ctxCapsule = mlirApiObjectToCapsule(src);                                                       \
-          MlirContext mlirContext = {ctxCapsule.get_pointer()};                                                       \
-                                                                                                                      \
-          int64_t numSizes = -1;                                                                                      \
-          std::vector<int64_t> optionalSizes;                                                                         \
-          if (!optionalSizesHandle.is(py::none())) {                                                                  \
-            optionalSizes = py::cast<std::vector<int64_t>>(optionalSizesHandle);                                      \
-            numSizes = optionalSizes.size();                                                                          \
-          }                                                                                                           \
-          MlirType optionalDtype;                                                                                     \
-          if (!optionalDtypeHandle.is(py::none())) {                                                                  \
-            py::capsule optionalDtypeCapsule = mlirApiObjectToCapsule(optionalDtypeHandle);                           \
-            optionalDtype = {optionalDtypeCapsule.get_pointer()};                                                     \
-          } else {                                                                                                    \
-            optionalDtype = {nullptr};                                                                                \
-          }                                                                                                           \
-          auto tensorType = torchMlirTorch##TTT##TypeGet(mlirContext, numSizes, optionalSizes.data(), optionalDtype); \
-          auto listType = torchMlirTorchListTypeGet(tensorType);                                                      \
-          return Torch_ListType::createFromMlirType_(listType);                                                       \
-        }),                                                                                                           \
-        py::arg("sizes") = py::none(), py::arg("dtype") = py::none());
-
+#define DEFINE_PYBIND(TTT)                                                                                               \
+  py::class_<TorchListOf##TTT##Type>(m, "_TorchListOf" #TTT "Type", type_)                                               \
+      .def(py::init<>([](const py::handle optionalSizesHandle, const py::handle optionalDtypeHandle) {                   \
+             auto src = py::module::import(MAKE_MLIR_PYTHON_QUALNAME("ir"))                                              \
+                            .attr("Context")                                                                             \
+                            .attr("current");                                                                            \
+             py::capsule ctxCapsule = mlirApiObjectToCapsule(src);                                                       \
+             MlirContext mlirContext = {ctxCapsule.get_pointer()};                                                       \
+                                                                                                                         \
+             int64_t numSizes = -1;                                                                                      \
+             std::vector<int64_t> optionalSizes;                                                                         \
+             if (!optionalSizesHandle.is(py::none())) {                                                                  \
+               optionalSizes = py::cast<std::vector<int64_t>>(optionalSizesHandle);                                      \
+               numSizes = optionalSizes.size();                                                                          \
+             }                                                                                                           \
+             MlirType optionalDtype;                                                                                     \
+             if (!optionalDtypeHandle.is(py::none())) {                                                                  \
+               py::capsule optionalDtypeCapsule = mlirApiObjectToCapsule(optionalDtypeHandle);                           \
+               optionalDtype = {optionalDtypeCapsule.get_pointer()};                                                     \
+             } else {                                                                                                    \
+               optionalDtype = {nullptr};                                                                                \
+             }                                                                                                           \
+             auto tensorType = torchMlirTorch##TTT##TypeGet(mlirContext, numSizes, optionalSizes.data(), optionalDtype); \
+             auto listType = torchMlirTorchListTypeGet(tensorType);                                                      \
+             return TorchListOf##TTT##Type::createFromMlirType_(listType);                                               \
+           }),                                                                                                           \
+           py::arg("sizes") = py::none(), py::arg("dtype") = py::none())                                                 \
+      .def("__repr__", [](PyType &self) {                                                                                \
+        PyPrintAccumulator printAccum;                                                                                   \
+        printAccum.parts.append("TorchListOf" #TTT "(");                                                                 \
+        mlirTypePrint(self, printAccum.getCallback(), printAccum.getUserData());                                         \
+        printAccum.parts.append(")");                                                                                    \
+        return printAccum.join();                                                                                        \
+      })                                                                                                                 \
+      .def("__str__", [](PyType &self) {                                                                                 \
+        PyPrintAccumulator printAccum;                                                                                   \
+        printAccum.parts.append("TorchListOf" #TTT "(");                                                                 \
+        mlirTypePrint(self, printAccum.getCallback(), printAccum.getUserData());                                         \
+        printAccum.parts.append(")");                                                                                    \
+        return printAccum.join();                                                                                        \
+      });
   TORCH_MLIR_FORALL_TENSOR_TYPES(DEFINE_PYBIND)
 #undef DEFINE_PYBIND
 }
 
 void bindTypeHelpers(py::module &m) {
+  py::object type_ =
+      (py::object) py::module_::import(MAKE_MLIR_PYTHON_QUALNAME("ir")).attr("Type");
 
-#define DEFINE_PYBIND(TTT)                                       \
-  m.def("_TorchListOfTorch" #TTT "Type", []() {                  \
-    auto src = py::module::import("torch_mlir.ir")               \
-                   .attr("Context")                              \
-                   .attr("current");                             \
-    py::capsule ctxCapsule = mlirApiObjectToCapsule(src);        \
-    MlirContext mlirContext = {ctxCapsule.get_pointer()};        \
-    MlirType elType = torchMlirTorch##TTT##TypeGet(mlirContext); \
-    auto listType = torchMlirTorchListTypeGet(elType);           \
-    return Torch_ListType::createFromMlirType_(listType);        \
-  });
+#define DEFINE_PYBIND(TTT)                                                           \
+  py::class_<TorchListOfTorch##TTT##Type>(m, "_TorchListOfTorch" #TTT "Type", type_) \
+      .def(py::init<>([]() {                                                         \
+        auto src = py::module::import(MAKE_MLIR_PYTHON_QUALNAME("ir"))               \
+                       .attr("Context")                                              \
+                       .attr("current");                                             \
+        py::capsule ctxCapsule = mlirApiObjectToCapsule(src);                        \
+        MlirContext mlirContext = {ctxCapsule.get_pointer()};                        \
+        MlirType elType = torchMlirTorch##TTT##TypeGet(mlirContext);                 \
+        auto listType = torchMlirTorchListTypeGet(elType);                           \
+        return TorchListOfTorch##TTT##Type::createFromMlirType_(listType);           \
+      }))                                                                            \
+      .def("__repr__", [](PyType &self) {                                            \
+        PyPrintAccumulator printAccum;                                               \
+        printAccum.parts.append("TorchListOf" #TTT "(");                             \
+        mlirTypePrint(self, printAccum.getCallback(), printAccum.getUserData());     \
+        printAccum.parts.append(")");                                                \
+        return printAccum.join();                                                    \
+      })                                                                             \
+      .def("__str__", [](PyType &self) {                                             \
+        PyPrintAccumulator printAccum;                                               \
+        printAccum.parts.append("TorchListOf" #TTT "(");                             \
+        mlirTypePrint(self, printAccum.getCallback(), printAccum.getUserData());     \
+        printAccum.parts.append(")");                                                \
+        return printAccum.join();                                                    \
+      });
   TORCH_MLIR_FORALL_NUMBER_TYPES(DEFINE_PYBIND)
   TORCH_MLIR_FORALL_OTHER_TYPES(DEFINE_PYBIND)
 #undef DEFINE_PYBIND
+
+  m.def("_torch_list_of_type", [](const py::handle elTypeHandle) {
+    py::capsule elTypeCapsule = mlirApiObjectToCapsule(elTypeHandle);
+    MlirType elType = {elTypeCapsule.get_pointer()};
+    return py::cast<>(torchMlirTorchListTypeGet(elType));
+  });
 
 #define DEFINE_PYBIND(TTT) m.def(                                                \
     "is_a_Torch_" #TTT "Type", [](const py::handle apiObject) {                  \

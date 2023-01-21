@@ -57,10 +57,19 @@ TORCH_MLIR_FORALL_OTHER_TYPES(DEFINE_STRUCT)
 DEFINE_STRUCT(D)
 #undef DEFINE_STRUCT
 
-#define DEFINE_STRUCT(TTT)                                                                                                      \
-  struct Torch_##TTT##Type : public PyConcreteType<Torch_##TTT##Type> {                                                         \
-    Torch_##TTT##Type(PyMlirContextRef contextRef, MlirType t) : PyConcreteType<Torch_##TTT##Type>(std::move(contextRef), t) {} \
+#define DEFINE_STRUCT(TTT)                                                                                                                          \
+  struct TorchListOfTorch##TTT##Type : public PyConcreteType<TorchListOfTorch##TTT##Type> {                                                         \
+    TorchListOfTorch##TTT##Type(PyMlirContextRef contextRef, MlirType t) : PyConcreteType<TorchListOfTorch##TTT##Type>(std::move(contextRef), t) {} \
   };
+TORCH_MLIR_FORALL_NUMBER_TYPES(DEFINE_STRUCT)
+TORCH_MLIR_FORALL_OTHER_TYPES(DEFINE_STRUCT)
+#undef DEFINE_STRUCT
+
+#define DEFINE_STRUCT(TTT)                                                                                                                          \
+  struct TorchListOf##TTT##Type : public PyConcreteType<TorchListOf##TTT##Type> {                                                         \
+    TorchListOf##TTT##Type(PyMlirContextRef contextRef, MlirType t) : PyConcreteType<TorchListOf##TTT##Type>(std::move(contextRef), t) {} \
+  };
+TORCH_MLIR_FORALL_TENSOR_TYPES(DEFINE_STRUCT)
 #undef DEFINE_STRUCT
 
 void bindTypes(py::module &m);

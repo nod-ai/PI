@@ -75,7 +75,8 @@ set(PYTHON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cpp_ext) # --src-root
 set(MLIR_BINARY_DIR ${CMAKE_BINARY_DIR})
 set(MLIR_INCLUDE_TESTS 0)
 
-pybind11_add_module(_mlir cpp_ext/MainModule.cpp cpp_ext/TensorValue.cpp cpp_ext/TorchTypes.cpp)
+add_compile_definitions("MLIR_PYTHON_PACKAGE_PREFIX=torch_mlir.")
+pybind11_add_module(_mlir cpp_ext/MainModule.cpp cpp_ext/TorchValues.cpp cpp_ext/TorchTypes.cpp)
 # for llvm::twine and stuff
 target_link_libraries(_mlir PRIVATE LLVMSupport)
 

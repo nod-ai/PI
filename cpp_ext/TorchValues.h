@@ -20,8 +20,11 @@ using namespace mlir::python;
 struct Torch_Tensor : PyValue {
   Torch_Tensor(PyOperationRef operationRef, MlirValue value)
       : PyValue(std::move(operationRef), value) {}
+};
 
-  static Torch_Tensor createFromCapsule_(const py::capsule& capsule);
+struct Torch_Value : PyValue {
+  Torch_Value(PyOperationRef operationRef, MlirValue value)
+      : PyValue(std::move(operationRef), value) {}
 };
 
 void bindValues(py::module &m);

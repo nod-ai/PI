@@ -121,7 +121,7 @@ private:
 struct PyType : public BaseContextObject {
   PyType(PyMlirContextRef contextRef, MlirType type)
       : BaseContextObject(std::move(contextRef)), type(type) {}
-  operator MlirType() const { return type; }
+  operator MlirType() const { return type; } // NOLINT(google-explicit-constructor)
   [[nodiscard]] MlirType get() const { return type; }
 
   MlirType type;

@@ -12,7 +12,16 @@ from typing import (
     NamedTuple,
 )
 
-from ..types_ import Device, Number, Size, dtype
+from ..types_ import (
+    Device,
+    TorchNumber,
+    Size,
+    dtype,
+    TorchBool,
+    TorchFloat,
+    TorchInt,
+    TorchString,
+)
 
 __all__ = [
     "ArgsKwargsPair",
@@ -38,7 +47,11 @@ _type_eval_globals = {
     "Device": Device,
     "Size": Size,
     "pi_dtype": dtype,
-    "Number": Number
+    "TorchNumber": TorchNumber,
+    "TorchBool": TorchBool,
+    "TorchInt": TorchInt,
+    "TorchFloat": TorchFloat,
+    "TorchString": TorchString,
     # "Layout": torch.layout,
     # "number": numbers.Number,
     # "Future": torch.jit.Future,
@@ -54,6 +67,7 @@ for k in dir(typing):
 
 def type_str_to_python_type(type_str) -> Any:
     from pi import Tensor
+
     return eval(type_str, _type_eval_globals | {"Tensor": Tensor})
 
 
@@ -94,7 +108,9 @@ def create_type_hint(x):
 def type_matches(signature_type: Any, argument_type: Any):
     if isinstance(signature_type, str):
         signature_type = type_str_to_python_type(signature_type)
-    assert not isinstance(signature_type, str), f"signature_type should be a real type {signature_type=}"
+    assert not isinstance(
+        signature_type, str
+    ), f"signature_type should be a real type {signature_type=}"
     # both sig type and arg type should be produced by type hints
     sig_origin_type = getattr(signature_type, "__origin__", signature_type)
 

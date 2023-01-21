@@ -1,7 +1,7 @@
 #include "IRModule.h"
-#include "TensorValue.h"
 #include "TorchTypes.h"
 #include "TorchTypesCAPI.h"
+#include "TorchValues.h"
 #include "dylib.hpp"
 #include "mlir-c/Bindings/Python/Interop.h"
 

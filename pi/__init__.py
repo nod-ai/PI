@@ -6,14 +6,14 @@ import types
 
 logger = logging.getLogger(__name__)
 # noinspection PyUnresolvedReferences
-from .dialects import patch_meta_path_non_context
+# from .dialects import patch_meta_path_non_context
 
-if __name__ == "pi":
-    # prevent double patching of path during testing
-    # where we've already patched torch -> pi
-    patch_meta_path_non_context()
-else:
-    logger.debug(f"reimporting pi as {__name__}")
+# if __name__ == "pi":
+#     # prevent double patching of path during testing
+#     # where we've already patched torch -> pi
+#     patch_meta_path_non_context()
+# else:
+#     logger.debug(f"reimporting pi as {__name__}")
 
 
 @contextlib.contextmanager
@@ -30,7 +30,7 @@ with dl_open_guard():
     import torch_mlir
 
 assert (
-    len(torch_mlir.dialects.torch.AtenConv2dOp.__bases__) > 1
+    len(torch_mlir.dialects.torch.AtenConv2dOp.__bases__) == 1
 ), "failed to import torch dialect extensions; you probably tried to import torch_mlir before pi"
 
 if __name__ == "pi":

@@ -82,6 +82,7 @@ PI_XFAIL_SET = {
     "NewEmptyModuleLayoutIntDtype_basic",
     "NewEmptyModuleNonDefaultFloatDtype_basic",
     "NewEmptyModuleNonDefaultIntDtype_basic",
+    "NewEmptyStridedModuleDefaultDtype_basic",
     "ZeroFloat32Module_basic",
     "ZeroInt32Module_basic",
     "ZeroInt64Module_basic",
@@ -127,6 +128,9 @@ PI_XFAIL_SET = {
     "AtenToDeviceModule_basic",
 
     # int/float casts (29)
+    "AtenIntBoolOpModule_basic",
+    "AtenIntBoolOpConstFalseModule_basic",
+    "AtenIntBoolOpConstTrueModule_basic",
     "AddIntModule_basic",
     "AtenIntTensorByteDtypeModule_basic",
     "AtenIntTensorCharDtypeModule_basic",

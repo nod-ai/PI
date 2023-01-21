@@ -74,11 +74,11 @@ class PrimListConstructOp:
         loc=None,
         ip=None,
     ):
+        from pi.types_ import _torch_list_of_type
         if len(elements):
             elements = get_op_results_or_values(elements)
             el_type = get_op_result_or_value(elements[0]).type
-            el_type_str = el_type_reg.findall(str(el_type))[0]
-            res_type = Type.parse(f"!torch.list<{el_type_str}>")
+            res_type = _torch_list_of_type(el_type)
         else:
             res_type = Type.parse(f"!torch.list<int>")
         super().__init__(res_type, elements, loc=loc, ip=ip)
@@ -92,6 +92,7 @@ class PrimTupleConstructOp:
         loc=None,
         ip=None,
     ):
+        from pi.types_ import _torch_list_of_type
         if len(elements):
             elements = get_op_results_or_values(elements)
             el_types = ", ".join(

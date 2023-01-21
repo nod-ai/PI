@@ -9,32 +9,75 @@ from torch_mlir import ir
 from torch_mlir.dialects._ods_common import (
     get_op_result_or_value,
 )
+from torch_mlir._mlir_libs._mlir.ir import (
+    AttrBuilder,
+    BoolAttr,
+    IntegerAttr,
+    IndexType,
+    IntegerType,
+    StringAttr,
+    DenseElementsAttr,
+)
 from torch_mlir.ir import (
     Type as MLIRType,
     Value as MLIRValue,
+    register_attribute_builder,
 )
 
-from pi._mlir import is_a_Torch_ValueTensorType
+from pi._mlir import (
+    is_a_TorchListOfTorchBoolType,
+    is_a_TorchListOfTorchIntType,
+    is_a_TorchListOfTorchStringType,
+    is_a_TorchListOfValueTensorType,
+    _TorchListOfTorchBoolType,
+    _TorchListOfTorchFloatType,
+    _TorchListOfTorchIntType,
+    _TorchListOfTorchStringType,
+    _TorchListOfValueTensorType,
+    is_a_TorchScalarType,
+    is_a_Torch_AnyType,
+    is_a_Torch_BoolType,
+    is_a_Torch_DeviceType,
+    is_a_Torch_DictType,
+    is_a_Torch_FloatType,
+    is_a_Torch_GeneratorType,
+    is_a_Torch_IntType,
+    is_a_Torch_StringType,
+    is_a_Torch_ValueTensorType,
+    _torch_list_of_type,
+    _Torch_AnyType,
+    _Torch_BoolType,
+    _Torch_DeviceType,
+    _Torch_FloatType,
+    _Torch_IntType,
+    _Torch_NumberType,
+    _Torch_StringType,
+    _Torch_ValueTensorType,
+    is_dtype,
+    _Torch_Value,
+)
+
 
 # !torch.vtensor<[1,2,3],f32>
-reg = re.compile(r"!torch.vtensor<\[(.*)\],(.*)>")
+# reg = re.compile(r"!torch.vtensor<\[(.*)\],(.*)>")
 
 
-def parse_sizes_from_tensor_type_str(t: ir.OpView) -> List[int]:
-    # TODO(max): pull straight from the ranked type
-    t = get_op_result_or_value(t)
-    sizes, dtype = reg.findall(str(t.type))[0]
-    sizes = [s if s != "?" else "-1" for s in sizes.split(",")]
-    return list(map(int, sizes)), dtype
-
-
-def get_type(t: Union[MLIRType, MLIRValue]):
-    if not isinstance(t, MLIRType):
-        assert isinstance(
-            t, MLIRValue
-        ), f"unknown type {type(t).__module__}.{type(t).__name__})"
-        t = t.type
-    return t
+# def parse_sizes_from_tensor_type_str(t: ir.OpView) -> List[int]:
+#     # TODO(max): pull straight from the ranked type
+#     t = get_op_result_or_value(t)
+#     sizes, dtype = reg.findall(str(t.type))[0]
+#     sizes = [s if s != "?" else "-1" for s in sizes.split(",")]
+#     return list(map(int, sizes)), dtype
+#
+# #
+# def get_type(t: Union[MLIRType, MLIRValue]):
+#     if not isinstance(t, MLIRType):
+#         assert isinstance(
+#             t, MLIRValue
+#         ), f"unknown type {type(t).__module__}.{type(t).__name__})"
+#         t = t.type
+#     return t
+#
 
 
 def is_a_torch_tensor(t):
@@ -45,9 +88,47 @@ def is_a_torch_tensor(t):
         return False
 
 
-# IntegerType.get_signless(32) -> i32
-# IntegerType.get_signed(32) -> si32
-# IntegerType.get_unsigned(32) -> ui32
+class TorchBool(_Torch_BoolType):
+    pass
+
+
+class TorchFloat(_Torch_FloatType):
+    pass
+
+
+class TorchInt(_Torch_IntType):
+    pass
+
+
+class TorchString(_Torch_StringType):
+    pass
+
+
+class TorchValue(_Torch_Value):
+    pass
+
+
+class TorchListOfTorchTensorType(_TorchListOfValueTensorType):
+    pass
+
+
+class TorchListOfTorchBoolType(_TorchListOfTorchBoolType):
+    pass
+
+
+class TorchListOfTorchFloatType(_TorchListOfTorchFloatType):
+    pass
+
+
+class TorchListOfTorchIntType(_TorchListOfTorchIntType):
+    pass
+
+
+class TorchListOfTorchStringType(_TorchListOfTorchStringType):
+    pass
+
+
+TorchNumber = Union[builtins.int, builtins.float, builtins.bool, TorchInt, TorchFloat]
 
 
 class dtype(Enum):
@@ -229,7 +310,6 @@ uint8 = dtype.uint8
 
 Size = size = Union[List[int], Tuple[int, ...]]
 
-Number = Union[builtins.int, builtins.float, builtins.bool]
 Generator = Any
 device = Device = NewType("Device", str)
 
@@ -308,3 +388,8 @@ contiguous_format = memory_format.contiguous_format
 preserve_format = memory_format.preserve_format
 channels_last = memory_format.channels_last
 channels_last_3d = memory_format.channels_last_3d
+
+
+@register_attribute_builder("AnyI64Attr")
+def _i64Attr(x, context):
+    return IntegerAttr.get(IntegerType.get_signless(64, context=context), x)
