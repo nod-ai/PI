@@ -28,7 +28,7 @@ def get_llvm_package():
     LIB_ARCH = os.environ.get("LIB_ARCH", platform.machine())
     assert LIB_ARCH is not None
     print(f"ARCH {LIB_ARCH}")
-    name = f"llvm+mlir+python-{sys.version_info.major}.{sys.version_info.minor}-15.0.4-{LIB_ARCH}-{system_suffix}-release"
+    name = f"llvm+mlir+python-{sys.version_info.major}.{sys.version_info.minor}-15.0.6-{LIB_ARCH}-{system_suffix}-release"
     here = Path(__file__).parent
     if not (here / "llvm_install").exists():
         url = f"https://github.com/makslevental/llvm-releases/releases/latest/download/{name}.tar.xz"

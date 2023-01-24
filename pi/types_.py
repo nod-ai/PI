@@ -10,7 +10,7 @@ import numpy as np
 
 # noinspection PyUnresolvedReferences
 from pi._mlir import (
-    TorchListOfValueTensorType as TorchListOfTensor,
+    TorchListOfNonValueTensorType as TorchListOfTensor,
     TorchListOfTorchBoolType as TorchListOfTorchBool,
     TorchListOfTorchIntType as TorchListOfTorchInt,
     TorchListOfTorchFloatType as TorchListOfTorchFloat,
@@ -93,7 +93,9 @@ def check_simple_torch_list(
     try:
         check_type(value.el_type, type_var_arg)
     except TypeCheckError:
-        raise TypeCheckError(f"Not correct type param ({type_var_arg}): {value.el_type}")
+        raise TypeCheckError(
+            f"Not correct type param ({type_var_arg}): {value.el_type}"
+        )
 
 
 def check_tensor(

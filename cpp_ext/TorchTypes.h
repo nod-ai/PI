@@ -26,8 +26,8 @@ using namespace mlir::python;
   _(QUInt8)
 
 #define TORCH_MLIR_FORALL_TENSOR_TYPES(_)                                      \
-  _(NonValueTensor)                                                            \
-  _(ValueTensor)
+  _(NonValueTensor)
+//  _(ValueTensor)
 
 #define TORCH_MLIR_FORALL_CONTAINER_TYPES(_)                                   \
   _(Dict)                                                                      \

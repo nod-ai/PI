@@ -197,24 +197,24 @@ AnyTorchOptionalScalarType = OptionalOf(AnyTorchScalarType)
 # ]
 #
 #
-# AnyTorchType = AnyTypeOf[
-#     AnyTorchScalarType,
-#     AnyTorchTensorType,
-#     Torch_AnyType,
-#     Torch_BoolType,
-#     Torch_DictType,
-#     Torch_DeviceType,
-#     Torch_GeneratorType,
-#     Torch_ListType,
-#     Torch_LinearParamsType,
-#     Torch_NumberType,
-#     Torch_NnModuleType,
-#     Torch_NoneType,
-#     Torch_OptionalType,
-#     Torch_StringType,
-#     Torch_TupleType,
-#     Torch_UnionType,
-# ]
+AnyTorchType = AnyTypeOf[
+    AnyTorchScalarType,
+    AnyTorchTensorType,
+    Torch_AnyType,
+    Torch_BoolType,
+    Torch_DictType,
+    Torch_DeviceType,
+    Torch_GeneratorType,
+    Torch_ListType,
+    # Torch_LinearParamsType,
+    # Torch_NumberType,
+    # Torch_NnModuleType,
+    # Torch_NoneType,
+    Torch_OptionalType,
+    Torch_StringType,
+    Torch_TupleType,
+    # Torch_UnionType,
+]
 
 
 AnyTorchListType = ListOf(Any)

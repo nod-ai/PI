@@ -1,27 +1,26 @@
 from __future__ import annotations
+
 import builtins
-import functools
-import re
-import warnings
 from numbers import Number
 from typing import (
     Tuple,
     Optional,
     Any,
     List,
-    Dict,
     Callable,
     Union,
     Sequence,
     Generator,
     Literal,
 )
-import numpy as np
-import pi
-from torch_mlir.dialects import torch as torch_dialect
+
+# noinspection PyUnresolvedReferences
+from pi._mlir import Torch_Tensor
 from torch_mlir.dialects._ods_common import get_op_result_or_value
-from torch_mlir.ir import DenseElementsAttr
 from torch_mlir.ir import Value as MLIRValue
+
+import pi
+from .dispatcher import dispatch
 from .types_ import (
     dtype as pi_dtype,
     Size,
@@ -30,10 +29,6 @@ from .types_ import (
     memory_format,
     contiguous_format,
 )
-from .dispatcher import dispatch
-
-# noinspection PyUnresolvedReferences
-from pi._mlir import Torch_Tensor
 
 
 class ComplexReturnType:
@@ -3686,84 +3681,6 @@ class Tensor(Torch_Tensor):
         return pi.zero_(self)
 
 
-def from_numpy(arr: np.ndarray, dtype: pi_dtype = None):
-    shape = arr.shape
-    if dtype is None:
-        dtype = pi_dtype.from_np_type(arr.dtype)
-    if dtype == pi_dtype.bool:
-        arr = np.packbits(arr, axis=None, bitorder="little")
-    attr = DenseElementsAttr.get(
-        arr, signless=dtype.is_signless(), type=dtype.to_mlir_type(), shape=shape
-    )
-
-    vt = Tensor(torch_dialect.ValueTensorLiteralOp(attr))
-    return vt
-
-
-def _np_wrapper(*size: Tuple[int, ...], **kwargs):
-    factory = kwargs.get("factory", None)
-    assert factory is not None
-    if size == ((),) or len(size) == 0:
-        return factory()
-
-    if isinstance(size[0], tuple):
-        assert len(size) == 1, f"malformed size tuple {size}"
-        size = size[0]
-
-    dtype = kwargs.get("dtype", None)
-    # this is hella stupid
-    try:
-        if dtype is not None and factory is not np.random.rand:
-            res = factory(size, dtype=dtype.to_np_type())
-        else:
-            res = factory(size)
-    except TypeError as e:
-        assert re.match(
-            "'(tuple|list)' object cannot be interpreted as an integer", str(e)
-        ), str(e)
-        if dtype is not None and factory is not np.random.rand:
-            res = factory(*size, dtype=dtype.to_np_type())
-        else:
-            res = factory(*size)
-
-    return from_numpy(res, dtype=dtype)
-
-
-empty = functools.partial(_np_wrapper, factory=np.empty)
-ones = functools.partial(_np_wrapper, factory=np.ones)
-zeros = functools.partial(_np_wrapper, factory=np.zeros)
-rand = functools.partial(_np_wrapper, factory=np.random.rand)
-randn = functools.partial(_np_wrapper, factory=np.random.randn)
-tensor = functools.partial(_np_wrapper, factory=np.array)
-
-
-def randint(low: int, high: int, size: Tuple[int, ...]) -> Tensor:
-    return from_numpy(np.random.randint(low, high, size))
-
-
-def uniform(low: float, high: float, size: Tuple[int, ...]) -> Tensor:
-    return from_numpy(np.random.uniform(low, high, size))
-
-
-def LongTensor(data: Any) -> Tensor:
-    return from_numpy(np.array(data, dtype=pi_dtype.int64.to_np_type()))
-
-
-def clone(x: Tensor, **kwargs):
-    warnings.warn(f"not actually cloning")
-    return x
-
-
 __all__ = [
-    "from_numpy",
-    "empty",
-    "randint",
-    "randn",
-    "rand",
-    "uniform",
-    "ones",
-    "tensor",
     "Tensor",
-    "LongTensor",
-    "zeros",
 ]

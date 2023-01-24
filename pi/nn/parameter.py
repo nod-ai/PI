@@ -10,7 +10,8 @@ import pi
 from ..types_ import dtype as pi_dtype
 
 # import pi
-from .._tensor import Tensor, empty
+from .._tensor import Tensor
+from ..tensor_helpers import empty
 
 
 class Parameter(Tensor):

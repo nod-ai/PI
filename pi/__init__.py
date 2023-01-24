@@ -37,12 +37,17 @@ from .types_ import *
 from . import _torch_wrappers
 from ._torch_wrappers import *
 
-# prefer the rand, empty, etc in tensors over the one in wrappers
 from ._tensor import *
+
+from .tensor_helpers import *
+from . import tensor_helpers
 
 
 class torch_wrappers:
     def __getattr__(self, attr):
+        # prefer the rand, empty, etc in tensors over the one in wrappers
+        if hasattr(tensor_helpers, attr):
+            return getattr(tensor_helpers, attr)
         if hasattr(_torch_wrappers, attr):
             return getattr(_torch_wrappers, attr)
         else:

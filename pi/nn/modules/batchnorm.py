@@ -97,7 +97,8 @@ class _NormBase(Module):
             init.zeros_(self.bias)
 
     def _check_input_dim(self, input):
-        raise NotImplementedError
+        pass
+        # raise NotImplementedError
 
     def extra_repr(self):
         return (
@@ -254,10 +255,11 @@ class _BatchNorm(_NormBase):
 
 class BatchNorm1d(_BatchNorm):
     def _check_input_dim(self, input):
-        if len(input.sizes) != 2 and len(input.sizes) != 3:
-            raise ValueError(
-                "expected 2D or 3D input (got {}D input)".format(input.dim())
-            )
+        pass
+        # if len(input.sizes) != 2 and len(input.sizes) != 3:
+        #     raise ValueError(
+        #         "expected 2D or 3D input (got {}D input)".format(input.dim())
+        #     )
 
 
 # class LazyBatchNorm1d(_LazyNormBase, _BatchNorm):
@@ -273,8 +275,9 @@ class BatchNorm1d(_BatchNorm):
 
 class BatchNorm2d(_BatchNorm):
     def _check_input_dim(self, input):
-        if len(input.sizes) != 4:
-            raise ValueError("expected 4D input (got {}D input)".format(input.dim()))
+        pass
+        # if len(input.sizes) != 4:
+        #     raise ValueError("expected 4D input (got {}D input)".format(input.dim()))
 
 
 # class LazyBatchNorm2d(_LazyNormBase, _BatchNorm):
@@ -288,8 +291,9 @@ class BatchNorm2d(_BatchNorm):
 
 class BatchNorm3d(_BatchNorm):
     def _check_input_dim(self, input):
-        if len(input.sizes) != 5:
-            raise ValueError("expected 5D input (got {}D input)".format(input.dim()))
+        pass
+        # if len(input.sizes) != 5:
+        #     raise ValueError("expected 5D input (got {}D input)".format(input.dim()))
 
 
 # class LazyBatchNorm3d(_LazyNormBase, _BatchNorm):

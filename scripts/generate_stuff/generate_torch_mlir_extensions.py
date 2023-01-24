@@ -25,21 +25,6 @@ DEBUG = False
 BLACKLIST = {
     "QuantizedLinearOp",
     "PrimsSqrtOp",
-    "dtype",
-    "PrimUncheckedCastOp",
-    "device",
-    "ScalarImplicit",
-    "unchecked_cast",
-    "TupleIndex",
-    "Uninitialized",
-    "_set_item",
-    "__getitem__",
-    "__is__",
-    "__isnot__",
-    "append",
-    "get",
-    "insert",
-    "str",
 }
 OP_NAME_SUBS = {"linalg_vector_norm": "vector_norm"}
 UNIQUE_OPS = []
@@ -106,7 +91,16 @@ def _pytype_to_fn_pytype_common(arg) -> str:
     pretty_type_annot = pretty_print_type_hint(ods_type_annot)
     if match := re.findall(r"(dtype|layout|memory_format)", arg["name"]):
         match = match[0]
-        pretty_type_annot = pretty_type_annot.replace("int", f"int, pi_{match}")
+        pretty_type_annot = pretty_type_annot.replace(
+            "int", f"int, pi_{match}"
+        )
+    pretty_type_annot = (
+        pretty_type_annot.replace("~T,", "")
+        .replace("int", "builtins.int")
+        .replace("str", "builtins.str")
+        .replace("bool", "builtins.bool")
+        .replace("float", "builtins.float")
+    )
     return pretty_type_annot
 
 
@@ -174,7 +168,7 @@ def emit_torch_wrappers(
                         )
 
                 if "device" in arg_name:
-                    stub_td(f"if isinstance({arg_name}, str):")
+                    stub_td(f"if isinstance({arg_name}, builtins.str):")
                     with stubs_emitter_td.indent():
                         stub_td(
                             f"{arg_name} = torch_dialect.ConstantStrOp({arg_name}).result"
@@ -201,11 +195,11 @@ def emit_torch_wrappers(
                                 stub_td(
                                     f"if not isinstance(a, builtins.{el_type}): assert isinstance(a, Torch_Value), f'wrong type: {{a}}; should be {el_type}'"
                                 )
-                                stub_td(
-                                    f"else:"
-                                )
+                                stub_td(f"else:")
                                 with stubs_emitter_td.indent():
-                                    stub_td(f"{arg_name}[i] = torch_dialect.Constant{el_type.capitalize()}Op(a).result")
+                                    stub_td(
+                                        f"{arg_name}[i] = torch_dialect.Constant{el_type.capitalize()}Op(a).result"
+                                    )
 
                             if el_type == "str":
                                 el_type = "string"
@@ -236,9 +230,7 @@ def emit_torch_wrappers(
                         stub_td(
                             f"assert builtins.all([isinstance(a, Tensor) for a in {arg_name}])"
                         )
-                        stub_td(
-                            f"ls_type = Torch_List.of(Torch_ValueTensorType())"
-                        )
+                        stub_td(f"ls_type = Torch_List.of(Torch_NonValueTensorType())")
                         stub_td(
                             f"{arg_name} = torch_dialect.PrimListConstructOp(ls_type, {arg_name}).result"
                         )
@@ -247,14 +239,12 @@ def emit_torch_wrappers(
                     stub_td(f"{arg_name} = builtins.list({arg_name})")
                     stub_td(f"for i, a in enumerate({arg_name}):")
                     with stubs_emitter_td.indent():
-                        stub_td(
-                            f"if a is not None: assert isinstance(a, Tensor)"
-                        )
-                        stub_td(
-                            f"else:"
-                        )
+                        stub_td(f"if a is not None: assert isinstance(a, Tensor)")
+                        stub_td(f"else:")
                         with stubs_emitter_td.indent():
-                            stub_td(f"{arg_name}[i] = torch_dialect.ConstantNoneOp().result")
+                            stub_td(
+                                f"{arg_name}[i] = torch_dialect.ConstantNoneOp().result"
+                            )
 
                     stub_td(
                         f"{arg_name} = torch_dialect.PrimListConstructOp(TorchListOfOptionalTensorType(), {arg_name}).result"
@@ -266,16 +256,18 @@ def emit_torch_wrappers(
             if not "InferTypeOpInterface" in init_lines and operator.returns:
                 res_type_names = []
                 for i, r in enumerate(operator.returns):
-                    if r["pytype"] == 'List[t]':
+                    if r["pytype"] == "List[t]":
                         res_type = "Torch_List.of(Torch_AnyType())"
-                    elif r["pytype"] == 'List[str]':
+                    elif r["pytype"] == "List[str]":
                         res_type = "Torch_List.of(Torch_StringType())"
-                    elif r["pytype"] == 'List[int]':
+                    elif r["pytype"] == "List[int]":
                         res_type = "Torch_List.of(Torch_IntType())"
+                    elif r["pytype"] in {"Any", "t"}:
+                        res_type = "Torch_AnyType()"
                     else:
                         res_type = _pytype_to_fn_pytype_common(r)
                         if res_type == "Tensor":
-                            res_type = "Torch_ValueTensorType()"
+                            res_type = "Torch_NonValueTensorType()"
                         elif res_type == "TorchNumber":
                             res_type = "Torch_NumberType()"
                         elif "Union" in res_type or "Sequence" in res_type:
@@ -327,7 +319,7 @@ def generate_torch_wrappers(torch_ops_ext_dir: Path):
                 TorchListOfTorchFloatType,
                 TorchListOfTorchIntType,
                 TorchListOfTorchStringType,
-                TorchListOfValueTensorType,
+                TorchListOfNonValueTensorType,
                 
                 TorchListOfOptionalTensorType,
                 
@@ -337,7 +329,7 @@ def generate_torch_wrappers(torch_ops_ext_dir: Path):
                 TorchOptionalStringType,
                 TorchOptionalDeviceType,
                 TorchOptionalGeneratorType,
-                TorchOptionalValueTensorType,
+                TorchOptionalNonValueTensorType,
                 
                 Torch_AnyType,
                 Torch_BoolType,
@@ -346,7 +338,7 @@ def generate_torch_wrappers(torch_ops_ext_dir: Path):
                 Torch_IntType,
                 Torch_NumberType,
                 Torch_StringType,
-                Torch_ValueTensorType,
+                Torch_NonValueTensorType,
                 Torch_GeneratorType
             )
             from .dispatcher import dispatch

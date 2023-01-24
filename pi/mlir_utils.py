@@ -50,7 +50,7 @@ def run_pipeline_with_repro_report(
         with module.context:
             pm = PassManager.parse(pipeline)
             if print_pipeline:
-                print(pm)
+                print("pass-pipeline=", pm)
             if enable_ir_printing:
                 pm.enable_ir_printing()
             pm.run(module)
@@ -95,8 +95,33 @@ def lower_pi_to_linalg(module, enable_ir_printing=False):
         + ")",
         "Lowering Torch MLIR -> Linalg",
         enable_ir_printing,
+        print_pipeline=False
     )
     return module
+
+
+def lower_pi_to_torch_backend(module, enable_ir_printing=False):
+    run_pipeline_with_repro_report(
+        module,
+        "builtin.module("
+        + ",".join(
+            [
+                "symbol-dce",
+                "torch-prepare-for-globalize-object-graph",
+                "torch-globalize-object-graph",
+                "symbol-dce",
+                "inline",
+                "torch-adjust-calling-conventions",
+                "torch-lower-to-backend-contract{decompose=true max-iterations=10}",
+            ]
+        )
+        + ")",
+        "Lowering Torch MLIR -> Linalg",
+        enable_ir_printing,
+        print_pipeline=True
+    )
+    return module
+
 
 
 @contextlib.contextmanager

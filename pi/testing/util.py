@@ -3,12 +3,11 @@ from typing import Any, OrderedDict
 
 import numpy as np
 import torch
-from torch_mlir import ir
+from torch_mlir import ir, OutputType
 from torch_mlir.dialects import torch as torch_dialect, func as func_dialect
 
 from .framework import Test, TestUtils
 from ..mlir_utils import run_pipeline_with_repro_report, mlir_cm
-from .. import nn, DEBUG
 from .._tensor import Tensor
 
 FIXED = np.linspace(0, 0.1, 101)
@@ -76,12 +75,12 @@ class TorchDialectConfig:
     reaching the linalg-on-tensors abstraction level.
     """
 
-    def compile(self, program: torch.nn.Module) -> Any:
+    def compile(self, program: torch.nn.Module, output_type=OutputType.TORCH) -> Any:
         from torch_mlir_e2e_test.utils import convert_annotations_to_placeholders
         import torch_mlir
 
         example_args = convert_annotations_to_placeholders(program.forward)
-        module = torch_mlir.compile(program, example_args)
+        module = torch_mlir.compile(program, example_args, output_type=output_type)
 
         return module
 
@@ -94,7 +93,8 @@ class PIConfig:
         tu = TestUtils()
         with mlir_cm() as module:
             test_module = test_case.program_factory()
-            module.operation.attributes["torch.debug_module_name"] = ir.StringAttr.get(
+            module_name = "torch.debug_module_name"
+            module.operation.attributes[module_name] = ir.StringAttr.get(
                 test_module.__class__.__name__ + ("SMOKE_TEST" if SMOKE_TEST else "")
             )
             # TODO(max): for some reason updated __call__ doesn't stick
@@ -105,11 +105,13 @@ class PIConfig:
             func_op = func_dialect.FuncOp(
                 name="forward",
                 type=(
-                    [p.to_value_tensor_type() for p in placeholders.values()],
+                    [p.to_nonvalue_tensor_type() for p in placeholders.values()],
                     [],
                 ),
-                # visibility="public",
+                # visibility="private",
             )
+            arg_attrs = [p.to_value_tensor_type_bound() for p in placeholders.values()]
+            func_op.arg_attrs = ir.ArrayAttr.get(arg_attrs)
             func_op_entry_block = func_op.add_entry_block()
             block_args = list(map(Tensor, func_op.arguments))
 
@@ -144,7 +146,9 @@ class PIConfig:
                 if len(results) > 1:
                     print("multiple results", results)
                     res_type = ir.Type.parse(f"!torch.tuple<>")
-                    results = [torch_dialect.PrimTupleConstructOp(res_type, results).result]
+                    results = [
+                        torch_dialect.PrimTupleConstructOp(res_type, results).result
+                    ]
 
                 canonical_func_type = ir.FunctionType.get(
                     inputs=[b.type for b in block_args],
@@ -172,6 +176,6 @@ def lower_torch_mlir_to_linalg(module):
         )
         + ")",
         # "builtin.module(torch-backend-to-linalg-on-tensors-backend-pipeline)",
-        "Lowering TorchScript IR -> Torch Backend IR",
+        "Lowering Torch Backend IR to Linalg",
     )
     return module

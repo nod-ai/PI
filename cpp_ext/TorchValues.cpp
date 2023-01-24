@@ -97,7 +97,7 @@ void bindValues(py::module &m) {
       }))
       .def_property_readonly("type",
                              [](PyValue &self) {
-                               return Torch_ValueTensorType(
+                               return Torch_NonValueTensorType(
                                    self.parentOperation->getContext(),
                                    mlirValueGetType(self.get()));
                              })

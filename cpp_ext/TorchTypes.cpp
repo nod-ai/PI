@@ -141,10 +141,15 @@ void bindTypes(py::module &m) {
             py::capsule capsule =                                              \
                 pybind11::detail::mlirApiObjectToCapsule(self);                \
             MlirType rawType = {capsule.get_pointer()};                        \
-            auto rank = torchMlirTorch##TTT##TypeGetRank(rawType);             \
-            std::vector<int64_t> sizes(rank);                                  \
-            torchMlirTorch##TTT##TypeGetSizes(rawType, sizes.data());          \
-            return sizes;                                                      \
+            if (torchMlirTorch##TTT##TypeHasSizes(rawType)) {                  \
+              auto rank = torchMlirTorch##TTT##TypeGetRank(rawType);           \
+              std::vector<int64_t> sizes(rank);                                \
+              torchMlirTorch##TTT##TypeGetSizes(rawType, sizes.data());        \
+              return sizes;                                                    \
+            } else {                                                           \
+              std::vector<int64_t> sizes;                                      \
+              return sizes;                                                    \
+            }                                                                  \
           })                                                                   \
       .def_property_readonly("dtype", [](const py::handle &self) {             \
         py::capsule capsule = pybind11::detail::mlirApiObjectToCapsule(self);  \
@@ -261,10 +266,10 @@ void bindTypes(py::module &m) {
              } else {
                optionalDtype = {nullptr};
              }
-             auto tensorType = torchMlirTorchValueTensorTypeGet(
+             auto tensorType = torchMlirTorchNonValueTensorTypeGet(
                  mlirContext, numSizes, optionalSizes.data(), optionalDtype);
              auto optionalType = torchMlirTorchOptionalTypeGet(tensorType);
-             auto listType = torchMlirTorchListTypeGet(tensorType);
+             auto listType = torchMlirTorchListTypeGet(optionalType);
              return TorchListOfOptionalTensorType::createFromMlirType_(
                  listType);
            }),

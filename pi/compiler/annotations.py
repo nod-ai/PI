@@ -2,12 +2,11 @@
 # See https://llvm.org/LICENSE.txt for license information.
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 # Also available under a BSD-style license. See LICENSE.
-import functools
 import inspect
 from collections import OrderedDict
 from typing import List, Optional, Tuple, Union
 
-import pi
+from pi.types_ import dtype as pi_dtype
 from torch_mlir.dialects.torch.importer.jit_ir.build_tools.torch_ods_gen import (
     get_ods_type,
 )
@@ -22,11 +21,11 @@ def export(fn):
     return fn
 
 
-ArgAnnotation = Union[type, Tuple[List[int], pi.dtype]]
+ArgAnnotation = Union[type, Tuple[List[int], pi_dtype]]
 
 
 class TensorPlaceholder:
-    def __init__(self, shape: List[int], dtype: pi.dtype):
+    def __init__(self, shape: List[int], dtype: pi_dtype):
         self.shape = shape
         self.dtype = dtype
 
@@ -37,7 +36,17 @@ class TensorPlaceholder:
         )
         return type
 
-    def to(self, dtype: pi.dtype):
+    def to_nonvalue_tensor_type(self):
+        type = ir.Type.parse(f"!torch.tensor")
+        return type
+
+    def to_value_tensor_type_bound(self):
+        dtype = self.dtype.to_mlir_type()
+        type_bound = f"!torch.vtensor<[{','.join(map(str, self.shape))}],{dtype}>"
+        type_attr = ir.TypeAttr.parse(type_bound)
+        return ir.DictAttr.get({"torch.type_bound": type_attr})
+
+    def to(self, dtype: pi_dtype):
         self.dtype = dtype
         return self
 
@@ -45,10 +54,10 @@ class TensorPlaceholder:
         return self.to(dtype)
 
     def bool(self):
-        return self.to(pi.dtype.bool)
+        return self.to(pi_dtype.bool)
 
     def double(self):
-        self.dtype = pi.dtype.float64
+        self.dtype = pi_dtype.float64
         return self
 
 

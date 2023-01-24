@@ -201,6 +201,11 @@ def max_pool2d_with_indices(
     ceil_mode: bool = False,
     return_indices: bool = False,
 ) -> Tuple[Tensor, Tensor]:
+    kernel_size = _pair(kernel_size)
+    if stride is not None:
+        stride = _pair(stride)
+    padding = _pair(padding)
+    dilation = _pair(dilation)
     return pi._C._nn.max_pool2d_with_indices(
         input, kernel_size, stride, padding, dilation, ceil_mode
     )
@@ -215,6 +220,12 @@ def _max_pool2d(
     ceil_mode: bool = False,
     return_indices: bool = False,
 ) -> Tensor:
+    kernel_size = _pair(kernel_size)
+    if stride is not None:
+        stride = _pair(stride)
+    padding = _pair(padding)
+    dilation = _pair(dilation)
+
     return pi.max_pool2d(input, kernel_size, stride, padding, dilation, ceil_mode)
 
 
@@ -238,6 +249,11 @@ def max_pool3d_with_indices(
     ceil_mode: bool = False,
     return_indices: bool = False,
 ) -> Tuple[Tensor, Tensor]:
+    kernel_size = _triple(kernel_size)
+    if stride is not None:
+        stride = _triple(stride)
+    padding = _triple(padding)
+    dilation = _triple(dilation)
     return pi._C._nn.max_pool3d_with_indices(
         input, kernel_size, stride, padding, dilation, ceil_mode
     )
@@ -252,6 +268,11 @@ def _max_pool3d(
     ceil_mode: bool = False,
     return_indices: bool = False,
 ) -> Tensor:
+    kernel_size = _triple(kernel_size)
+    if stride is not None:
+        stride = _triple(stride)
+    padding = _triple(padding)
+    dilation = _triple(dilation)
     if stride is None:
         stride = pi.jit.annotate(List[int], [])
     return pi.max_pool3d(input, kernel_size, stride, padding, dilation, ceil_mode)
@@ -1081,8 +1102,8 @@ def batch_norm(
     momentum: float = 0.1,
     eps: float = 1e-5,
 ) -> Tensor:
-    if training:
-        _verify_batch_size(input.size())
+    # if training:
+    #     _verify_batch_size(input.size())
 
     return pi.batch_norm(
         input,
