@@ -1,5 +1,3 @@
-//===- TorchTypes.cpp - C Interface for torch types -----------------------===//
-//
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
@@ -63,20 +61,24 @@ PYBIND11_NOINLINE bool try_load_foreign_module_local(py::handle src) {
     return false;
   }
 
-  //  auto caster = pybind11::detail::type_caster_generic(foreign_typeinfo);
-  //  if (caster.load(src, false)) {
-  //    return caster.value;
-  //  } else {
-  //    std::cerr << "caster.load failed";
-  //    return false;
-  //  }
-
   if (auto *result =
           foreign_typeinfo->module_local_load(src.ptr(), foreign_typeinfo)) {
     return true;
   }
   std::cerr << "load failed\n";
   return false;
+}
+
+py::str repr(PyValue &self, const std::string &name) {
+  PyPrintAccumulator printAccum;
+  printAccum.parts.append(name + "(");
+  mlirValuePrint(self, printAccum.getCallback(), printAccum.getUserData());
+  printAccum.parts.append(")-<");
+  MlirType rawType = mlirValueGetType(self.get());
+  auto ctx = self.parentOperation->getContext();
+  printAccum.parts.append(py::repr(getPyType(rawType, ctx)));
+  printAccum.parts.append(">");
+  return printAccum.join();
 }
 
 void bindValues(py::module &m) {
@@ -101,15 +103,7 @@ void bindValues(py::module &m) {
                                    self.parentOperation->getContext(),
                                    mlirValueGetType(self.get()));
                              })
-      .def("__repr__",
-           [](PyValue &self) {
-             PyPrintAccumulator printAccum;
-             printAccum.parts.append("Tensor(");
-             mlirValuePrint(self, printAccum.getCallback(),
-                            printAccum.getUserData());
-             printAccum.parts.append(")");
-             return printAccum.join();
-           })
+      .def("__repr__", [](PyValue &self) { return repr(self, "Tensor"); })
       .def("__str__", [](py::object &self) { return py::repr(self); });
 
   py::class_<Torch_Value>(m, "Torch_Value", value_)
@@ -117,19 +111,7 @@ void bindValues(py::module &m) {
         auto capsule = pybind11::detail::mlirApiObjectToCapsule(apiObject);
         return createFromCapsule<Torch_Value>(capsule);
       }))
-      .def("__repr__",
-           [](PyValue &self) {
-             PyPrintAccumulator printAccum;
-             printAccum.parts.append("TorchValue(");
-             mlirValuePrint(self, printAccum.getCallback(),
-                            printAccum.getUserData());
-             printAccum.parts.append(")-<");
-             MlirType rawType = mlirValueGetType(self.get());
-             auto ctx = self.parentOperation->getContext();
-             printAccum.parts.append(py::repr(getPyType(rawType, ctx)));
-             printAccum.parts.append(">");
-             return printAccum.join();
-           })
+      .def("__repr__", [](PyValue &self) { return repr(self, "Torch_Value"); })
       .def("__str__", [](py::object &self) { return py::repr(self); })
       .def_property_readonly("type", [](PyValue &self) {
         auto ctx = self.parentOperation->getContext();
@@ -142,19 +124,7 @@ void bindValues(py::module &m) {
         auto capsule = pybind11::detail::mlirApiObjectToCapsule(apiObject);
         return createFromCapsule<Torch_List>(capsule);
       }))
-      .def("__repr__",
-           [](PyValue &self) {
-             PyPrintAccumulator printAccum;
-             printAccum.parts.append("Torch_List(");
-             mlirValuePrint(self, printAccum.getCallback(),
-                            printAccum.getUserData());
-             printAccum.parts.append(")-<");
-             MlirType rawType = mlirValueGetType(self.get());
-             auto ctx = self.parentOperation->getContext();
-             printAccum.parts.append(py::repr(getPyType(rawType, ctx)));
-             printAccum.parts.append(">");
-             return printAccum.join();
-           })
+      .def("__repr__", [](PyValue &self) { return repr(self, "Torch_List"); })
       .def("__str__", [](py::object &self) { return py::repr(self); })
       .def_property_readonly("type",
                              [](PyValue &self) {

@@ -7,9 +7,7 @@ from collections import OrderedDict
 from typing import List, Optional, Tuple, Union
 
 from pi.types_ import dtype as pi_dtype
-from torch_mlir.dialects.torch.importer.jit_ir.build_tools.torch_ods_gen import (
-    get_ods_type,
-)
+from torch_mlir.dialects.torch.importer.jit_ir.build_tools.torch_ods_gen import (get_ods_type, )
 from torch_mlir import ir
 
 PI_EXPORT_ATTR_NAME = "_PI_EXPORT"
@@ -31,9 +29,7 @@ class TensorPlaceholder:
 
     def to_value_tensor_type(self):
         dtype = self.dtype.to_mlir_type()
-        type = ir.Type.parse(
-            f"!torch.vtensor<[{','.join(map(str, self.shape))}],{dtype}>"
-        )
+        type = ir.Type.parse(f"!torch.vtensor<[{','.join(map(str, self.shape))}],{dtype}>")
         return type
 
     def to_nonvalue_tensor_type(self):
@@ -61,9 +57,7 @@ class TensorPlaceholder:
         return self
 
 
-def annotations_to_placeholders(
-    args: List[str], annotations: List[Optional[ArgAnnotation]]
-) -> OrderedDict:
+def annotations_to_placeholders(args: List[str], annotations: List[Optional[ArgAnnotation]]) -> OrderedDict:
     placeholders = OrderedDict()
     for annotation, arg in zip(annotations, args):
         # Skip the "self" annotation.

@@ -1,5 +1,3 @@
-//===- TorchTypes.cpp - C Interface for torch types -----------------------===//
-//
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
@@ -17,6 +15,26 @@
 using namespace mlir;
 using namespace mlir::python;
 
+
+struct Torch_NonValueTensorType : public PyConcreteType<Torch_NonValueTensorType> {
+  Torch_NonValueTensorType(PyMlirContextRef contextRef, MlirType t)
+      : PyConcreteType<Torch_NonValueTensorType>(std::move(contextRef), t) {}
+};
+
+struct TorchListOfNonValueTensorType
+    : public PyConcreteType<TorchListOfNonValueTensorType> {
+  TorchListOfNonValueTensorType(PyMlirContextRef contextRef, MlirType t)
+      : PyConcreteType<TorchListOfNonValueTensorType>(std::move(contextRef), t) {}
+};
+
+struct TorchOptionalNonValueTensorType
+    : public PyConcreteType<TorchOptionalNonValueTensorType> {
+  TorchOptionalNonValueTensorType(PyMlirContextRef contextRef, MlirType t)
+      : PyConcreteType<TorchOptionalNonValueTensorType>(std::move(contextRef), t) {
+  }
+};
+
+
 // Note: TorchScript does not consider !torch.bool to be a Scalar.
 #define TORCH_MLIR_FORALL_NUMBER_TYPES(_)                                      \
   _(Float)                                                                     \
@@ -24,10 +42,6 @@ using namespace mlir::python;
   _(Number)                                                                    \
   _(QInt8)                                                                     \
   _(QUInt8)
-
-#define TORCH_MLIR_FORALL_TENSOR_TYPES(_)                                      \
-  _(NonValueTensor)
-//  _(ValueTensor)
 
 #define TORCH_MLIR_FORALL_CONTAINER_TYPES(_)                                   \
   _(Dict)                                                                      \
@@ -52,7 +66,6 @@ using namespace mlir::python;
         : PyConcreteType<Torch_##TTT##Type>(std::move(contextRef), t) {}       \
   };
 TORCH_MLIR_FORALL_NUMBER_TYPES(DEFINE_STRUCT)
-TORCH_MLIR_FORALL_TENSOR_TYPES(DEFINE_STRUCT)
 TORCH_MLIR_FORALL_OTHER_TYPES(DEFINE_STRUCT)
 DEFINE_STRUCT(D)
 #undef DEFINE_STRUCT
@@ -74,7 +87,6 @@ TORCH_MLIR_FORALL_OTHER_TYPES(DEFINE_STRUCT)
     TorchListOf##TTT##Type(PyMlirContextRef contextRef, MlirType t)            \
         : PyConcreteType<TorchListOf##TTT##Type>(std::move(contextRef), t) {}  \
   };
-TORCH_MLIR_FORALL_TENSOR_TYPES(DEFINE_STRUCT)
 DEFINE_STRUCT(OptionalTensor)
 #undef DEFINE_STRUCT
 
@@ -87,7 +99,6 @@ DEFINE_STRUCT(OptionalTensor)
   };
 TORCH_MLIR_FORALL_NUMBER_TYPES(DEFINE_STRUCT)
 TORCH_MLIR_FORALL_OTHER_TYPES(DEFINE_STRUCT)
-TORCH_MLIR_FORALL_TENSOR_TYPES(DEFINE_STRUCT)
 #undef DEFINE_STRUCT
 
 void bindTypes(py::module &m);

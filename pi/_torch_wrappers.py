@@ -12,7 +12,7 @@ from .types_ import (
 )
 
 # noinspection PyUnresolvedReferences
-from pi._mlir import (
+from pi._pi_mlir import (
     TorchListOfTorchBoolType,
     TorchListOfTorchFloatType,
     TorchListOfTorchIntType,

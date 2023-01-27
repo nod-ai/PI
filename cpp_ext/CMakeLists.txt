@@ -51,8 +51,8 @@ set(MLIR_BINARY_DIR ${CMAKE_BINARY_DIR})
 set(MLIR_INCLUDE_TESTS 0)
 
 add_compile_definitions("MLIR_PYTHON_PACKAGE_PREFIX=torch_mlir.")
-pybind11_add_module(_mlir MainModule.cpp TorchValues.cpp TorchTypes.cpp)
+pybind11_add_module(_pi_mlir MainModule.cpp TorchValues.cpp TorchTypes.cpp)
 # for llvm::twine and stuff
-target_link_libraries(_mlir PRIVATE LLVMSupport MLIRIR)
+target_link_libraries(_pi_mlir PRIVATE LLVMSupport MLIRIR)
 
-INSTALL(TARGETS _mlir LIBRARY DESTINATION ${CMAKE_SOURCE_DIR}/pi)
+INSTALL(TARGETS _pi_mlir LIBRARY DESTINATION ${CMAKE_SOURCE_DIR}/pi)

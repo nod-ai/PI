@@ -44,18 +44,8 @@ formatter = logging.Formatter(FORMAT)
 # logging.basicConfig(level=logging.DEBUG, format=FORMAT)
 logger = logging.getLogger(__name__)
 
-# Create handlers
-# c_handler = logging.StreamHandler()
 f_handler = logging.FileHandler("file.log")
-# c_handler.setLevel(logging.DEBUG)
 f_handler.setLevel(logging.DEBUG)
-
-
-# def sig_handler(signum, frame):
-#     print(f"segfault {signum}")
-#
-#
-# signal.signal(signal.SIGSEGV, sig_handler)
 
 
 def run_torch_mlir_tests():
@@ -270,7 +260,7 @@ def main():
             {
                 "torch.": "pi.",
                 "from torch import nn": "from pi import nn",
-                "torch_mlir_e2e_test.annotations": "pi.compiler.annotations",
+                "torch_mlir_e2e_test.annotations": "pi.utils.annotations",
                 "torch_mlir_e2e_test": "pi.testing",
                 "import torchvision.models as models": "",
                 "import torch": "import pi",

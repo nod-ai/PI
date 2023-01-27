@@ -15,7 +15,7 @@ from typing import (
 )
 
 # noinspection PyUnresolvedReferences
-from pi._mlir import Torch_Tensor
+from pi._pi_mlir import Torch_Tensor
 from torch_mlir.dialects._ods_common import get_op_result_or_value
 from torch_mlir.ir import Value as MLIRValue
 

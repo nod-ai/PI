@@ -9,14 +9,14 @@ from typing import Union, List, NewType, Sequence
 import numpy as np
 
 # noinspection PyUnresolvedReferences
-from pi._mlir import (
+from pi._pi_mlir import (
     TorchListOfNonValueTensorType as TorchListOfTensor,
     TorchListOfTorchBoolType as TorchListOfTorchBool,
     TorchListOfTorchIntType as TorchListOfTorchInt,
     TorchListOfTorchFloatType as TorchListOfTorchFloat,
     TorchListOfTorchStringType as TorchListOfTorchString,
 )
-from pi._mlir import (
+from pi._pi_mlir import (
     Torch_BoolType,
     Torch_FloatType,
     Torch_IntType,

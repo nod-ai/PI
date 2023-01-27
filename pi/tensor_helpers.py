@@ -9,7 +9,7 @@ from typing import (
 import numpy as np
 
 # noinspection PyUnresolvedReferences
-from pi._mlir import Torch_Tensor, Torch_Value
+from pi._pi_mlir import Torch_Tensor, Torch_Value
 from torch_mlir.dialects import torch as torch_dialect
 from torch_mlir.ir import DenseElementsAttr
 

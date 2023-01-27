@@ -1,13 +1,11 @@
-//===- IRModules.h - IR Submodules of pybind module -----------------------===//
-//
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef MLIR_BINDINGS_PYTHON_IRMODULES_H
-#define MLIR_BINDINGS_PYTHON_IRMODULES_H
+#ifndef PI_MLIR_BINDINGS_PYTHON_IRMODULES_H
+#define PI_MLIR_BINDINGS_PYTHON_IRMODULES_H
 
 #include <iostream>
 #include <utility>
@@ -33,13 +31,13 @@ class PyOperation;
 /// reference to its underlying python object.
 template <typename T> class PyObjectRef {
 public:
-  PyObjectRef(T *referrent, pybind11::object object)
+  [[maybe_unused]] PyObjectRef(T *referrent, pybind11::object object)
       : referrent(referrent), object(std::move(object)) {
     assert(this->referrent &&
            "cannot construct PyObjectRef with null referrent");
     assert(this->object && "cannot construct PyObjectRef with null object");
   }
-  PyObjectRef(PyObjectRef &&other)
+  PyObjectRef(PyObjectRef &&other) noexcept
       : referrent(other.referrent), object(std::move(other.object)) {
     other.referrent = nullptr;
     assert(!other.object);
@@ -51,10 +49,6 @@ public:
   T *operator->() {
     assert(referrent && object);
     return referrent;
-  }
-  pybind11::object getObject() {
-    assert(referrent && object);
-    return object;
   }
   explicit operator bool() const { return referrent && object; }
 
@@ -73,7 +67,6 @@ public:
   explicit PyMlirContext(MlirContext context) : context(context){};
 
   MlirContext context;
-  friend class PyModule;
   friend class PyOperation;
 };
 
@@ -101,9 +94,6 @@ public:
   pybind11::object parentKeepAlive;
   bool attached = true;
   bool valid = true;
-
-  friend class PyOperationBase;
-  friend class PySymbolTable;
 };
 
 using PyOperationRef = PyObjectRef<PyOperation>;
@@ -112,7 +102,9 @@ class PyValue {
 public:
   PyValue(PyOperationRef parentOperation, MlirValue value)
       : parentOperation(std::move(parentOperation)), value(value) {}
-  operator MlirValue() const { return value; }
+  operator MlirValue() const {
+    return value;
+  } // NOLINT(google-explicit-constructor)
   MlirValue get() { return value; }
 
   PyOperationRef parentOperation;
@@ -124,7 +116,7 @@ private:
 struct PyType : public BaseContextObject {
   PyType(PyMlirContextRef contextRef, MlirType type)
       : BaseContextObject(std::move(contextRef)), type(type) {}
-  operator MlirType() const {
+  operator MlirType() const { // NOLINT(google-explicit-constructor)
     return type;
   } // NOLINT(google-explicit-constructor)
   [[nodiscard]] MlirType get() const { return type; }
@@ -140,7 +132,7 @@ struct PyConcreteType : public BaseTy {
   PyConcreteType(PyMlirContextRef contextRef, MlirType t)
       : BaseTy(std::move(contextRef), t) {}
 
-  static DerivedTy createFromMlirType_(MlirType rawType) {
+  static DerivedTy createFromMlirType(MlirType rawType) {
     if (mlirTypeIsNull(rawType))
       throw py::error_already_set();
 
@@ -156,7 +148,7 @@ struct PyConcreteType : public BaseTy {
 
   static DerivedTy createFromCapsule_(const py::capsule &capsule) {
     MlirType rawType = {capsule.get_pointer()};
-    return createFromMlirType_(rawType);
+    return createFromMlirType(rawType);
   }
 };
 
@@ -167,8 +159,7 @@ struct PyPrintAccumulator {
 
   MlirStringCallback getCallback() {
     return [](MlirStringRef part, void *userData) {
-      PyPrintAccumulator *printAccum =
-          static_cast<PyPrintAccumulator *>(userData);
+      auto *printAccum = static_cast<PyPrintAccumulator *>(userData);
       pybind11::str pyPart(part.data,
                            part.length); // Decodes as UTF-8 by default.
       printAccum->parts.append(std::move(pyPart));
@@ -183,4 +174,4 @@ struct PyPrintAccumulator {
 
 } // namespace mlir::python
 
-#endif // MLIR_BINDINGS_PYTHON_IRMODULES_H
+#endif // PI_MLIR_BINDINGS_PYTHON_IRMODULES_H

@@ -16,7 +16,7 @@ int DisableABIBreakingChecks = 1;
 int EnableABIBreakingChecks = 0;
 } // namespace llvm
 
-PYBIND11_MODULE(_mlir, m) {
+PYBIND11_MODULE(_pi_mlir, m) {
   dylib lib2("TorchMLIRAggregateCAPI");
 
   if (!lib2.has_symbol("mlirValueIsAOpResult")) {
