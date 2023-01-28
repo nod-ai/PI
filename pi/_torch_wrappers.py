@@ -12,7 +12,7 @@ from .types_ import (
 )
 
 # noinspection PyUnresolvedReferences
-from pi._pi_mlir import (
+from ._pi_mlir import (
     TorchListOfTorchBoolType,
     TorchListOfTorchFloatType,
     TorchListOfTorchIntType,
@@ -183,12 +183,6 @@ def RaiseException(
     if cls is None:
         cls = torch_dialect.ConstantNoneOp().result
     torch_dialect.PrimRaiseExceptionOp(msg, cls)
-
-
-def ScalarImplicit(a: Tensor) -> TorchNumber:
-    assert check_argument_types()
-    result0_type = Torch_NumberType()
-    return Torch_Value(torch_dialect.AtenScalarImplicitOp(result0_type, a).result)
 
 
 def TupleIndex(
@@ -1150,16 +1144,6 @@ def add(self_: Tensor, other: TorchNumber, alpha: TorchNumber = 1) -> Tensor:
         alpha = torch_dialect.ConstantNumberOp(alpha).result
     result0_type = Torch_NonValueTensorType()
     return Tensor(torch_dialect.AtenAddScalarOp(result0_type, self_, other, alpha))
-
-
-# overload t
-@dispatch
-def add(
-    a: Union[Sequence[Any], Any], b: Union[Sequence[Any], Any]
-) -> Union[Sequence[Any], Any]:
-    assert check_argument_types()
-    result0_type = Torch_List.of(Torch_AnyType())
-    return Torch_Value(torch_dialect.AtenAddTOp(result0_type, a, b).result)
 
 
 # overload str
@@ -8401,7 +8385,6 @@ __all__ = [
     "IntImplicit",
     "NumToTensor",
     "RaiseException",
-    "ScalarImplicit",
     "TupleIndex",
     "Uninitialized",
     "__and__",

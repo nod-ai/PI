@@ -16,7 +16,7 @@ from torch_mlir.ir import DenseElementsAttr
 from .types_ import (
     dtype as pi_dtype,
 )
-from ._torch_wrappers import empty, ones, zeros, tensor, device
+from .torch_wrappers import empty, ones, zeros, tensor, device
 from ._tensor import Tensor
 
 
@@ -38,7 +38,7 @@ def _np_wrapper(*size: Tuple[int, ...], **kwargs):
     factory = kwargs.get("factory", None)
     assert factory is not None
     if size == ((),) or len(size) == 0:
-        return factory()
+        return from_numpy(factory())
 
     if isinstance(size[0], (tuple, list)):
         assert len(size) == 1, f"malformed size tuple {size}"
@@ -94,7 +94,15 @@ ones = functools.partial(_torch_wrapper, factory=ones)
 zeros = functools.partial(_torch_wrapper, factory=zeros)
 rand = functools.partial(_np_wrapper, factory=np.random.rand)
 randn = functools.partial(_np_wrapper, factory=np.random.randn)
-tensor = functools.partial(_np_wrapper, factory=np.array)
+
+
+def tensor(arr, **kwargs):
+    dtype = kwargs.get("dtype", None)
+    if dtype is not None:
+        res = np.array(arr, dtype=dtype.to_np_type())
+    else:
+        res = np.array(arr)
+    return from_numpy(res)
 
 
 def LongTensor(data: Any) -> Tensor:

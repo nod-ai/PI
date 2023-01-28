@@ -15,7 +15,7 @@ import torch_mlir
 import torch_mlir_e2e_test
 import torch_mlir_e2e_test.registry
 
-from xfail import PI_XFAIL_SET
+from xfail import PI_XFAIL_SET, CASTS
 
 from torch_mlir_e2e_test.test_suite import COMMON_TORCH_MLIR_LOWERING_XFAILS
 from torch_mlir_e2e_test.test_suite import (
@@ -104,9 +104,27 @@ def run_torch_mlir_tests():
     return torch_mlir_module_strs
 
 
+ONLY = {
+    # "BoolIntConstantModule_basic"
+    # "NllLossModuleBackward1DMeanWeight_basic"
+}
+# ONLY = CASTS
+
+
 def run_pi_tests(torch_mlir_module_strs):
     torch_mlir_register_all_tests()
-    tests = sorted(PI_GLOBAL_TEST_REGISTRY, key=lambda t: t.unique_name)
+    for cast in CASTS:
+        assert cast in PI_GLOBAL_TEST_REGISTRY, f"missing expected test case {cast}"
+        PI_GLOBAL_TEST_REGISTRY.pop(cast)
+    # noinspection PyUnresolvedReferences
+    import casts
+
+    for cast in CASTS:
+        assert cast in PI_GLOBAL_TEST_REGISTRY, f"missing expected test case {cast}"
+
+    tests = sorted(PI_GLOBAL_TEST_REGISTRY.values(), key=lambda t: t.unique_name)
+    if ONLY:
+        tests = list(filter(lambda t: t.unique_name in ONLY, tests))
     assert tests, "failed to load tests"
 
     pi.nn.Module.train = lambda *args, **kwargs: None

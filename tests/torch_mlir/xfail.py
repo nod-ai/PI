@@ -61,44 +61,23 @@ PI_XFAIL_SET = {
     # error: found an op that was marked as backend illegal
     "AtenToDeviceModule_basic", # basically an type match issue around dtype/device, pi lowers to torch.aten.to.dtype_layout while torch_mlir lowers to torch.aten.to.device
 
-    # int/float casts (29)
-    "AddIntModule_basic",
-    "AtenIntBoolOpConstFalseModule_basic",
-    "AtenIntBoolOpConstTrueModule_basic",
-    "AtenIntBoolOpModule_basic",
-    "AtenIntTensorByteDtypeModule_basic",
-    "AtenIntTensorCharDtypeModule_basic",
-    "BoolFloatConstantModule_basic",
-    "BoolFloatFalseModule_basic",
-    "BoolFloatTrueModule_basic",
-    "BoolIntConstantModule_basic",
-    "BoolIntFalseModule_basic",
-    "BoolIntTrueModule_basic",
+    # 0dim rand
     "CeilFloatModule_basic",
     "DivFloatModule_basic",
-    "DivIntModule_basic",
-    "EqIntModule_basic",
     "GeFloatIntModule_basic",
     "GeFloatModule_basic",
-    "GeIntModule_basic",
     "GtFloatIntModule_basic",
-    "GtIntModule_basic",
-    "MulIntModule_basic",
     "NeFloatIntModule_basic",
-    "NeIntModule_basic",
-    "ScalarImplicitFloatModule_basic",
-    "ScalarImplicitIntModule_basic",
-    "SqrtIntConstantModule_basic",
-    "SqrtIntModule_basic",
     "SubFloatModule_basic",
-    "SubIntModule_basic",
     "TensorToFloatZeroRank_basic",
-    "TensorToFloat_basic",
-    "TensorToIntZeroRank_basic",
-    "TensorToInt_basic",
+    "BroadcastZeroRankInputStaticModule_basic",
+    "ElementwiseAtenWhereSelfModule_basic",
+    "ElementwiseUnsqueezeBroadcastModule_basic",
+
+    # list of varied types
     "UnsafeViewCollapseDynamicWithAtenSizeIntModule_basic",
     "ViewCollapseDynamicWithAtenSizeIntModule_basic",
-
+    
     # doesn't abide by schema (mostly empty dim) - maxpool needs to be rerouted through functional (where _pair, _triple, etc)
     "MaxPool2dWithIndicesAllNegativeValuesModule_basic",
     "MaxPool2dWithIndicesFullSizeKernelModule_basic",
@@ -126,4 +105,36 @@ PI_XFAIL_SET = {
     # dtype issue (number conflates with int)
     # error: unsupported: conversion to byte or char type for convertScalarToDtype 'i64'(scalar type) -> 'i8'(dtype)
     "ArangeStartNegativeStepIntModule_basic",
+}
+
+CASTS = {
+    # int/float casts (29)
+    "AddIntModule_basic",
+    "AtenIntBoolOpConstFalseModule_basic",
+    "AtenIntBoolOpConstTrueModule_basic",
+    "AtenIntBoolOpModule_basic",
+    "AtenIntTensorByteDtypeModule_basic",
+    "AtenIntTensorCharDtypeModule_basic",
+    "BoolFloatConstantModule_basic",
+    "BoolFloatFalseModule_basic",
+    "BoolFloatTrueModule_basic",
+    "BoolIntConstantModule_basic",
+    "BoolIntFalseModule_basic",
+    "BoolIntTrueModule_basic",
+    "DivIntModule_basic",
+    "EqIntModule_basic",
+    "GeIntModule_basic",
+    "GtIntModule_basic",
+    "MulIntModule_basic",
+    "NeIntModule_basic",
+    "ScalarImplicitFloatModule_basic",
+    "ScalarImplicitIntModule_basic",
+    "SqrtIntConstantModule_basic",
+    "SqrtIntModule_basic",
+    "SubIntModule_basic",
+    "TensorToBool_basic",
+    "TensorToBoolZeroRank_basic",
+    "TensorToFloat_basic",
+    "TensorToIntZeroRank_basic",
+    "TensorToInt_basic",
 }

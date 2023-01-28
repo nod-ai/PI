@@ -1,14 +1,14 @@
 import unittest
 
 # noinspection PyUnresolvedReferences
-from pi._mlir import (
-    TorchListOfValueTensorType as TorchListOfTensor,
+from pi._pi_mlir import (
+    TorchListOfNonValueTensorType as TorchListOfTensor,
     TorchListOfTorchBoolType as TorchListOfTorchBool,
     TorchListOfTorchIntType as TorchListOfTorchInt,
     TorchListOfTorchFloatType as TorchListOfTorchFloat,
     TorchListOfTorchStringType as TorchListOfTorchString,
 )
-from pi._mlir import (
+from pi._pi_mlir import (
     Torch_FloatType,
     Torch_IntType,
     Torch_BoolType,
@@ -22,7 +22,9 @@ from pi.mlir_utils import mlir_cm
 from pi.types_ import Torch_Value, Torch_List
 
 
-def FloatCheckArgReturn(a: Torch_Value[Torch_FloatType]) -> Torch_Value[Torch_FloatType]:
+def FloatCheckArgReturn(
+    a: Torch_Value[Torch_FloatType],
+) -> Torch_Value[Torch_FloatType]:
     assert check_argument_types()
     retval = Torch_Value(torch_dialect.AtenFloatScalarOp(a).result)
     assert check_return_type(retval)
@@ -52,9 +54,7 @@ class TestTypeChecking(unittest.TestCase):
         tt = Torch_Value(torch_dialect.ConstantIntOp(2).result)
         # print(tt)
         typ = Torch_List.of(Torch_IntType())
-        l = Torch_Value(
-            torch_dialect.PrimListConstructOp(typ, [t, tt]).result
-        )
+        l = Torch_Value(torch_dialect.PrimListConstructOp(typ, [t, tt]).result)
         # print(l)
 
     def test_type_checking(self):
@@ -78,18 +78,16 @@ class TestTypeChecking(unittest.TestCase):
         # print(t)
         tt = Torch_Value(torch_dialect.ConstantIntOp(2).result)
         with self.assertRaises(
-                NotFoundLookupError,
-                # r"Not correct type param \(<class 'pi\._mlir.Torch_BoolType'>\): TorchInt\(\!torch\.int\)",
+            NotFoundLookupError,
+            # r"Not correct type param \(<class 'pi\._mlir.Torch_BoolType'>\): TorchInt\(\!torch\.int\)",
         ):
             torch_any([t, tt])
 
         typ = Torch_List.of(Torch_IntType())
-        l = Torch_Value(
-            torch_dialect.PrimListConstructOp(typ, [t, tt]).result
-        )
+        l = Torch_Value(torch_dialect.PrimListConstructOp(typ, [t, tt]).result)
         with self.assertRaises(
-                NotFoundLookupError,
-                # r"Not correct type param \(<class 'pi\._mlir\.TorchListOfTorchBoolType'>\): TorchListOfTorchInt\(\!torch\.list<int>\)",
+            NotFoundLookupError,
+            # r"Not correct type param \(<class 'pi\._mlir\.TorchListOfTorchBoolType'>\): TorchListOfTorchInt\(\!torch\.list<int>\)",
         ):
             torch_any(l)
 
@@ -100,9 +98,7 @@ class TestTypeChecking(unittest.TestCase):
         ll = torch_any([t, tt])
 
         typ = Torch_List.of(Torch_BoolType())
-        l = Torch_List(
-            torch_dialect.PrimListConstructOp(typ, [t, tt]).result
-        )
+        l = Torch_List(torch_dialect.PrimListConstructOp(typ, [t, tt]).result)
         ll = torch_any(l)
 
     def test_rand(self):

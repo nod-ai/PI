@@ -15,7 +15,7 @@ from typing import (
 )
 
 # noinspection PyUnresolvedReferences
-from pi._pi_mlir import Torch_Tensor
+from ._pi_mlir import Torch_Tensor
 from torch_mlir.dialects._ods_common import get_op_result_or_value
 from torch_mlir.ir import Value as MLIRValue
 
@@ -161,8 +161,8 @@ class Tensor(Torch_Tensor):
     def __index__(self: Tensor) -> builtins.int:
         raise NotImplementedError("__index__")
 
-    def __int__(self: Tensor) -> builtins.int:
-        raise NotImplementedError("__int__")
+    def __int__(self: Tensor) -> "Torch_Value":
+        return pi.Int(self)
 
     def __invert__(self: Tensor) -> Tensor:
         raise NotImplementedError("__invert__")
@@ -310,7 +310,7 @@ class Tensor(Torch_Tensor):
         return pi.sub(self, other)
 
     def __truediv__(self: Tensor, other: Any) -> Tensor:
-        raise NotImplementedError("__truediv__")
+        raise pi.div(self, other)
 
     @dispatch
     def __xor__(self: Tensor, other: Tensor) -> Tensor:

@@ -38,6 +38,7 @@ from typeguard import (
     check_type,
 )
 
+import pi
 
 T = TypeVar("T", Torch_FloatType, Torch_BoolType, Torch_StringType, Torch_IntType)
 
@@ -49,6 +50,39 @@ class Torch_Value(_Torch_Value, Generic[T]):
     @property
     def type(self) -> T:
         return super().type
+
+    def __add__(self, other):
+        return pi.add(self, other)
+
+    def __sub__(self, other):
+        return pi.sub(self, other)
+
+    def __mul__(self, other):
+        return pi.mul(self, other)
+
+    def __floordiv__(self, other):
+        return pi.floordiv(self, other)
+
+    def __truediv__(self, other):
+        return pi.div(self, other)
+
+    def __eq__(self, other):
+        return pi.eq(self, other)
+
+    def __ne__(self, other):
+        return pi.ne(self, other)
+
+    def __gt__(self, other):
+        return pi.gt(self, other)
+
+    def __ge__(self, other):
+        return pi.ge(self, other)
+
+    def __lt__(self, other):
+        return pi.lt(self, other)
+
+    def __le__(self, other):
+        return pi.le(self, other)
 
 
 class Torch_List(_Torch_List, Generic[T]):
@@ -118,7 +152,38 @@ def torch_value_checker_lookup(
     return None
 
 
+import typeguard._checkers
+
+
+# remove after https://github.com/agronholm/typeguard/issues/288 is resolved.
+def patch_check_number(
+    value: Any, origin_type: Any, args: tuple[Any, ...], memo: TypeCheckMemo
+) -> None:
+    if origin_type is builtins.complex and not isinstance(
+        value, (builtins.complex, builtins.float, builtins.int)
+    ):
+        raise TypeCheckError("is neither complex, float or int")
+    elif origin_type is builtins.float and isinstance(value, builtins.bool):
+        raise TypeCheckError("is neither float or int")
+    elif origin_type is builtins.float and not isinstance(
+        value, (builtins.float, builtins.int)
+    ):
+        raise TypeCheckError("is neither float or int")
+
+
+def patch_check_float(
+    value: Any, origin_type: Any, args: tuple[Any, ...], memo: TypeCheckMemo
+) -> None:
+    if origin_type is builtins.float and not isinstance(value, builtins.float):
+        raise TypeCheckError("is not a float")
+
+
+typeguard._checkers.check_number = patch_check_number
+
+
 checker_lookup_functions.insert(0, torch_value_checker_lookup)
+typeguard._checkers.origin_type_checkers[float] = patch_check_float
+# typeguard._checkers.origin_type_checkers[complex] = patch_check_number
 
 
 class dtype(Enum):
@@ -189,7 +254,20 @@ class dtype(Enum):
             case dtype.uint8:
                 return ir.IntegerType.get_unsigned(8)
             case _:
-                raise NotImplementedError("Something's wrong with the internet")
+                raise NotImplementedError(f"unimplemented to mlir_type from {self}")
+
+    def to_torch_value_type(self):
+        match self:
+            case dtype.bool:
+                return Torch_BoolType()
+            case dtype.float16 | dtype.float32 | dtype.float64:
+                return Torch_FloatType()
+            case dtype.int8 | dtype.int16 | dtype.int32 | dtype.int64 | dtype.uint8:
+                return Torch_IntType()
+            case _:
+                raise NotImplementedError(
+                    f"unimplemented to torch value type from {self}"
+                )
 
     @staticmethod
     def from_np_type(self):
@@ -298,11 +376,11 @@ qint8 = dtype.qint8
 quint8 = dtype.quint8
 uint8 = dtype.uint8
 
-Size = size = Union[List[int], Tuple[int, ...]]
+Size = size = Union[List[builtins.int], Tuple[builtins.int, ...]]
 
 Generator = Any
 
-device = Device = TorchDevice = NewType("Device", str)
+device = Device = TorchDevice = NewType("Device", builtins.str)
 
 
 class BroadcastingListCls(object):

@@ -3,11 +3,11 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 # Also available under a BSD-style license. See LICENSE.
 import inspect
+import warnings
 from collections import OrderedDict
 from typing import List, Optional, Tuple, Union
 
 from pi.types_ import dtype as pi_dtype
-from torch_mlir.dialects.torch.importer.jit_ir.build_tools.torch_ods_gen import (get_ods_type, )
 from torch_mlir import ir
 
 PI_EXPORT_ATTR_NAME = "_PI_EXPORT"
@@ -23,13 +23,15 @@ ArgAnnotation = Union[type, Tuple[List[int], pi_dtype]]
 
 
 class TensorPlaceholder:
-    def __init__(self, shape: List[int], dtype: pi_dtype):
+    def __init__(self, shape: Union[Tuple[int, ...], List[int]], dtype: pi_dtype):
         self.shape = shape
         self.dtype = dtype
 
     def to_value_tensor_type(self):
         dtype = self.dtype.to_mlir_type()
-        type = ir.Type.parse(f"!torch.vtensor<[{','.join(map(str, self.shape))}],{dtype}>")
+        type = ir.Type.parse(
+            f"!torch.vtensor<[{','.join(map(str, self.shape))}],{dtype}>"
+        )
         return type
 
     def to_nonvalue_tensor_type(self):
@@ -37,9 +39,7 @@ class TensorPlaceholder:
         return type
 
     def to_value_tensor_type_bound(self):
-        dtype = self.dtype.to_mlir_type()
-        type_bound = f"!torch.vtensor<[{','.join(map(str, self.shape))}],{dtype}>"
-        type_attr = ir.TypeAttr.parse(type_bound)
+        type_attr = ir.TypeAttr.get(self.to_value_tensor_type())
         return ir.DictAttr.get({"torch.type_bound": type_attr})
 
     def to(self, dtype: pi_dtype):
@@ -57,7 +57,9 @@ class TensorPlaceholder:
         return self
 
 
-def annotations_to_placeholders(args: List[str], annotations: List[Optional[ArgAnnotation]]) -> OrderedDict:
+def annotations_to_placeholders(
+    args: List[str], annotations: List[Optional[ArgAnnotation]]
+) -> OrderedDict:
     placeholders = OrderedDict()
     for annotation, arg in zip(annotations, args):
         # Skip the "self" annotation.
@@ -66,7 +68,10 @@ def annotations_to_placeholders(args: List[str], annotations: List[Optional[ArgA
             continue
         shape, dtype, value_tensor = annotation
         assert value_tensor, f"non-value tensors not supported {arg}"
+        if not shape:
+            warnings.warn(f"empty shape annotation: {shape}")
         placeholders[arg] = TensorPlaceholder(annotation[0], annotation[1])
+
     return placeholders
 
 

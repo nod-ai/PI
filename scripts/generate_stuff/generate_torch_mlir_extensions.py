@@ -25,6 +25,8 @@ DEBUG = False
 BLACKLIST = {
     "QuantizedLinearOp",
     "PrimsSqrtOp",
+    "AtenAddTOp",
+    "ScalarImplicit",
 }
 OP_NAME_SUBS = {"linalg_vector_norm": "vector_norm"}
 UNIQUE_OPS = []
@@ -91,9 +93,7 @@ def _pytype_to_fn_pytype_common(arg) -> str:
     pretty_type_annot = pretty_print_type_hint(ods_type_annot)
     if match := re.findall(r"(dtype|layout|memory_format)", arg["name"]):
         match = match[0]
-        pretty_type_annot = pretty_type_annot.replace(
-            "int", f"int, pi_{match}"
-        )
+        pretty_type_annot = pretty_type_annot.replace("int", f"int, pi_{match}")
     pretty_type_annot = (
         pretty_type_annot.replace("~T,", "")
         .replace("int", "builtins.int")
@@ -314,7 +314,7 @@ def generate_torch_wrappers(torch_ops_ext_dir: Path):
                 Torch_Dict,
             )
             # noinspection PyUnresolvedReferences
-            from pi._mlir import (
+            from ._pi_mlir import (
                 TorchListOfTorchBoolType,
                 TorchListOfTorchFloatType,
                 TorchListOfTorchIntType,
@@ -349,7 +349,6 @@ def generate_torch_wrappers(torch_ops_ext_dir: Path):
             from typeguard import check_argument_types
             
             TorchNumber = Union[Torch_Value[Torch_IntType], Torch_Value[Torch_FloatType], int, float]
-            
             """
             )
         )
