@@ -53,8 +53,8 @@ class _NormBase(Module):
             self.weight = UninitializedParameter(num_features, **factory_kwargs)
             self.bias = UninitializedParameter(num_features, **factory_kwargs)
         else:
-            self.register_("weight", None)
-            self.register_("bias", None)
+            self.register_parameter("weight", None)
+            self.register_parameter("bias", None)
         if self.track_running_stats:
             self.register_buffer(
                 "running_mean",

@@ -14,12 +14,7 @@ PI_XFAIL_SET = {
     "ResNet18StaticModule_basic",
 
     # tuple returns
-    # torhc-mlir handles this incorrectly - if you tuple up the returns, it'll then unpack them during the
-    # AdjustCallingConventionsPass but won't update the funcop type correctly (and thus the verifier throws
-    # error: 'func.return' op has 2 operands, but enclosing function (@forward) returns 1)
-    "AtenEmbeddingBagSumExample_basic",
     "TestMultipleTensorAndPrimitiveTypesReturn_basic",
-    "TestMultipleTensorReturn_basic",
 
     # segfault
     "Aten_EmbeddingBagExample_basic",
@@ -56,7 +51,6 @@ PI_XFAIL_SET = {
     # backends
     "ConvolutionBackwardModule2DPadded_basic",
     "ConvolutionBackwardModule2D_basic",
-
 
     # error: found an op that was marked as backend illegal
     "AtenToDeviceModule_basic", # basically an type match issue around dtype/device, pi lowers to torch.aten.to.dtype_layout while torch_mlir lowers to torch.aten.to.device

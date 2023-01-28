@@ -96,8 +96,8 @@ class LayerNorm(Module):
             )
             self.bias = UninitializedParameter(self.normalized_shape, **factory_kwargs)
         else:
-            self.register_("weight", None)
-            self.register_("bias", None)
+            self.register_parameter("weight", None)
+            self.register_parameter("bias", None)
 
         self.reset_parameters()
 
@@ -148,8 +148,8 @@ class GroupNorm(Module):
             self.weight = UninitializedParameter(num_channels, **factory_kwargs)
             self.bias = UninitializedParameter(num_channels, **factory_kwargs)
         else:
-            self.register_("weight", None)
-            self.register_("bias", None)
+            self.register_parameter("weight", None)
+            self.register_parameter("bias", None)
 
         self.reset_parameters()
 

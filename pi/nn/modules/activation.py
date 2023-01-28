@@ -448,7 +448,7 @@ class MultiheadAttention(Module):
         if bias:
             self.in_proj_bias = UninitializedParameter(3 * embed_dim, **factory_kwargs)
         else:
-            self.register_("in_proj_bias", None)
+            self.register_parameter("in_proj_bias", None)
         self.out_proj = NonDynamicallyQuantizableLinear(
             embed_dim, embed_dim, bias=bias, **factory_kwargs
         )

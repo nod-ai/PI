@@ -49,7 +49,7 @@ class Linear(Module):
         if bias:
             self.bias = UninitializedParameter(out_features, **factory_kwargs)
         else:
-            self.register_("bias", None)
+            self.register_parameter("bias", None)
         # self.reset_parameters()
 
     def reset_parameters(self) -> None:
@@ -118,7 +118,7 @@ class Bilinear(Module):
         if bias:
             self.bias = UninitializedParameter(out_features, **factory_kwargs)
         else:
-            self.register_("bias", None)
+            self.register_parameter("bias", None)
         self.reset_parameters()
 
     def reset_parameters(self) -> None:

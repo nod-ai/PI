@@ -1,4 +1,5 @@
 import builtins
+import re
 import weakref
 from enum import Enum
 from inspect import isclass
@@ -474,8 +475,16 @@ def _f64Attr(x, context):
     return FloatAttr.get(F64Type.get(context=context), x)
 
 
+from torch_mlir.dialects import _torch_ops_gen
+
+anon_n = re.findall(
+    "AttrBuilder\.get\('anonymous_(\d+)'\)", open(_torch_ops_gen.__file__).read()
+)
+assert len(anon_n) == 1, "couldn't find torch_mlir constantnoneop anon num"
+anon_n = anon_n[0]
+
 # ConstantNumberOp
-@register_attribute_builder("anonymous_443")
+@register_attribute_builder(f"anonymous_{anon_n}")
 def _numberAttr(x, context):
     if isinstance(x, builtins.float):
         return FloatAttr.get(F64Type.get(context=context), x)

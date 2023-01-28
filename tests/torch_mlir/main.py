@@ -106,7 +106,7 @@ def run_torch_mlir_tests():
 
 ONLY = {
     # "BoolIntConstantModule_basic"
-    # "NllLossModuleBackward1DMeanWeight_basic"
+    # "BatchNorm3DModule_basic"
 }
 # ONLY = CASTS
 
@@ -262,12 +262,12 @@ def run_pi_tests(torch_mlir_module_strs):
     print(
         f"\n{''.join('*' * 10)}\n\n{PASS=}\n{NotImplementedErrorFAIL=}\n{NotFoundLookupErrorFAIL=}\n{AmbiguousLookupErrorFAIL=}\n{lower_to_linalg_FAIL=}\n{irFAIL=}\n{SKIP=}\nout of {TOTAL=}\n\n{''.join('*' * 10)}\n"
     )
-    # assert (
-    #     NotImplementedErrorFAIL == 0
-    # ), f"missing torch_wrappers impl; you probably need to run generate_torch_mlir_extensions.py: {NotImplementedErrorFAIL=}"
-    # assert (
-    #     NotFoundLookupErrorFAIL == 0
-    # ), f"pytorch api changed; good luck: {NotFoundLookupErrorFAIL=}"
+    assert (
+        NotImplementedErrorFAIL == 0
+    ), f"missing torch_wrappers impl; you probably need to run generate_torch_mlir_extensions.py: {NotImplementedErrorFAIL=}"
+    assert (
+        NotFoundLookupErrorFAIL == 0
+    ), f"pytorch api changed; good luck: {NotFoundLookupErrorFAIL=}"
 
 
 def main():

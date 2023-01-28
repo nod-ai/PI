@@ -1,4 +1,6 @@
+import re
 import warnings
+from itertools import chain
 from typing import Any, OrderedDict
 
 import numpy as np
@@ -110,6 +112,7 @@ class PIConfig:
                 ),
                 # visibility="private",
             )
+
             arg_attrs = [p.to_value_tensor_type_bound() for p in placeholders.values()]
             func_op.arg_attrs = ir.ArrayAttr.get(arg_attrs)
             func_op_entry_block = func_op.add_entry_block()
@@ -121,6 +124,21 @@ class PIConfig:
                 return block_args, kwargs
 
             test_module.register_forward_pre_hook(replace_block_args, prepend=True)
+
+            def move_buffers_params_into_func(self_, *args, **kwargs):
+                for child in self_.all_children():
+                    for thing in chain(
+                        child._buffers.values(), child._parameters.values()
+                    ):
+                        if isinstance(thing, Tensor):
+                            mlir_val = ir.Value._CAPICreate(thing._CAPIPtr)
+                            ir.InsertionPoint.at_block_begin(
+                                func_op_entry_block
+                            ).insert(mlir_val.owner.detach_from_parent())
+
+            test_module.register_forward_pre_hook(
+                move_buffers_params_into_func, prepend=True
+            )
 
             results = []
 
@@ -144,8 +162,15 @@ class PIConfig:
                 assert all(isinstance(r, (Tensor, ir.Value)) for r in results), results
                 # functions created from python can't return multiple results
                 if len(results) > 1:
-                    print("multiple results", results)
-                    res_type = ir.Type.parse(f"!torch.tuple<>")
+                    el_type_reg = re.compile(r"!torch\.(.*)")
+                    el_types = []
+                    for r in results:
+                        el_type = el_type_reg.findall(str(r.type))
+                        assert len(el_type) == 1
+                        el_types.append(el_type[0])
+                    res_type = ir.Type.parse(
+                        f"!torch.tuple<{', '.join(el_types)}>"
+                    )
                     results = [
                         torch_dialect.PrimTupleConstructOp(res_type, results).result
                     ]

@@ -101,12 +101,16 @@ def tensor(arr, **kwargs):
     if dtype is not None:
         res = np.array(arr, dtype=dtype.to_np_type())
     else:
-        res = np.array(arr)
+        res = np.array(arr, dtype=np.float32)
     return from_numpy(res)
 
 
 def LongTensor(data: Any) -> Tensor:
     return from_numpy(np.array(data, dtype=pi_dtype.int64.to_np_type()))
+
+
+def FloatTensor(data: Any) -> Tensor:
+    return from_numpy(np.array(data, dtype=pi_dtype.float64.to_np_type()))
 
 
 def device(a: Union[Tensor, str]):
@@ -124,6 +128,7 @@ __all__ = [
     "ones",
     "tensor",
     "LongTensor",
+    "FloatTensor",
     "zeros",
     "device",
 ]
