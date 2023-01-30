@@ -5,7 +5,7 @@ from torch_mlir import ir
 
 from pi.types_ import float32, int64
 from pi import nn
-from pi.compiler.annotations import TensorPlaceholder
+from pi.utils.annotations import TensorPlaceholder
 
 
 # Utilities for common testing trace generation.

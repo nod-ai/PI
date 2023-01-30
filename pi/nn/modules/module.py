@@ -1,5 +1,6 @@
 import inspect
 import itertools
+import warnings
 from abc import abstractmethod
 from collections import OrderedDict
 from typing import Dict, Optional, Callable, Union
@@ -23,6 +24,7 @@ class Module:
     _forward_pre_hooks: OrderedDict[str, Callable]
     _forward_post_hooks: OrderedDict[str, Callable]
     _forward: Callable
+    training = False
 
     def __init__(self):
         _set = super().__setattr__
@@ -54,6 +56,12 @@ class Module:
     @abstractmethod
     def forward(self, *args, **kwargs):
         raise NotImplementedError
+
+    def eval(self):
+        pass
+
+    def train(self):
+        pass
 
     def __call__(self, *args, **kwargs):
         for hook_id, hook in self._forward_pre_hooks.items():
@@ -124,13 +132,13 @@ class Module:
             assert isinstance(
                 value, UninitializedParameter
             ), f"class comparison failed {type(value)} {UninitializedParameter}"
-            self.register_(name, value)
+            self.register_parameter(name, value)
         elif name in self._parameters:
             assert value is None or (
                 isinstance(self._parameters[name], UninitializedParameter)
                 and isinstance(value, Tensor)
             ), f"{name}:{type(value).__module__}.{type(value).__name__} cannot override parameter {name}:{type(self._parameters[name]).__module__}.{type(self._parameters[name]).__name__}"
-            self.register_(name, value)
+            self.register_parameter(name, value)
         else:
             if isinstance(value, Module):
                 remove_from(
@@ -144,7 +152,9 @@ class Module:
                 self.register_module(name, value)
             else:
                 if name in self._buffers:
-                    assert value is None, f"{type(value)} cannot override buffer {name}"
+                    warnings.warn(
+                        f"{type(value)} overriding buffer {name} in {self.__class__.__name__}"
+                    )
                     self.register_buffer(name, value)
                 else:
                     super().__setattr__(name, value)
@@ -171,7 +181,7 @@ class Module:
     ) -> None:
         self._buffers[name] = tensor
 
-    def register_(
+    def register_parameter(
         self, name: str, param: Optional[Union[Parameter, UninitializedParameter]]
     ) -> None:
         self._parameters[name] = param
@@ -189,11 +199,11 @@ class Module:
                 parameters[name] = param()
 
     def has_uninitialized_params(self):
-        params = self._parameters.values()
-        buffers = self._buffers.values()
-        for param in itertools.chain(params, buffers):
+        params = self._parameters.items()
+        buffers = self._buffers.items()
+        for param_name, param in itertools.chain(params, buffers):
             if is_uninitialized(param):
-                return param
+                return param_name, param
         return None
 
     def not_uninitialized(self):
@@ -229,3 +239,17 @@ class Module:
             self._buffers[name] = UninitializedBuffer(*buffer.size, dtype=dtype)
 
         return self
+
+    def all_children(self):
+        def get_children(module):
+            children = list(module._modules.values())
+            flat_children = []
+            if not children:
+                return [module]
+            else:
+                for child in children:
+                    children = get_children(child)
+                    flat_children.extend(children)
+            return flat_children
+
+        return get_children(self)

@@ -1,12 +1,17 @@
+import functools
 import inspect
+import warnings
 from functools import partial
 from typing import Union, List, Tuple
+
+import pi
 
 # this is the right way to import in order to not screw up the tests (torch.dtype vs pi.type)
 from ..types_ import dtype as pi_dtype
 
 # import pi
-from .._tensor import Tensor, empty
+from .._tensor import Tensor
+from ..tensor_helpers import empty
 
 
 class Parameter(Tensor):
@@ -17,29 +22,44 @@ class Parameter(Tensor):
 class Uninitialized(partial):
     size: Union[List[int], Tuple[int, ...]]
     dtype: pi_dtype = None
+    optional: bool = False
 
     def __new__(cls, *args, **keywords):
-        func = args[0]
-        if not inspect.isfunction(func):
-            func = empty
+        if isinstance(args[0], Tensor):
+            return args[0]
         else:
-            args = args[1:]
+            func = args[0]
+            if inspect.isfunction(func) or isinstance(func, functools.partial):
+                args = args[1:]
+            else:
+                func = empty
 
-        if isinstance(args[0], (tuple, list)):
-            assert len(args) == 1, f"unknown len args {args}"
-            args = args[0]
+            if isinstance(args[0], (tuple, list)):
+                assert len(args) == 1, f"unknown len args {args}"
+                args = args[0]
 
-        assert all([isinstance(a, int) for a in args]), f"{args}"
-        instance = super(Uninitialized, cls).__new__(cls, func, *args, **keywords)
-        instance.size = args
-        if "dtype" in keywords and keywords["dtype"] is not None:
-            dtype = keywords["dtype"]
-            assert isinstance(
-                dtype, pi_dtype
-            ), f"unknown dtype {type(dtype).__module__}.{type(dtype).__name__} (should be {pi_dtype.__module__}.{pi_dtype.__name__})"
-            instance.dtype = dtype
-
+            assert all([isinstance(a, int) for a in args]), f"{args}"
+            instance = super(Uninitialized, cls).__new__(cls, func, *args, **keywords)
+            instance.size = args
+            if "dtype" in keywords and keywords["dtype"] is not None:
+                dtype = keywords["dtype"]
+                if not isinstance(dtype, pi_dtype):
+                    warnings.warn(
+                        f"unknown dtype {type(dtype).__module__}.{type(dtype).__name__} (should be {pi_dtype.__module__}.{pi_dtype.__name__})"
+                    )
+                instance.dtype = dtype
+        
+        instance.optional = keywords.get("optional", False)
         return instance
+
+    def fill_(self, val):
+        pass
+
+    def zero_(self):
+        self.__setstate__((pi.zeros, self.args, self.keywords, self.__dict__))
+
+    def ones_(self):
+        self.__setstate__((pi.ones, self.args, self.keywords, self.__dict__))
 
     def __call__(self, /, *args, **keywords):
         keywords = {**self.keywords, **keywords}
@@ -58,4 +78,4 @@ class UninitializedBuffer(Uninitialized):
 def is_uninitialized(
     v: Union[Tensor, Parameter, UninitializedBuffer, UninitializedParameter]
 ) -> bool:
-    return isinstance(v, Uninitialized)
+    return isinstance(v, Uninitialized) and not v.optional

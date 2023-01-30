@@ -2,57 +2,106 @@ import builtins
 import re
 import weakref
 from enum import Enum
-from typing import Union, List, Tuple, Any
+from typing import Any, Optional, Tuple
+from typing import Generic, TypeVar
+from typing import Union, List, NewType, Sequence
 
 import numpy as np
+
+# noinspection PyUnresolvedReferences
+from pi._pi_mlir import (
+    TorchListOfNonValueTensorType as TorchListOfTensor,
+    TorchListOfTorchBoolType as TorchListOfTorchBool,
+    TorchListOfTorchIntType as TorchListOfTorchInt,
+    TorchListOfTorchFloatType as TorchListOfTorchFloat,
+    TorchListOfTorchStringType as TorchListOfTorchString,
+)
+from pi._pi_mlir import (
+    Torch_BoolType,
+    Torch_FloatType,
+    Torch_IntType,
+    Torch_StringType,
+    Torch_Value as _Torch_Value,
+    Torch_List as _Torch_List,
+    Torch_Tensor as Tensor,
+)
 from torch_mlir import ir
-from torch_mlir.dialects._ods_common import (
-    get_op_result_or_value,
-)
+from torch_mlir._mlir_libs._mlir.ir import IntegerAttr, IntegerType, FloatAttr, F64Type
 from torch_mlir.ir import (
-    Type as MLIRType,
-    Value as MLIRValue,
+    register_attribute_builder,
+)
+from typeguard import (
+    TypeCheckError,
+    TypeCheckerCallable,
+    TypeCheckMemo,
+    checker_lookup_functions,
+    check_type,
 )
 
-# !torch.vtensor<[1,2,3],f32>
-reg = re.compile(r"!torch.vtensor<\[(.*)\],(.*)>")
+import pi
+
+T = TypeVar("T", Torch_FloatType, Torch_BoolType, Torch_StringType, Torch_IntType)
 
 
-def parse_sizes_from_tensor_type_str(t: ir.OpView) -> List[int]:
-    # TODO(max): pull straight from the ranked type
-    t = get_op_result_or_value(t)
-    sizes, dtype = reg.findall(str(t.type))[0]
-    sizes = [s if s != "?" else "-1" for s in sizes.split(",")]
-    return list(map(int, sizes)), dtype
+class Torch_Value(_Torch_Value, Generic[T]):
+    def __init__(self, v):
+        super().__init__(v)
+
+    @property
+    def type(self) -> T:
+        return super().type
+
+    def __add__(self, other):
+        return pi.add(self, other)
+
+    def __sub__(self, other):
+        return pi.sub(self, other)
+
+    def __mul__(self, other):
+        return pi.mul(self, other)
+
+    def __floordiv__(self, other):
+        return pi.floordiv(self, other)
+
+    def __truediv__(self, other):
+        return pi.div(self, other)
+
+    def __eq__(self, other):
+        return pi.eq(self, other)
+
+    def __ne__(self, other):
+        return pi.ne(self, other)
+
+    def __gt__(self, other):
+        return pi.gt(self, other)
+
+    def __ge__(self, other):
+        return pi.ge(self, other)
+
+    def __lt__(self, other):
+        return pi.lt(self, other)
+
+    def __le__(self, other):
+        return pi.le(self, other)
 
 
-def get_type(t: Union[MLIRType, MLIRValue]):
-    if not isinstance(t, MLIRType):
-        assert isinstance(
-            t, MLIRValue
-        ), f"unknown type {type(t).__module__}.{type(t).__name__})"
-        t = t.type
-    return t
+class Torch_List(_Torch_List, Generic[T]):
+    def __init__(self, v):
+        super().__init__(v)
+
+    @property
+    def type(self) -> T:
+        return super().type
 
 
-# def is_mlir_value(v):
-#     return isinstance(v, (ir.OpView, ir.Operation, ir.Value, ir.OpResultList, Tensor))
-
-
-def is_a_torch_tensor(t):
-    try:
-        t = get_op_result_or_value(t)
-        type_str = str(t.type)
-        return "torch.tensor" in type_str or "torch.vtensor" in type_str
-    except:
-        return False
-
-
-
-
-# IntegerType.get_signless(32) -> i32
-# IntegerType.get_signed(32) -> si32
-# IntegerType.get_unsigned(32) -> ui32
+class Torch_Dict:
+    ...
+    # def __init__(self, v):
+    #     super().__init__(v)
+    #
+    # @property
+    # def type(self) -> T:
+    #     return super().type
 
 
 class dtype(Enum):
@@ -92,12 +141,11 @@ class dtype(Enum):
     quint8 = 13
     # qint32 14
     bfloat16 = 15
+
     # qint4x2 16
     # qint2x4 17
 
     def to_mlir_type(self):
-        # if ctx is None:
-        #     ctx = get_default_loc_context()
         match self:
             case dtype.bfloat16:
                 return ir.BF16Type.get()
@@ -124,17 +172,58 @@ class dtype(Enum):
             case dtype.uint8:
                 return ir.IntegerType.get_unsigned(8)
             case _:
-                raise NotImplementedError("Something's wrong with the internet")
+                raise NotImplementedError(f"unimplemented to mlir_type from {self}")
+
+    def to_torch_value_type(self):
+        match self:
+            case dtype.bool:
+                return Torch_BoolType()
+            case dtype.float16 | dtype.float32 | dtype.float64:
+                return Torch_FloatType()
+            case dtype.int8 | dtype.int16 | dtype.int32 | dtype.int64 | dtype.uint8:
+                return Torch_IntType()
+            case _:
+                raise NotImplementedError(
+                    f"unimplemented to torch value type from {self}"
+                )
+
+    @staticmethod
+    def from_np_type(self):
+        match self:
+            case np.half:
+                return dtype.float16
+            case np.bool_:
+                return dtype.bool
+            case np.singlecomplex:
+                return dtype.complex32
+            case np.complex_:
+                return dtype.complex64
+            case np.float32:
+                return dtype.float32
+            case np.float64:
+                return dtype.float64
+            case np.int8:
+                return dtype.int8
+            case np.int16:
+                return dtype.int16
+            case np.int32:
+                return dtype.int32
+            case np.int64:
+                return dtype.int64
+            case np.uint8:
+                return dtype.uint8
+            case _:
+                raise NotImplementedError(f"unrecognized dtype: {self}")
 
     def to_np_type(self):
-        # if ctx is None:
-        #     ctx = get_default_loc_context()
         match self:
             case dtype.bfloat16 | dtype.float16:
                 return np.half
             case dtype.bool:
                 return np.bool_
-            case dtype.complex32 | dtype.complex64:
+            case dtype.complex32:
+                return np.singlecomplex
+            case dtype.complex64:
                 return np.complex_
             case dtype.float32:
                 return np.float32
@@ -151,7 +240,7 @@ class dtype(Enum):
             case dtype.uint8:
                 return np.uint8
             case _:
-                raise NotImplementedError("Something's wrong with the internet")
+                raise NotImplementedError(f"unrecognized dtype: {self}")
 
     @staticmethod
     def from_mlir_type(t: str):
@@ -183,8 +272,11 @@ class dtype(Enum):
             case _:
                 raise NotImplementedError(f"Something's wrong with the internet {t}")
 
-
-# attr = DenseFPElementsAttr(Attribute.parse("dense<0.0> : tensor<3x5xf32>"))
+    # IntegerType.get_signless(32) -> i32
+    # IntegerType.get_signed(32) -> si32
+    # IntegerType.get_unsigned(32) -> ui32
+    def is_signless(self):
+        return self in {dtype.bool}
 
 
 bfloat16 = dtype.bfloat16
@@ -202,13 +294,11 @@ qint8 = dtype.qint8
 quint8 = dtype.quint8
 uint8 = dtype.uint8
 
-# _int = builtins.int
-# _float = builtins.float
-# _bool = builtins.bool
-size = Union[List[int], Tuple[int, ...]]
+Size = size = Union[List[builtins.int], Tuple[builtins.int, ...]]
 
-Number = Union[builtins.int, builtins.float, builtins.bool]
-Generator = Device = Any
+Generator = Any
+
+device = Device = TorchDevice = NewType("Device", builtins.str)
 
 
 class BroadcastingListCls(object):
@@ -228,12 +318,6 @@ boolean_dispatched: "weakref.WeakKeyDictionary[Callable, Dict[str, Callable]]" =
 def boolean_dispatch(
     arg_name, arg_index, default, if_true, if_false, module_name, func_name
 ):
-    """
-    Dispatches to either of 2 script functions based on a boolean argument.
-    In TorchScript, the boolean argument must be constant so that the correct
-    function to use can be determined at compile time.
-    """
-
     def fn(*args, **kwargs):
         dispatch_flag = False
         if arg_name in kwargs:
@@ -245,19 +329,6 @@ def boolean_dispatch(
             return if_true(*args, **kwargs)
         else:
             return if_false(*args, **kwargs)
-
-    if if_true.__doc__ is None and if_false.__doc__ is not None:
-        doc = if_false.__doc__
-        if_true.__doc__ = doc
-    elif if_false.__doc__ is None and if_true.__doc__ is not None:
-        doc = if_true.__doc__
-        if_false.__doc__ = doc
-    elif if_false.__doc__ is None and if_true.__doc__ is None:
-        # neither function has a docstring
-        doc = None
-    else:
-        raise RuntimeError("only one function can have a docstring")
-    fn.__doc__ = doc
 
     if module_name is not None:
         fn.__module__ = module_name
@@ -274,32 +345,23 @@ def boolean_dispatch(
     return fn
 
 
-# def _overload(func):
-#     qual_name = func.__name__
-#     global _overloaded_fns
-#     fn_overload_list = _overloaded_fns.get(qual_name)
-#     if fn_overload_list is None:
-#         fn_overload_list = []
-#         _overloaded_fns[qual_name] = fn_overload_list
-#     fn_overload_list.append(func)
-#     return func
+class layout(Enum):
+    strided = 1
+    sparse_coo = 2
+    sparse_csr = 3
+    sparse_csc = 4
+    sparse_bsr = 5
+    sparse_bsc = 6
+    _mkldnn = 7
 
-Size = Union[List[int], Tuple[int, ...]]
 
-# namespace c10 {
-# enum class MemoryFormat : int8_t {
-#   Contiguous,
-#   Preserve,
-#   ChannelsLast,
-#   ChannelsLast3d,
-#   NumOptions
-# };
-# enum MemoryFormat {
-#   Contiguous,
-#   Preserve,
-#   ChannelsLast,
-#   ChannelsLast3d
-# };
+strided: layout = layout.strided
+sparse_coo: layout = layout.sparse_coo
+sparse_csr: layout = layout.sparse_csr
+sparse_csc: layout = layout.sparse_csc
+sparse_bsr: layout = layout.sparse_bsr
+sparse_bsc: layout = layout.sparse_bsc
+_mkldnn: layout = layout._mkldnn
 
 
 class memory_format(Enum):
@@ -309,7 +371,41 @@ class memory_format(Enum):
     channels_last_3d = 3
 
 
-contiguous_format = memory_format.contiguous_format.value
-preserve_format = memory_format.preserve_format.value
-channels_last = memory_format.channels_last.value
-channels_last_3d = memory_format.channels_last_3d.value
+contiguous_format = memory_format.contiguous_format
+preserve_format = memory_format.preserve_format
+channels_last = memory_format.channels_last
+channels_last_3d = memory_format.channels_last_3d
+
+
+@register_attribute_builder("AnyI64Attr")
+def _i64Attr(x, context):
+    return IntegerAttr.get(IntegerType.get_signless(64, context=context), x)
+
+
+@register_attribute_builder("I1Attr")
+def _i1Attr(x, context):
+    return IntegerAttr.get(IntegerType.get_signless(1, context=context), int(x))
+
+
+@register_attribute_builder("F64Attr")
+def _f64Attr(x, context):
+    return FloatAttr.get(F64Type.get(context=context), x)
+
+
+from torch_mlir.dialects import _torch_ops_gen
+
+anon_n = re.findall(
+    "AttrBuilder\.get\('anonymous_(\d+)'\)", open(_torch_ops_gen.__file__).read()
+)
+assert len(anon_n) == 1, "couldn't find torch_mlir constantnoneop anon num"
+anon_n = anon_n[0]
+
+# ConstantNumberOp
+@register_attribute_builder(f"anonymous_{anon_n}")
+def _numberAttr(x, context):
+    if isinstance(x, builtins.float):
+        return FloatAttr.get(F64Type.get(context=context), x)
+    elif isinstance(x, builtins.int):
+        return IntegerAttr.get(IntegerType.get_signless(64, context=context), x)
+    else:
+        raise TypeError(f"unhandled Number/Scalar {x}")

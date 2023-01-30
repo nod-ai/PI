@@ -17,46 +17,31 @@ if (POLICY CMP0116)
     cmake_policy(SET CMP0116 NEW)
 endif ()
 
+if (POLICY CMP0135)
+    cmake_policy(SET CMP0116 OLD)
+endif ()
+
 project(PI LANGUAGES CXX C)
 
 set(CMAKE_BUILD_WITH_INSTALL_NAME_DIR ON)
 
 set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ standard to conform to")
 
+set(LLVM_INSTALL_DIR "" CACHE STRING "Path to LLVM install dir")
+if (LLVM_INSTALL_DIR STREQUAL "")
+    execute_process(COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/setup.py" --llvm-url OUTPUT_VARIABLE LLVM_URL)
+    include(FetchContent)
+    FetchContent_Populate(
+            MLIR
+            URL "${LLVM_URL}"
+            URL_HASH MD5=96c8e619850285c6dc2be3287843b48d
+            SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/llvm_install"
+    )
+    list(APPEND CMAKE_PREFIX_PATH)
+    set(LLVM_INSTALL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/llvm_install")
+endif ()
+message(STATUS "LLVM_INSTALL_DIR: ${LLVM_INSTALL_DIR}")
+list(APPEND CMAKE_PREFIX_PATH "${LLVM_INSTALL_DIR}")
 find_package(MLIR REQUIRED CONFIG)
 
-message(STATUS "Using MLIRConfig.cmake in: ${MLIR_DIR}")
-message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
-
-set(LLVM_RUNTIME_OUTPUT_INTDIR ${CMAKE_BINARY_DIR}/bin)
-set(LLVM_LIBRARY_OUTPUT_INTDIR ${CMAKE_BINARY_DIR}/lib)
-set(MLIR_BINARY_DIR ${CMAKE_BINARY_DIR})
-
-list(APPEND CMAKE_MODULE_PATH "${MLIR_CMAKE_DIR}")
-list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}")
-include(TableGen)
-include(AddLLVM)
-include(AddMLIR)
-include(HandleLLVMOptions)
-
-include_directories(${LLVM_INCLUDE_DIRS})
-include_directories(${MLIR_INCLUDE_DIRS})
-link_directories(${LLVM_BUILD_LIBRARY_DIR})
-add_definitions(${LLVM_DEFINITIONS})
-
-##################################### Bindings path hacks
-
-include(MLIRDetectPythonEnv)
-include(AddMLIRPython)
-mlir_configure_python_dev_packages()
-mlir_detect_pybind11_install()
-
-set(PYTHON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cpp_ext) # --src-root
-set(MLIR_BINARY_DIR ${CMAKE_BINARY_DIR})
-# set(MLIR_TABLEGEN_EXE "" CACHE STRING "Path to mlir-tablegen")
-# message(STATUS "MLIR_TABLEGEN_EXE: ${MLIR_TABLEGEN_EXE}")
-set(MLIR_INCLUDE_TESTS 0)
-
-pybind11_add_module(_mlir cpp_ext/MainModule.cpp cpp_ext/TensorValue.cpp cpp_ext/TorchTypes.cpp)
-#target_link_libraries(_mlir PRIVATE MLIRIR MLIRSupport MLIRCAPIInterfaces MLIRCAPIIR)
-
+add_subdirectory(cpp_ext)

@@ -53,8 +53,8 @@ class _NormBase(Module):
             self.weight = UninitializedParameter(num_features, **factory_kwargs)
             self.bias = UninitializedParameter(num_features, **factory_kwargs)
         else:
-            self.register_("weight", None)
-            self.register_("bias", None)
+            self.register_parameter("weight", None)
+            self.register_parameter("bias", None)
         if self.track_running_stats:
             self.register_buffer(
                 "running_mean",
@@ -66,6 +66,7 @@ class _NormBase(Module):
             )
             self.running_mean: Optional[Tensor]
             self.running_var: Optional[Tensor]
+            factory_kwargs["optional"] = True
             self.register_buffer(
                 "num_batches_tracked",
                 UninitializedBuffer(
@@ -96,7 +97,8 @@ class _NormBase(Module):
             init.zeros_(self.bias)
 
     def _check_input_dim(self, input):
-        raise NotImplementedError
+        pass
+        # raise NotImplementedError
 
     def extra_repr(self):
         return (
@@ -253,10 +255,11 @@ class _BatchNorm(_NormBase):
 
 class BatchNorm1d(_BatchNorm):
     def _check_input_dim(self, input):
-        if input.dim() != 2 and input.dim() != 3:
-            raise ValueError(
-                "expected 2D or 3D input (got {}D input)".format(input.dim())
-            )
+        pass
+        # if len(input.sizes) != 2 and len(input.sizes) != 3:
+        #     raise ValueError(
+        #         "expected 2D or 3D input (got {}D input)".format(input.dim())
+        #     )
 
 
 # class LazyBatchNorm1d(_LazyNormBase, _BatchNorm):
@@ -272,8 +275,9 @@ class BatchNorm1d(_BatchNorm):
 
 class BatchNorm2d(_BatchNorm):
     def _check_input_dim(self, input):
-        if input.dim() != 4:
-            raise ValueError("expected 4D input (got {}D input)".format(input.dim()))
+        pass
+        # if len(input.sizes) != 4:
+        #     raise ValueError("expected 4D input (got {}D input)".format(input.dim()))
 
 
 # class LazyBatchNorm2d(_LazyNormBase, _BatchNorm):
@@ -287,8 +291,9 @@ class BatchNorm2d(_BatchNorm):
 
 class BatchNorm3d(_BatchNorm):
     def _check_input_dim(self, input):
-        if input.dim() != 5:
-            raise ValueError("expected 5D input (got {}D input)".format(input.dim()))
+        pass
+        # if len(input.sizes) != 5:
+        #     raise ValueError("expected 5D input (got {}D input)".format(input.dim()))
 
 
 # class LazyBatchNorm3d(_LazyNormBase, _BatchNorm):
@@ -365,10 +370,10 @@ class SyncBatchNorm(_BatchNorm):
 
         # Don't sync batchnorm stats in inference mode (model.eval()).
         need_sync = (
-                bn_training
-                and self.training
-                and pi.distributed.is_available()
-                and pi.distributed.is_initialized()
+            bn_training
+            and self.training
+            and pi.distributed.is_available()
+            and pi.distributed.is_initialized()
         )
         if need_sync:
             # currently only GPU input is supported
