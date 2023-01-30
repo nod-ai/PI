@@ -499,13 +499,17 @@ adaptive_max_pool3d = boolean_dispatch(
 
 
 def adaptive_avg_pool2d(input: Tensor, output_size: BroadcastingList2[int]) -> Tensor:
-    _output_size = _list_with_default(output_size, input.size())
-    return pi._C._nn.adaptive_avg_pool2d(input, _output_size)
+    assert (
+        isinstance(output_size, (tuple, list)) and len(output_size) == 2
+    ), f"wrong shape output_size {output_size}"
+    return pi._C._nn.adaptive_avg_pool2d(input, output_size)
 
 
 def adaptive_avg_pool3d(input: Tensor, output_size: BroadcastingList3[int]) -> Tensor:
-    _output_size = _list_with_default(output_size, input.size())
-    return pi._C._nn.adaptive_avg_pool3d(input, _output_size)
+    assert (
+        isinstance(output_size, (tuple, list)) and len(output_size) == 3
+    ), f"wrong shape output_size {output_size}"
+    return pi._C._nn.adaptive_avg_pool3d(input, output_size)
 
 
 # Activation functions

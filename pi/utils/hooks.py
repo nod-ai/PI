@@ -8,12 +8,12 @@ __all__ = [
 
 
 class RemovableHandle(object):
-    id: int
+    id: str
     next_id: int = 0
 
-    def __init__(self, hooks_dict: Any) -> None:
+    def __init__(self, hooks_dict: Any, name: str) -> None:
         self.hooks_dict_ref = weakref.ref(hooks_dict)
-        self.id = RemovableHandle.next_id
+        self.id = f"{name}_{RemovableHandle.next_id}"
         RemovableHandle.next_id += 1
 
     def remove(self) -> None:

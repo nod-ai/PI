@@ -120,7 +120,8 @@ class Tensor(Torch_Tensor):
         return pi.gt(self, other)
 
     def __iadd__(self: Tensor, other: Any) -> Tensor:
-        raise NotImplementedError("__iadd__")
+        res = pi.add(self, other)
+        return res
 
     @register_dispatch
     def __iand__(self: Tensor, other: Tensor) -> Tensor:
