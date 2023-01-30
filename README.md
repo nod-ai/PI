@@ -8,7 +8,7 @@
 
 # PI
 
-Early days of a lightweight MLIR Python frontend with support for PyTorch
+Early days of a lightweight MLIR Python frontend with support for PyTorch (through [Torch-MLIR](https://github.com/llvm/torch-mlir) but without a true dependency on PyTorch itself).
 
 # Installing
 
@@ -21,9 +21,9 @@ pip install . --no-build-isolation
 
 and you're good to go.
 
-# Torch-MLIR
+# PyTorch
 
-Preliminary support for the `torch-mlir` dialect is available:
+[examples/minimal.py](examples/minimal.py) lowers
 
 ```python
 class MyConv2d(nn.Module):
@@ -38,40 +38,47 @@ class MyConv2d(nn.Module):
         return w
 ```
 
-lowers to
+to
 
 ```mlir
-module {
-  func.func private @simple_conv2d() -> !torch.vtensor {
-    %0 = torch.vtensor.literal(dense<1.000000e+00> : tensor<1x3x32x32xf32>) : !torch.vtensor<[1,3,32,32],f32>
-    %1 = torch.vtensor.literal(dense<1.000000e+00> : tensor<1xf32>) : !torch.vtensor<[1],f32>
-    %2 = torch.vtensor.literal(dense<1.000000e+00> : tensor<1x3x3x3xf32>) : !torch.vtensor<[1,3,3,3],f32>
-    %int1 = torch.constant.int 1
-    %int1_0 = torch.constant.int 1
-    %3 = torch.prim.ListConstruct %int1, %int1_0 : (!torch.int, !torch.int) -> !torch.list<int>
+module attributes {pi.module_name = "MyConv2d"} {
+  func.func @forward(%arg0: !torch.vtensor<[?,?,?,?],f32>) -> !torch.vtensor<[?,1,?,?],f32> {
+    %false = torch.constant.bool false
+    %none = torch.constant.none
+    %int3 = torch.constant.int 3
     %int0 = torch.constant.int 0
-    %int0_1 = torch.constant.int 0
-    %4 = torch.prim.ListConstruct %int0, %int0_1 : (!torch.int, !torch.int) -> !torch.list<int>
-    %int1_2 = torch.constant.int 1
-    %int1_3 = torch.constant.int 1
-    %5 = torch.prim.ListConstruct %int1_2, %int1_3 : (!torch.int, !torch.int) -> !torch.list<int>
-    %int1_4 = torch.constant.int 1
-    %6 = torch.aten.conv2d %0, %2, %1, %3, %4, %5, %int1_4 : !torch.vtensor<[1,3,32,32],f32>, !torch.vtensor<[1,3,3,3],f32>, !torch.vtensor<[1],f32>, !torch.list<int>, !torch.list<int>, !torch.list<int>, !torch.int -> !torch.vtensor
-    %7 = "torch.constant.number"() {value = 1 : i64} : () -> !torch.number
-    %8 = torch.aten.add.Tensor %6, %6, %7 : !torch.vtensor, !torch.vtensor, !torch.number -> !torch.vtensor
-    %9 = torch.aten.mul.Tensor %8, %8 : !torch.vtensor, !torch.vtensor -> !torch.vtensor
-    return %9 : !torch.vtensor
+    %int1 = torch.constant.int 1
+    %0 = torch.prim.ListConstruct %int1 : (!torch.int) -> !torch.list<int>
+    %1 = torch.aten.empty.memory_format %0, %none, %none, %none, %none, %none : !torch.list<int>, !torch.none, !torch.none, !torch.none, !torch.none, !torch.none -> !torch.vtensor<[1],f32>
+    %2 = torch.prim.ListConstruct %int1, %int3, %int3, %int3 : (!torch.int, !torch.int, !torch.int, !torch.int) -> !torch.list<int>
+    %3 = torch.aten.empty.memory_format %2, %none, %none, %none, %none, %none : !torch.list<int>, !torch.none, !torch.none, !torch.none, !torch.none, !torch.none -> !torch.vtensor<[1,3,3,3],f32>
+    %4 = torch.prim.ListConstruct %int1, %int1 : (!torch.int, !torch.int) -> !torch.list<int>
+    %5 = torch.prim.ListConstruct %int0, %int0 : (!torch.int, !torch.int) -> !torch.list<int>
+    %6 = torch.prim.ListConstruct  : () -> !torch.list<int>
+    %7 = torch.aten.convolution %arg0, %3, %1, %4, %5, %4, %false, %6, %int1 : 
+        !torch.vtensor<[?,?,?,?],f32>, 
+        !torch.vtensor<[1,3,3,3],f32>, 
+        !torch.vtensor<[1],f32>, 
+        !torch.list<int>, 
+        !torch.list<int>, 
+        !torch.list<int>, 
+        !torch.bool, 
+        !torch.list<int>, 
+        !torch.int -> !torch.vtensor<[?,1,?,?],f32>
+    %8 = torch.aten.add.Tensor %7, %7, %int1 : !torch.vtensor<[?,1,?,?],f32>, !torch.vtensor<[?,1,?,?],f32>, !torch.int -> !torch.vtensor<[?,1,?,?],f32>
+    %9 = torch.aten.mul.Tensor %8, %8 : !torch.vtensor<[?,1,?,?],f32>, !torch.vtensor<[?,1,?,?],f32> -> !torch.vtensor<[?,1,?,?],f32>
+    return %9 : !torch.vtensor<[?,1,?,?],f32>
   }
 }
 ```
 
-This is very preliminary right now; to get a rough idea of the current status check the [latest tests](https://github.com/nod-ai/PI/actions?query=workflow%3ATest++).
+In general, PI is very alpha; to get a rough idea of the current status check the [latest tests](https://github.com/nod-ai/PI/actions?query=workflow%3ATest++).
 
 Currently, we're passing 660 out of 786 of Torch-MLIR's test-suite (`torch-mlir==20230127.731`).
 
 # Build Wheel
 
 ```shell
-pip install - requirements.txt 
-pip wheel . --no-build-isolation --wheel-dir wheelhouse
+pip install -r requirements.txt 
+pip wheel . --no-build-isolation -w wheelhouse --no-deps
 ```

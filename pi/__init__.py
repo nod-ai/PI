@@ -1,28 +1,8 @@
-import contextlib
-import ctypes
-import logging
-import sys
 import types
 
-logger = logging.getLogger(__name__)
-
-
-@contextlib.contextmanager
-def dl_open_guard():
-    old_flags = sys.getdlopenflags()
-    sys.setdlopenflags(old_flags | ctypes.RTLD_GLOBAL)
-    yield
-    sys.setdlopenflags(old_flags)
-
-
-with dl_open_guard():
-    # noinspection PyUnresolvedReferences
-    from torch_mlir import ir
-    import torch_mlir
-
-assert (
-    len(torch_mlir.dialects.torch.AtenConv2dOp.__bases__) == 1
-), "failed to import torch dialect extensions; you probably tried to import torch_mlir before pi"
+# this must be before all of other subpackage imports (the noinspection is so that pycharm doesn't reorder)
+# noinspection PyUnresolvedReferences
+from . import mlir
 
 from .types_ import *
 from . import torch_wrappers
@@ -73,7 +53,5 @@ linalg = FakeModule("linalg")
 def manual_seed(*_, **__):
     return
 
-
-DEBUG = True
 
 from . import nn as nn

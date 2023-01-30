@@ -3,14 +3,16 @@ from typing import Any, Callable, NamedTuple, Union
 import numpy as np
 from torch_mlir import ir
 
-from pi.types_ import float32, int64
-from pi import nn
-from pi.utils.annotations import TensorPlaceholder
+from ..types_ import float32, int64
+from .. import nn
+from ..utils.annotations import TensorPlaceholder
 
 
 # Utilities for common testing trace generation.
 # Also, resets the random seed for reproducibility.
 # TODO: If generating in parallel, how to have manual_seed be local?
+
+
 class TestUtils:
     def __init__(self):
         np.random.seed(0)
