@@ -1,12 +1,17 @@
 import functools
+import logging
 from textwrap import indent
-from typing import Tuple, Any, Optional, Dict
+from typing import Dict, Any, Tuple, Optional
 
+from typeguard import (
+    TypeCheckError,
+)
 from typeguard import (
     check_argument_types,
     CallMemo,
-    TypeCheckError,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class AmbiguousLookupError(LookupError):
@@ -49,11 +54,14 @@ class Function:
     ):
         for candidate_signature, (func, _precedence) in self._overloads.items():
             try:
+                logging.debug(f"trying {candidate_signature=} for {func=}")
                 candidate_signature.bind(*args, **kwargs)
                 memo = CallMemo(func, {}, args=args, kwargs=kwargs)
                 check_argument_types(memo)
+                logging.debug(f"successfully matched")
                 return candidate_signature
             except (TypeError, TypeCheckError) as e:
+                logging.debug(f"failed to match because: {e}")
                 continue
 
         args = indent("\n".join(map(str, args)), "\t\t")

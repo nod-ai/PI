@@ -1,3 +1,4 @@
+import logging
 import unittest
 
 # noinspection PyUnresolvedReferences
@@ -20,6 +21,14 @@ from pi._torch_wrappers import any as torch_any, Float, NumToTensor, randint
 from pi.dispatcher.function import NotFoundLookupError
 from pi.mlir_utils import mlir_cm
 from pi.types_ import Torch_Value, Torch_List
+import pi
+
+FORMAT = "%(asctime)s, %(levelname)-8s [%(filename)s:%(module)s:%(funcName)s:%(lineno)d] %(message)s"
+formatter = logging.Formatter(FORMAT)
+# f_handler = logging.FileHandler("file.log")
+logging.basicConfig(level=logging.DEBUG, format=FORMAT)
+# f_handler = logging.StreamHandler()
+# f_handler.setLevel(logging.DEBUG)
 
 
 def FloatCheckArgReturn(
@@ -77,11 +86,7 @@ class TestTypeChecking(unittest.TestCase):
         t = Torch_Value(torch_dialect.ConstantIntOp(1).result)
         # print(t)
         tt = Torch_Value(torch_dialect.ConstantIntOp(2).result)
-        with self.assertRaises(
-            NotFoundLookupError,
-            # r"Not correct type param \(<class 'pi\._mlir.Torch_BoolType'>\): TorchInt\(\!torch\.int\)",
-        ):
-            torch_any([t, tt])
+        l = torch_any([t, tt])
 
         typ = Torch_List.of(Torch_IntType())
         l = Torch_Value(torch_dialect.PrimListConstructOp(typ, [t, tt]).result)
@@ -107,3 +112,7 @@ class TestTypeChecking(unittest.TestCase):
     def test_tensor(self):
         t = Torch_Value(torch_dialect.ConstantIntOp(1).result)
         n = NumToTensor(t)
+
+    def test_bool_typeguard(self):
+        r = pi.ops.aten.Int(False)
+        print(r)

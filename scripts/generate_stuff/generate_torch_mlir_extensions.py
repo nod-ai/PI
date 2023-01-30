@@ -144,7 +144,7 @@ def emit_torch_wrappers(
         if operator.overload_name:
             stub_td(f"# overload {operator.overload_name}")
         if counts[operator.unqualified_name] > 1:
-            stub_td("@dispatch")
+            stub_td("@register_dispatch")
 
         _op_name, cpp_class_name = operator.get_mlir_names()
         stub_td(get_wrapper_function_signature(operator))
@@ -341,7 +341,7 @@ def generate_torch_wrappers(torch_ops_ext_dir: Path):
                 Torch_NonValueTensorType,
                 Torch_GeneratorType
             )
-            from .dispatcher import dispatch
+            from .dispatcher import register_dispatch
             from torch_mlir.dialects import torch as torch_dialect
             from torch_mlir.dialects._ods_common import (
                 get_op_results_or_values,

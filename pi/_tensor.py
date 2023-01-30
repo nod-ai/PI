@@ -20,7 +20,7 @@ from torch_mlir.dialects._ods_common import get_op_result_or_value
 from torch_mlir.ir import Value as MLIRValue
 
 import pi
-from .dispatcher import dispatch
+from .dispatcher import register_dispatch
 from .types_ import (
     dtype as pi_dtype,
     Size,
@@ -66,15 +66,15 @@ class Tensor(Torch_Tensor):
     def __add__(self: Tensor, other: Any) -> Tensor:
         return pi.add(self, other)
 
-    @dispatch
+    @register_dispatch
     def __and__(self: Tensor, other: Tensor) -> Tensor:
         return pi.__and__(self, other)
 
-    @dispatch
+    @register_dispatch
     def __and__(self: Tensor, other: Number) -> Tensor:
         return pi.__and__(self, other)
 
-    @dispatch
+    @register_dispatch
     def __and__(self: Tensor, other: Any) -> Tensor:
         return pi.__and__(self, other)
 
@@ -122,15 +122,15 @@ class Tensor(Torch_Tensor):
     def __iadd__(self: Tensor, other: Any) -> Tensor:
         raise NotImplementedError("__iadd__")
 
-    @dispatch
+    @register_dispatch
     def __iand__(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("__iand__")
 
-    @dispatch
+    @register_dispatch
     def __iand__(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("__iand__")
 
-    @dispatch
+    @register_dispatch
     def __iand__(self: Tensor, other: Any) -> Tensor:
         raise NotImplementedError("__iand__")
 
@@ -140,15 +140,15 @@ class Tensor(Torch_Tensor):
     def __ifloordiv__(self: Tensor, other: Any) -> Tensor:
         raise NotImplementedError("__ifloordiv__")
 
-    @dispatch
+    @register_dispatch
     def __ilshift__(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("__ilshift__")
 
-    @dispatch
+    @register_dispatch
     def __ilshift__(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("__ilshift__")
 
-    @dispatch
+    @register_dispatch
     def __ilshift__(self: Tensor, other: Any) -> Tensor:
         raise NotImplementedError("__ilshift__")
 
@@ -167,42 +167,42 @@ class Tensor(Torch_Tensor):
     def __invert__(self: Tensor) -> Tensor:
         raise NotImplementedError("__invert__")
 
-    @dispatch
+    @register_dispatch
     def __ior__(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("__ior__")
 
-    @dispatch
+    @register_dispatch
     def __ior__(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("__ior__")
 
-    @dispatch
+    @register_dispatch
     def __ior__(self: Tensor, other: Any) -> Tensor:
         raise NotImplementedError("__ior__")
 
-    @dispatch
+    @register_dispatch
     def __irshift__(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("__irshift__")
 
-    @dispatch
+    @register_dispatch
     def __irshift__(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("__irshift__")
 
-    @dispatch
+    @register_dispatch
     def __irshift__(self: Tensor, other: Any) -> Tensor:
         raise NotImplementedError("__irshift__")
 
     def __isub__(self: Tensor, other: Any) -> Tensor:
         raise NotImplementedError("__isub__")
 
-    @dispatch
+    @register_dispatch
     def __ixor__(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("__ixor__")
 
-    @dispatch
+    @register_dispatch
     def __ixor__(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("__ixor__")
 
-    @dispatch
+    @register_dispatch
     def __ixor__(self: Tensor, other: Any) -> Tensor:
         raise NotImplementedError("__ixor__")
 
@@ -212,15 +212,15 @@ class Tensor(Torch_Tensor):
     def __long__(self: Tensor) -> builtins.int:
         raise NotImplementedError("__long__")
 
-    @dispatch
+    @register_dispatch
     def __lshift__(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("__lshift__")
 
-    @dispatch
+    @register_dispatch
     def __lshift__(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("__lshift__")
 
-    @dispatch
+    @register_dispatch
     def __lshift__(self: Tensor, other: Any) -> Tensor:
         raise NotImplementedError("__lshift__")
 
@@ -245,15 +245,15 @@ class Tensor(Torch_Tensor):
     def __nonzero__(self: Tensor) -> builtins.bool:
         raise NotImplementedError("__nonzero__")
 
-    @dispatch
+    @register_dispatch
     def __or__(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("__or__")
 
-    @dispatch
+    @register_dispatch
     def __or__(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("__or__")
 
-    @dispatch
+    @register_dispatch
     def __or__(self: Tensor, other: Any) -> Tensor:
         raise NotImplementedError("__or__")
 
@@ -278,15 +278,15 @@ class Tensor(Torch_Tensor):
     def __rpow__(self: Tensor, other: Any) -> Tensor:
         raise NotImplementedError("__rpow__")
 
-    @dispatch
+    @register_dispatch
     def __rshift__(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("__rshift__")
 
-    @dispatch
+    @register_dispatch
     def __rshift__(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("__rshift__")
 
-    @dispatch
+    @register_dispatch
     def __rshift__(self: Tensor, other: Any) -> Tensor:
         raise NotImplementedError("__rshift__")
 
@@ -312,15 +312,15 @@ class Tensor(Torch_Tensor):
     def __truediv__(self: Tensor, other: Any) -> Tensor:
         raise pi.div(self, other)
 
-    @dispatch
+    @register_dispatch
     def __xor__(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("__xor__")
 
-    @dispatch
+    @register_dispatch
     def __xor__(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("__xor__")
 
-    @dispatch
+    @register_dispatch
     def __xor__(self: Tensor, other: Any) -> Tensor:
         raise NotImplementedError("__xor__")
 
@@ -514,25 +514,25 @@ class Tensor(Torch_Tensor):
     def align_as(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("align_as")
 
-    @dispatch
+    @register_dispatch
     def align_to(
         self: Tensor, order: Sequence[Union[str, ellipsis, None]], ellipsis_idx: int
     ) -> Tensor:
         raise NotImplementedError("align_to")
 
-    @dispatch
+    @register_dispatch
     def align_to(self: Tensor, names: Sequence[Union[str, ellipsis, None]]) -> Tensor:
         raise NotImplementedError("align_to")
 
-    @dispatch
+    @register_dispatch
     def all(self: Tensor) -> Tensor:
         return pi.all(self)
 
-    @dispatch
+    @register_dispatch
     def all(self: Tensor, dim: int, keepdim: bool = False) -> Tensor:
         return pi.all(self, dim, keepdim)
 
-    @dispatch
+    @register_dispatch
     def all(
         self: Tensor, dim: Union[str, ellipsis, None], keepdim: bool = False
     ) -> Tensor:
@@ -561,15 +561,15 @@ class Tensor(Torch_Tensor):
     def angle(self: Tensor) -> Tensor:
         raise NotImplementedError("angle")
 
-    @dispatch
+    @register_dispatch
     def any(self: Tensor) -> Tensor:
         return pi.any(self)
 
-    @dispatch
+    @register_dispatch
     def any(self: Tensor, dim: int, keepdim: bool = False) -> Tensor:
         return pi.any(self, dim, keepdim)
 
-    @dispatch
+    @register_dispatch
     def any(
         self: Tensor, dim: Union[str, ellipsis, None], keepdim: bool = False
     ) -> Tensor:
@@ -630,17 +630,17 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("argmin")
 
-    @dispatch
+    @register_dispatch
     def argsort(
         self: Tensor, *, stable: bool, dim: int = -1, descending: bool = False
     ) -> Tensor:
         raise NotImplementedError("argsort")
 
-    @dispatch
+    @register_dispatch
     def argsort(self: Tensor, dim: int = -1, descending: bool = False) -> Tensor:
         raise NotImplementedError("argsort")
 
-    @dispatch
+    @register_dispatch
     def argsort(
         self: Tensor, dim: Union[str, ellipsis, None], descending: bool = False
     ) -> Tensor:
@@ -724,23 +724,23 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         return pi.baddbmm_(self, batch1, batch2, beta, alpha)
 
-    @dispatch
+    @register_dispatch
     def bernoulli(self: Tensor, *, generator: Optional[Generator] = None) -> Tensor:
         raise NotImplementedError("bernoulli")
 
-    @dispatch
+    @register_dispatch
     def bernoulli(
         self: Tensor, p: float, *, generator: Optional[Generator] = None
     ) -> Tensor:
         return pi.bernoulli(self, p, generator)
 
-    @dispatch
+    @register_dispatch
     def bernoulli_(
         self: Tensor, p: Tensor, *, generator: Optional[Generator] = None
     ) -> Tensor:
         return pi.bernoulli_(self, p, generator)
 
-    @dispatch
+    @register_dispatch
     def bernoulli_(
         self: Tensor, p: float = 0.5, *, generator: Optional[Generator] = None
     ) -> Tensor:
@@ -754,35 +754,35 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         return pi.bincount(self, weights, minlength)
 
-    @dispatch
+    @register_dispatch
     def bitwise_and(self: Tensor, other: Tensor) -> Tensor:
         return pi.bitwise_and(self, other)
 
-    @dispatch
+    @register_dispatch
     def bitwise_and(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("bitwise_and")
 
-    @dispatch
+    @register_dispatch
     def bitwise_and_(self: Tensor, other: Tensor) -> Tensor:
         return pi.bitwise_and_(self, other)
 
-    @dispatch
+    @register_dispatch
     def bitwise_and_(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("bitwise_and_")
 
-    @dispatch
+    @register_dispatch
     def bitwise_left_shift(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("bitwise_left_shift")
 
-    @dispatch
+    @register_dispatch
     def bitwise_left_shift(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("bitwise_left_shift")
 
-    @dispatch
+    @register_dispatch
     def bitwise_left_shift_(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("bitwise_left_shift_")
 
-    @dispatch
+    @register_dispatch
     def bitwise_left_shift_(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("bitwise_left_shift_")
 
@@ -792,51 +792,51 @@ class Tensor(Torch_Tensor):
     def bitwise_not_(self: Tensor) -> Tensor:
         return pi.bitwise_not_(self)
 
-    @dispatch
+    @register_dispatch
     def bitwise_or(self: Tensor, other: Tensor) -> Tensor:
         return pi.bitwise_or(self, other)
 
-    @dispatch
+    @register_dispatch
     def bitwise_or(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("bitwise_or")
 
-    @dispatch
+    @register_dispatch
     def bitwise_or_(self: Tensor, other: Tensor) -> Tensor:
         return pi.bitwise_or_(self, other)
 
-    @dispatch
+    @register_dispatch
     def bitwise_or_(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("bitwise_or_")
 
-    @dispatch
+    @register_dispatch
     def bitwise_right_shift(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("bitwise_right_shift")
 
-    @dispatch
+    @register_dispatch
     def bitwise_right_shift(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("bitwise_right_shift")
 
-    @dispatch
+    @register_dispatch
     def bitwise_right_shift_(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("bitwise_right_shift_")
 
-    @dispatch
+    @register_dispatch
     def bitwise_right_shift_(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("bitwise_right_shift_")
 
-    @dispatch
+    @register_dispatch
     def bitwise_xor(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("bitwise_xor")
 
-    @dispatch
+    @register_dispatch
     def bitwise_xor(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("bitwise_xor")
 
-    @dispatch
+    @register_dispatch
     def bitwise_xor_(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("bitwise_xor_")
 
-    @dispatch
+    @register_dispatch
     def bitwise_xor_(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("bitwise_xor_")
 
@@ -846,11 +846,11 @@ class Tensor(Torch_Tensor):
     def bool(self: Tensor) -> Tensor:
         raise NotImplementedError("bool")
 
-    @dispatch
+    @register_dispatch
     def broadcast_to(self: Tensor, size: List[int]) -> Tensor:
         return pi.broadcast_to(self, size)
 
-    @dispatch
+    @register_dispatch
     def broadcast_to(self: Tensor, *size: int) -> Tensor:
         return pi.broadcast_to(self, *size)
 
@@ -893,81 +893,81 @@ class Tensor(Torch_Tensor):
     def chunk(self: Tensor, chunks: int, dim: int = 0) -> List[Tensor]:
         raise NotImplementedError("chunk")
 
-    @dispatch
+    @register_dispatch
     def clamp(
         self: Tensor, min: Optional[Tensor] = None, max: Optional[Tensor] = None
     ) -> Tensor:
         return pi.clamp(self, min, max)
 
-    @dispatch
+    @register_dispatch
     def clamp(
         self: Tensor, min: Optional[Number] = None, max: Optional[Number] = None
     ) -> Tensor:
         return pi.clamp(self, min, max)
 
-    @dispatch
+    @register_dispatch
     def clamp_(
         self: Tensor, min: Optional[Tensor] = None, max: Optional[Tensor] = None
     ) -> Tensor:
         return pi.clamp_(self, min, max)
 
-    @dispatch
+    @register_dispatch
     def clamp_(
         self: Tensor, min: Optional[Number] = None, max: Optional[Number] = None
     ) -> Tensor:
         return pi.clamp_(self, min, max)
 
-    @dispatch
+    @register_dispatch
     def clamp_max(self: Tensor, max: Tensor) -> Tensor:
         raise NotImplementedError("clamp_max")
 
-    @dispatch
+    @register_dispatch
     def clamp_max(self: Tensor, max: Number) -> Tensor:
         return pi.clamp_max(self, max)
 
-    @dispatch
+    @register_dispatch
     def clamp_max_(self: Tensor, max: Tensor) -> Tensor:
         raise NotImplementedError("clamp_max_")
 
-    @dispatch
+    @register_dispatch
     def clamp_max_(self: Tensor, max: Number) -> Tensor:
         return pi.clamp_max_(self, max)
 
-    @dispatch
+    @register_dispatch
     def clamp_min(self: Tensor, min: Tensor) -> Tensor:
         raise NotImplementedError("clamp_min")
 
-    @dispatch
+    @register_dispatch
     def clamp_min(self: Tensor, min: Number) -> Tensor:
         return pi.clamp_min(self, min)
 
-    @dispatch
+    @register_dispatch
     def clamp_min_(self: Tensor, min: Tensor) -> Tensor:
         raise NotImplementedError("clamp_min_")
 
-    @dispatch
+    @register_dispatch
     def clamp_min_(self: Tensor, min: Number) -> Tensor:
         return pi.clamp_min_(self, min)
 
-    @dispatch
+    @register_dispatch
     def clip(
         self: Tensor, min: Optional[Tensor] = None, max: Optional[Tensor] = None
     ) -> Tensor:
         raise NotImplementedError("clip")
 
-    @dispatch
+    @register_dispatch
     def clip(
         self: Tensor, min: Optional[Number] = None, max: Optional[Number] = None
     ) -> Tensor:
         raise NotImplementedError("clip")
 
-    @dispatch
+    @register_dispatch
     def clip_(
         self: Tensor, min: Optional[Tensor] = None, max: Optional[Tensor] = None
     ) -> Tensor:
         raise NotImplementedError("clip_")
 
-    @dispatch
+    @register_dispatch
     def clip_(
         self: Tensor, min: Optional[Number] = None, max: Optional[Number] = None
     ) -> Tensor:
@@ -997,19 +997,19 @@ class Tensor(Torch_Tensor):
     def copy_(self: Tensor, src: Tensor, non_blocking: bool = False) -> Tensor:
         return pi.copy_(self, src, non_blocking)
 
-    @dispatch
+    @register_dispatch
     def copysign(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("copysign")
 
-    @dispatch
+    @register_dispatch
     def copysign(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("copysign")
 
-    @dispatch
+    @register_dispatch
     def copysign_(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("copysign_")
 
-    @dispatch
+    @register_dispatch
     def copysign_(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("copysign_")
 
@@ -1028,15 +1028,15 @@ class Tensor(Torch_Tensor):
     def cosh_(self: Tensor) -> Tensor:
         raise NotImplementedError("cosh_")
 
-    @dispatch
+    @register_dispatch
     def count_nonzero(self: Tensor, dim: Optional[int] = None) -> Tensor:
         raise NotImplementedError("count_nonzero")
 
-    @dispatch
+    @register_dispatch
     def count_nonzero(self: Tensor, dim: Size) -> Tensor:
         raise NotImplementedError("count_nonzero")
 
-    @dispatch
+    @register_dispatch
     def count_nonzero(self: Tensor, *dim: int) -> Tensor:
         raise NotImplementedError("count_nonzero")
 
@@ -1065,31 +1065,31 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("cuda")
 
-    @dispatch
+    @register_dispatch
     def cummax(self: Tensor, dim: int) -> ComplexReturnType("cummax"):
         raise NotImplementedError("cummax")
 
-    @dispatch
+    @register_dispatch
     def cummax(
         self: Tensor, dim: Union[str, ellipsis, None]
     ) -> ComplexReturnType("cummax"):
         raise NotImplementedError("cummax")
 
-    @dispatch
+    @register_dispatch
     def cummin(self: Tensor, dim: int) -> ComplexReturnType("cummin"):
         raise NotImplementedError("cummin")
 
-    @dispatch
+    @register_dispatch
     def cummin(
         self: Tensor, dim: Union[str, ellipsis, None]
     ) -> ComplexReturnType("cummin"):
         raise NotImplementedError("cummin")
 
-    @dispatch
+    @register_dispatch
     def cumprod(self: Tensor, dim: int, *, dtype: Optional[pi_dtype] = None) -> Tensor:
         raise NotImplementedError("cumprod")
 
-    @dispatch
+    @register_dispatch
     def cumprod(
         self: Tensor,
         dim: Union[str, ellipsis, None],
@@ -1098,11 +1098,11 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("cumprod")
 
-    @dispatch
+    @register_dispatch
     def cumprod_(self: Tensor, dim: int, *, dtype: Optional[pi_dtype] = None) -> Tensor:
         raise NotImplementedError("cumprod_")
 
-    @dispatch
+    @register_dispatch
     def cumprod_(
         self: Tensor,
         dim: Union[str, ellipsis, None],
@@ -1111,11 +1111,11 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("cumprod_")
 
-    @dispatch
+    @register_dispatch
     def cumsum(self: Tensor, dim: int, *, dtype: Optional[pi_dtype] = None) -> Tensor:
         return pi.cumsum(self, dim, dtype)
 
-    @dispatch
+    @register_dispatch
     def cumsum(
         self: Tensor,
         dim: Union[str, ellipsis, None],
@@ -1124,11 +1124,11 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("cumsum")
 
-    @dispatch
+    @register_dispatch
     def cumsum_(self: Tensor, dim: int, *, dtype: Optional[pi_dtype] = None) -> Tensor:
         raise NotImplementedError("cumsum_")
 
-    @dispatch
+    @register_dispatch
     def cumsum_(
         self: Tensor,
         dim: Union[str, ellipsis, None],
@@ -1172,7 +1172,7 @@ class Tensor(Torch_Tensor):
     def diagflat(self: Tensor, offset: int = 0) -> Tensor:
         raise NotImplementedError("diagflat")
 
-    @dispatch
+    @register_dispatch
     def diagonal(
         self: Tensor,
         *,
@@ -1183,7 +1183,7 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("diagonal")
 
-    @dispatch
+    @register_dispatch
     def diagonal(self: Tensor, offset: int = 0, dim1: int = 0, dim2: int = 1) -> Tensor:
         raise NotImplementedError("diagonal")
 
@@ -1229,35 +1229,35 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         return pi.div_(self, other, rounding_mode)
 
-    @dispatch
+    @register_dispatch
     def divide(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("divide")
 
-    @dispatch
+    @register_dispatch
     def divide(self: Tensor, other: Tensor, *, rounding_mode: Optional[str]) -> Tensor:
         raise NotImplementedError("divide")
 
-    @dispatch
+    @register_dispatch
     def divide(self: Tensor, other: Number, *, rounding_mode: Optional[str]) -> Tensor:
         raise NotImplementedError("divide")
 
-    @dispatch
+    @register_dispatch
     def divide(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("divide")
 
-    @dispatch
+    @register_dispatch
     def divide_(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("divide_")
 
-    @dispatch
+    @register_dispatch
     def divide_(self: Tensor, other: Tensor, *, rounding_mode: Optional[str]) -> Tensor:
         raise NotImplementedError("divide_")
 
-    @dispatch
+    @register_dispatch
     def divide_(self: Tensor, other: Number, *, rounding_mode: Optional[str]) -> Tensor:
         raise NotImplementedError("divide_")
 
-    @dispatch
+    @register_dispatch
     def divide_(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("divide_")
 
@@ -1267,34 +1267,34 @@ class Tensor(Torch_Tensor):
     def double(self: Tensor) -> Tensor:
         return pi.to(self, pi_dtype.float64)
 
-    @dispatch
+    @register_dispatch
     def dsplit(self: Tensor, sections: int) -> List[Tensor]:
         raise NotImplementedError("dsplit")
 
-    @dispatch
+    @register_dispatch
     def dsplit(self: Tensor, indices: Size) -> List[Tensor]:
         raise NotImplementedError("dsplit")
 
-    @dispatch
+    @register_dispatch
     def dsplit(self: Tensor, *indices: int) -> List[Tensor]:
         raise NotImplementedError("dsplit")
 
     def element_size(self: Tensor) -> int:
         raise NotImplementedError("element_size")
 
-    @dispatch
+    @register_dispatch
     def eq(self: Tensor, other: Tensor) -> Tensor:
         return pi.eq(self, other)
 
-    @dispatch
+    @register_dispatch
     def eq(self: Tensor, other: Number) -> Tensor:
         return pi.eq(self, other)
 
-    @dispatch
+    @register_dispatch
     def eq_(self: Tensor, other: Tensor) -> Tensor:
         return pi.eq_(self, other)
 
-    @dispatch
+    @register_dispatch
     def eq_(self: Tensor, other: Number) -> Tensor:
         return pi.eq_(self, other)
 
@@ -1331,11 +1331,11 @@ class Tensor(Torch_Tensor):
     def exp_(self: Tensor) -> Tensor:
         return pi.exp_(self)
 
-    @dispatch
+    @register_dispatch
     def expand(self: Tensor, size: List[int], *, implicit: bool = False) -> Tensor:
         return pi.expand(self, size, implicit)
 
-    @dispatch
+    @register_dispatch
     def expand(self: Tensor, *size: int, implicit: bool = False) -> Tensor:
         raise NotImplementedError("expand")
 
@@ -1353,11 +1353,11 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("exponential_")
 
-    @dispatch
+    @register_dispatch
     def fill_(self: Tensor, value: Tensor) -> Tensor:
         return pi.fill_(self, value)
 
-    @dispatch
+    @register_dispatch
     def fill_(self: Tensor, value: Number) -> Tensor:
         return pi.fill_(self, value)
 
@@ -1370,17 +1370,17 @@ class Tensor(Torch_Tensor):
     def fix_(self: Tensor) -> Tensor:
         raise NotImplementedError("fix_")
 
-    @dispatch
+    @register_dispatch
     def flatten(self: Tensor, start_dim: int = 0, end_dim: int = -1) -> Tensor:
         return pi.flatten(self, start_dim, end_dim)
 
-    @dispatch
+    @register_dispatch
     def flatten(
         self: Tensor, start_dim: int, end_dim: int, out_dim: Union[str, ellipsis, None]
     ) -> Tensor:
         raise NotImplementedError("flatten")
 
-    @dispatch
+    @register_dispatch
     def flatten(
         self: Tensor,
         start_dim: Union[str, ellipsis, None],
@@ -1389,7 +1389,7 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("flatten")
 
-    @dispatch
+    @register_dispatch
     def flatten(
         self: Tensor,
         dims: Sequence[Union[str, ellipsis, None]],
@@ -1397,11 +1397,11 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("flatten")
 
-    @dispatch
+    @register_dispatch
     def flip(self: Tensor, dims: Size) -> Tensor:
         return pi.flip(self, dims)
 
-    @dispatch
+    @register_dispatch
     def flip(self: Tensor, *dims: int) -> Tensor:
         return pi.flip(self, *dims)
 
@@ -1414,19 +1414,19 @@ class Tensor(Torch_Tensor):
     def float(self: Tensor) -> Tensor:
         raise NotImplementedError("float")
 
-    @dispatch
+    @register_dispatch
     def float_power(self: Tensor, exponent: Tensor) -> Tensor:
         raise NotImplementedError("float_power")
 
-    @dispatch
+    @register_dispatch
     def float_power(self: Tensor, exponent: Number) -> Tensor:
         raise NotImplementedError("float_power")
 
-    @dispatch
+    @register_dispatch
     def float_power_(self: Tensor, exponent: Tensor) -> Tensor:
         raise NotImplementedError("float_power_")
 
-    @dispatch
+    @register_dispatch
     def float_power_(self: Tensor, exponent: Number) -> Tensor:
         raise NotImplementedError("float_power_")
 
@@ -1452,19 +1452,19 @@ class Tensor(Torch_Tensor):
     def fmin(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("fmin")
 
-    @dispatch
+    @register_dispatch
     def fmod(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("fmod")
 
-    @dispatch
+    @register_dispatch
     def fmod(self: Tensor, other: Number) -> Tensor:
         return pi.fmod(self, other)
 
-    @dispatch
+    @register_dispatch
     def fmod_(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("fmod_")
 
-    @dispatch
+    @register_dispatch
     def fmod_(self: Tensor, other: Number) -> Tensor:
         return pi.fmod_(self, other)
 
@@ -1477,13 +1477,13 @@ class Tensor(Torch_Tensor):
     def frexp(self: Tensor) -> ComplexReturnType("frexp"):
         raise NotImplementedError("frexp")
 
-    @dispatch
+    @register_dispatch
     def gather(
         self: Tensor, dim: int, index: Tensor, *, sparse_grad: bool = False
     ) -> Tensor:
         return pi.gather(self, dim, index, sparse_grad)
 
-    @dispatch
+    @register_dispatch
     def gather(
         self: Tensor,
         dim: Union[str, ellipsis, None],
@@ -1499,19 +1499,19 @@ class Tensor(Torch_Tensor):
     def gcd_(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("gcd_")
 
-    @dispatch
+    @register_dispatch
     def ge(self: Tensor, other: Tensor) -> Tensor:
         return pi.ge(self, other)
 
-    @dispatch
+    @register_dispatch
     def ge(self: Tensor, other: Number) -> Tensor:
         return pi.ge(self, other)
 
-    @dispatch
+    @register_dispatch
     def ge_(self: Tensor, other: Tensor) -> Tensor:
         return pi.ge_(self, other)
 
-    @dispatch
+    @register_dispatch
     def ge_(self: Tensor, other: Number) -> Tensor:
         return pi.ge_(self, other)
 
@@ -1529,51 +1529,51 @@ class Tensor(Torch_Tensor):
     def get_device(self: Tensor) -> int:
         raise NotImplementedError("get_device")
 
-    @dispatch
+    @register_dispatch
     def greater(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("greater")
 
-    @dispatch
+    @register_dispatch
     def greater(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("greater")
 
-    @dispatch
+    @register_dispatch
     def greater_(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("greater_")
 
-    @dispatch
+    @register_dispatch
     def greater_(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("greater_")
 
-    @dispatch
+    @register_dispatch
     def greater_equal(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("greater_equal")
 
-    @dispatch
+    @register_dispatch
     def greater_equal(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("greater_equal")
 
-    @dispatch
+    @register_dispatch
     def greater_equal_(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("greater_equal_")
 
-    @dispatch
+    @register_dispatch
     def greater_equal_(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("greater_equal_")
 
-    @dispatch
+    @register_dispatch
     def gt(self: Tensor, other: Tensor) -> Tensor:
         return pi.gt(self, other)
 
-    @dispatch
+    @register_dispatch
     def gt(self: Tensor, other: Number) -> Tensor:
         return pi.gt(self, other)
 
-    @dispatch
+    @register_dispatch
     def gt_(self: Tensor, other: Tensor) -> Tensor:
         return pi.gt_(self, other)
 
-    @dispatch
+    @register_dispatch
     def gt_(self: Tensor, other: Number) -> Tensor:
         return pi.gt_(self, other)
 
@@ -1597,7 +1597,7 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("histc")
 
-    @dispatch
+    @register_dispatch
     def histogram(
         self: Tensor,
         bins: Tensor,
@@ -1607,7 +1607,7 @@ class Tensor(Torch_Tensor):
     ) -> ComplexReturnType("histogram"):
         raise NotImplementedError("histogram")
 
-    @dispatch
+    @register_dispatch
     def histogram(
         self: Tensor,
         bins: int = 100,
@@ -1618,15 +1618,15 @@ class Tensor(Torch_Tensor):
     ) -> ComplexReturnType("histogram"):
         raise NotImplementedError("histogram")
 
-    @dispatch
+    @register_dispatch
     def hsplit(self: Tensor, sections: int) -> List[Tensor]:
         raise NotImplementedError("hsplit")
 
-    @dispatch
+    @register_dispatch
     def hsplit(self: Tensor, indices: Size) -> List[Tensor]:
         raise NotImplementedError("hsplit")
 
-    @dispatch
+    @register_dispatch
     def hsplit(self: Tensor, *indices: int) -> List[Tensor]:
         raise NotImplementedError("hsplit")
 
@@ -1654,13 +1654,13 @@ class Tensor(Torch_Tensor):
     def igammac_(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("igammac_")
 
-    @dispatch
+    @register_dispatch
     def index_add(
         self: Tensor, dim: int, index: Tensor, source: Tensor, *, alpha: Number = 1
     ) -> Tensor:
         raise NotImplementedError("index_add")
 
-    @dispatch
+    @register_dispatch
     def index_add(
         self: Tensor,
         dim: Union[str, ellipsis, None],
@@ -1676,61 +1676,61 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("index_add_")
 
-    @dispatch
+    @register_dispatch
     def index_copy(self: Tensor, dim: int, index: Tensor, source: Tensor) -> Tensor:
         raise NotImplementedError("index_copy")
 
-    @dispatch
+    @register_dispatch
     def index_copy(
         self: Tensor, dim: Union[str, ellipsis, None], index: Tensor, source: Tensor
     ) -> Tensor:
         raise NotImplementedError("index_copy")
 
-    @dispatch
+    @register_dispatch
     def index_copy_(self: Tensor, dim: int, index: Tensor, source: Tensor) -> Tensor:
         raise NotImplementedError("index_copy_")
 
-    @dispatch
+    @register_dispatch
     def index_copy_(
         self: Tensor, dim: Union[str, ellipsis, None], index: Tensor, source: Tensor
     ) -> Tensor:
         raise NotImplementedError("index_copy_")
 
-    @dispatch
+    @register_dispatch
     def index_fill(self: Tensor, dim: int, index: Tensor, value: Tensor) -> Tensor:
         raise NotImplementedError("index_fill")
 
-    @dispatch
+    @register_dispatch
     def index_fill(
         self: Tensor, dim: Union[str, ellipsis, None], index: Tensor, value: Tensor
     ) -> Tensor:
         raise NotImplementedError("index_fill")
 
-    @dispatch
+    @register_dispatch
     def index_fill(self: Tensor, dim: int, index: Tensor, value: Number) -> Tensor:
         raise NotImplementedError("index_fill")
 
-    @dispatch
+    @register_dispatch
     def index_fill(
         self: Tensor, dim: Union[str, ellipsis, None], index: Tensor, value: Number
     ) -> Tensor:
         raise NotImplementedError("index_fill")
 
-    @dispatch
+    @register_dispatch
     def index_fill_(self: Tensor, dim: int, index: Tensor, value: Tensor) -> Tensor:
         raise NotImplementedError("index_fill_")
 
-    @dispatch
+    @register_dispatch
     def index_fill_(
         self: Tensor, dim: Union[str, ellipsis, None], index: Tensor, value: Tensor
     ) -> Tensor:
         raise NotImplementedError("index_fill_")
 
-    @dispatch
+    @register_dispatch
     def index_fill_(self: Tensor, dim: int, index: Tensor, value: Number) -> Tensor:
         raise NotImplementedError("index_fill_")
 
-    @dispatch
+    @register_dispatch
     def index_fill_(
         self: Tensor, dim: Union[str, ellipsis, None], index: Tensor, value: Number
     ) -> Tensor:
@@ -1774,11 +1774,11 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("index_reduce_")
 
-    @dispatch
+    @register_dispatch
     def index_select(self: Tensor, dim: int, index: Tensor) -> Tensor:
         return pi.index_select(self, dim, index)
 
-    @dispatch
+    @register_dispatch
     def index_select(
         self: Tensor, dim: Union[str, ellipsis, None], index: Tensor
     ) -> Tensor:
@@ -1905,13 +1905,13 @@ class Tensor(Torch_Tensor):
     def kron(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("kron")
 
-    @dispatch
+    @register_dispatch
     def kthvalue(
         self: Tensor, k: int, dim: int = -1, keepdim: bool = False
     ) -> ComplexReturnType("kthvalue"):
         raise NotImplementedError("kthvalue")
 
-    @dispatch
+    @register_dispatch
     def kthvalue(
         self: Tensor, k: int, dim: Union[str, ellipsis, None], keepdim: bool = False
     ) -> ComplexReturnType("kthvalue"):
@@ -1929,67 +1929,67 @@ class Tensor(Torch_Tensor):
     def ldexp_(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("ldexp_")
 
-    @dispatch
+    @register_dispatch
     def le(self: Tensor, other: Tensor) -> Tensor:
         return pi.le(self, other)
 
-    @dispatch
+    @register_dispatch
     def le(self: Tensor, other: Number) -> Tensor:
         return pi.le(self, other)
 
-    @dispatch
+    @register_dispatch
     def le_(self: Tensor, other: Tensor) -> Tensor:
         return pi.le_(self, other)
 
-    @dispatch
+    @register_dispatch
     def le_(self: Tensor, other: Number) -> Tensor:
         return pi.le_(self, other)
 
-    @dispatch
+    @register_dispatch
     def lerp(self: Tensor, end: Tensor, weight: Tensor) -> Tensor:
         return pi.lerp(self, end, weight)
 
-    @dispatch
+    @register_dispatch
     def lerp(self: Tensor, end: Tensor, weight: Number) -> Tensor:
         raise NotImplementedError("lerp")
 
-    @dispatch
+    @register_dispatch
     def lerp_(self: Tensor, end: Tensor, weight: Tensor) -> Tensor:
         return pi.lerp_(self, end, weight)
 
-    @dispatch
+    @register_dispatch
     def lerp_(self: Tensor, end: Tensor, weight: Number) -> Tensor:
         raise NotImplementedError("lerp_")
 
-    @dispatch
+    @register_dispatch
     def less(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("less")
 
-    @dispatch
+    @register_dispatch
     def less(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("less")
 
-    @dispatch
+    @register_dispatch
     def less_(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("less_")
 
-    @dispatch
+    @register_dispatch
     def less_(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("less_")
 
-    @dispatch
+    @register_dispatch
     def less_equal(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("less_equal")
 
-    @dispatch
+    @register_dispatch
     def less_equal(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("less_equal")
 
-    @dispatch
+    @register_dispatch
     def less_equal_(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("less_equal_")
 
-    @dispatch
+    @register_dispatch
     def less_equal_(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("less_equal_")
 
@@ -2032,11 +2032,11 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("log_normal_")
 
-    @dispatch
+    @register_dispatch
     def log_softmax(self: Tensor, dim: int, dtype: Optional[pi_dtype] = None) -> Tensor:
         return pi.log_softmax(self, dim, dtype)
 
-    @dispatch
+    @register_dispatch
     def log_softmax(
         self: Tensor,
         dim: Union[str, ellipsis, None],
@@ -2051,11 +2051,11 @@ class Tensor(Torch_Tensor):
     def logaddexp2(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("logaddexp2")
 
-    @dispatch
+    @register_dispatch
     def logcumsumexp(self: Tensor, dim: int) -> Tensor:
         raise NotImplementedError("logcumsumexp")
 
-    @dispatch
+    @register_dispatch
     def logcumsumexp(self: Tensor, dim: Union[str, ellipsis, None]) -> Tensor:
         raise NotImplementedError("logcumsumexp")
 
@@ -2092,11 +2092,11 @@ class Tensor(Torch_Tensor):
     def logit_(self: Tensor, eps: Optional[float] = None) -> Tensor:
         raise NotImplementedError("logit_")
 
-    @dispatch
+    @register_dispatch
     def logsumexp(self: Tensor, dim: Union[int, Size], keepdim: bool = False) -> Tensor:
         return pi.logsumexp(self, dim, keepdim)
 
-    @dispatch
+    @register_dispatch
     def logsumexp(
         self: Tensor, dim: Sequence[Union[str, ellipsis, None]], keepdim: bool = False
     ) -> Tensor:
@@ -2105,19 +2105,19 @@ class Tensor(Torch_Tensor):
     def long(self: Tensor) -> Tensor:
         raise NotImplementedError("long")
 
-    @dispatch
+    @register_dispatch
     def lt(self: Tensor, other: Tensor) -> Tensor:
         return pi.lt(self, other)
 
-    @dispatch
+    @register_dispatch
     def lt(self: Tensor, other: Number) -> Tensor:
         return pi.lt(self, other)
 
-    @dispatch
+    @register_dispatch
     def lt_(self: Tensor, other: Tensor) -> Tensor:
         return pi.lt_(self, other)
 
-    @dispatch
+    @register_dispatch
     def lt_(self: Tensor, other: Number) -> Tensor:
         return pi.lt_(self, other)
 
@@ -2130,19 +2130,19 @@ class Tensor(Torch_Tensor):
     def map_(self: Tensor, tensor: Tensor, callable: Callable) -> Tensor:
         raise NotImplementedError("map_")
 
-    @dispatch
+    @register_dispatch
     def masked_fill(self: Tensor, mask: Tensor, value: Tensor) -> Tensor:
         return pi.masked_fill(self, mask, value)
 
-    @dispatch
+    @register_dispatch
     def masked_fill(self: Tensor, mask: Tensor, value: Number) -> Tensor:
         return pi.masked_fill(self, mask, value)
 
-    @dispatch
+    @register_dispatch
     def masked_fill_(self: Tensor, mask: Tensor, value: Tensor) -> Tensor:
         return pi.masked_fill_(self, mask, value)
 
-    @dispatch
+    @register_dispatch
     def masked_fill_(self: Tensor, mask: Tensor, value: Number) -> Tensor:
         return pi.masked_fill_(self, mask, value)
 
@@ -2164,19 +2164,19 @@ class Tensor(Torch_Tensor):
     def matrix_power(self: Tensor, n: int) -> Tensor:
         raise NotImplementedError("matrix_power")
 
-    @dispatch
+    @register_dispatch
     def max(self: Tensor) -> Tensor:
         return pi.max(self)
 
-    @dispatch
+    @register_dispatch
     def max(self: Tensor, other: Tensor) -> Tensor:
         return pi.max(self, other)
 
-    @dispatch
+    @register_dispatch
     def max(self: Tensor, dim: int, keepdim: bool = False) -> ComplexReturnType("max"):
         return pi.max(self, dim, keepdim)
 
-    @dispatch
+    @register_dispatch
     def max(
         self: Tensor, dim: Union[str, ellipsis, None], keepdim: bool = False
     ) -> ComplexReturnType("max"):
@@ -2185,11 +2185,11 @@ class Tensor(Torch_Tensor):
     def maximum(self: Tensor, other: Tensor) -> Tensor:
         return pi.maximum(self, other)
 
-    @dispatch
+    @register_dispatch
     def mean(self: Tensor, *, dtype: Optional[pi_dtype] = None) -> Tensor:
         return pi.mean(self, dtype)
 
-    @dispatch
+    @register_dispatch
     def mean(
         self: Tensor,
         dim: Optional[Union[int, Size]],
@@ -2199,7 +2199,7 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         return pi.mean(self, dim, keepdim, dtype)
 
-    @dispatch
+    @register_dispatch
     def mean(
         self: Tensor,
         dim: Sequence[Union[str, ellipsis, None]],
@@ -2209,35 +2209,35 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("mean")
 
-    @dispatch
+    @register_dispatch
     def median(self: Tensor) -> Tensor:
         raise NotImplementedError("median")
 
-    @dispatch
+    @register_dispatch
     def median(
         self: Tensor, dim: int, keepdim: bool = False
     ) -> ComplexReturnType("median"):
         raise NotImplementedError("median")
 
-    @dispatch
+    @register_dispatch
     def median(
         self: Tensor, dim: Union[str, ellipsis, None], keepdim: bool = False
     ) -> ComplexReturnType("median"):
         raise NotImplementedError("median")
 
-    @dispatch
+    @register_dispatch
     def min(self: Tensor) -> Tensor:
         raise NotImplementedError("min")
 
-    @dispatch
+    @register_dispatch
     def min(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("min")
 
-    @dispatch
+    @register_dispatch
     def min(self: Tensor, dim: int, keepdim: bool = False) -> ComplexReturnType("min"):
         raise NotImplementedError("min")
 
-    @dispatch
+    @register_dispatch
     def min(
         self: Tensor, dim: Union[str, ellipsis, None], keepdim: bool = False
     ) -> ComplexReturnType("min"):
@@ -2249,31 +2249,31 @@ class Tensor(Torch_Tensor):
     def mm(self: Tensor, mat2: Tensor) -> Tensor:
         return pi.mm(self, mat2)
 
-    @dispatch
+    @register_dispatch
     def mode(
         self: Tensor, dim: int = -1, keepdim: bool = False
     ) -> ComplexReturnType("mode"):
         raise NotImplementedError("mode")
 
-    @dispatch
+    @register_dispatch
     def mode(
         self: Tensor, dim: Union[str, ellipsis, None], keepdim: bool = False
     ) -> ComplexReturnType("mode"):
         raise NotImplementedError("mode")
 
-    @dispatch
+    @register_dispatch
     def moveaxis(self: Tensor, source: int, destination: int) -> Tensor:
         raise NotImplementedError("moveaxis")
 
-    @dispatch
+    @register_dispatch
     def moveaxis(self: Tensor, source: Size, destination: Size) -> Tensor:
         raise NotImplementedError("moveaxis")
 
-    @dispatch
+    @register_dispatch
     def movedim(self: Tensor, source: int, destination: int) -> Tensor:
         raise NotImplementedError("movedim")
 
-    @dispatch
+    @register_dispatch
     def movedim(self: Tensor, source: Size, destination: Size) -> Tensor:
         raise NotImplementedError("movedim")
 
@@ -2299,19 +2299,19 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("multinomial")
 
-    @dispatch
+    @register_dispatch
     def multiply(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("multiply")
 
-    @dispatch
+    @register_dispatch
     def multiply(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("multiply")
 
-    @dispatch
+    @register_dispatch
     def multiply_(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("multiply_")
 
-    @dispatch
+    @register_dispatch
     def multiply_(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("multiply_")
 
@@ -2349,23 +2349,23 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("nanmean")
 
-    @dispatch
+    @register_dispatch
     def nanmedian(self: Tensor) -> Tensor:
         raise NotImplementedError("nanmedian")
 
-    @dispatch
+    @register_dispatch
     def nanmedian(
         self: Tensor, dim: int, keepdim: bool = False
     ) -> ComplexReturnType("nanmedian"):
         raise NotImplementedError("nanmedian")
 
-    @dispatch
+    @register_dispatch
     def nanmedian(
         self: Tensor, dim: Union[str, ellipsis, None], keepdim: bool = False
     ) -> ComplexReturnType("nanmedian"):
         raise NotImplementedError("nanmedian")
 
-    @dispatch
+    @register_dispatch
     def nanquantile(
         self: Tensor,
         q: Tensor,
@@ -2376,7 +2376,7 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("nanquantile")
 
-    @dispatch
+    @register_dispatch
     def nanquantile(
         self: Tensor,
         q: float,
@@ -2396,11 +2396,11 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("nansum")
 
-    @dispatch
+    @register_dispatch
     def narrow(self: Tensor, dim: int, start: Tensor, length: int) -> Tensor:
         raise NotImplementedError("narrow")
 
-    @dispatch
+    @register_dispatch
     def narrow(self: Tensor, dim: int, start: int, length: int) -> Tensor:
         return pi.narrow(self, dim, start, length)
 
@@ -2410,19 +2410,19 @@ class Tensor(Torch_Tensor):
     def ndimension(self: Tensor) -> int:
         raise NotImplementedError("ndimension")
 
-    @dispatch
+    @register_dispatch
     def ne(self: Tensor, other: Tensor) -> Tensor:
         return pi.ne(self, other)
 
-    @dispatch
+    @register_dispatch
     def ne(self: Tensor, other: Number) -> Tensor:
         return pi.ne(self, other)
 
-    @dispatch
+    @register_dispatch
     def ne_(self: Tensor, other: Tensor) -> Tensor:
         return pi.ne_(self, other)
 
-    @dispatch
+    @register_dispatch
     def ne_(self: Tensor, other: Number) -> Tensor:
         return pi.ne_(self, other)
 
@@ -2441,19 +2441,19 @@ class Tensor(Torch_Tensor):
     def nelement(self: Tensor) -> int:
         raise NotImplementedError("nelement")
 
-    @dispatch
+    @register_dispatch
     def new(self: Tensor, *args: Any, device: Device = None) -> Tensor:
         raise NotImplementedError("new")
 
-    @dispatch
+    @register_dispatch
     def new(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("new")
 
-    @dispatch
+    @register_dispatch
     def new(self: Tensor, size: Size, *, device: Device = None) -> Tensor:
         raise NotImplementedError("new")
 
-    @dispatch
+    @register_dispatch
     def new_empty(
         self: Tensor,
         size: List[int],
@@ -2468,7 +2468,7 @@ class Tensor(Torch_Tensor):
             self, size, dtype, layout, device, pin_memory, requires_grad
         )
 
-    @dispatch
+    @register_dispatch
     def new_empty(
         self: Tensor,
         *size: int,
@@ -2506,7 +2506,7 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("new_full")
 
-    @dispatch
+    @register_dispatch
     def new_ones(
         self: Tensor,
         size: Size,
@@ -2516,7 +2516,7 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         return pi.new_ones(self, size, dtype, device, requires_grad)
 
-    @dispatch
+    @register_dispatch
     def new_ones(
         self: Tensor,
         size: List[int],
@@ -2529,7 +2529,7 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         return pi.new_ones(self, size, dtype, layout, device, pin_memory, requires_grad)
 
-    @dispatch
+    @register_dispatch
     def new_ones(
         self: Tensor,
         *size: int,
@@ -2550,7 +2550,7 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("new_tensor")
 
-    @dispatch
+    @register_dispatch
     def new_zeros(
         self: Tensor,
         size: List[int],
@@ -2565,7 +2565,7 @@ class Tensor(Torch_Tensor):
             self, size, dtype, layout, device, pin_memory, requires_grad
         )
 
-    @dispatch
+    @register_dispatch
     def new_zeros(
         self: Tensor,
         *size: int,
@@ -2583,11 +2583,11 @@ class Tensor(Torch_Tensor):
     def nextafter_(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("nextafter_")
 
-    @dispatch
+    @register_dispatch
     def nonzero(self: Tensor, *, as_tuple: Literal[False] = False) -> Tensor:
         raise NotImplementedError("nonzero")
 
-    @dispatch
+    @register_dispatch
     def nonzero(self: Tensor, *, as_tuple: Literal[True]) -> Tuple[Tensor, ...]:
         raise NotImplementedError("nonzero")
 
@@ -2600,19 +2600,19 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("normal_")
 
-    @dispatch
+    @register_dispatch
     def not_equal(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("not_equal")
 
-    @dispatch
+    @register_dispatch
     def not_equal(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("not_equal")
 
-    @dispatch
+    @register_dispatch
     def not_equal_(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("not_equal_")
 
-    @dispatch
+    @register_dispatch
     def not_equal_(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("not_equal_")
 
@@ -2637,11 +2637,11 @@ class Tensor(Torch_Tensor):
     def outer(self: Tensor, vec2: Tensor) -> Tensor:
         raise NotImplementedError("outer")
 
-    @dispatch
+    @register_dispatch
     def permute(self: Tensor, dims: Size) -> Tensor:
         return pi.permute(self, dims)
 
-    @dispatch
+    @register_dispatch
     def permute(self: Tensor, *dims: int) -> Tensor:
         return pi.permute(self, dims)
 
@@ -2662,30 +2662,30 @@ class Tensor(Torch_Tensor):
     def positive(self: Tensor) -> Tensor:
         raise NotImplementedError("positive")
 
-    @dispatch
+    @register_dispatch
     def pow(self: Tensor, exponent: Tensor) -> Tensor:
         return pi.pow(self, exponent)
 
-    @dispatch
+    @register_dispatch
     def pow(self: Tensor, exponent: Number) -> Tensor:
         return pi.pow(self, exponent)
 
-    @dispatch
+    @register_dispatch
     def pow_(self: Tensor, exponent: Tensor) -> Tensor:
         raise NotImplementedError("pow_")
 
-    @dispatch
+    @register_dispatch
     def pow_(self: Tensor, exponent: Number) -> Tensor:
         raise NotImplementedError("pow_")
 
     def prelu(self: Tensor, weight: Tensor) -> Tensor:
         return pi.prelu(self, weight)
 
-    @dispatch
+    @register_dispatch
     def prod(self: Tensor, *, dtype: Optional[pi_dtype] = None) -> Tensor:
         raise NotImplementedError("prod")
 
-    @dispatch
+    @register_dispatch
     def prod(
         self: Tensor,
         dim: int,
@@ -2695,7 +2695,7 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("prod")
 
-    @dispatch
+    @register_dispatch
     def prod(
         self: Tensor,
         dim: Union[str, ellipsis, None],
@@ -2733,7 +2733,7 @@ class Tensor(Torch_Tensor):
     def qr(self: Tensor, some: bool = True) -> ComplexReturnType("qr"):
         raise NotImplementedError("qr")
 
-    @dispatch
+    @register_dispatch
     def quantile(
         self: Tensor,
         q: Tensor,
@@ -2744,7 +2744,7 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("quantile")
 
-    @dispatch
+    @register_dispatch
     def quantile(
         self: Tensor,
         q: float,
@@ -2761,11 +2761,11 @@ class Tensor(Torch_Tensor):
     def rad2deg_(self: Tensor) -> Tensor:
         raise NotImplementedError("rad2deg_")
 
-    @dispatch
+    @register_dispatch
     def random_(self: Tensor, *, generator: Optional[Generator] = None) -> Tensor:
         raise NotImplementedError("random_")
 
-    @dispatch
+    @register_dispatch
     def random_(
         self: Tensor,
         from_: int,
@@ -2775,7 +2775,7 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("random_")
 
-    @dispatch
+    @register_dispatch
     def random_(
         self: Tensor, to: int, *, generator: Optional[Generator] = None
     ) -> Tensor:
@@ -2801,19 +2801,19 @@ class Tensor(Torch_Tensor):
     def relu_(self: Tensor) -> Tensor:
         return pi.relu_(self)
 
-    @dispatch
+    @register_dispatch
     def remainder(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("remainder")
 
-    @dispatch
+    @register_dispatch
     def remainder(self: Tensor, other: Number) -> Tensor:
         return pi.remainder(self, other)
 
-    @dispatch
+    @register_dispatch
     def remainder_(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("remainder_")
 
-    @dispatch
+    @register_dispatch
     def remainder_(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("remainder_")
 
@@ -2833,15 +2833,15 @@ class Tensor(Torch_Tensor):
     def renorm_(self: Tensor, p: Number, dim: int, maxnorm: Number) -> Tensor:
         raise NotImplementedError("renorm_")
 
-    @dispatch
+    @register_dispatch
     def repeat(self: Tensor, repeats: List[int]) -> Tensor:
         return pi.repeat(self, repeats)
 
-    @dispatch
+    @register_dispatch
     def repeat(self: Tensor, *repeats: int) -> Tensor:
         return pi.repeat(self, *repeats)
 
-    @dispatch
+    @register_dispatch
     def repeat_interleave(
         self: Tensor,
         repeats: Tensor,
@@ -2851,7 +2851,7 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("repeat_interleave")
 
-    @dispatch
+    @register_dispatch
     def repeat_interleave(
         self: Tensor,
         repeats: int,
@@ -2864,24 +2864,24 @@ class Tensor(Torch_Tensor):
     def requires_grad_(self: Tensor, mode: bool = True) -> Tensor:
         raise NotImplementedError("requires_grad_")
 
-    @dispatch
+    @register_dispatch
     def reshape(self: Tensor, shape: List[int]) -> Tensor:
         return pi.reshape(self, shape)
 
-    @dispatch
+    @register_dispatch
     def reshape(self: Tensor, *shape: int) -> Tensor:
         return pi.reshape(self, shape)
 
     def reshape_as(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("reshape_as")
 
-    @dispatch
+    @register_dispatch
     def resize_(
         self: Tensor, size: List[int], *, memory_format: Optional[memory_format] = None
     ) -> Tensor:
         return pi.resize_(self, size, memory_format)
 
-    @dispatch
+    @register_dispatch
     def resize_(
         self: Tensor, *size: int, memory_format: Optional[memory_format] = None
     ) -> Tensor:
@@ -2915,19 +2915,19 @@ class Tensor(Torch_Tensor):
     def rot90(self: Tensor, k: int = 1, dims: Size = (0, 1)) -> Tensor:
         raise NotImplementedError("rot90")
 
-    @dispatch
+    @register_dispatch
     def round(self: Tensor) -> Tensor:
         return pi.round(self)
 
-    @dispatch
+    @register_dispatch
     def round(self: Tensor, *, decimals: int) -> Tensor:
         raise NotImplementedError("round")
 
-    @dispatch
+    @register_dispatch
     def round_(self: Tensor) -> Tensor:
         return pi.round_(self)
 
-    @dispatch
+    @register_dispatch
     def round_(self: Tensor, *, decimals: int) -> Tensor:
         raise NotImplementedError("round_")
 
@@ -2940,63 +2940,63 @@ class Tensor(Torch_Tensor):
     def rsqrt_(self: Tensor) -> Tensor:
         return pi.rsqrt_(self)
 
-    @dispatch
+    @register_dispatch
     def scatter(self: Tensor, dim: int, index: Tensor, src: Tensor) -> Tensor:
         raise NotImplementedError("scatter")
 
-    @dispatch
+    @register_dispatch
     def scatter(
         self: Tensor, dim: int, index: Tensor, src: Tensor, *, reduce: str
     ) -> Tensor:
         raise NotImplementedError("scatter")
 
-    @dispatch
+    @register_dispatch
     def scatter(
         self: Tensor, dim: int, index: Tensor, value: Number, *, reduce: str
     ) -> Tensor:
         raise NotImplementedError("scatter")
 
-    @dispatch
+    @register_dispatch
     def scatter(
         self: Tensor, dim: Union[str, ellipsis, None], index: Tensor, src: Tensor
     ) -> Tensor:
         raise NotImplementedError("scatter")
 
-    @dispatch
+    @register_dispatch
     def scatter(self: Tensor, dim: int, index: Tensor, value: Number) -> Tensor:
         raise NotImplementedError("scatter")
 
-    @dispatch
+    @register_dispatch
     def scatter(
         self: Tensor, dim: Union[str, ellipsis, None], index: Tensor, value: Number
     ) -> Tensor:
         raise NotImplementedError("scatter")
 
-    @dispatch
+    @register_dispatch
     def scatter_(self: Tensor, dim: int, index: Tensor, src: Tensor) -> Tensor:
         raise NotImplementedError("scatter_")
 
-    @dispatch
+    @register_dispatch
     def scatter_(
         self: Tensor, dim: int, index: Tensor, src: Tensor, *, reduce: str
     ) -> Tensor:
         raise NotImplementedError("scatter_")
 
-    @dispatch
+    @register_dispatch
     def scatter_(
         self: Tensor, dim: int, index: Tensor, value: Number, *, reduce: str
     ) -> Tensor:
         raise NotImplementedError("scatter_")
 
-    @dispatch
+    @register_dispatch
     def scatter_(self: Tensor, dim: int, index: Tensor, value: Number) -> Tensor:
         raise NotImplementedError("scatter_")
 
-    @dispatch
+    @register_dispatch
     def scatter_add(self: Tensor, dim: int, index: Tensor, src: Tensor) -> Tensor:
         return pi.scatter_add(self, dim, index, src)
 
-    @dispatch
+    @register_dispatch
     def scatter_add(
         self: Tensor, dim: Union[str, ellipsis, None], index: Tensor, src: Tensor
     ) -> Tensor:
@@ -3027,11 +3027,11 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("scatter_reduce_")
 
-    @dispatch
+    @register_dispatch
     def select(self: Tensor, dim: int, index: int) -> Tensor:
         return pi.select(self, dim, index)
 
-    @dispatch
+    @register_dispatch
     def select(self: Tensor, dim: Union[str, ellipsis, None], index: int) -> Tensor:
         raise NotImplementedError("select")
 
@@ -3080,11 +3080,11 @@ class Tensor(Torch_Tensor):
     def sinh_(self: Tensor) -> Tensor:
         raise NotImplementedError("sinh_")
 
-    @dispatch
+    @register_dispatch
     def size(self: Tensor) -> Size:
         return pi.size(self)
 
-    @dispatch
+    @register_dispatch
     def size(self: Tensor, dim: int) -> int:
         return pi.size(self, dim)
 
@@ -3104,11 +3104,11 @@ class Tensor(Torch_Tensor):
     def smm(self: Tensor, mat2: Tensor) -> Tensor:
         raise NotImplementedError("smm")
 
-    @dispatch
+    @register_dispatch
     def softmax(self: Tensor, dim: int, dtype: Optional[pi_dtype] = None) -> Tensor:
         return pi.softmax(self, dim, dtype)
 
-    @dispatch
+    @register_dispatch
     def softmax(
         self: Tensor,
         dim: Union[str, ellipsis, None],
@@ -3117,19 +3117,19 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("softmax")
 
-    @dispatch
+    @register_dispatch
     def sort(
         self: Tensor, *, stable: Optional[bool], dim: int = -1, descending: bool = False
     ) -> ComplexReturnType("sort"):
         raise NotImplementedError("sort")
 
-    @dispatch
+    @register_dispatch
     def sort(
         self: Tensor, dim: int = -1, descending: bool = False
     ) -> ComplexReturnType("sort"):
         raise NotImplementedError("sort")
 
-    @dispatch
+    @register_dispatch
     def sort(
         self: Tensor,
         *,
@@ -3139,7 +3139,7 @@ class Tensor(Torch_Tensor):
     ) -> ComplexReturnType("sort"):
         raise NotImplementedError("sort")
 
-    @dispatch
+    @register_dispatch
     def sort(
         self: Tensor, dim: Union[str, ellipsis, None], descending: bool = False
     ) -> ComplexReturnType("sort"):
@@ -3161,11 +3161,11 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("sparse_resize_and_clear_")
 
-    @dispatch
+    @register_dispatch
     def split(self: Tensor, split_size: int, dim: int = 0) -> Sequence[Tensor]:
         raise NotImplementedError("split")
 
-    @dispatch
+    @register_dispatch
     def split(
         self: Tensor, split_size: Tuple[int, ...], dim: int = 0
     ) -> Sequence[Tensor]:
@@ -3188,27 +3188,27 @@ class Tensor(Torch_Tensor):
     def square_(self: Tensor) -> Tensor:
         return pi.square_(self)
 
-    @dispatch
+    @register_dispatch
     def squeeze(self: Tensor) -> Tensor:
         return pi.squeeze(self)
 
-    @dispatch
+    @register_dispatch
     def squeeze(self: Tensor, dim: int) -> Tensor:
         return pi.squeeze(self, dim)
 
-    @dispatch
+    @register_dispatch
     def squeeze(self: Tensor, dim: Union[str, ellipsis, None]) -> Tensor:
         raise NotImplementedError("squeeze")
 
-    @dispatch
+    @register_dispatch
     def squeeze_(self: Tensor) -> Tensor:
         raise NotImplementedError("squeeze_")
 
-    @dispatch
+    @register_dispatch
     def squeeze_(self: Tensor, dim: int) -> Tensor:
         raise NotImplementedError("squeeze_")
 
-    @dispatch
+    @register_dispatch
     def squeeze_(self: Tensor, dim: Union[str, ellipsis, None]) -> Tensor:
         raise NotImplementedError("squeeze_")
 
@@ -3217,7 +3217,7 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("sspaddmm")
 
-    @dispatch
+    @register_dispatch
     def std(
         self: Tensor,
         dim: Optional[Union[int, Size]],
@@ -3226,7 +3226,7 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         return pi.std(self, dim, unbiased, keepdim)
 
-    @dispatch
+    @register_dispatch
     def std(
         self: Tensor,
         dim: Optional[Union[int, Size]] = None,
@@ -3236,11 +3236,11 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         return pi.std(self, dim, correction, keepdim)
 
-    @dispatch
+    @register_dispatch
     def std(self: Tensor, unbiased: bool = True) -> Tensor:
         return pi.std(self, unbiased)
 
-    @dispatch
+    @register_dispatch
     def std(
         self: Tensor,
         dim: Sequence[Union[str, ellipsis, None]],
@@ -3249,7 +3249,7 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("std")
 
-    @dispatch
+    @register_dispatch
     def std(
         self: Tensor,
         dim: Sequence[Union[str, ellipsis, None]],
@@ -3262,11 +3262,11 @@ class Tensor(Torch_Tensor):
     def storage_offset(self: Tensor) -> int:
         raise NotImplementedError("storage_offset")
 
-    @dispatch
+    @register_dispatch
     def stride(self: Tensor) -> Tuple[int, ...]:
         raise NotImplementedError("stride")
 
-    @dispatch
+    @register_dispatch
     def stride(self: Tensor, _int) -> int:
         raise NotImplementedError("stride")
 
@@ -3286,27 +3286,27 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         return pi.sub_(self, other, alpha)
 
-    @dispatch
+    @register_dispatch
     def subtract(self: Tensor, other: Tensor, *, alpha: Number = 1) -> Tensor:
         raise NotImplementedError("subtract")
 
-    @dispatch
+    @register_dispatch
     def subtract(self: Tensor, other: Number, alpha: Number = 1) -> Tensor:
         raise NotImplementedError("subtract")
 
-    @dispatch
+    @register_dispatch
     def subtract_(self: Tensor, other: Tensor, *, alpha: Number = 1) -> Tensor:
         raise NotImplementedError("subtract_")
 
-    @dispatch
+    @register_dispatch
     def subtract_(self: Tensor, other: Number, alpha: Number = 1) -> Tensor:
         raise NotImplementedError("subtract_")
 
-    @dispatch
+    @register_dispatch
     def sum(self: Tensor, *, dtype: Optional[pi_dtype] = None) -> Tensor:
         return pi.sum(self, dtype)
 
-    @dispatch
+    @register_dispatch
     def sum(
         self: Tensor,
         dim: Optional[Union[int, Size]],
@@ -3316,7 +3316,7 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         return pi.sum(self, dim, keepdim, dtype)
 
-    @dispatch
+    @register_dispatch
     def sum(
         self: Tensor,
         dim: Sequence[Union[str, ellipsis, None]],
@@ -3326,11 +3326,11 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("sum")
 
-    @dispatch
+    @register_dispatch
     def sum_to_size(self: Tensor, size: Size) -> Tensor:
         raise NotImplementedError("sum_to_size")
 
-    @dispatch
+    @register_dispatch
     def sum_to_size(self: Tensor, *size: int) -> Tensor:
         raise NotImplementedError("sum_to_size")
 
@@ -3382,35 +3382,35 @@ class Tensor(Torch_Tensor):
     def tanh_(self: Tensor) -> Tensor:
         return pi.tanh_(self)
 
-    @dispatch
+    @register_dispatch
     def tensor_split(self: Tensor, indices: List[int], dim: int = 0) -> List[Tensor]:
         raise NotImplementedError("tensor_split")
 
-    @dispatch
+    @register_dispatch
     def tensor_split(
         self: Tensor, tensor_indices_or_sections: Tensor, dim: int = 0
     ) -> List[Tensor]:
         raise NotImplementedError("tensor_split")
 
-    @dispatch
+    @register_dispatch
     def tensor_split(self: Tensor, sections: int, dim: int = 0) -> List[Tensor]:
         raise NotImplementedError("tensor_split")
 
-    @dispatch
+    @register_dispatch
     def tile(self: Tensor, dims: Size) -> Tensor:
         raise NotImplementedError("tile")
 
-    @dispatch
+    @register_dispatch
     def tile(self: Tensor, *dims: int) -> Tensor:
         raise NotImplementedError("tile")
 
-    @dispatch
+    @register_dispatch
     def to(
         self: Tensor, dtype: pi_dtype, non_blocking: bool = False, copy: bool = False
     ) -> Tensor:
         return pi.to(self, dtype, non_blocking, copy)
 
-    @dispatch
+    @register_dispatch
     def to(
         self: Tensor,
         device: Optional[Union[Device, str]] = None,
@@ -3420,7 +3420,7 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         return pi.to(self, device, dtype, non_blocking, copy)
 
-    @dispatch
+    @register_dispatch
     def to(
         self: Tensor, other: Tensor, non_blocking: bool = False, copy: bool = False
     ) -> Tensor:
@@ -3437,7 +3437,7 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("to_padded_tensor")
 
-    @dispatch
+    @register_dispatch
     def to_sparse(
         self: Tensor,
         *,
@@ -3446,23 +3446,23 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("to_sparse")
 
-    @dispatch
+    @register_dispatch
     def to_sparse(self: Tensor, sparse_dim: int) -> Tensor:
         raise NotImplementedError("to_sparse")
 
-    @dispatch
+    @register_dispatch
     def to_sparse_bsc(self: Tensor, blocksize: Union[int, Size]) -> Tensor:
         raise NotImplementedError("to_sparse_bsc")
 
-    @dispatch
+    @register_dispatch
     def to_sparse_bsc(self: Tensor, *blocksize: int) -> Tensor:
         raise NotImplementedError("to_sparse_bsc")
 
-    @dispatch
+    @register_dispatch
     def to_sparse_bsr(self: Tensor, blocksize: Union[int, Size]) -> Tensor:
         raise NotImplementedError("to_sparse_bsr")
 
-    @dispatch
+    @register_dispatch
     def to_sparse_bsr(self: Tensor, *blocksize: int) -> Tensor:
         raise NotImplementedError("to_sparse_bsr")
 
@@ -3483,11 +3483,11 @@ class Tensor(Torch_Tensor):
     def trace(self: Tensor) -> Tensor:
         raise NotImplementedError("trace")
 
-    @dispatch
+    @register_dispatch
     def transpose(self: Tensor, dim0: int, dim1: int) -> Tensor:
         return pi.transpose(self, dim0, dim1)
 
-    @dispatch
+    @register_dispatch
     def transpose(
         self: Tensor, dim0: Union[str, ellipsis, None], dim1: Union[str, ellipsis, None]
     ) -> Tensor:
@@ -3533,15 +3533,15 @@ class Tensor(Torch_Tensor):
     def trunc_(self: Tensor) -> Tensor:
         raise NotImplementedError("trunc_")
 
-    @dispatch
+    @register_dispatch
     def unbind(self: Tensor, dim: int = 0) -> List[Tensor]:
         raise NotImplementedError("unbind")
 
-    @dispatch
+    @register_dispatch
     def unbind(self: Tensor, dim: Union[str, ellipsis, None]) -> List[Tensor]:
         raise NotImplementedError("unbind")
 
-    @dispatch
+    @register_dispatch
     def unflatten(
         self: Tensor,
         dim: Union[str, ellipsis, None],
@@ -3550,7 +3550,7 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("unflatten")
 
-    @dispatch
+    @register_dispatch
     def unflatten(self: Tensor, dim: int, sizes: Size) -> Tensor:
         raise NotImplementedError("unflatten")
 
@@ -3586,7 +3586,7 @@ class Tensor(Torch_Tensor):
     def values(self: Tensor) -> Tensor:
         raise NotImplementedError("values")
 
-    @dispatch
+    @register_dispatch
     def var(
         self: Tensor,
         dim: Optional[Union[int, Size]],
@@ -3595,7 +3595,7 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         return pi.var(self, dim, unbiased, keepdim)
 
-    @dispatch
+    @register_dispatch
     def var(
         self: Tensor,
         dim: Optional[Union[int, Size]] = None,
@@ -3605,11 +3605,11 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         return pi.var(self, dim, correction, keepdim)
 
-    @dispatch
+    @register_dispatch
     def var(self: Tensor, unbiased: bool = True) -> Tensor:
         return pi.var(self, unbiased)
 
-    @dispatch
+    @register_dispatch
     def var(
         self: Tensor,
         dim: Sequence[Union[str, ellipsis, None]],
@@ -3618,7 +3618,7 @@ class Tensor(Torch_Tensor):
     ) -> Tensor:
         raise NotImplementedError("var")
 
-    @dispatch
+    @register_dispatch
     def var(
         self: Tensor,
         dim: Sequence[Union[str, ellipsis, None]],
@@ -3631,49 +3631,49 @@ class Tensor(Torch_Tensor):
     def vdot(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("vdot")
 
-    @dispatch
+    @register_dispatch
     def view(self: Tensor, dtype: pi_dtype) -> Tensor:
         raise NotImplementedError("view")
 
-    @dispatch
+    @register_dispatch
     def view(self: Tensor, size: List[int]) -> Tensor:
         return pi.view(self, size)
 
-    @dispatch
+    @register_dispatch
     def view(self: Tensor, *size: int) -> Tensor:
         return pi.view(self, size)
 
     def view_as(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("view_as")
 
-    @dispatch
+    @register_dispatch
     def vsplit(self: Tensor, sections: int) -> List[Tensor]:
         raise NotImplementedError("vsplit")
 
-    @dispatch
+    @register_dispatch
     def vsplit(self: Tensor, indices: Size) -> List[Tensor]:
         raise NotImplementedError("vsplit")
 
-    @dispatch
+    @register_dispatch
     def vsplit(self: Tensor, *indices: int) -> List[Tensor]:
         raise NotImplementedError("vsplit")
 
     def where(self: Tensor, condition: Tensor, other: Tensor) -> Tensor:
         return pi.where(self, condition, other)
 
-    @dispatch
+    @register_dispatch
     def xlogy(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("xlogy")
 
-    @dispatch
+    @register_dispatch
     def xlogy(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("xlogy")
 
-    @dispatch
+    @register_dispatch
     def xlogy_(self: Tensor, other: Tensor) -> Tensor:
         raise NotImplementedError("xlogy_")
 
-    @dispatch
+    @register_dispatch
     def xlogy_(self: Tensor, other: Number) -> Tensor:
         raise NotImplementedError("xlogy_")
 

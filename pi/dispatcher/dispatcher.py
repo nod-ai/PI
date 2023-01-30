@@ -1,12 +1,11 @@
 import inspect
+import inspect
 import logging
 from typing import Dict, Callable, List
 
 from .function import Function, ClassFunction
 
-
-__all__ = ["Dispatcher", "dispatch"]
-
+__all__ = ["Dispatcher", "register_dispatch"]
 
 log = logging.getLogger(__name__)
 
@@ -26,14 +25,6 @@ class Dispatcher:
     def __call__(self, overload=None, precedence=0):
         def construct_function():
             sig = inspect.signature(overload)
-            # if (
-            #     owner is not None
-            #     and f"{owner.__module__}.{owner.__qualname__}" == get_class(overload)
-            #     and "self" in sig.parameters
-            # ):
-            #     parameters = OrderedDict(sig.parameters)
-            #     parameters["self"] = parameters["self"].replace(annotation=owner)
-            #     sig = sig.replace(parameters=tuple(parameters.values()))
             return self._add_overload(
                 overload,
                 sig,
@@ -65,4 +56,4 @@ class Dispatcher:
             f.clear_cache()
 
 
-dispatch = Dispatcher()
+register_dispatch = Dispatcher()

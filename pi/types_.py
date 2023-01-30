@@ -2,7 +2,6 @@ import builtins
 import re
 import weakref
 from enum import Enum
-from inspect import isclass
 from typing import Any, Optional, Tuple
 from typing import Generic, TypeVar
 from typing import Union, List, NewType, Sequence
@@ -103,88 +102,6 @@ class Torch_Dict:
     # @property
     # def type(self) -> T:
     #     return super().type
-
-
-def check_simple_torch_value(
-    value: Any, origin_type: Any, type_var_args: Tuple[Any, ...], memo: TypeCheckMemo
-) -> None:
-    assert len(type_var_args) == 1, f"multiple type var args to Torch_Value not handled"
-    type_var_arg = type_var_args[0]
-    if not isinstance(value, Torch_Value):
-        raise TypeCheckError(f"Not Torch_Value: {value}")
-    try:
-        check_type(value.type, type_var_arg)
-    except TypeCheckError:
-        raise TypeCheckError(f"Not correct type param ({type_var_arg}): {value.type}")
-
-
-def check_simple_torch_list(
-    value: Any, origin_type: Any, type_var_args: Tuple[Any, ...], memo: TypeCheckMemo
-) -> None:
-    assert len(type_var_args) == 1, f"multiple type var args to Torch_List not handled"
-    type_var_arg = type_var_args[0]
-    if not isinstance(value, Torch_List):
-        raise TypeCheckError(f"Not Torch_Value: {value}")
-    try:
-        check_type(value.el_type, type_var_arg)
-    except TypeCheckError:
-        raise TypeCheckError(
-            f"Not correct type param ({type_var_arg}): {value.el_type}"
-        )
-
-
-def check_tensor(
-    value: Any, origin_type: Any, type_var_args: Tuple[Any, ...], memo: TypeCheckMemo
-) -> None:
-    if not isinstance(value, Tensor):
-        raise TypeCheckError(f"Not Torch_Tensor: {value}")
-
-
-def torch_value_checker_lookup(
-    origin_type: Any, type_var_args: Tuple[Any, ...], extras: Tuple[Any, ...]
-) -> Optional[TypeCheckerCallable]:
-    if isclass(origin_type) and issubclass(origin_type, Torch_List):
-        return check_simple_torch_list
-    elif isclass(origin_type) and issubclass(origin_type, Torch_Value):
-        return check_simple_torch_value
-    elif isclass(origin_type) and issubclass(origin_type, Tensor):
-        return check_tensor
-
-    return None
-
-
-import typeguard._checkers
-
-
-# remove after https://github.com/agronholm/typeguard/issues/288 is resolved.
-def patch_check_number(
-    value: Any, origin_type: Any, args: tuple[Any, ...], memo: TypeCheckMemo
-) -> None:
-    if origin_type is builtins.complex and not isinstance(
-        value, (builtins.complex, builtins.float, builtins.int)
-    ):
-        raise TypeCheckError("is neither complex, float or int")
-    elif origin_type is builtins.float and isinstance(value, builtins.bool):
-        raise TypeCheckError("is neither float or int")
-    elif origin_type is builtins.float and not isinstance(
-        value, (builtins.float, builtins.int)
-    ):
-        raise TypeCheckError("is neither float or int")
-
-
-def patch_check_float(
-    value: Any, origin_type: Any, args: tuple[Any, ...], memo: TypeCheckMemo
-) -> None:
-    if origin_type is builtins.float and not isinstance(value, builtins.float):
-        raise TypeCheckError("is not a float")
-
-
-typeguard._checkers.check_number = patch_check_number
-
-
-checker_lookup_functions.insert(0, torch_value_checker_lookup)
-typeguard._checkers.origin_type_checkers[float] = patch_check_float
-# typeguard._checkers.origin_type_checkers[complex] = patch_check_number
 
 
 class dtype(Enum):

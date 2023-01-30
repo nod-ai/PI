@@ -36,7 +36,7 @@ from ._pi_mlir import (
     Torch_NonValueTensorType,
     Torch_GeneratorType,
 )
-from .dispatcher import dispatch
+from .dispatcher import register_dispatch
 from torch_mlir.dialects import torch as torch_dialect
 from torch_mlir.dialects._ods_common import (
     get_op_results_or_values,
@@ -49,14 +49,14 @@ TorchNumber = Union[
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def Bool(a: Tensor) -> Union[Torch_Value[Torch_BoolType], builtins.bool]:
     assert check_argument_types()
     return Torch_Value(torch_dialect.AtenBoolTensorOp(a).result)
 
 
 # overload float
-@dispatch
+@register_dispatch
 def Bool(
     a: Union[Torch_Value[Torch_FloatType], builtins.float]
 ) -> Union[Torch_Value[Torch_BoolType], builtins.bool]:
@@ -67,7 +67,7 @@ def Bool(
 
 
 # overload int
-@dispatch
+@register_dispatch
 def Bool(
     a: Union[Torch_Value[Torch_IntType], builtins.int]
 ) -> Union[Torch_Value[Torch_BoolType], builtins.bool]:
@@ -88,14 +88,14 @@ def Delete(
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def Float(a: Tensor) -> Union[Torch_Value[Torch_FloatType], builtins.float]:
     assert check_argument_types()
     return Torch_Value(torch_dialect.AtenFloatTensorOp(a).result)
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def Float(a: TorchNumber) -> Union[Torch_Value[Torch_FloatType], builtins.float]:
     assert check_argument_types()
     if isinstance(a, (builtins.int, builtins.float)):
@@ -104,7 +104,7 @@ def Float(a: TorchNumber) -> Union[Torch_Value[Torch_FloatType], builtins.float]
 
 
 # overload str
-@dispatch
+@register_dispatch
 def Float(
     a: Union[Torch_Value[Torch_StringType], builtins.str]
 ) -> Union[Torch_Value[Torch_FloatType], builtins.float]:
@@ -120,14 +120,14 @@ def FloatImplicit(a: Tensor) -> Union[Torch_Value[Torch_FloatType], builtins.flo
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def Int(a: Tensor) -> Union[Torch_Value[Torch_IntType], builtins.int]:
     assert check_argument_types()
     return Torch_Value(torch_dialect.AtenIntTensorOp(a).result)
 
 
 # overload float
-@dispatch
+@register_dispatch
 def Int(
     a: Union[Torch_Value[Torch_FloatType], builtins.float]
 ) -> Union[Torch_Value[Torch_IntType], builtins.int]:
@@ -138,7 +138,7 @@ def Int(
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def Int(a: TorchNumber) -> Union[Torch_Value[Torch_IntType], builtins.int]:
     assert check_argument_types()
     if isinstance(a, (builtins.int, builtins.float)):
@@ -147,7 +147,7 @@ def Int(a: TorchNumber) -> Union[Torch_Value[Torch_IntType], builtins.int]:
 
 
 # overload bool
-@dispatch
+@register_dispatch
 def Int(
     a: Union[Torch_Value[Torch_BoolType], builtins.bool]
 ) -> Union[Torch_Value[Torch_IntType], builtins.int]:
@@ -254,7 +254,7 @@ def Uninitialized() -> (
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def __and__(self_: Tensor, other: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -262,7 +262,7 @@ def __and__(self_: Tensor, other: Tensor) -> Tensor:
 
 
 # overload bool
-@dispatch
+@register_dispatch
 def __and__(
     a: Union[Torch_Value[Torch_BoolType], builtins.bool],
     b: Union[Torch_Value[Torch_BoolType], builtins.bool],
@@ -276,7 +276,7 @@ def __and__(
 
 
 # overload str
-@dispatch
+@register_dispatch
 def __contains__(
     dict: Torch_Dict, key: Union[Torch_Value[Torch_StringType], builtins.str]
 ) -> Union[Torch_Value[Torch_BoolType], builtins.bool]:
@@ -287,7 +287,7 @@ def __contains__(
 
 
 # overload int_list
-@dispatch
+@register_dispatch
 def __contains__(
     l: Union[
         Sequence[Union[Torch_Value[Torch_IntType], builtins.int]],
@@ -326,7 +326,7 @@ def __derive_index(
 
 
 # overload Dict_str
-@dispatch
+@register_dispatch
 def __getitem__(
     self_: Torch_Dict, key: Union[Torch_Value[Torch_StringType], builtins.str]
 ) -> Union[
@@ -355,7 +355,7 @@ def __getitem__(
 
 
 # overload t
-@dispatch
+@register_dispatch
 def __getitem__(
     list_: Union[Sequence[Any], Any],
     idx: Union[Torch_Value[Torch_IntType], builtins.int],
@@ -484,7 +484,7 @@ def __range_length(
     return Torch_Value(torch_dialect.Aten__RangeLengthOp(lo, hi, step).result)
 
 
-@dispatch
+@register_dispatch
 def _convolution(
     input: Tensor,
     weight: Tensor,
@@ -589,7 +589,7 @@ def _convolution(
 
 
 # overload deprecated
-@dispatch
+@register_dispatch
 def _convolution(
     input: Tensor,
     weight: Tensor,
@@ -903,7 +903,7 @@ def _reshape_alias_copy(
 
 
 # overload str
-@dispatch
+@register_dispatch
 def _set_item(
     l: Torch_Dict,
     idx: Union[Torch_Value[Torch_StringType], builtins.str],
@@ -931,7 +931,7 @@ def _set_item(
 
 
 # overload t
-@dispatch
+@register_dispatch
 def _set_item(
     l: Union[Sequence[Any], Any],
     idx: Union[Torch_Value[Torch_IntType], builtins.int],
@@ -1076,7 +1076,7 @@ def _unsafe_view(
     return Tensor(torch_dialect.Aten_UnsafeViewOp(result0_type, self_, size))
 
 
-@dispatch
+@register_dispatch
 def abs(self_: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -1084,7 +1084,7 @@ def abs(self_: Tensor) -> Tensor:
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def abs(a: TorchNumber) -> TorchNumber:
     assert check_argument_types()
     if isinstance(a, (builtins.int, builtins.float)):
@@ -1125,7 +1125,7 @@ def adaptive_avg_pool2d(
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def add(self_: Tensor, other: Tensor, alpha: TorchNumber = 1) -> Tensor:
     assert check_argument_types()
     if isinstance(alpha, (builtins.int, builtins.float)):
@@ -1135,7 +1135,7 @@ def add(self_: Tensor, other: Tensor, alpha: TorchNumber = 1) -> Tensor:
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def add(self_: Tensor, other: TorchNumber, alpha: TorchNumber = 1) -> Tensor:
     assert check_argument_types()
     if isinstance(other, (builtins.int, builtins.float)):
@@ -1147,7 +1147,7 @@ def add(self_: Tensor, other: TorchNumber, alpha: TorchNumber = 1) -> Tensor:
 
 
 # overload str
-@dispatch
+@register_dispatch
 def add(
     a: Union[Torch_Value[Torch_StringType], builtins.str],
     b: Union[Torch_Value[Torch_StringType], builtins.str],
@@ -1161,7 +1161,7 @@ def add(
 
 
 # overload int
-@dispatch
+@register_dispatch
 def add(
     a: Union[Torch_Value[Torch_IntType], builtins.int],
     b: Union[Torch_Value[Torch_IntType], builtins.int],
@@ -1175,7 +1175,7 @@ def add(
 
 
 # overload float_int
-@dispatch
+@register_dispatch
 def add(
     a: Union[Torch_Value[Torch_FloatType], builtins.float],
     b: Union[Torch_Value[Torch_IntType], builtins.int],
@@ -1188,7 +1188,7 @@ def add(
     return Torch_Value(torch_dialect.AtenAddFloatIntOp(a, b).result)
 
 
-@dispatch
+@register_dispatch
 def add(a: TorchNumber, b: TorchNumber) -> TorchNumber:
     assert check_argument_types()
     if isinstance(a, (builtins.int, builtins.float)):
@@ -1200,7 +1200,7 @@ def add(a: TorchNumber, b: TorchNumber) -> TorchNumber:
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def add_(self_: Tensor, other: Tensor, alpha: TorchNumber = 1) -> Tensor:
     assert check_argument_types()
     if isinstance(alpha, (builtins.int, builtins.float)):
@@ -1210,7 +1210,7 @@ def add_(self_: Tensor, other: Tensor, alpha: TorchNumber = 1) -> Tensor:
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def add_(self_: Tensor, other: TorchNumber, alpha: TorchNumber = 1) -> Tensor:
     assert check_argument_types()
     if isinstance(other, (builtins.int, builtins.float)):
@@ -1293,7 +1293,7 @@ def alias_copy(self_: Tensor) -> Tensor:
     return Tensor(torch_dialect.AtenAliasCopyOp(result0_type, self_))
 
 
-@dispatch
+@register_dispatch
 def all(self_: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -1301,7 +1301,7 @@ def all(self_: Tensor) -> Tensor:
 
 
 # overload bool
-@dispatch
+@register_dispatch
 def all(
     self_: Union[
         Sequence[Union[Torch_Value[Torch_BoolType], builtins.bool]],
@@ -1345,7 +1345,7 @@ def amax(
     return Tensor(torch_dialect.AtenAmaxOp(result0_type, self_, dim, keepdim))
 
 
-@dispatch
+@register_dispatch
 def any(self_: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -1353,7 +1353,7 @@ def any(self_: Tensor) -> Tensor:
 
 
 # overload dim
-@dispatch
+@register_dispatch
 def any(
     self_: Tensor,
     dim: Union[Torch_Value[Torch_IntType], builtins.int],
@@ -1369,7 +1369,7 @@ def any(
 
 
 # overload bool
-@dispatch
+@register_dispatch
 def any(
     self_: Union[
         Sequence[Union[Torch_Value[Torch_BoolType], builtins.bool]],
@@ -1414,7 +1414,7 @@ def append(
     return Torch_Value(torch_dialect.AtenAppendTOp(result0_type, self_, el).result)
 
 
-@dispatch
+@register_dispatch
 def arange(
     end: TorchNumber,
     dtype: Union[Torch_Value[Torch_IntType], builtins.int, pi_dtype, None] = None,
@@ -1452,7 +1452,7 @@ def arange(
 
 
 # overload start
-@dispatch
+@register_dispatch
 def arange(
     start: TorchNumber,
     end: TorchNumber,
@@ -1495,7 +1495,7 @@ def arange(
 
 
 # overload start_step
-@dispatch
+@register_dispatch
 def arange(
     start: TorchNumber,
     end: TorchNumber,
@@ -1541,7 +1541,7 @@ def arange(
 
 
 # overload start_out
-@dispatch
+@register_dispatch
 def arange(
     start: TorchNumber, end: TorchNumber, step: TorchNumber = 1, out: Tensor = None
 ) -> Tensor:
@@ -1825,7 +1825,7 @@ def batch_norm(
     )
 
 
-@dispatch
+@register_dispatch
 def bernoulli(self_: Tensor, generator: Optional[Torch_GeneratorType] = None) -> Tensor:
     assert check_argument_types()
     if generator is None:
@@ -1835,7 +1835,7 @@ def bernoulli(self_: Tensor, generator: Optional[Torch_GeneratorType] = None) ->
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def bernoulli(
     self_: Tensor, p: Tensor, generator: Optional[Torch_GeneratorType] = None
 ) -> Tensor:
@@ -1849,7 +1849,7 @@ def bernoulli(
 
 
 # overload float
-@dispatch
+@register_dispatch
 def bernoulli_(
     self_: Tensor,
     p: Union[Torch_Value[Torch_FloatType], builtins.float] = 0.5,
@@ -1867,7 +1867,7 @@ def bernoulli_(
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def bernoulli_(
     self_: Tensor, p: Tensor, generator: Optional[Torch_GeneratorType] = None
 ) -> Tensor:
@@ -2010,7 +2010,7 @@ def cat(
     return Tensor(torch_dialect.AtenCatOp(result0_type, tensors, dim))
 
 
-@dispatch
+@register_dispatch
 def ceil(self_: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -2018,7 +2018,7 @@ def ceil(self_: Tensor) -> Tensor:
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def ceil(a: TorchNumber) -> TorchNumber:
     assert check_argument_types()
     if isinstance(a, (builtins.int, builtins.float)):
@@ -2028,7 +2028,7 @@ def ceil(a: TorchNumber) -> TorchNumber:
 
 
 # overload float
-@dispatch
+@register_dispatch
 def ceil(
     a: Union[Torch_Value[Torch_FloatType], builtins.float]
 ) -> Union[Torch_Value[Torch_IntType], builtins.int]:
@@ -3014,7 +3014,7 @@ def dim(self_: Tensor) -> Union[Torch_Value[Torch_IntType], builtins.int]:
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def div(self_: Tensor, other: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -3022,7 +3022,7 @@ def div(self_: Tensor, other: Tensor) -> Tensor:
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def div(self_: Tensor, other: TorchNumber) -> Tensor:
     assert check_argument_types()
     if isinstance(other, (builtins.int, builtins.float)):
@@ -3032,7 +3032,7 @@ def div(self_: Tensor, other: TorchNumber) -> Tensor:
 
 
 # overload Tensor_mode
-@dispatch
+@register_dispatch
 def div(
     self_: Tensor,
     other: Tensor,
@@ -3050,7 +3050,7 @@ def div(
 
 
 # overload int
-@dispatch
+@register_dispatch
 def div(
     a: Union[Torch_Value[Torch_IntType], builtins.int],
     b: Union[Torch_Value[Torch_IntType], builtins.int],
@@ -3064,7 +3064,7 @@ def div(
 
 
 # overload float
-@dispatch
+@register_dispatch
 def div(
     a: Union[Torch_Value[Torch_FloatType], builtins.float],
     b: Union[Torch_Value[Torch_FloatType], builtins.float],
@@ -3077,7 +3077,7 @@ def div(
     return Torch_Value(torch_dialect.AtenDivFloatOp(a, b).result)
 
 
-@dispatch
+@register_dispatch
 def div(
     a: TorchNumber, b: TorchNumber
 ) -> Union[Torch_Value[Torch_FloatType], builtins.float]:
@@ -3090,7 +3090,7 @@ def div(
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def div_(self_: Tensor, other: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -3098,7 +3098,7 @@ def div_(self_: Tensor, other: Tensor) -> Tensor:
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def div_(self_: Tensor, other: TorchNumber) -> Tensor:
     assert check_argument_types()
     if isinstance(other, (builtins.int, builtins.float)):
@@ -3108,7 +3108,7 @@ def div_(self_: Tensor, other: TorchNumber) -> Tensor:
 
 
 # overload Tensor_mode
-@dispatch
+@register_dispatch
 def div_(
     self_: Tensor,
     other: Tensor,
@@ -3362,7 +3362,7 @@ def empty_like(
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def eq(self_: Tensor, other: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -3370,7 +3370,7 @@ def eq(self_: Tensor, other: Tensor) -> Tensor:
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def eq(self_: Tensor, other: TorchNumber) -> Tensor:
     assert check_argument_types()
     if isinstance(other, (builtins.int, builtins.float)):
@@ -3380,7 +3380,7 @@ def eq(self_: Tensor, other: TorchNumber) -> Tensor:
 
 
 # overload int_list
-@dispatch
+@register_dispatch
 def eq(
     a: Union[
         Sequence[Union[Torch_Value[Torch_IntType], builtins.int]],
@@ -3414,7 +3414,7 @@ def eq(
 
 
 # overload str
-@dispatch
+@register_dispatch
 def eq(
     a: Union[Torch_Value[Torch_StringType], builtins.str],
     b: Union[Torch_Value[Torch_StringType], builtins.str],
@@ -3428,7 +3428,7 @@ def eq(
 
 
 # overload int
-@dispatch
+@register_dispatch
 def eq(
     a: Union[Torch_Value[Torch_IntType], builtins.int],
     b: Union[Torch_Value[Torch_IntType], builtins.int],
@@ -3442,7 +3442,7 @@ def eq(
 
 
 # overload float
-@dispatch
+@register_dispatch
 def eq(
     a: Union[Torch_Value[Torch_FloatType], builtins.float],
     b: Union[Torch_Value[Torch_FloatType], builtins.float],
@@ -3456,7 +3456,7 @@ def eq(
 
 
 # overload device
-@dispatch
+@register_dispatch
 def eq(
     a: Union[Torch_Value[Torch_DeviceType], builtins.str],
     b: Union[Torch_Value[Torch_DeviceType], builtins.str],
@@ -3466,7 +3466,7 @@ def eq(
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def eq_(self_: Tensor, other: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -3474,7 +3474,7 @@ def eq_(self_: Tensor, other: Tensor) -> Tensor:
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def eq_(self_: Tensor, other: TorchNumber) -> Tensor:
     assert check_argument_types()
     if isinstance(other, (builtins.int, builtins.float)):
@@ -3595,7 +3595,7 @@ def fft_fft(
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def fill(self_: Tensor, value: TorchNumber) -> Tensor:
     assert check_argument_types()
     if isinstance(value, (builtins.int, builtins.float)):
@@ -3605,7 +3605,7 @@ def fill(self_: Tensor, value: TorchNumber) -> Tensor:
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def fill(self_: Tensor, value: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -3613,7 +3613,7 @@ def fill(self_: Tensor, value: Tensor) -> Tensor:
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def fill_(self_: Tensor, value: TorchNumber) -> Tensor:
     assert check_argument_types()
     if isinstance(value, (builtins.int, builtins.float)):
@@ -3623,7 +3623,7 @@ def fill_(self_: Tensor, value: TorchNumber) -> Tensor:
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def fill_(self_: Tensor, value: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -3680,7 +3680,7 @@ def floor_(self_: Tensor) -> Tensor:
     return Tensor(torch_dialect.AtenFloor_Op(result0_type, self_))
 
 
-@dispatch
+@register_dispatch
 def floor_divide(self_: Tensor, other: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -3688,7 +3688,7 @@ def floor_divide(self_: Tensor, other: Tensor) -> Tensor:
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def floor_divide(self_: Tensor, other: TorchNumber) -> Tensor:
     assert check_argument_types()
     if isinstance(other, (builtins.int, builtins.float)):
@@ -3879,7 +3879,7 @@ def gather(
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def ge(self_: Tensor, other: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -3887,7 +3887,7 @@ def ge(self_: Tensor, other: Tensor) -> Tensor:
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def ge(self_: Tensor, other: TorchNumber) -> Tensor:
     assert check_argument_types()
     if isinstance(other, (builtins.int, builtins.float)):
@@ -3897,7 +3897,7 @@ def ge(self_: Tensor, other: TorchNumber) -> Tensor:
 
 
 # overload int
-@dispatch
+@register_dispatch
 def ge(
     a: Union[Torch_Value[Torch_IntType], builtins.int],
     b: Union[Torch_Value[Torch_IntType], builtins.int],
@@ -3911,7 +3911,7 @@ def ge(
 
 
 # overload float
-@dispatch
+@register_dispatch
 def ge(
     a: Union[Torch_Value[Torch_FloatType], builtins.float],
     b: Union[Torch_Value[Torch_FloatType], builtins.float],
@@ -3925,7 +3925,7 @@ def ge(
 
 
 # overload float_int
-@dispatch
+@register_dispatch
 def ge(
     a: Union[Torch_Value[Torch_FloatType], builtins.float],
     b: Union[Torch_Value[Torch_IntType], builtins.int],
@@ -3939,7 +3939,7 @@ def ge(
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def ge_(self_: Tensor, other: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -3947,7 +3947,7 @@ def ge_(self_: Tensor, other: Tensor) -> Tensor:
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def ge_(self_: Tensor, other: TorchNumber) -> Tensor:
     assert check_argument_types()
     if isinstance(other, (builtins.int, builtins.float)):
@@ -4029,7 +4029,7 @@ def get(
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def gt(self_: Tensor, other: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -4037,7 +4037,7 @@ def gt(self_: Tensor, other: Tensor) -> Tensor:
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def gt(self_: Tensor, other: TorchNumber) -> Tensor:
     assert check_argument_types()
     if isinstance(other, (builtins.int, builtins.float)):
@@ -4047,7 +4047,7 @@ def gt(self_: Tensor, other: TorchNumber) -> Tensor:
 
 
 # overload int
-@dispatch
+@register_dispatch
 def gt(
     a: Union[Torch_Value[Torch_IntType], builtins.int],
     b: Union[Torch_Value[Torch_IntType], builtins.int],
@@ -4061,7 +4061,7 @@ def gt(
 
 
 # overload float
-@dispatch
+@register_dispatch
 def gt(
     a: Union[Torch_Value[Torch_FloatType], builtins.float],
     b: Union[Torch_Value[Torch_FloatType], builtins.float],
@@ -4075,7 +4075,7 @@ def gt(
 
 
 # overload float_int
-@dispatch
+@register_dispatch
 def gt(
     a: Union[Torch_Value[Torch_FloatType], builtins.float],
     b: Union[Torch_Value[Torch_IntType], builtins.int],
@@ -4089,7 +4089,7 @@ def gt(
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def gt_(self_: Tensor, other: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -4097,7 +4097,7 @@ def gt_(self_: Tensor, other: Tensor) -> Tensor:
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def gt_(self_: Tensor, other: TorchNumber) -> Tensor:
     assert check_argument_types()
     if isinstance(other, (builtins.int, builtins.float)):
@@ -4155,7 +4155,7 @@ def hardtanh_(
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def index(
     self_: Tensor, indices: Union[Sequence[Optional[Tensor]], Tensor, None]
 ) -> Tensor:
@@ -4174,7 +4174,7 @@ def index(
 
 
 # overload Tensor_hacked_twin
-@dispatch
+@register_dispatch
 def index(self_: Tensor, indices: Union[Sequence[Tensor], Tensor]) -> Tensor:
     assert check_argument_types()
     if isinstance(indices, (builtins.list, builtins.tuple)) and builtins.len(indices):
@@ -4187,7 +4187,7 @@ def index(self_: Tensor, indices: Union[Sequence[Tensor], Tensor]) -> Tensor:
     )
 
 
-@dispatch
+@register_dispatch
 def index_put(
     self_: Tensor,
     indices: Union[Sequence[Optional[Tensor]], Tensor, None],
@@ -4213,7 +4213,7 @@ def index_put(
 
 
 # overload hacked_twin
-@dispatch
+@register_dispatch
 def index_put(
     self_: Tensor,
     indices: Union[Sequence[Tensor], Tensor],
@@ -4235,7 +4235,7 @@ def index_put(
     )
 
 
-@dispatch
+@register_dispatch
 def index_put_(
     self_: Tensor,
     indices: Union[Sequence[Optional[Tensor]], Tensor, None],
@@ -4261,7 +4261,7 @@ def index_put_(
 
 
 # overload hacked_twin
-@dispatch
+@register_dispatch
 def index_put_(
     self_: Tensor,
     indices: Union[Sequence[Tensor], Tensor],
@@ -4414,7 +4414,7 @@ def layout(a: Tensor) -> Union[Torch_Value[Torch_IntType], builtins.int]:
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def le(self_: Tensor, other: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -4422,7 +4422,7 @@ def le(self_: Tensor, other: Tensor) -> Tensor:
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def le(self_: Tensor, other: TorchNumber) -> Tensor:
     assert check_argument_types()
     if isinstance(other, (builtins.int, builtins.float)):
@@ -4432,7 +4432,7 @@ def le(self_: Tensor, other: TorchNumber) -> Tensor:
 
 
 # overload int
-@dispatch
+@register_dispatch
 def le(
     a: Union[Torch_Value[Torch_IntType], builtins.int],
     b: Union[Torch_Value[Torch_IntType], builtins.int],
@@ -4446,7 +4446,7 @@ def le(
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def le_(self_: Tensor, other: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -4454,7 +4454,7 @@ def le_(self_: Tensor, other: Tensor) -> Tensor:
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def le_(self_: Tensor, other: TorchNumber) -> Tensor:
     assert check_argument_types()
     if isinstance(other, (builtins.int, builtins.float)):
@@ -4499,14 +4499,14 @@ def leaky_relu_backward(
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def len(t: Tensor) -> Union[Torch_Value[Torch_IntType], builtins.int]:
     assert check_argument_types()
     return Torch_Value(torch_dialect.AtenLenTensorOp(t).result)
 
 
 # overload str
-@dispatch
+@register_dispatch
 def len(
     s: Union[Torch_Value[Torch_StringType], builtins.str]
 ) -> Union[Torch_Value[Torch_IntType], builtins.int]:
@@ -4517,7 +4517,7 @@ def len(
 
 
 # overload t
-@dispatch
+@register_dispatch
 def len(
     a: Union[Sequence[Any], Any]
 ) -> Union[Torch_Value[Torch_IntType], builtins.int]:
@@ -4601,7 +4601,7 @@ def list(l: Union[Sequence[Any], Any]) -> Union[Sequence[Any], Any]:
     return Torch_Value(torch_dialect.AtenListTOp(result0_type, l).result)
 
 
-@dispatch
+@register_dispatch
 def log(self_: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -4609,7 +4609,7 @@ def log(self_: Tensor) -> Tensor:
 
 
 # overload int
-@dispatch
+@register_dispatch
 def log(
     a: Union[Torch_Value[Torch_IntType], builtins.int]
 ) -> Union[Torch_Value[Torch_FloatType], builtins.float]:
@@ -4741,7 +4741,7 @@ def logsumexp(
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def lt(self_: Tensor, other: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -4749,7 +4749,7 @@ def lt(self_: Tensor, other: Tensor) -> Tensor:
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def lt(self_: Tensor, other: TorchNumber) -> Tensor:
     assert check_argument_types()
     if isinstance(other, (builtins.int, builtins.float)):
@@ -4759,7 +4759,7 @@ def lt(self_: Tensor, other: TorchNumber) -> Tensor:
 
 
 # overload int
-@dispatch
+@register_dispatch
 def lt(
     a: Union[Torch_Value[Torch_IntType], builtins.int],
     b: Union[Torch_Value[Torch_IntType], builtins.int],
@@ -4773,7 +4773,7 @@ def lt(
 
 
 # overload float
-@dispatch
+@register_dispatch
 def lt(
     a: Union[Torch_Value[Torch_FloatType], builtins.float],
     b: Union[Torch_Value[Torch_FloatType], builtins.float],
@@ -4787,7 +4787,7 @@ def lt(
 
 
 # overload float_int
-@dispatch
+@register_dispatch
 def lt(
     a: Union[Torch_Value[Torch_FloatType], builtins.float],
     b: Union[Torch_Value[Torch_IntType], builtins.int],
@@ -4801,7 +4801,7 @@ def lt(
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def lt_(self_: Tensor, other: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -4809,7 +4809,7 @@ def lt_(self_: Tensor, other: Tensor) -> Tensor:
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def lt_(self_: Tensor, other: TorchNumber) -> Tensor:
     assert check_argument_types()
     if isinstance(other, (builtins.int, builtins.float)):
@@ -4819,7 +4819,7 @@ def lt_(self_: Tensor, other: TorchNumber) -> Tensor:
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def masked_fill(self_: Tensor, mask: Tensor, value: TorchNumber) -> Tensor:
     assert check_argument_types()
     if isinstance(value, (builtins.int, builtins.float)):
@@ -4831,7 +4831,7 @@ def masked_fill(self_: Tensor, mask: Tensor, value: TorchNumber) -> Tensor:
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def masked_fill(self_: Tensor, mask: Tensor, value: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -4841,7 +4841,7 @@ def masked_fill(self_: Tensor, mask: Tensor, value: Tensor) -> Tensor:
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def masked_fill_(self_: Tensor, mask: Tensor, value: TorchNumber) -> Tensor:
     assert check_argument_types()
     if isinstance(value, (builtins.int, builtins.float)):
@@ -4853,7 +4853,7 @@ def masked_fill_(self_: Tensor, mask: Tensor, value: TorchNumber) -> Tensor:
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def masked_fill_(self_: Tensor, mask: Tensor, value: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -4874,7 +4874,7 @@ def matmul(self_: Tensor, other: Tensor) -> Tensor:
     return Tensor(torch_dialect.AtenMatmulOp(result0_type, self_, other))
 
 
-@dispatch
+@register_dispatch
 def max(self_: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -4882,7 +4882,7 @@ def max(self_: Tensor) -> Tensor:
 
 
 # overload dim
-@dispatch
+@register_dispatch
 def max(
     self_: Tensor,
     dim: Union[Torch_Value[Torch_IntType], builtins.int],
@@ -4902,7 +4902,7 @@ def max(
 
 
 # overload self_int
-@dispatch
+@register_dispatch
 def max(
     self_: Union[
         Sequence[Union[Torch_Value[Torch_IntType], builtins.int]],
@@ -4923,7 +4923,7 @@ def max(
 
 
 # overload int
-@dispatch
+@register_dispatch
 def max(
     a: Union[Torch_Value[Torch_IntType], builtins.int],
     b: Union[Torch_Value[Torch_IntType], builtins.int],
@@ -5169,7 +5169,7 @@ def maximum(self_: Tensor, other: Tensor) -> Tensor:
 
 
 # overload dim
-@dispatch
+@register_dispatch
 def mean(
     self_: Tensor,
     dim: Union[
@@ -5204,7 +5204,7 @@ def mean(
     return Tensor(torch_dialect.AtenMeanDimOp(result0_type, self_, dim, keepdim, dtype))
 
 
-@dispatch
+@register_dispatch
 def mean(
     self_: Tensor,
     dtype: Union[Torch_Value[Torch_IntType], builtins.int, pi_dtype, None] = None,
@@ -5221,7 +5221,7 @@ def mean(
 
 
 # overload self_int
-@dispatch
+@register_dispatch
 def min(
     self_: Union[
         Sequence[Union[Torch_Value[Torch_IntType], builtins.int]],
@@ -5242,7 +5242,7 @@ def min(
 
 
 # overload int
-@dispatch
+@register_dispatch
 def min(
     a: Union[Torch_Value[Torch_IntType], builtins.int],
     b: Union[Torch_Value[Torch_IntType], builtins.int],
@@ -5286,7 +5286,7 @@ def mse_loss(
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def mul(self_: Tensor, other: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -5294,7 +5294,7 @@ def mul(self_: Tensor, other: Tensor) -> Tensor:
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def mul(self_: Tensor, other: TorchNumber) -> Tensor:
     assert check_argument_types()
     if isinstance(other, (builtins.int, builtins.float)):
@@ -5304,7 +5304,7 @@ def mul(self_: Tensor, other: TorchNumber) -> Tensor:
 
 
 # overload int
-@dispatch
+@register_dispatch
 def mul(
     a: Union[Torch_Value[Torch_IntType], builtins.int],
     b: Union[Torch_Value[Torch_IntType], builtins.int],
@@ -5318,7 +5318,7 @@ def mul(
 
 
 # overload float
-@dispatch
+@register_dispatch
 def mul(
     a: Union[Torch_Value[Torch_FloatType], builtins.float],
     b: Union[Torch_Value[Torch_FloatType], builtins.float],
@@ -5332,7 +5332,7 @@ def mul(
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def mul_(self_: Tensor, other: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -5340,7 +5340,7 @@ def mul_(self_: Tensor, other: Tensor) -> Tensor:
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def mul_(self_: Tensor, other: TorchNumber) -> Tensor:
     assert check_argument_types()
     if isinstance(other, (builtins.int, builtins.float)):
@@ -5633,7 +5633,7 @@ def native_layer_norm_backward(
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def ne(self_: Tensor, other: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -5641,7 +5641,7 @@ def ne(self_: Tensor, other: Tensor) -> Tensor:
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def ne(self_: Tensor, other: TorchNumber) -> Tensor:
     assert check_argument_types()
     if isinstance(other, (builtins.int, builtins.float)):
@@ -5651,7 +5651,7 @@ def ne(self_: Tensor, other: TorchNumber) -> Tensor:
 
 
 # overload int_list
-@dispatch
+@register_dispatch
 def ne(
     a: Union[
         Sequence[Union[Torch_Value[Torch_IntType], builtins.int]],
@@ -5685,7 +5685,7 @@ def ne(
 
 
 # overload int
-@dispatch
+@register_dispatch
 def ne(
     a: Union[Torch_Value[Torch_IntType], builtins.int],
     b: Union[Torch_Value[Torch_IntType], builtins.int],
@@ -5699,7 +5699,7 @@ def ne(
 
 
 # overload float_int
-@dispatch
+@register_dispatch
 def ne(
     a: Union[Torch_Value[Torch_FloatType], builtins.float],
     b: Union[Torch_Value[Torch_IntType], builtins.int],
@@ -5713,7 +5713,7 @@ def ne(
 
 
 # overload bool
-@dispatch
+@register_dispatch
 def ne(
     a: Union[Torch_Value[Torch_BoolType], builtins.bool],
     b: Union[Torch_Value[Torch_BoolType], builtins.bool],
@@ -5727,7 +5727,7 @@ def ne(
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def ne_(self_: Tensor, other: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -5735,7 +5735,7 @@ def ne_(self_: Tensor, other: Tensor) -> Tensor:
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def ne_(self_: Tensor, other: TorchNumber) -> Tensor:
     assert check_argument_types()
     if isinstance(other, (builtins.int, builtins.float)):
@@ -5744,7 +5744,7 @@ def ne_(self_: Tensor, other: TorchNumber) -> Tensor:
     return Tensor(torch_dialect.AtenNe_ScalarOp(result0_type, self_, other))
 
 
-@dispatch
+@register_dispatch
 def neg(self_: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -5752,7 +5752,7 @@ def neg(self_: Tensor) -> Tensor:
 
 
 # overload int
-@dispatch
+@register_dispatch
 def neg(
     a: Union[Torch_Value[Torch_IntType], builtins.int]
 ) -> Union[Torch_Value[Torch_IntType], builtins.int]:
@@ -5763,7 +5763,7 @@ def neg(
 
 
 # overload float
-@dispatch
+@register_dispatch
 def neg(
     a: Union[Torch_Value[Torch_FloatType], builtins.float]
 ) -> Union[Torch_Value[Torch_FloatType], builtins.float]:
@@ -6249,7 +6249,7 @@ def permute_copy(
 
 
 # overload Tensor_Scalar
-@dispatch
+@register_dispatch
 def pow(self_: Tensor, exponent: TorchNumber) -> Tensor:
     assert check_argument_types()
     if isinstance(exponent, (builtins.int, builtins.float)):
@@ -6259,7 +6259,7 @@ def pow(self_: Tensor, exponent: TorchNumber) -> Tensor:
 
 
 # overload Tensor_Tensor
-@dispatch
+@register_dispatch
 def pow(self_: Tensor, exponent: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -6372,7 +6372,7 @@ def randint(
     )
 
 
-@dispatch
+@register_dispatch
 def randn(
     size: Union[
         Sequence[Union[Torch_Value[Torch_IntType], builtins.int]],
@@ -6420,7 +6420,7 @@ def randn(
 
 
 # overload generator
-@dispatch
+@register_dispatch
 def randn(
     size: Union[
         Sequence[Union[Torch_Value[Torch_IntType], builtins.int]],
@@ -6554,7 +6554,7 @@ def relu_(self_: Tensor) -> Tensor:
 
 
 # overload int
-@dispatch
+@register_dispatch
 def remainder(
     a: Union[Torch_Value[Torch_IntType], builtins.int],
     b: Union[Torch_Value[Torch_IntType], builtins.int],
@@ -6568,7 +6568,7 @@ def remainder(
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def remainder(self_: Tensor, other: TorchNumber) -> Tensor:
     assert check_argument_types()
     if isinstance(other, (builtins.int, builtins.float)):
@@ -6814,7 +6814,7 @@ def sin_(self_: Tensor) -> Tensor:
     return Tensor(torch_dialect.AtenSin_Op(result0_type, self_))
 
 
-@dispatch
+@register_dispatch
 def size(
     self_: Tensor,
 ) -> Union[
@@ -6826,7 +6826,7 @@ def size(
 
 
 # overload int
-@dispatch
+@register_dispatch
 def size(
     self_: Tensor, dim: Union[Torch_Value[Torch_IntType], builtins.int]
 ) -> Union[Torch_Value[Torch_IntType], builtins.int]:
@@ -6837,7 +6837,7 @@ def size(
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def slice(
     self_: Tensor,
     dim: Union[Torch_Value[Torch_IntType], builtins.int] = 0,
@@ -6865,7 +6865,7 @@ def slice(
 
 
 # overload t
-@dispatch
+@register_dispatch
 def slice(
     l: Union[Sequence[Any], Any],
     start: Union[Torch_Value[Torch_IntType], builtins.int, None] = None,
@@ -6999,7 +6999,7 @@ def sort(
     torch_dialect.AtenSortIntOp(self_, reverse)
 
 
-@dispatch
+@register_dispatch
 def sqrt(self_: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -7007,7 +7007,7 @@ def sqrt(self_: Tensor) -> Tensor:
 
 
 # overload int
-@dispatch
+@register_dispatch
 def sqrt(
     a: Union[Torch_Value[Torch_IntType], builtins.int]
 ) -> Union[Torch_Value[Torch_FloatType], builtins.float]:
@@ -7036,7 +7036,7 @@ def square_(self_: Tensor) -> Tensor:
 
 
 # overload dim
-@dispatch
+@register_dispatch
 def squeeze(
     self_: Tensor, dim: Union[Torch_Value[Torch_IntType], builtins.int]
 ) -> Tensor:
@@ -7047,14 +7047,14 @@ def squeeze(
     return Tensor(torch_dialect.AtenSqueezeDimOp(result0_type, self_, dim))
 
 
-@dispatch
+@register_dispatch
 def squeeze(self_: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
     return Tensor(torch_dialect.AtenSqueezeOp(result0_type, self_))
 
 
-@dispatch
+@register_dispatch
 def squeeze_copy(self_: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -7062,7 +7062,7 @@ def squeeze_copy(self_: Tensor) -> Tensor:
 
 
 # overload dim
-@dispatch
+@register_dispatch
 def squeeze_copy(
     self_: Tensor, dim: Union[Torch_Value[Torch_IntType], builtins.int]
 ) -> Tensor:
@@ -7088,7 +7088,7 @@ def stack(
     return Tensor(torch_dialect.AtenStackOp(result0_type, tensors, dim))
 
 
-@dispatch
+@register_dispatch
 def std(
     self_: Tensor, unbiased: Union[Torch_Value[Torch_BoolType], builtins.bool] = True
 ) -> Tensor:
@@ -7100,7 +7100,7 @@ def std(
 
 
 # overload dim
-@dispatch
+@register_dispatch
 def std(
     self_: Tensor,
     dim: Union[
@@ -7134,7 +7134,7 @@ def std(
 
 
 # overload correction
-@dispatch
+@register_dispatch
 def std(
     self_: Tensor,
     dim: Union[
@@ -7192,7 +7192,7 @@ def str(
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def sub(self_: Tensor, other: Tensor, alpha: TorchNumber = 1) -> Tensor:
     assert check_argument_types()
     if isinstance(alpha, (builtins.int, builtins.float)):
@@ -7202,7 +7202,7 @@ def sub(self_: Tensor, other: Tensor, alpha: TorchNumber = 1) -> Tensor:
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def sub(self_: Tensor, other: TorchNumber, alpha: TorchNumber = 1) -> Tensor:
     assert check_argument_types()
     if isinstance(other, (builtins.int, builtins.float)):
@@ -7214,7 +7214,7 @@ def sub(self_: Tensor, other: TorchNumber, alpha: TorchNumber = 1) -> Tensor:
 
 
 # overload int
-@dispatch
+@register_dispatch
 def sub(
     a: Union[Torch_Value[Torch_IntType], builtins.int],
     b: Union[Torch_Value[Torch_IntType], builtins.int],
@@ -7228,7 +7228,7 @@ def sub(
 
 
 # overload float
-@dispatch
+@register_dispatch
 def sub(
     a: Union[Torch_Value[Torch_FloatType], builtins.float],
     b: Union[Torch_Value[Torch_FloatType], builtins.float],
@@ -7241,7 +7241,7 @@ def sub(
     return Torch_Value(torch_dialect.AtenSubFloatOp(a, b).result)
 
 
-@dispatch
+@register_dispatch
 def sub(a: TorchNumber, b: TorchNumber) -> TorchNumber:
     assert check_argument_types()
     if isinstance(a, (builtins.int, builtins.float)):
@@ -7253,7 +7253,7 @@ def sub(a: TorchNumber, b: TorchNumber) -> TorchNumber:
 
 
 # overload Tensor
-@dispatch
+@register_dispatch
 def sub_(self_: Tensor, other: Tensor, alpha: TorchNumber = 1) -> Tensor:
     assert check_argument_types()
     if isinstance(alpha, (builtins.int, builtins.float)):
@@ -7263,7 +7263,7 @@ def sub_(self_: Tensor, other: Tensor, alpha: TorchNumber = 1) -> Tensor:
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def sub_(self_: Tensor, other: TorchNumber, alpha: TorchNumber = 1) -> Tensor:
     assert check_argument_types()
     if isinstance(other, (builtins.int, builtins.float)):
@@ -7274,7 +7274,7 @@ def sub_(self_: Tensor, other: TorchNumber, alpha: TorchNumber = 1) -> Tensor:
     return Tensor(torch_dialect.AtenSub_ScalarOp(result0_type, self_, other, alpha))
 
 
-@dispatch
+@register_dispatch
 def sum(
     self_: Tensor,
     dtype: Union[Torch_Value[Torch_IntType], builtins.int, pi_dtype, None] = None,
@@ -7291,7 +7291,7 @@ def sum(
 
 
 # overload dim_IntList
-@dispatch
+@register_dispatch
 def sum(
     self_: Tensor,
     dim: Union[
@@ -7358,7 +7358,7 @@ def tanh_backward(grad_output: Tensor, output: Tensor) -> Tensor:
     return Tensor(torch_dialect.AtenTanhBackwardOp(result0_type, grad_output, output))
 
 
-@dispatch
+@register_dispatch
 def tensor(
     data: Union[Sequence[Any], Any],
     dtype: Union[Torch_Value[Torch_IntType], builtins.int, pi_dtype, None] = None,
@@ -7385,7 +7385,7 @@ def tensor(
 
 
 # overload bool
-@dispatch
+@register_dispatch
 def tensor(
     t: Union[Torch_Value[Torch_BoolType], builtins.bool],
     dtype: Union[Torch_Value[Torch_IntType], builtins.int, pi_dtype, None] = None,
@@ -7414,7 +7414,7 @@ def tensor(
 
 
 # overload int
-@dispatch
+@register_dispatch
 def tensor(
     t: Union[Torch_Value[Torch_IntType], builtins.int],
     dtype: Union[Torch_Value[Torch_IntType], builtins.int, pi_dtype, None] = None,
@@ -7443,7 +7443,7 @@ def tensor(
 
 
 # overload float
-@dispatch
+@register_dispatch
 def tensor(
     t: Union[Torch_Value[Torch_FloatType], builtins.float],
     dtype: Union[Torch_Value[Torch_IntType], builtins.int, pi_dtype, None] = None,
@@ -7506,7 +7506,7 @@ def threshold_backward(
 
 
 # overload dtype
-@dispatch
+@register_dispatch
 def to(
     self_: Tensor,
     dtype: Union[Torch_Value[Torch_IntType], builtins.int, pi_dtype],
@@ -7540,7 +7540,7 @@ def to(
 
 
 # overload dtype_layout
-@dispatch
+@register_dispatch
 def to(
     self_: Tensor,
     dtype: Union[Torch_Value[Torch_IntType], builtins.int, pi_dtype, None] = None,
@@ -7601,7 +7601,7 @@ def to(
 
 
 # overload other
-@dispatch
+@register_dispatch
 def to(
     self_: Tensor,
     other: Tensor,
@@ -7631,7 +7631,7 @@ def to(
 
 
 # overload prim_Device
-@dispatch
+@register_dispatch
 def to(
     self_: Tensor,
     device: Union[Torch_Value[Torch_DeviceType], builtins.str, None],
@@ -7663,7 +7663,7 @@ def to(
 
 
 # overload device
-@dispatch
+@register_dispatch
 def to(
     self_: Tensor,
     device: Union[Torch_Value[Torch_DeviceType], builtins.str],
@@ -7995,7 +7995,7 @@ def upsample_nearest2d_backward(
     )
 
 
-@dispatch
+@register_dispatch
 def var(
     self_: Tensor, unbiased: Union[Torch_Value[Torch_BoolType], builtins.bool] = True
 ) -> Tensor:
@@ -8007,7 +8007,7 @@ def var(
 
 
 # overload dim
-@dispatch
+@register_dispatch
 def var(
     self_: Tensor,
     dim: Union[
@@ -8041,7 +8041,7 @@ def var(
 
 
 # overload correction
-@dispatch
+@register_dispatch
 def var(
     self_: Tensor,
     dim: Union[
@@ -8076,7 +8076,7 @@ def var(
     )
 
 
-@dispatch
+@register_dispatch
 def var(
     inp: Tensor,
     dims: Union[
@@ -8116,7 +8116,7 @@ def var(
 
 
 # overload correction
-@dispatch
+@register_dispatch
 def var_mean(
     self_: Tensor,
     dim: Union[
@@ -8155,7 +8155,7 @@ def var_mean(
     return tuple([Tensor(o) for o in op_results])
 
 
-@dispatch
+@register_dispatch
 def var_mean(
     self_: Tensor, unbiased: Union[Torch_Value[Torch_BoolType], builtins.bool] = True
 ) -> Tuple[Tensor, Tensor]:
@@ -8191,7 +8191,7 @@ def view(
     return Tensor(torch_dialect.AtenViewOp(result0_type, self_, size))
 
 
-@dispatch
+@register_dispatch
 def view_copy(
     self_: Tensor,
     size: Union[
@@ -8214,7 +8214,7 @@ def view_copy(
 
 
 # overload dtype
-@dispatch
+@register_dispatch
 def view_copy(
     self_: Tensor, dtype: Union[Torch_Value[Torch_IntType], builtins.int, pi_dtype]
 ) -> Tensor:
@@ -8228,7 +8228,7 @@ def view_copy(
 
 
 # overload self
-@dispatch
+@register_dispatch
 def where(condition: Tensor, self_: Tensor, other: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -8236,7 +8236,7 @@ def where(condition: Tensor, self_: Tensor, other: Tensor) -> Tensor:
 
 
 # overload Scalar
-@dispatch
+@register_dispatch
 def where(condition: Tensor, self_: TorchNumber, other: TorchNumber) -> Tensor:
     assert check_argument_types()
     if isinstance(self_, (builtins.int, builtins.float)):
@@ -8250,7 +8250,7 @@ def where(condition: Tensor, self_: TorchNumber, other: TorchNumber) -> Tensor:
 
 
 # overload ScalarOther
-@dispatch
+@register_dispatch
 def where(condition: Tensor, self_: Tensor, other: TorchNumber) -> Tensor:
     assert check_argument_types()
     if isinstance(other, (builtins.int, builtins.float)):
@@ -8262,7 +8262,7 @@ def where(condition: Tensor, self_: Tensor, other: TorchNumber) -> Tensor:
 
 
 # overload ScalarSelf
-@dispatch
+@register_dispatch
 def where(condition: Tensor, self_: TorchNumber, other: Tensor) -> Tensor:
     assert check_argument_types()
     if isinstance(self_, (builtins.int, builtins.float)):

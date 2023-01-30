@@ -40,12 +40,11 @@ from pi.dispatcher.function import NotFoundLookupError, AmbiguousLookupError
 
 FORMAT = "%(asctime)s, %(levelname)-8s [%(filename)s:%(module)s:%(funcName)s:%(lineno)d] %(message)s"
 formatter = logging.Formatter(FORMAT)
+f_handler = logging.FileHandler("file.log")
+f_handler.setLevel(logging.DEBUG)
 
 # logging.basicConfig(level=logging.DEBUG, format=FORMAT)
 logger = logging.getLogger(__name__)
-
-f_handler = logging.FileHandler("file.log")
-f_handler.setLevel(logging.DEBUG)
 
 
 def run_torch_mlir_tests():
@@ -107,6 +106,7 @@ def run_torch_mlir_tests():
 ONLY = {
     # "BoolIntConstantModule_basic"
     # "BatchNorm3DModule_basic"
+    # "AtenIntBoolOpConstFalseModule_basic"
 }
 # ONLY = CASTS
 
