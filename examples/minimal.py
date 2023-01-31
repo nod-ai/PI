@@ -1,6 +1,6 @@
 import pi
 from pi import nn
-from pi.mlir.utils import pipile
+from pi.mlir.utils import pipile, lower_pi_to_linalg
 from pi.utils.annotations import annotate_args
 
 
@@ -25,4 +25,6 @@ class MyConv2d(nn.Module):
 test_module = MyConv2d()
 x = pi.randn((10, 10))
 mlir_module = pipile(test_module, example_args=(x,))
+print(mlir_module)
+mlir_module = lower_pi_to_linalg(mlir_module)
 print(mlir_module)

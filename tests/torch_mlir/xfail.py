@@ -33,10 +33,6 @@ PI_XFAIL_SET = {
     "Fill_TensorFloat64WithInt64_basic",
 
     # eager/lazy materialization (24) TypeError: object of type 'Torch_Value' has no len()
-    "AdaptiveAvgPool2dNonUnitOutputSizeDynamicModule_basic",
-    "AdaptiveAvgPool2dNonUnitOutputSizeStaticModule_basic",
-    "AdaptiveAvgPool2dUnitOutputSizeDynamicModule_basic",
-    "AdaptiveAvgPool2dUnitOutputSizeStaticModule_basic",
     "EmbeddingModule1DIndices_basic",
     "EmbeddingModuleF16_basic",
     "EmbeddingModuleI32Static_basic",
