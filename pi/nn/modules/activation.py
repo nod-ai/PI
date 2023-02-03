@@ -461,7 +461,7 @@ class MultiheadAttention(Module):
 
         self.add_zero_attn = add_zero_attn
 
-        self._reset_parameters()
+        # self._reset_parameters()
 
     def _reset_parameters(self):
         if self._qkv_same_embed_dim:

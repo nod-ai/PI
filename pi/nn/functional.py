@@ -34,7 +34,32 @@ conv_transpose1d = pi.conv_transpose1d
 # Pooling
 # avg_pool1d = pi.avg_pool1d
 
-avg_pool2d = pi._C._nn.avg_pool2d
+# avg_pool2d = pi._C._nn.avg_pool2d
+
+
+def avg_pool2d(
+    input: Tensor,
+    kernel_size: BroadcastingList2[int],
+    stride: Optional[BroadcastingList2[int]] = None,
+    padding: BroadcastingList2[int] = 0,
+    ceil_mode: bool = False,
+    count_include_pad: bool = True,
+    divisor_override: Optional[int] = None,
+) -> Tensor:
+    kernel_size = _pair(kernel_size)
+    if stride is not None:
+        stride = _pair(stride)
+    padding = _pair(padding)
+
+    return pi.avg_pool2d(
+        input,
+        kernel_size,
+        stride,
+        padding,
+        ceil_mode,
+        count_include_pad,
+        divisor_override,
+    )
 
 
 # avg_pool3d = pi._C._nn.avg_pool3d

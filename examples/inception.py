@@ -2,13 +2,13 @@ import pi
 from pi import nn
 from pi.mlir.utils import pipile, lower_pi_to_linalg
 from pi.utils.annotations import annotate_args, TensorPlaceholder
-from pi.models.resnet import resnet18
+from pi.models.inception import inception_v3
 
 
-class MyResNet18(nn.Module):
+class MyInception(nn.Module):
     def __init__(self):
         super().__init__()
-        self.resnet = resnet18()
+        self.inception = inception_v3()
 
     @annotate_args(
         [
@@ -17,11 +17,11 @@ class MyResNet18(nn.Module):
         ]
     )
     def forward(self, x):
-        y = self.resnet(x)
+        y = self.inception(x)
         return y
 
 
-test_module = MyResNet18()
+test_module = MyInception()
 x = TensorPlaceholder((1, 3, 64, 64), pi.float32)
 mlir_module = pipile(test_module, example_args=(x,))
 print(mlir_module)

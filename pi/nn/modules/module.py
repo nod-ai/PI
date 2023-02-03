@@ -23,7 +23,7 @@ class Module:
     _modules: Dict[str, Optional["Module"]]
     _forward_pre_hooks: OrderedDict[str, Callable]
     _forward_post_hooks: OrderedDict[str, Callable]
-    _forward: Callable
+    __forward: Callable
     training = False
 
     def __init__(self):
@@ -44,7 +44,9 @@ class Module:
             orig_forward = _get("forward")
             # super attr is Module.__call__ d'oh
             call = self.__call__
-            _set("_forward", orig_forward)
+            # name mangling means trying to get __forward actually tries
+            # to get this
+            _set("_Module__forward", orig_forward)
             _set("forward", call)
             # TODO(max): checks here
             if hasattr(orig_forward, "__placeholders__"):
@@ -73,7 +75,7 @@ class Module:
                         "forward pre-hook must return None or a tuple "
                         f"of (new_args, new_kwargs), but got {result}."
                     )
-        result = self._forward(*args, **kwargs)
+        result = self.__forward(*args, **kwargs)
         for hook_id, hook in self._forward_post_hooks.items():
             result = hook(self, result, *args, **kwargs)
 

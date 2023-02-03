@@ -29,7 +29,7 @@ def get_module_name_for_debug_dump(module):
     return StringAttr(module.operation.attributes["torch.debug_module_name"]).value
 
 
-class TorchMlirCompilerError(Exception):
+class PIMlirCompilerError(Exception):
     def __init__(self, value: str):
         super().__init__()
         self.value = value
@@ -79,7 +79,7 @@ def run_pipeline_with_repro_report(
             Add '{debug_options}' to get the IR dump for debugging purpose.
             """
         trimmed_message = "\n".join([m.lstrip() for m in message.split("\n")])
-        raise TorchMlirCompilerError(trimmed_message) from None
+        raise PIMlirCompilerError(trimmed_message) from None
     finally:
         sys.stderr = original_stderr
 
@@ -140,7 +140,10 @@ def cm(enable_multithreading=False):
             yield module
 
 
-def pipile(pi_module: nn.Module, example_args, module_name="pi.module_name"):
+def pipile(pi_module: nn.Module, example_args=None, module_name="pi.module_name"):
+    if example_args is None:
+        example_args = []
+
     mlir_module = ir.Module.create()
     mlir_module.operation.attributes[module_name] = ir.StringAttr.get(
         pi_module.__class__.__name__
@@ -154,14 +157,18 @@ def pipile(pi_module: nn.Module, example_args, module_name="pi.module_name"):
     func_op = func_dialect.FuncOp(
         name="forward",
         type=(
-            [p.to_nonvalue_tensor_type() for p in placeholders.values()],
+            [p.to_value_tensor_type() for p in placeholders.values()]
+            if not example_args
+            else [e.to_value_tensor_type() for e in example_args],
             [],
         ),
         # visibility="private",
     )
 
-    arg_attrs = [p.to_value_tensor_type_bound() for p in placeholders.values()]
-    func_op.arg_attrs = ir.ArrayAttr.get(arg_attrs)
+    if not example_args:
+        arg_attrs = [p.to_value_tensor_type_bound() for p in placeholders.values()]
+        func_op.arg_attrs = ir.ArrayAttr.get(arg_attrs)
+
     func_op_entry_block = func_op.add_entry_block()
     block_args = list(map(Tensor, func_op.arguments))
 
