@@ -1,4 +1,5 @@
 PI_XFAIL_SET = {
+
     # view op (Which doesn't pass regular torch-mlir either???)
     "BernoulliFloatModule_basic",
     "ElementwiseFlattenBroadcastModule_basic",
@@ -33,6 +34,13 @@ PI_XFAIL_SET = {
     "Fill_TensorFloat64WithInt64_basic",
 
     # eager/lazy materialization (24) TypeError: object of type 'Torch_Value' has no len()
+    "BucketizeTensorFloatModule_basic",
+    "BucketizeTensorModule_basic",
+    "BucketizeTensorOutInt32RightModule_basic",
+    "BucketizeTensorFloatModule_basic",
+    "BucketizeTensorStaticModule_basic",
+    "BucketizeTensorStaticFloatModule_basic",
+
     "EmbeddingModule1DIndices_basic",
     "EmbeddingModuleF16_basic",
     "EmbeddingModuleI32Static_basic",
