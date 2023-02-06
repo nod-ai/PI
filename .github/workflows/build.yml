@@ -20,10 +20,12 @@ jobs:
       matrix:
         os: [ ubuntu-latest, macos-latest ]
         arch: [ x86_64 ]
-        python_version: [ "3.10" ]
+        python_version: [ "3.10",
+#                          "3.11"
+        ]
         exclude:
-          - os: ubuntu-latest
-            arch: arm64
+          - os: macos-latest
+            python_version: 3.11
 
     steps:
       - name: Checkout
@@ -38,7 +40,12 @@ jobs:
         run: |
           pip install wheel cmake ninja
           pip install -r requirements.txt
-          pip wheel . -w wheelhouse --no-build-isolation --no-deps
+          if [ x"${{ matrix.os }}" == x"ubuntu-latest" ]; then
+            CMAKE_GENERATOR=Ninja pip wheel . -w wheelhouse --no-build-isolation --no-deps -vvvv
+          else
+            pip install cibuildwheel
+            cibuildwheel --platform macos
+          fi
           
           mkdir -p ${{ github.sha }}
           mv wheelhouse/PI*.whl ${{ github.sha }}/
@@ -73,12 +80,12 @@ jobs:
       - name: Set up a release page
         id: setup_release
         run: |
-          PI_VERSION=$(python setup.py --version)
+          PI_VERSION="$(python setup.py --version)"
           tag_name="$PI_VERSION"
           release_title="PI $PI_VERSION"
           echo "PI $PI_VERSION created at $(date)" > body.md
-          echo "tag_name=${tag_name}" >> $GITHUB_OUTPUT
-          echo "release_title=${release_title}" >> $GITHUB_OUTPUT
+          echo "::set-output name=tag_name::${tag_name}"
+          echo "::set-output name=release_title::${release_title}"
 
       - name: Upload tarballs
         uses: ncipollo/release-action@v1

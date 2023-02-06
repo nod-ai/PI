@@ -10,3 +10,10 @@ requires = [
     "ninja"
 ]
 build-backend = "setuptools.build_meta"
+
+[tool.cibuildwheel]
+build = "cp310-*"
+build-verbosity = "3"
+[tool.cibuildwheel.macos]
+archs = ["arm64"]
+environment = { LIB_ARCH = "arm64" }
