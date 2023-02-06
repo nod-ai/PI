@@ -34,7 +34,32 @@ conv_transpose1d = pi.conv_transpose1d
 # Pooling
 # avg_pool1d = pi.avg_pool1d
 
-avg_pool2d = pi._C._nn.avg_pool2d
+# avg_pool2d = pi._C._nn.avg_pool2d
+
+
+def avg_pool2d(
+    input: Tensor,
+    kernel_size: BroadcastingList2[int],
+    stride: Optional[BroadcastingList2[int]] = None,
+    padding: BroadcastingList2[int] = 0,
+    ceil_mode: bool = False,
+    count_include_pad: bool = True,
+    divisor_override: Optional[int] = None,
+) -> Tensor:
+    kernel_size = _pair(kernel_size)
+    if stride is not None:
+        stride = _pair(stride)
+    padding = _pair(padding)
+
+    return pi.avg_pool2d(
+        input,
+        kernel_size,
+        stride,
+        padding,
+        ceil_mode,
+        count_include_pad,
+        divisor_override,
+    )
 
 
 # avg_pool3d = pi._C._nn.avg_pool3d
@@ -499,13 +524,17 @@ adaptive_max_pool3d = boolean_dispatch(
 
 
 def adaptive_avg_pool2d(input: Tensor, output_size: BroadcastingList2[int]) -> Tensor:
-    _output_size = _list_with_default(output_size, input.size())
-    return pi._C._nn.adaptive_avg_pool2d(input, _output_size)
+    assert (
+        isinstance(output_size, (tuple, list)) and len(output_size) == 2
+    ), f"wrong shape output_size {output_size}"
+    return pi._C._nn.adaptive_avg_pool2d(input, output_size)
 
 
 def adaptive_avg_pool3d(input: Tensor, output_size: BroadcastingList3[int]) -> Tensor:
-    _output_size = _list_with_default(output_size, input.size())
-    return pi._C._nn.adaptive_avg_pool3d(input, _output_size)
+    assert (
+        isinstance(output_size, (tuple, list)) and len(output_size) == 3
+    ), f"wrong shape output_size {output_size}"
+    return pi._C._nn.adaptive_avg_pool3d(input, output_size)
 
 
 # Activation functions

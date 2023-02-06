@@ -16,7 +16,7 @@ from torch_mlir.ir import DenseElementsAttr
 from .types_ import (
     dtype as pi_dtype,
 )
-from .torch_wrappers import empty, ones, zeros, tensor, device
+from .torch_wrappers import empty
 from ._tensor import Tensor
 
 
@@ -30,8 +30,9 @@ def from_numpy(arr: np.ndarray, dtype: pi_dtype = None):
         arr, signless=dtype.is_signless(), type=dtype.to_mlir_type(), shape=shape
     )
 
-    vt = Tensor(torch_dialect.NonValueTensorLiteralOp(attr))
-    return vt
+    t = torch_dialect.NonValueTensorLiteralOp(attr).result
+    tt = Tensor(t)
+    return tt
 
 
 def _np_wrapper(*size: Tuple[int, ...], **kwargs):
@@ -48,6 +49,8 @@ def _np_wrapper(*size: Tuple[int, ...], **kwargs):
     try:
         if dtype is not None and factory not in (np.random.rand, np.random.randn):
             res = factory(size, dtype=dtype.to_np_type())
+        elif factory not in (np.random.rand, np.random.randn):
+            res = factory(size, dtype=np.float32)
         else:
             res = factory(size)
     except TypeError as e:
@@ -90,8 +93,8 @@ def _torch_wrapper(*size: Tuple[int, ...], **kwargs):
 
 
 # empty = functools.partial(_np_wrapper, factory=empty)
-ones = functools.partial(_torch_wrapper, factory=ones)
-zeros = functools.partial(_torch_wrapper, factory=zeros)
+ones = functools.partial(_np_wrapper, factory=np.ones)
+zeros = functools.partial(_np_wrapper, factory=np.zeros)
 rand = functools.partial(_np_wrapper, factory=np.random.rand)
 randn = functools.partial(_np_wrapper, factory=np.random.randn)
 

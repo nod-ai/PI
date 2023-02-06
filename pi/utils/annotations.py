@@ -7,15 +7,14 @@ import warnings
 from collections import OrderedDict
 from typing import List, Optional, Tuple, Union
 
-from pi.types_ import dtype as pi_dtype
 from torch_mlir import ir
+from ..types_ import dtype as pi_dtype
 
 PI_EXPORT_ATTR_NAME = "_PI_EXPORT"
 PI_ARG_ANNOTATIONS_ATTR_NAME = "_PI_ARG_ANNOTATIONS"
 
 
 def export(fn):
-    # setattr(fn, PI_EXPORT_ATTR_NAME, True)
     return fn
 
 
@@ -85,26 +84,3 @@ def annotate_args(annotations: List[Optional[ArgAnnotation]]):
         return fn
 
     return decorator
-
-
-def convert_annotations_to_placeholders(forward_method):
-    """Converts the annotations on a forward method into tensor placeholders.
-
-    These placeholders are suitable for being passed to `torch_mlir.compile`.
-    """
-    annotations = getattr(forward_method, PI_ARG_ANNOTATIONS_ATTR_NAME)
-    placeholders = []
-    # Skip the "self" annotation.
-    for annotation in annotations[1:]:
-        placeholders.append(TensorPlaceholder(annotation[0], annotation[1]))
-    return placeholders
-
-
-def pipile(annotations: List[Optional[ArgAnnotation]]):
-    def actual_decorator(func):
-        func = export(func)
-        if len(annotations):
-            func = annotate_args(annotations)(func)
-        return func
-
-    return actual_decorator

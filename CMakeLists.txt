@@ -34,7 +34,6 @@ if (LLVM_INSTALL_DIR STREQUAL "")
     FetchContent_Populate(
             MLIR
             URL "${LLVM_URL}"
-            URL_HASH MD5=96c8e619850285c6dc2be3287843b48d
             SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/llvm_install"
     )
     list(APPEND CMAKE_PREFIX_PATH)

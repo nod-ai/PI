@@ -23,7 +23,7 @@ class Module:
     _modules: Dict[str, Optional["Module"]]
     _forward_pre_hooks: OrderedDict[str, Callable]
     _forward_post_hooks: OrderedDict[str, Callable]
-    _forward: Callable
+    __forward: Callable
     training = False
 
     def __init__(self):
@@ -37,18 +37,19 @@ class Module:
         _set("_forward_post_hooks", OrderedDict())
         _set(
             "_initialize_hook",
-            _get("register_forward_pre_hook")(_get("_infer_parameters")),
+            _get("register_forward_pre_hook")(_get("_initialize")),
         )
 
         if "forward" in dir(self):
             orig_forward = _get("forward")
             # super attr is Module.__call__ d'oh
             call = self.__call__
-            _set("_forward", orig_forward)
+            # name mangling means trying to get __forward actually tries
+            # to get this
+            _set("_Module__forward", orig_forward)
             _set("forward", call)
             # TODO(max): checks here
             if hasattr(orig_forward, "__placeholders__"):
-                # setattr(call, "__annotations__", orig_forward.__annotations__)
                 call.__dict__["__placeholders__"] = orig_forward.__placeholders__
 
         super(Module, self).__init__()
@@ -74,7 +75,7 @@ class Module:
                         "forward pre-hook must return None or a tuple "
                         f"of (new_args, new_kwargs), but got {result}."
                     )
-        result = self._forward(*args, **kwargs)
+        result = self.__forward(*args, **kwargs)
         for hook_id, hook in self._forward_post_hooks.items():
             result = hook(self, result, *args, **kwargs)
 
@@ -87,12 +88,11 @@ class Module:
         *,
         prepend: bool = False,
     ) -> RemovableHandle:
-        handle = hooks.RemovableHandle(hook_dict)
         hook_name = hook.__func__.__name__ if inspect.ismethod(hook) else hook.__name__
-        hook_id = f"{hook_name}_{handle.id}"
-        hook_dict[hook_id] = hook
+        handle = hooks.RemovableHandle(hook_dict, name=hook_name)
+        hook_dict[handle.id] = hook
         if prepend:
-            hook_dict.move_to_end(hook_id, last=False)  # type: ignore[attr-defined]
+            hook_dict.move_to_end(handle.id, last=False)  # type: ignore[attr-defined]
         return handle
 
     def register_forward_pre_hook(
@@ -186,19 +186,39 @@ class Module:
     ) -> None:
         self._parameters[name] = param
 
-    def register_module(self, name: str, module: Optional["Module"]) -> None:
+    def add_module(self, name: str, module: Optional["Module"]) -> None:
+        if not isinstance(module, Module) and module is not None:
+            raise TypeError(f"{module} is not a Module subclass")
+        elif not isinstance(name, str):
+            raise TypeError(f"module name should be a string. Got {name}")
+        elif hasattr(self, name) and name not in self._modules:
+            raise KeyError("attribute '{}' already exists".format(name))
+        elif "." in name:
+            raise KeyError('module name can\'t contain ".", got: {}'.format(name))
+        elif name == "":
+            raise KeyError('module name can\'t be empty string ""')
         self._modules[name] = module
+
+    def register_module(self, name: str, module: Optional["Module"]) -> None:
+        self.add_module(name, module)
 
     def initialize_parameters(self, *_args, **_kwargs):
         parameters = self.__dict__["_parameters"]
         for name, param in sorted(parameters.items()):
-            if param.__class__.__name__ == UninitializedParameter.__name__:
-                assert isinstance(
-                    param, UninitializedParameter
-                ), f"class comparison failed {type(param)} {UninitializedParameter}"
+            if isinstance(param, UninitializedParameter):
                 parameters[name] = param()
 
-    def has_uninitialized_params(self):
+    def initialize_buffers(self, *_args, **_kwargs):
+        buffers = self.__dict__["_buffers"]
+        for name, buffer in sorted(buffers.items()):
+            if isinstance(buffer, UninitializedBuffer):
+                buffers[name] = buffer()
+
+    def initialize(self, *args, **kwargs):
+        self.initialize_buffers(*args, **kwargs)
+        self.initialize_parameters(*args, **kwargs)
+
+    def has_uninitialized(self):
         params = self._parameters.items()
         buffers = self._buffers.items()
         for param_name, param in itertools.chain(params, buffers):
@@ -215,14 +235,16 @@ class Module:
                 return param
         return None
 
-    def _infer_parameters(self, _self, *args, **kwargs):
-        self.initialize_parameters(*args, **kwargs)
-        if uninitialized_param := self.has_uninitialized_params():
-            raise RuntimeError(
-                f"module {self.__class__.__name__} has not been fully initialized; {uninitialized_param}"
-            )
-            self._initialize_hook.remove()
-            delattr(self, "_initialize_hook")
+    def _initialize(self, _self, *args, **kwargs):
+        for child in self.all_children():
+            child.initialize(*args, **kwargs)
+        for i, child in enumerate(self.all_children()):
+            if uninitialized := child.has_uninitialized():
+                raise RuntimeError(
+                    f"module {i} {child.__class__.__name__} has not been fully initialized; {uninitialized}"
+                )
+        self._initialize_hook.remove()
+        delattr(self, "_initialize_hook")
 
     def to(self, dtype: pi_dtype):
         if initialized_param := self.not_uninitialized():
@@ -253,3 +275,5 @@ class Module:
             return flat_children
 
         return get_children(self)
+
+    modules = all_children

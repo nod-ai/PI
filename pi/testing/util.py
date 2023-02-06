@@ -9,7 +9,7 @@ from torch_mlir import ir, OutputType
 from torch_mlir.dialects import torch as torch_dialect, func as func_dialect
 
 from .framework import Test, TestUtils
-from ..mlir_utils import run_pipeline_with_repro_report, mlir_cm
+from ..mlir.utils import run_pipeline_with_repro_report, cm
 from .._tensor import Tensor
 
 FIXED = np.linspace(0, 0.1, 101)
@@ -93,7 +93,7 @@ SMOKE_TEST = False
 class PIConfig:
     def compile(self, test_case: Test) -> Any:
         tu = TestUtils()
-        with mlir_cm() as module:
+        with cm() as module:
             test_module = test_case.program_factory()
             module_name = "torch.debug_module_name"
             module.operation.attributes[module_name] = ir.StringAttr.get(

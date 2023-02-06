@@ -3,7 +3,6 @@ import functools
 import inspect
 import logging
 import operator
-import traceback
 from multiprocessing import cpu_count
 from multiprocess.pool import Pool
 
@@ -27,7 +26,7 @@ from pi.dialects import (
     RewriteOverload,
     patch_meta_path,
 )
-from pi.mlir_utils import lower_pi_to_linalg
+from pi.mlir.utils import lower_pi_to_linalg
 from pi.testing.util import (
     PIConfig,
     TorchDialectConfig,

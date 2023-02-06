@@ -571,7 +571,7 @@ class AdaptiveAvgPool1d(_AdaptiveAvgPoolNd):
     output_size: _size_1_t
 
     def forward(self, input: Tensor) -> Tensor:
-        return F.adaptive_avg_pool1d(input, self.output_size)
+        return F.adaptive_avg_pool1d(input, _single(self.output_size))
 
 
 class AdaptiveAvgPool2d(_AdaptiveAvgPoolNd):
@@ -579,7 +579,7 @@ class AdaptiveAvgPool2d(_AdaptiveAvgPoolNd):
     output_size: _size_2_opt_t
 
     def forward(self, input: Tensor) -> Tensor:
-        return F.adaptive_avg_pool2d(input, self.output_size)
+        return F.adaptive_avg_pool2d(input, _pair(self.output_size))
 
 
 class AdaptiveAvgPool3d(_AdaptiveAvgPoolNd):
@@ -587,4 +587,4 @@ class AdaptiveAvgPool3d(_AdaptiveAvgPoolNd):
     output_size: _size_3_opt_t
 
     def forward(self, input: Tensor) -> Tensor:
-        return F.adaptive_avg_pool3d(input, self.output_size)
+        return F.adaptive_avg_pool3d(input, _triple(self.output_size))

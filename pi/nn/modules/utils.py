@@ -1,6 +1,6 @@
 import collections
 from itertools import repeat
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple
 
 __all__ = ["consume_prefix_in_state_dict_if_present"]
 
@@ -13,6 +13,12 @@ def _ntuple(n, name="parse"):
 
     parse.__name__ = name
     return parse
+
+
+def _make_ntuple(x: Any, n: int) -> Tuple[Any, ...]:
+    if isinstance(x, collections.abc.Iterable):
+        return tuple(x)
+    return tuple(repeat(x, n))
 
 
 _single = _ntuple(1, "_single")
