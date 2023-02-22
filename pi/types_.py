@@ -30,13 +30,6 @@ from torch_mlir._mlir_libs._mlir.ir import IntegerAttr, IntegerType, FloatAttr, 
 from torch_mlir.ir import (
     register_attribute_builder,
 )
-from typeguard import (
-    TypeCheckError,
-    TypeCheckerCallable,
-    TypeCheckMemo,
-    checker_lookup_functions,
-    check_type,
-)
 
 import pi
 

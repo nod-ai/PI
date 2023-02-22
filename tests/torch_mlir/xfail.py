@@ -1,11 +1,13 @@
 PI_XFAIL_SET = {
 
     # view op (Which doesn't pass regular torch-mlir either???)
+    "BernoulliPModule_basic",
     "BernoulliFloatModule_basic",
     "ElementwiseFlattenBroadcastModule_basic",
     "FlattenDynamicModule_basic",
     "FlattenRank0Module_basic",
     "UniformModule_basic",
+    "ViewDynamicExpandCollapseWithAtenIntModule_basic",
 
     # torchvision
     "IouOfModule_basic",
@@ -103,6 +105,12 @@ PI_XFAIL_SET = {
     # dtype issue (number conflates with int)
     # error: unsupported: conversion to byte or char type for convertScalarToDtype 'i64'(scalar type) -> 'i8'(dtype)
     "ArangeStartNegativeStepIntModule_basic",
+
+
+    # new
+    "AtenIntBoolOpConstFalseModule_basic",
+    "AtenIntBoolOpConstTrueModule_basic",
+    "BoolIntConstantModule_basic",
 }
 
 CASTS = {

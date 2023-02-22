@@ -26,9 +26,8 @@ class TestUtils:
         # return randn(low, high, sizes)
         return TensorPlaceholder(sizes, dtype=float32)
 
-    def randint(self, *sizes, low=0, high=10):
-        # return randint(low, high, sizes)
-        return TensorPlaceholder(sizes, dtype=int64)
+    def randint(self, *sizes, low=0, high=10, dtype=int64):
+        return TensorPlaceholder(sizes, dtype=dtype)
 
 
 TestResult = Union[ir.OpView, ir.Operation, ir.Value, ir.OpResultList]
