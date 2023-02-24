@@ -24,6 +24,6 @@ class MyMobileNet(nn.Module):
 test_module = MyMobileNet()
 x = TensorPlaceholder((1, 3, 64, 64), pi.float32)
 mlir_module = pipile(test_module, example_args=(x,))
-print(mlir_module)
+# print(mlir_module)
 mlir_module = lower_pi_to_linalg(mlir_module)
 print(mlir_module)

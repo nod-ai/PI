@@ -8,7 +8,7 @@ from typeguard import (
     TypeCheckError,
     check_type,
     TypeCheckerCallable,
-    checker_lookup_functions,
+    _config
 )
 
 from pi import Torch_Value, Torch_List, Tensor
@@ -83,4 +83,4 @@ def torch_type_checker_lookup(
     return None
 
 
-checker_lookup_functions.insert(0, torch_type_checker_lookup)
+_config._config.checker_lookup_functions.insert(0, torch_type_checker_lookup)

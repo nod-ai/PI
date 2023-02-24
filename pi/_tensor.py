@@ -311,7 +311,7 @@ class Tensor(Torch_Tensor):
         return pi.sub(self, other)
 
     def __truediv__(self: Tensor, other: Any) -> Tensor:
-        raise pi.div(self, other)
+        return pi.div(self, other)
 
     @register_dispatch
     def __xor__(self: Tensor, other: Tensor) -> Tensor:
@@ -2591,6 +2591,11 @@ class Tensor(Torch_Tensor):
     @register_dispatch
     def nonzero(self: Tensor, *, as_tuple: Literal[True]) -> Tuple[Tensor, ...]:
         raise NotImplementedError("nonzero")
+
+    def norm(self: Tensor, p: int, dim: Union[List, List[int]], keepdim: bool = False):
+        if not isinstance(dim, list):
+            dim = [dim]
+        return pi.norm(self, p, dim, keepdim)
 
     def normal_(
         self: Tensor,

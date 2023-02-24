@@ -1834,6 +1834,22 @@ def bernoulli(self_: Tensor, generator: Optional[Torch_GeneratorType] = None) ->
     return Tensor(torch_dialect.AtenBernoulliOp(result0_type, self_, generator))
 
 
+# overload p
+@register_dispatch
+def bernoulli(
+    self_: Tensor,
+    p: Union[Torch_Value[Torch_FloatType], builtins.float],
+    generator: Optional[Torch_GeneratorType] = None,
+) -> Tensor:
+    assert check_argument_types()
+    if isinstance(p, builtins.float):
+        p = torch_dialect.ConstantFloatOp(p).result
+    if generator is None:
+        generator = torch_dialect.ConstantNoneOp().result
+    result0_type = Torch_NonValueTensorType()
+    return Tensor(torch_dialect.AtenBernoulliPOp(result0_type, self_, p, generator))
+
+
 # overload Tensor
 @register_dispatch
 def bernoulli(
@@ -6731,6 +6747,67 @@ def scatter_add(
     return Tensor(torch_dialect.AtenScatterAddOp(result0_type, self_, dim, index, src))
 
 
+def scatter_add_(
+    self_: Tensor,
+    dim: Union[Torch_Value[Torch_IntType], builtins.int],
+    index: Tensor,
+    src: Tensor,
+) -> Tensor:
+    assert check_argument_types()
+    if isinstance(dim, builtins.int):
+        dim = torch_dialect.ConstantIntOp(dim).result
+    result0_type = Torch_NonValueTensorType()
+    return Tensor(torch_dialect.AtenScatterAdd_Op(result0_type, self_, dim, index, src))
+
+
+# overload two
+def scatter_reduce(
+    self_: Tensor,
+    dim: Union[Torch_Value[Torch_IntType], builtins.int],
+    index: Tensor,
+    src: Tensor,
+    reduce: Union[Torch_Value[Torch_StringType], builtins.str],
+    include_self: Union[Torch_Value[Torch_BoolType], builtins.bool] = True,
+) -> Tensor:
+    assert check_argument_types()
+    if isinstance(dim, builtins.int):
+        dim = torch_dialect.ConstantIntOp(dim).result
+    if isinstance(reduce, builtins.str):
+        reduce = torch_dialect.ConstantStrOp(reduce).result
+    if isinstance(include_self, builtins.bool):
+        include_self = torch_dialect.ConstantBoolOp(include_self).result
+    result0_type = Torch_NonValueTensorType()
+    return Tensor(
+        torch_dialect.AtenScatterReduceTwoOp(
+            result0_type, self_, dim, index, src, reduce, include_self
+        )
+    )
+
+
+# overload two
+def scatter_reduce_(
+    self_: Tensor,
+    dim: Union[Torch_Value[Torch_IntType], builtins.int],
+    index: Tensor,
+    src: Tensor,
+    reduce: Union[Torch_Value[Torch_StringType], builtins.str],
+    include_self: Union[Torch_Value[Torch_BoolType], builtins.bool] = True,
+) -> Tensor:
+    assert check_argument_types()
+    if isinstance(dim, builtins.int):
+        dim = torch_dialect.ConstantIntOp(dim).result
+    if isinstance(reduce, builtins.str):
+        reduce = torch_dialect.ConstantStrOp(reduce).result
+    if isinstance(include_self, builtins.bool):
+        include_self = torch_dialect.ConstantBoolOp(include_self).result
+    result0_type = Torch_NonValueTensorType()
+    return Tensor(
+        torch_dialect.AtenScatterReduce_TwoOp(
+            result0_type, self_, dim, index, src, reduce, include_self
+        )
+    )
+
+
 # overload int
 def select(
     self_: Tensor,
@@ -8636,6 +8713,9 @@ __all__ = [
     "rsqrt_",
     "rsub",
     "scatter_add",
+    "scatter_add_",
+    "scatter_reduce",
+    "scatter_reduce_",
     "select",
     "select_copy",
     "select_scatter",
