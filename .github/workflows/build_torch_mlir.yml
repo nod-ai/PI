@@ -12,6 +12,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
+      fail-fast: false
       matrix:
         os: [
           ubuntu-latest,
@@ -20,7 +21,7 @@ jobs:
         arch: [ x86_64 ]
         python_version: [
           "3.10",
-#          "3.11"
+          "3.11"
         ]
         exclude:
           - os: macos-latest
@@ -29,10 +30,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-#        with:
-#          repository: makslevental/torch-mlir
-#          ref: out_of_tree_build
-
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
@@ -40,8 +37,7 @@ jobs:
 
       - name: Build wheel
         run: |
-          pip install wheel cmake ninja
-          pip install -r requirements.txt
+          pip install -r build-requirements.txt
           
           LLVM_URL=$(python setup.py --llvm-url)
           wget -O llvm.tar.xz $LLVM_URL
@@ -59,7 +55,7 @@ jobs:
           popd
           
           mkdir -p ${{ github.sha }}
-          mv wheelhouse/PI*.whl ${{ github.sha }}/
+          mv wheelhouse/torch_mlir*.whl ${{ github.sha }}/
 
       - name: Upload an artifact
         uses: actions/upload-artifact@v3
@@ -106,6 +102,6 @@ jobs:
           token: "${{ secrets.PI_CI }}"
           tag: "${{ steps.setup_release.outputs.tag_name }}"
           name: "${{ steps.setup_release.outputs.release_title }}"
-          removeArtifacts: true
+          removeArtifacts: false
           allowUpdates: true
           replacesArtifacts: true

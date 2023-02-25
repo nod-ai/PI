@@ -17,4 +17,4 @@ numpy
 # See https://github.com/pytorch/vision/issues/1712
 multiprocess
 
-pybind11==2.8.0
+pybind11

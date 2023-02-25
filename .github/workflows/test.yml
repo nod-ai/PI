@@ -34,8 +34,8 @@ jobs:
 
       - name: Install
         run: |
-          pip install wheel cmake ninja
-          pip install -r torch_mlir.requirements.txt
+          pip install -r build-requirements.txt
+          pip install -r torch-mlir-requirements.txt
           pip install . -v --no-build-isolation
 
       - name: Test vs. torch-mlir ABI

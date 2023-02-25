@@ -38,12 +38,11 @@ jobs:
 
       - name: Build wheel
         run: |
-          pip install wheel cmake ninja
-          pip install -r requirements.txt
+          pip install -r build-requirements.txt
+          pip install -r torch-mlir-requirements.txt
           if [ x"${{ matrix.os }}" == x"ubuntu-latest" ]; then
             CMAKE_GENERATOR=Ninja pip wheel . -w wheelhouse --no-build-isolation --no-deps -vvvv
           else
-            pip install cibuildwheel
             cibuildwheel --platform macos
           fi
           
