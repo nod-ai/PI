@@ -1,0 +1,127 @@
+name: Build Torch-MLIR ARM QEMU
+
+on:
+  workflow_dispatch:
+    branches:
+      - main
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        base_image: [
+          "balenalib/raspberrypi4-64-ubuntu-python:3.10-jammy-build",
+          "balenalib/raspberrypi4-64-ubuntu-python:3.11-jammy-build"
+        ]
+
+    steps:
+      - name: Setup cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.ccache
+          key: build_v1_${{ matrix.base_image }}
+
+      - uses: actions/checkout@v3
+      - uses: uraimo/run-on-arch-action@v2.5.0
+        name: Run commands
+        id: runcmd
+        with:
+          arch: aarch64
+          distro: none
+          base_image: ${{ matrix.base_image }}
+          githubToken: ${{ github.token }}
+          # Create cached/volume directories on host
+          setup: |
+            mkdir -p ~/.ccache
+
+          # Mount cached directories in the container for faster builds
+          dockerRunArgs: |
+            --volume "${HOME}/.ccache:/root/.ccache" --volume "${PWD}:/repo"
+
+          # Install ccache and gcc/g++ symlinks in the container
+          install: |
+            apt-get update -q -y
+            apt-get install build-essential ccache -q -y
+            /usr/sbin/update-ccache-symlinks
+            echo 'export PATH="/usr/lib/ccache:$PATH"' | tee -a ~/.bashrc
+            pip install cmake auditwheel patchelf wheel
+            echo 'CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)' | tee -a ~/.bashrc
+
+          run: |
+            cd /repo
+
+            pip install -r build-requirements.txt
+            LLVM_URL=$(python setup.py --llvm-url)
+            wget -O llvm.tar.xz $LLVM_URL
+            tar -xvf llvm.tar.xz
+            LLVM_INSTALL_DIR=$PWD/llvm_install
+            
+            git clone -b out_of_tree_build --single-branch https://github.com/makslevental/torch-mlir.git
+            pushd torch-mlir
+            TORCH_MLIR_ENABLE_STABLEHLO=0 \
+              CMAKE_PREFIX_PATH=$LLVM_INSTALL_DIR \
+              TORCH_MLIR_OUT_OF_TREE_BUILD=1 \
+              TORCH_MLIR_ENABLE_JIT_IR_IMPORTER=0 \
+              TORCH_MLIR_ENABLE_ONLY_MLIR_PYTHON_BINDINGS=1 \
+              CMAKE_GENERATOR=Ninja python setup.py bdist_wheel -d wheelhouse
+            popd
+
+      - name: Copy wheel
+        run: |
+          mkdir -p ${{ github.sha }}
+          cp wheelhouse/torch_mlir*.whl ${{ github.sha }}/
+
+      - name: Upload an artifact
+        uses: actions/upload-artifact@v3
+        if: github.event_name == 'workflow_dispatch'
+        with:
+          if-no-files-found: error
+          name: build_artifact
+          path: ${{ github.sha }}
+
+  upload-tarballs:
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    needs: [ build ]
+
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build_artifact
+          path: ${{ github.sha }}
+
+      - name: Set up a release page
+        id: setup_release
+        run: |
+          PI_VERSION="$(python setup.py --version)"
+          tag_name="$PI_VERSION"
+          release_title="PI $PI_VERSION"
+          echo "PI $PI_VERSION created at $(date)" > body.md
+          echo "::set-output name=tag_name::${tag_name}"
+          echo "::set-output name=release_title::${release_title}"
+
+      - name: Upload tarballs
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "${{ github.sha }}/*.whl"
+          bodyFile: body.md
+          token: "${{ secrets.PI_CI }}"
+          tag: "${{ steps.setup_release.outputs.tag_name }}"
+          name: "${{ steps.setup_release.outputs.release_title }}"
+          removeArtifacts: false
+          allowUpdates: true
+          replacesArtifacts: true
