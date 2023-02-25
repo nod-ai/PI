@@ -57,20 +57,10 @@ jobs:
             cd /repo
 
             pip install -r build-requirements.txt
-            LLVM_URL=$(python setup.py --llvm-url)
-            wget -O llvm.tar.xz $LLVM_URL
-            tar -xvf llvm.tar.xz
-            LLVM_INSTALL_DIR=$PWD/llvm_install
-            
-            git clone -b out_of_tree_build --single-branch https://github.com/makslevental/torch-mlir.git
-            pushd torch-mlir
-            TORCH_MLIR_ENABLE_STABLEHLO=0 \
-              CMAKE_PREFIX_PATH=$LLVM_INSTALL_DIR \
-              TORCH_MLIR_OUT_OF_TREE_BUILD=1 \
-              TORCH_MLIR_ENABLE_JIT_IR_IMPORTER=0 \
-              TORCH_MLIR_ENABLE_ONLY_MLIR_PYTHON_BINDINGS=1 \
-              CMAKE_GENERATOR=Ninja python setup.py bdist_wheel -d ../wheelhouse
-            popd
+            PI_VERSION="$(python setup.py --version)"
+            pip install torch-mlir -f https://github.com/nod-ai/PI/releases/expanded_assets/$PI_VERSION
+            CMAKE_GENERATOR=Ninja pip wheel . -w wheelhouse --no-build-isolation --no-deps -vvvv
+
 
       - name: Copy wheel
         run: |

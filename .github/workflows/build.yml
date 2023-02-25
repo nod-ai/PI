@@ -18,10 +18,14 @@ jobs:
 
     strategy:
       matrix:
-        os: [ ubuntu-latest, macos-latest ]
+        os: [
+          ubuntu-latest,
+          macos-latest
+        ]
         arch: [ x86_64 ]
-        python_version: [ "3.10",
-#                          "3.11"
+        python_version: [
+          "3.10",
+          "3.11"
         ]
         exclude:
           - os: macos-latest
@@ -94,6 +98,6 @@ jobs:
           token: "${{ secrets.PI_CI }}"
           tag: "${{ steps.setup_release.outputs.tag_name }}"
           name: "${{ steps.setup_release.outputs.release_title }}"
-          removeArtifacts: true
+          removeArtifacts: false
           allowUpdates: true
           replacesArtifacts: true
