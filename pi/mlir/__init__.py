@@ -13,11 +13,12 @@ def dl_open_guard():
 
 with dl_open_guard():
     # noinspection PyUnresolvedReferences
-    from torch_mlir import ir
     import torch_mlir
+    from torch_mlir import ir
+    from torch_mlir.dialects import torch as torch_dialect
 
 assert (
-    len(torch_mlir.dialects.torch.AtenConv2dOp.__bases__) == 1
+    len(torch_dialect.AtenConv2dOp.__bases__) == 1
 ), "failed to import torch dialect extensions; you probably tried to import torch_mlir before pi"
 
 import atexit
@@ -28,6 +29,7 @@ DefaultContext.__enter__()
 DefaultContext.allow_unregistered_dialects = True
 
 torch_mlir.dialects.torch.register_dialect(DefaultContext, True)
+
 
 @atexit.register
 def __exit_ctxt():

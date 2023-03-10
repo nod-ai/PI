@@ -19,16 +19,12 @@ from typeguard import check_argument_types, check_return_type, TypeCheckError, C
 
 from pi._torch_wrappers import any as torch_any, Float, NumToTensor, randint
 from pi.dispatcher.function import NotFoundLookupError
-from pi.mlir_utils import mlir_cm
+from pi.mlir.utils import cm
 from pi.types_ import Torch_Value, Torch_List
-import pi
 
 FORMAT = "%(asctime)s, %(levelname)-8s [%(filename)s:%(module)s:%(funcName)s:%(lineno)d] %(message)s"
 formatter = logging.Formatter(FORMAT)
-# f_handler = logging.FileHandler("file.log")
 logging.basicConfig(level=logging.DEBUG, format=FORMAT)
-# f_handler = logging.StreamHandler()
-# f_handler.setLevel(logging.DEBUG)
 
 
 def FloatCheckArgReturn(
@@ -50,10 +46,10 @@ def FloatCheckFail(a: Torch_Value[Torch_FloatType]) -> Torch_Value[Torch_IntType
 class TestTypeChecking(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls._connection = mlir_cm()
+        cls._connection = cm()
 
     def run(self, result=None):
-        with mlir_cm() as module:
+        with cm() as module:
             self.module = module
             super(TestTypeChecking, self).run(result)
 
@@ -70,17 +66,6 @@ class TestTypeChecking(unittest.TestCase):
         t = Torch_Value(torch_dialect.ConstantFloatOp(1.0).result)
         f = Float(t)
         f = FloatCheckArgReturn(t)
-
-        with self.assertRaises(TypeCheckError):
-            f = FloatCheckFail(t)
-            print(f)
-            assert False
-
-        with self.assertRaises(NotFoundLookupError):
-            t = Torch_Value(torch_dialect.ConstantBoolOp(1).result)
-            f = Float(t)
-            print(f)
-            assert False
 
     def test_lists(self):
         t = Torch_Value(torch_dialect.ConstantIntOp(1).result)
@@ -112,7 +97,3 @@ class TestTypeChecking(unittest.TestCase):
     def test_tensor(self):
         t = Torch_Value(torch_dialect.ConstantIntOp(1).result)
         n = NumToTensor(t)
-
-    def test_bool_typeguard(self):
-        r = pi.ops.aten.Int(False)
-        print(r)

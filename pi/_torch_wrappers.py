@@ -2060,6 +2060,7 @@ def ceil_(self_: Tensor) -> Tensor:
     return Tensor(torch_dialect.AtenCeil_Op(result0_type, self_))
 
 
+@register_dispatch
 def clamp(
     self_: Tensor, min: Optional[TorchNumber] = None, max: Optional[TorchNumber] = None
 ) -> Tensor:
@@ -2076,6 +2077,21 @@ def clamp(
     return Tensor(torch_dialect.AtenClampOp(result0_type, self_, min, max))
 
 
+# overload Tensor
+@register_dispatch
+def clamp(
+    self_: Tensor, min: Optional[Tensor] = None, max: Optional[Tensor] = None
+) -> Tensor:
+    assert check_argument_types()
+    if min is None:
+        min = torch_dialect.ConstantNoneOp().result
+    if max is None:
+        max = torch_dialect.ConstantNoneOp().result
+    result0_type = Torch_NonValueTensorType()
+    return Tensor(torch_dialect.AtenClampTensorOp(result0_type, self_, min, max))
+
+
+@register_dispatch
 def clamp_(
     self_: Tensor, min: Optional[TorchNumber] = None, max: Optional[TorchNumber] = None
 ) -> Tensor:
@@ -2090,6 +2106,20 @@ def clamp_(
         max = torch_dialect.ConstantNoneOp().result
     result0_type = Torch_NonValueTensorType()
     return Tensor(torch_dialect.AtenClamp_Op(result0_type, self_, min, max))
+
+
+# overload Tensor
+@register_dispatch
+def clamp_(
+    self_: Tensor, min: Optional[Tensor] = None, max: Optional[Tensor] = None
+) -> Tensor:
+    assert check_argument_types()
+    if min is None:
+        min = torch_dialect.ConstantNoneOp().result
+    if max is None:
+        max = torch_dialect.ConstantNoneOp().result
+    result0_type = Torch_NonValueTensorType()
+    return Tensor(torch_dialect.AtenClamp_TensorOp(result0_type, self_, min, max))
 
 
 def clamp_max(self_: Tensor, max: TorchNumber) -> Tensor:
@@ -4168,6 +4198,22 @@ def hardtanh_(
         max_val = torch_dialect.ConstantNumberOp(max_val).result
     result0_type = Torch_NonValueTensorType()
     return Tensor(torch_dialect.AtenHardtanh_Op(result0_type, self_, min_val, max_val))
+
+
+def hardtanh_backward(
+    grad_output: Tensor, self_: Tensor, min_val: TorchNumber, max_val: TorchNumber
+) -> Tensor:
+    assert check_argument_types()
+    if isinstance(min_val, (builtins.int, builtins.float)):
+        min_val = torch_dialect.ConstantNumberOp(min_val).result
+    if isinstance(max_val, (builtins.int, builtins.float)):
+        max_val = torch_dialect.ConstantNumberOp(max_val).result
+    result0_type = Torch_NonValueTensorType()
+    return Tensor(
+        torch_dialect.AtenHardtanhBackwardOp(
+            result0_type, grad_output, self_, min_val, max_val
+        )
+    )
 
 
 # overload Tensor
@@ -6282,6 +6328,20 @@ def pow(self_: Tensor, exponent: Tensor) -> Tensor:
     return Tensor(torch_dialect.AtenPowTensorTensorOp(result0_type, self_, exponent))
 
 
+# overload int_float
+@register_dispatch
+def pow(
+    a: Union[Torch_Value[Torch_IntType], builtins.int],
+    b: Union[Torch_Value[Torch_FloatType], builtins.float],
+) -> Union[Torch_Value[Torch_FloatType], builtins.float]:
+    assert check_argument_types()
+    if isinstance(a, builtins.int):
+        a = torch_dialect.ConstantIntOp(a).result
+    if isinstance(b, builtins.float):
+        b = torch_dialect.ConstantFloatOp(b).result
+    return Torch_Value(torch_dialect.AtenPowIntFloatOp(a, b).result)
+
+
 def prelu(self_: Tensor, weight: Tensor) -> Tensor:
     assert check_argument_types()
     result0_type = Torch_NonValueTensorType()
@@ -7219,7 +7279,7 @@ def std(
         Torch_List[Torch_IntType],
         None,
     ] = None,
-    correction: Union[Torch_Value[Torch_IntType], builtins.int, None] = None,
+    correction: Optional[TorchNumber] = None,
     keepdim: Union[Torch_Value[Torch_BoolType], builtins.bool] = False,
 ) -> Tensor:
     assert check_argument_types()
@@ -7234,8 +7294,8 @@ def std(
         dim = torch_dialect.PrimListConstructOp(ls_type, dim).result
     if dim is None:
         dim = torch_dialect.ConstantNoneOp().result
-    if isinstance(correction, builtins.int):
-        correction = torch_dialect.ConstantIntOp(correction).result
+    if isinstance(correction, (builtins.int, builtins.float)):
+        correction = torch_dialect.ConstantNumberOp(correction).result
     if correction is None:
         correction = torch_dialect.ConstantNoneOp().result
     if isinstance(keepdim, builtins.bool):
@@ -8126,7 +8186,7 @@ def var(
         Torch_List[Torch_IntType],
         None,
     ] = None,
-    correction: Union[Torch_Value[Torch_IntType], builtins.int, None] = None,
+    correction: Optional[TorchNumber] = None,
     keepdim: Union[Torch_Value[Torch_BoolType], builtins.bool] = False,
 ) -> Tensor:
     assert check_argument_types()
@@ -8141,8 +8201,8 @@ def var(
         dim = torch_dialect.PrimListConstructOp(ls_type, dim).result
     if dim is None:
         dim = torch_dialect.ConstantNoneOp().result
-    if isinstance(correction, builtins.int):
-        correction = torch_dialect.ConstantIntOp(correction).result
+    if isinstance(correction, (builtins.int, builtins.float)):
+        correction = torch_dialect.ConstantNumberOp(correction).result
     if correction is None:
         correction = torch_dialect.ConstantNoneOp().result
     if isinstance(keepdim, builtins.bool):
@@ -8161,7 +8221,7 @@ def var(
         Torch_List[Torch_IntType],
         None,
     ],
-    correction: Union[Torch_Value[Torch_IntType], builtins.int],
+    correction: Union[Torch_Value[Torch_FloatType], builtins.float],
     output_dtype: Union[
         Torch_Value[Torch_IntType], builtins.int, pi_dtype, None
     ] = None,
@@ -8178,8 +8238,8 @@ def var(
         dims = torch_dialect.PrimListConstructOp(ls_type, dims).result
     if dims is None:
         dims = torch_dialect.ConstantNoneOp().result
-    if isinstance(correction, builtins.int):
-        correction = torch_dialect.ConstantIntOp(correction).result
+    if isinstance(correction, builtins.float):
+        correction = torch_dialect.ConstantFloatOp(correction).result
     if isinstance(output_dtype, pi_dtype):
         output_dtype = output_dtype.value
     if isinstance(output_dtype, builtins.int):
@@ -8201,7 +8261,7 @@ def var_mean(
         Torch_List[Torch_IntType],
         None,
     ] = None,
-    correction: Union[Torch_Value[Torch_IntType], builtins.int, None] = None,
+    correction: Optional[TorchNumber] = None,
     keepdim: Union[Torch_Value[Torch_BoolType], builtins.bool] = False,
 ) -> Tuple[Tensor, Tensor]:
     assert check_argument_types()
@@ -8216,8 +8276,8 @@ def var_mean(
         dim = torch_dialect.PrimListConstructOp(ls_type, dim).result
     if dim is None:
         dim = torch_dialect.ConstantNoneOp().result
-    if isinstance(correction, builtins.int):
-        correction = torch_dialect.ConstantIntOp(correction).result
+    if isinstance(correction, (builtins.int, builtins.float)):
+        correction = torch_dialect.ConstantNumberOp(correction).result
     if correction is None:
         correction = torch_dialect.ConstantNoneOp().result
     if isinstance(keepdim, builtins.bool):
@@ -8607,6 +8667,7 @@ __all__ = [
     "hardswish_",
     "hardtanh",
     "hardtanh_",
+    "hardtanh_backward",
     "index",
     "index_put",
     "index_put_",

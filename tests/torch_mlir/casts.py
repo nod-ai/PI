@@ -597,3 +597,24 @@ class ViewCollapseDynamicWithAtenSizeIntModule(pi.nn.Module):
 # @register_test_case(module_factory=lambda: ViewCollapseDynamicWithAtenSizeIntModule())
 # def ViewCollapseDynamicWithAtenSizeIntModule_basic(module, tu: TestUtils):
 #     module.forward(tu.rand(2, 3, 5, 4, 12, 32), pi.tensor(3), pi.tensor(5))
+
+
+class AtenSubFloatModule(pi.nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.value1 = 1.0
+        self.value2 = 2.0
+
+    @export
+    @annotate_args(
+        [
+            None,
+        ]
+    )
+    def forward(self):
+        return pi.sub(self.value1, self.value2)
+
+
+@register_test_case(module_factory=lambda: AtenSubFloatModule())
+def AtenSubFloatModule_basic(module, tu: TestUtils):
+    module.forward()
