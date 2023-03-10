@@ -1,5 +1,3 @@
-import types
-
 # this must be before all of other subpackage imports (the noinspection is so that pycharm doesn't reorder)
 # noinspection PyUnresolvedReferences
 from . import mlir
@@ -12,6 +10,8 @@ from ._tensor import *
 
 from .tensor_helpers import *
 from . import tensor_helpers
+
+import types
 
 
 class TorchWrappers:

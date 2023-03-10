@@ -19,33 +19,22 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, macos-latest ]
-        arch: [ x86_64 ]
-        python_version: [ "3.10",
-#                          "3.11"
-        ]
-        exclude:
-          - os: macos-latest
-            python_version: 3.11
 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      # Used to host cibuildwheel
+      - uses: actions/setup-python@v3
         with:
-          python-version: ${{ matrix.python_version }}
+          python-version: "3.10"
 
-      - name: Build wheel
+      - name: Install cibuildwheel
+        run: pip install cibuildwheel
+
+      - name: Build wheels
         run: |
-          pip install -r build-requirements.txt
-          pip install -r torch-mlir-requirements.txt
-          if [ x"${{ matrix.os }}" == x"ubuntu-latest" ]; then
-            CMAKE_GENERATOR=Ninja pip wheel . -w wheelhouse --no-build-isolation --no-deps -vvvv
-          else
-            cibuildwheel --platform macos
-          fi
-          
+          cibuildwheel --output-dir wheelhouse
           mkdir -p ${{ github.sha }}
           mv wheelhouse/PI*.whl ${{ github.sha }}/
 
@@ -94,6 +83,6 @@ jobs:
           token: "${{ secrets.PI_CI }}"
           tag: "${{ steps.setup_release.outputs.tag_name }}"
           name: "${{ steps.setup_release.outputs.release_title }}"
-          removeArtifacts: true
+          removeArtifacts: false
           allowUpdates: true
           replacesArtifacts: true

@@ -55,6 +55,14 @@ class TensorPlaceholder:
         self.dtype = pi_dtype.float64
         return self
 
+    def int(self):
+        self.dtype = pi_dtype.int32
+        return self
+
+    def long(self):
+        self.dtype = pi_dtype.int64
+        return self
+
 
 def annotations_to_placeholders(
     args: List[str], annotations: List[Optional[ArgAnnotation]]

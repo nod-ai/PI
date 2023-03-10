@@ -1,2 +1,9 @@
+# Torch-MLIR
+-f https://llvm.github.io/torch-mlir/package-index/
+torch-mlir-core
+
 numpy
 typeguard==3.0.0b2
+multiprocess
+pybind11
+pytest

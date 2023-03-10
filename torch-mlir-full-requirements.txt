@@ -15,6 +15,3 @@ numpy
 # Testing
 # For torchvision, use pillow<7 to avoid `ImportError: cannot import name 'PILLOW_VERSION' from 'PIL'`
 # See https://github.com/pytorch/vision/issues/1712
-multiprocess
-
-pybind11

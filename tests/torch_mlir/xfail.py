@@ -121,6 +121,7 @@ CASTS = {
     "AtenIntBoolOpModule_basic",
     "AtenIntTensorByteDtypeModule_basic",
     "AtenIntTensorCharDtypeModule_basic",
+    "AtenSubFloatModule_basic",
     "BoolFloatConstantModule_basic",
     "BoolFloatFalseModule_basic",
     "BoolFloatTrueModule_basic",

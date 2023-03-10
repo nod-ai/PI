@@ -8,7 +8,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
             OUTPUT_VARIABLE ABI_VERSION
     )
     if(NOT error STREQUAL "")
-        message(STATUS "Torch-MLIR ABI Version ERROR: ${error}")
+        message(FATAL_ERROR "Torch-MLIR ABI Version ERROR: ${error}")
     endif()
     message(STATUS "Torch-MLIR ABI Version: ${ABI_VERSION}")
     add_definitions("-fabi-version=${ABI_VERSION}")

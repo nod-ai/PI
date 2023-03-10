@@ -60,7 +60,7 @@ def run_pipeline_with_repro_report(
                 print("pass-pipeline=", pm)
             if enable_ir_printing:
                 pm.enable_ir_printing()
-            pm.run(module)
+            pm.run(module.operation)
     except Exception as e:
         print(e, file=sys.stderr)
         filename = os.path.join(tempfile.gettempdir(), module_name + ".mlir")
