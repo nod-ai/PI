@@ -14,7 +14,7 @@ from setuptools.command.build_ext import build_ext
 
 def get_llvm_url():
     system = platform.system()
-    system_suffix = {"Linux": "linux-gnu-ubuntu-20.04", "Darwin": "apple-darwin"}[
+    system_suffix = {"Linux": "linux-gnu-ubuntu-22.04", "Darwin": "apple-darwin"}[
         system
     ]
     LIB_ARCH = os.environ.get("LIB_ARCH", platform.machine())
