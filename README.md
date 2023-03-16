@@ -15,7 +15,7 @@ Early days of a lightweight MLIR Python frontend with support for PyTorch (throu
 Just 
 
 ```shell
-pip install - requirements.txt 
+pip install -r requirements.txt 
 pip install . --no-build-isolation
 ```
 
