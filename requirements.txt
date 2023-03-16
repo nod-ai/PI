@@ -7,3 +7,4 @@ typeguard==3.0.0b2
 multiprocess
 pybind11
 pytest
+pyccolo
