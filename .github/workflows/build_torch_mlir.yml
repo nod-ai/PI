@@ -1,0 +1,134 @@
+name: Build torch-mlir
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build distro of TorchMLIR
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+    outputs:
+      torch_mlir_commit: ${{ steps.get_torch_mlir_commit.outputs.TORCH_MLIR_COMMIT }}
+    steps:
+      - name: Compute torch-mlir base path
+        run: |
+          echo "TORCH_MLIR_MAIN_SRC_DIR=${GITHUB_WORKSPACE}/sandbox" | tee -a $GITHUB_ENV
+          echo "TORCH_MLIR_MAIN_BINARY_DIR=${GITHUB_WORKSPACE}/sandbox/build" | tee -a $GITHUB_ENV
+
+      - name: Set up Python
+        uses: actions/setup-python@13ae5bb136fac2878aff31522b9efb785519f984 # v4.3.0
+        with:
+          python-version: 3.11
+
+      - name: Checkout torch-mlir
+        uses: actions/checkout@v3
+        with:
+          repository: llvm/torch-mlir
+          path: sandbox
+          submodules: recursive
+          
+      - name: Checkout torch-mlir
+        id: get_torch_mlir_commit
+        run: |
+          TORCH_MLIR_COMMIT=$(git rev-parse --short HEAD)
+          echo "TORCH_MLIR_COMMIT=${TORCH_MLIR_COMMIT}" | tee -a $GITHUB_ENV
+          echo "{TORCH_MLIR_COMMIT}=${TORCH_MLIR_COMMIT}" | tee -a $GITHUB_OUTPUT
+
+      - name: Install Python depends
+        run: |
+          python -m pip install -r ${TORCH_MLIR_MAIN_SRC_DIR}/whl-requirements.txt
+
+      - name: Install Ninja
+        uses: llvm/actions/install-ninja@6a57890d0e3f9f35dfc72e7e48bc5e1e527cdd6c # Jan 17
+
+      - name: Ccache for C++ compilation
+        uses: hendrikmuhs/ccache-action@621a41397ed83711c72862638d9ff6e63fca3041 # v1.2.3
+        with:
+          key: ${{ runner.os }}-torch-mlir
+          # LLVM needs serious cache size
+          max-size: 6G
+
+      - name: Configure CMake
+        run: |
+          cmake \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_COMPILER=clang++ \
+            -DCMAKE_C_COMPILER=clang \
+            -DCMAKE_INSTALL_PREFIX="${TORCH_MLIR_MAIN_SRC_DIR}/torch_mlir_install" \
+            -DLLVM_CCACHE_BUILD=ON \
+            -DLLVM_ENABLE_ASSERTIONS=ON \
+            -DLLVM_ENABLE_LLD=ON \
+            -DLLVM_ENABLE_PROJECTS=mlir \
+            -DLLVM_ENABLE_ZSTD=OFF \
+            -DLLVM_EXTERNAL_PROJECTS="torch-mlir;torch-mlir-dialects" \
+            -DLLVM_EXTERNAL_TORCH_MLIR_DIALECTS_SOURCE_DIR="${TORCH_MLIR_MAIN_SRC_DIR}/externals/llvm-external-projects/torch-mlir-dialects" \
+            -DLLVM_EXTERNAL_TORCH_MLIR_SOURCE_DIR="$TORCH_MLIR_MAIN_SRC_DIR" \
+            -DLLVM_INCLUDE_UTILS=ON \
+            -DLLVM_INSTALL_UTILS=ON \
+            -DLLVM_USE_HOST_TOOLS=ON \
+            -DMLIR_ENABLE_BINDINGS_PYTHON=ON \
+            -DPython3_EXECUTABLE="$(which python)" \
+            -DTORCH_MLIR_ENABLE_LTC=OFF \
+            -DTORCH_MLIR_ENABLE_STABLEHLO=OFF \
+            -DTORCH_MLIR_USE_INSTALLED_PYTORCH=ON \
+            -S${TORCH_MLIR_MAIN_SRC_DIR}/externals/llvm-project/llvm \
+            -B${TORCH_MLIR_MAIN_BINARY_DIR} -G Ninja
+
+#      - name: Build
+#        run: |
+#          cmake --build ${TORCH_MLIR_MAIN_BINARY_DIR} --target check-torch-mlir-python
+#
+#      - name: Install
+#        run: |
+#          cmake --build ${TORCH_MLIR_MAIN_BINARY_DIR} --target install
+#          ccache -s
+#
+#      - name: Make tarballs
+#        run: |
+#          OUTPUT="torch-mlir-${TORCH_MLIR_COMMIT}-${{ matrix.os }}"
+#          XZ_OPT='-T0 -9' tar -cJf "${OUTPUT}.tar.xz" ${TORCH_MLIR_MAIN_SRC_DIR}/torch_mlir_install
+#
+#          mkdir -p ${{ github.sha }}/
+#          mv *.tar.xz ${{ github.sha }}/
+
+  upload-tarballs:
+
+    runs-on: ubuntu-latest
+
+    needs: build
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build_artifact
+          path: ${{ github.sha }}
+
+      - name: Set up a release page
+        id: setup_release
+        run: |
+          TORCH_MLIR_COMMIT="${{ needs.build.outputs.torch_mlir_commit }}"
+          echo "Created at $(date) build of [https://github.com/llvm/torch-mlir/commit/${TORCH_MLIR_COMMIT}](https://github.com/llvm/torch-mlir/commit/${TORCH_MLIR_COMMIT})" > body.md
+          echo "{tag_name}=${tag_name}" | tee -a $GITHUB_OUTPUT
+          echo "{release_title}=${tag_name}" | tee -a $GITHUB_OUTPUT
+
+      - name: Upload tarballs
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "${{ github.sha }}/*.tar.xz,${{ github.sha }}/*.whl,${{ github.sha }}/*.exe"
+          bodyFile: body.md
+          token: "${{ secrets.GITHUB_TOKEN }}"
+          tag: "${{ steps.setup_release.outputs.tag_name }}"
+          name: "${{ steps.setup_release.outputs.release_title }}"
+          removeArtifacts: false
+          allowUpdates: true
+          replacesArtifacts: true
