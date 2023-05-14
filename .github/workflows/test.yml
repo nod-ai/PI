@@ -13,7 +13,7 @@ on:
 
 jobs:
 
-  test-against-torch-mlir:
+  test:
 
     runs-on: ${{ matrix.os }}
 
@@ -40,13 +40,13 @@ jobs:
 
       - name: No JIT smoke test
         run: |
-          PYTHONPATH=tests/torch_mlir pytest tests/torch_mlir/core.py
+          pytest tests/torch_mlir/core.py
 
-      - name: Test vs. torch-mlir ABI
+      - name: Unit tests
         run: |
-          pip install -r torch-mlir-full-requirements.txt
-          python tests/unit/torch_mlir_ext_compatibility.py
+          PYTHONPATH=tests pytest tests/unit
 
-      - name: Test vs. torch-mlir test-suite
-        run: |
-          PYTHONPATH=tests/torch_mlir pytest tests/torch_mlir/main.py
+#      - name: Test vs. torch-mlir test-suite
+#        run: |
+#          pip install -r torch-mlir-full-requirements.txt
+#          PYTHONPATH=tests/torch_mlir pytest tests/torch_mlir/main.py

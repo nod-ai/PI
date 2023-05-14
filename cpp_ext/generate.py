@@ -37,13 +37,13 @@
 #     print(f"_({ff}Value) \\ ")
 
 
-from torch_mlir.dialects.torch.importer.jit_ir.build_tools.torch_ods_gen import (
-    TORCH_TYPE_TO_ODS_TYPE,
-)
-
-for k, v in sorted(TORCH_TYPE_TO_ODS_TYPE.items(), key=lambda x: x[1]):
-    v = v.replace("Type", "")
-    print(f"""
-bool isA{v}Value(MlirValue value) {{
-  return isA{v}Type(mlirValueGetType(value));
-}}""")
+# from torch_mlir.dialects.torch.importer.jit_ir.build_tools.torch_ods_gen import (
+#     TORCH_TYPE_TO_ODS_TYPE,
+# )
+#
+# for k, v in sorted(TORCH_TYPE_TO_ODS_TYPE.items(), key=lambda x: x[1]):
+#     v = v.replace("Type", "")
+#     print(f"""
+# bool isA{v}Value(MlirValue value) {{
+#   return isA{v}Type(mlirValueGetType(value));
+# }}""")

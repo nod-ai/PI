@@ -1,7 +1,31 @@
 import atexit
+import contextlib
+import ctypes
 import inspect
+import sys
 
 import numpy as np
+
+
+@contextlib.contextmanager
+def dl_open_guard():
+    old_flags = sys.getdlopenflags()
+    sys.setdlopenflags(old_flags | ctypes.RTLD_GLOBAL)
+    yield
+    sys.setdlopenflags(old_flags)
+
+
+with dl_open_guard():
+    # noinspection PyUnresolvedReferences
+    from ._mlir_libs import _mlir
+
+    # noinspection PyUnresolvedReferences
+    from ._mlir_libs import _pi_mlir
+
+    # noinspection PyUnresolvedReferences
+    from ._mlir_libs import _torchMlir
+
+from ._mlir_libs._pi_mlir import ops
 
 from ._mlir_libs._pi_mlir import (
     # AnyTorchDictKeyType,
@@ -73,8 +97,6 @@ from ._mlir_libs._pi_mlir import (
     Torch_TupleValue,
     Torch_ValueTensorValue,
 )
-
-from ._mlir_libs._pi_mlir import nn
 
 from .dialects import _ods_common
 from .dialects._ods_common import get_op_result_or_value

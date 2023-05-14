@@ -19,6 +19,7 @@ declare_mlir_python_extension(
   SOURCES
   TorchTypes.cpp
   TorchValues.cpp
+  TorchOps.cpp
   PiExtension.cpp)
 
 set(PYBINDINGS_SRC "${MLIR_INSTALL_PREFIX}/src/python/MLIRPythonExtension.Core")

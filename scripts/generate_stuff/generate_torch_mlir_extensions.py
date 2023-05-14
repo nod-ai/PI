@@ -382,19 +382,6 @@ def raw_emit_op(
     has_folder: bool,
     has_canonicalizer: bool,
 ):
-    # op_name, cpp_class_name = operator.get_mlir_names()
-    # if cpp_class_name in BLACKLIST:
-    #     return
-    # if operator.unqualified_name == "torch.quantized.linear":
-    #     return
-    #
-    # if operator.is_vararg:
-    #     warnings.warn(f"{cpp_class_name} is vararg; skipping")
-    #     return
-    #
-    # if operator.is_varret:
-    #     warnings.warn(f"{cpp_class_name} is vararg; skipping")
-    #     return
 
     UNIQUE_OPS.append(operator)
     ALL_OPS.append(operator.unqualified_name)
