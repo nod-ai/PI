@@ -432,7 +432,6 @@ def print_ods_types():
         emit_ops(emitter_td, registry)
 
     ODS_TYPES = {v.replace("Any", "") for k, v in TORCH_TYPE_TO_ODS_TYPE.items()}
-    # print(sorted(ODS_TYPES))
 
     torch_wrappers_fp = "_torch_wrappers.py"
     with open(torch_wrappers_fp, "w") as stubs_td:
@@ -449,10 +448,6 @@ def print_ods_types():
 
         for operator in sorted(UNIQUE_OPS, key=lambda o: o.unqualified_name):
             op_name, cpp_class_name = operator.get_mlir_names()
-            multiple_results = len(operator.returns) > 1
-
-            def generic_result_name(i):
-                return "result" + (str(i) if multiple_results else "")
 
             if operator.is_vararg:
                 params = ["operands"]

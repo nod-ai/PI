@@ -74,6 +74,8 @@ from ._mlir_libs._pi_mlir import (
     Torch_ValueTensorValue,
 )
 
+from ._mlir_libs._pi_mlir import nn
+
 from .dialects import _ods_common
 from .dialects._ods_common import get_op_result_or_value
 from .ir import (
