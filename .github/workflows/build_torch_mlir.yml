@@ -106,7 +106,8 @@ jobs:
       - name: Make tarballs
         run: |
           OUTPUT="torch-mlir-${TORCH_MLIR_COMMIT}-${{ matrix.os }}"
-          XZ_OPT='-T0 -9' tar -cJf "${OUTPUT}.tar.xz" $TORCH_MLIR_INSTALL_DIR
+          cd "$TORCH_MLIR_INSTALL_DIR"/..
+          XZ_OPT='-T0 -9' tar -cJf "${OUTPUT}.tar.xz" torch_mlir_install
 
           mkdir -p ${{ github.sha }}/
           mv *.tar.xz ${{ github.sha }}/
@@ -140,15 +141,15 @@ jobs:
         run: |
           TORCH_MLIR_COMMIT="${{ needs.build.outputs.TORCH_MLIR_COMMIT }}"
           echo "Created at $(date) build of [https://github.com/llvm/torch-mlir/commit/${TORCH_MLIR_COMMIT}](https://github.com/llvm/torch-mlir/commit/${TORCH_MLIR_COMMIT})" > body.md
-          echo "tag_name=${tag_name}" | tee -a $GITHUB_OUTPUT
-          echo "release_title=${tag_name}" | tee -a $GITHUB_OUTPUT
+          echo "tag_name=torch-mlir-${TORCH_MLIR_COMMIT}" | tee -a $GITHUB_OUTPUT
+          echo "release_title=torch-mlir-${TORCH_MLIR_COMMIT}" | tee -a $GITHUB_OUTPUT
 
       - name: Upload tarballs
         uses: ncipollo/release-action@v1
         with:
           artifacts: "${{ github.sha }}/*.tar.xz,${{ github.sha }}/*.whl,${{ github.sha }}/*.exe"
           bodyFile: body.md
-          token: "${{ secrets.GITHUB_TOKEN }}"
+          token: "${{ secrets.PI_CI }}"
           tag: "${{ steps.setup_release.outputs.tag_name }}"
           name: "${{ steps.setup_release.outputs.release_title }}"
           removeArtifacts: false
