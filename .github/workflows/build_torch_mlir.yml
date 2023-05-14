@@ -1,12 +1,10 @@
 name: Build torch-mlir
 
 on:
-  pull_request:
-    branches:
-      - main
-  push:
-    branches:
-      - main
+# uncomment these when iterating on this file
+#  pull_request:
+#    branches:
+#      - main
   workflow_dispatch:
 
 jobs:
@@ -114,7 +112,6 @@ jobs:
 
       - name: Upload an artifact
         uses: actions/upload-artifact@v3
-#        if: github.event_name == 'workflow_dispatch'
         with:
           if-no-files-found: error
           name: build_artifact
@@ -144,7 +141,7 @@ jobs:
           echo "tag_name=torch-mlir-${TORCH_MLIR_COMMIT}" | tee -a $GITHUB_OUTPUT
           echo "release_title=torch-mlir-${TORCH_MLIR_COMMIT}" | tee -a $GITHUB_OUTPUT
 
-      - name: Upload tarballs
+      - name: Release current commit
         uses: ncipollo/release-action@v1
         with:
           artifacts: "${{ github.sha }}/*.tar.xz,${{ github.sha }}/*.whl,${{ github.sha }}/*.exe"
@@ -153,5 +150,17 @@ jobs:
           tag: "${{ steps.setup_release.outputs.tag_name }}"
           name: "${{ steps.setup_release.outputs.release_title }}"
           removeArtifacts: false
+          allowUpdates: true
+          replacesArtifacts: true
+          
+      - name: Update latest release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "${{ github.sha }}/*.tar.xz,${{ github.sha }}/*.whl,${{ github.sha }}/*.exe"
+          bodyFile: body.md
+          token: "${{ secrets.PI_CI }}"
+          tag: "torch-mlir-latest"
+          name: "torch-mlir-latest"
+          removeArtifacts: true
           allowUpdates: true
           replacesArtifacts: true
