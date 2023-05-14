@@ -1,9 +1,10 @@
 name: Build torch-mlir
 
 on:
-  push:
-    branches:
-      - main
+# uncomment these when iterating on this file
+#  pull_request:
+#    branches:
+#      - main
   workflow_dispatch:
 
 jobs:
@@ -12,14 +13,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-latest ]
+        os: [ ubuntu-latest, macos-latest ]
     outputs:
-      torch_mlir_commit: ${{ steps.get_torch_mlir_commit.outputs.TORCH_MLIR_COMMIT }}
+      TORCH_MLIR_COMMIT: ${{ steps.get_torch_mlir_commit.outputs.TORCH_MLIR_COMMIT }}
     steps:
       - name: Compute torch-mlir base path
         run: |
           echo "TORCH_MLIR_MAIN_SRC_DIR=${GITHUB_WORKSPACE}/sandbox" | tee -a $GITHUB_ENV
           echo "TORCH_MLIR_MAIN_BINARY_DIR=${GITHUB_WORKSPACE}/sandbox/build" | tee -a $GITHUB_ENV
+          echo "TORCH_MLIR_INSTALL_DIR=${GITHUB_WORKSPACE}/torch_mlir_install" | tee -a $GITHUB_ENV
 
       - name: Set up Python
         uses: actions/setup-python@13ae5bb136fac2878aff31522b9efb785519f984 # v4.3.0
@@ -33,15 +35,18 @@ jobs:
           path: sandbox
           submodules: recursive
           
-      - name: Checkout torch-mlir
+      - name: Get torch-mlir commit
         id: get_torch_mlir_commit
         run: |
+          cd $TORCH_MLIR_MAIN_SRC_DIR
           TORCH_MLIR_COMMIT=$(git rev-parse --short HEAD)
           echo "TORCH_MLIR_COMMIT=${TORCH_MLIR_COMMIT}" | tee -a $GITHUB_ENV
-          echo "{TORCH_MLIR_COMMIT}=${TORCH_MLIR_COMMIT}" | tee -a $GITHUB_OUTPUT
+          echo "TORCH_MLIR_COMMIT=${TORCH_MLIR_COMMIT}" | tee -a $GITHUB_OUTPUT
 
       - name: Install Python depends
         run: |
+          python -m pip install -r ${TORCH_MLIR_MAIN_SRC_DIR}/build-requirements.txt
+          python -m pip install -r ${TORCH_MLIR_MAIN_SRC_DIR}/pytorch-requirements.txt
           python -m pip install -r ${TORCH_MLIR_MAIN_SRC_DIR}/whl-requirements.txt
 
       - name: Install Ninja
@@ -56,46 +61,61 @@ jobs:
 
       - name: Configure CMake
         run: |
-          cmake \
+          CMAKE_CONFIGS="\
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_CXX_COMPILER=clang++ \
             -DCMAKE_C_COMPILER=clang \
-            -DCMAKE_INSTALL_PREFIX="${TORCH_MLIR_MAIN_SRC_DIR}/torch_mlir_install" \
+            -DCMAKE_INSTALL_PREFIX=$TORCH_MLIR_INSTALL_DIR \
             -DLLVM_CCACHE_BUILD=ON \
             -DLLVM_ENABLE_ASSERTIONS=ON \
-            -DLLVM_ENABLE_LLD=ON \
+            -DCMAKE_LINKER=lld \
             -DLLVM_ENABLE_PROJECTS=mlir \
             -DLLVM_ENABLE_ZSTD=OFF \
-            -DLLVM_EXTERNAL_PROJECTS="torch-mlir;torch-mlir-dialects" \
-            -DLLVM_EXTERNAL_TORCH_MLIR_DIALECTS_SOURCE_DIR="${TORCH_MLIR_MAIN_SRC_DIR}/externals/llvm-external-projects/torch-mlir-dialects" \
-            -DLLVM_EXTERNAL_TORCH_MLIR_SOURCE_DIR="$TORCH_MLIR_MAIN_SRC_DIR" \
+            -DLLVM_EXTERNAL_PROJECTS=torch-mlir;torch-mlir-dialects \
+            -DLLVM_EXTERNAL_TORCH_MLIR_DIALECTS_SOURCE_DIR=${TORCH_MLIR_MAIN_SRC_DIR}/externals/llvm-external-projects/torch-mlir-dialects \
+            -DLLVM_EXTERNAL_TORCH_MLIR_SOURCE_DIR=$TORCH_MLIR_MAIN_SRC_DIR \
             -DLLVM_INCLUDE_UTILS=ON \
             -DLLVM_INSTALL_UTILS=ON \
             -DLLVM_USE_HOST_TOOLS=ON \
             -DMLIR_ENABLE_BINDINGS_PYTHON=ON \
-            -DPython3_EXECUTABLE="$(which python)" \
+            -DPython3_EXECUTABLE=$(which python) \
+            -DTORCH_MLIR_ENABLE_ONLY_MLIR_PYTHON_BINDINGS=ON \
             -DTORCH_MLIR_ENABLE_LTC=OFF \
             -DTORCH_MLIR_ENABLE_STABLEHLO=OFF \
-            -DTORCH_MLIR_USE_INSTALLED_PYTORCH=ON \
-            -S${TORCH_MLIR_MAIN_SRC_DIR}/externals/llvm-project/llvm \
-            -B${TORCH_MLIR_MAIN_BINARY_DIR} -G Ninja
+            -DTORCH_MLIR_USE_INSTALLED_PYTORCH=ON"
+          
+          if [ x"${{ matrix.os }}" == x"macos-latest" ]; then
+            CMAKE_CONFIGS="${CMAKE_CONFIGS} \
+              -DCMAKE_OSX_ARCHITECTURES=arm64 \
+              -DLLVM_TARGETS_TO_BUILD=AArch64 \
+              -DMACOSX_DEPLOYMENT_TARGET=12.0"
+          fi
+          
+          cmake -G Ninja \
+                $CMAKE_CONFIGS \
+                -S${TORCH_MLIR_MAIN_SRC_DIR}/externals/llvm-project/llvm \
+                -B${TORCH_MLIR_MAIN_BINARY_DIR}
 
-#      - name: Build
-#        run: |
-#          cmake --build ${TORCH_MLIR_MAIN_BINARY_DIR} --target check-torch-mlir-python
-#
-#      - name: Install
-#        run: |
-#          cmake --build ${TORCH_MLIR_MAIN_BINARY_DIR} --target install
-#          ccache -s
-#
-#      - name: Make tarballs
-#        run: |
-#          OUTPUT="torch-mlir-${TORCH_MLIR_COMMIT}-${{ matrix.os }}"
-#          XZ_OPT='-T0 -9' tar -cJf "${OUTPUT}.tar.xz" ${TORCH_MLIR_MAIN_SRC_DIR}/torch_mlir_install
-#
-#          mkdir -p ${{ github.sha }}/
-#          mv *.tar.xz ${{ github.sha }}/
+      - name: Build distro
+        run: |
+          cmake --build ${TORCH_MLIR_MAIN_BINARY_DIR} --target install
+          ccache -s
+
+      - name: Make tarballs
+        run: |
+          OUTPUT="torch-mlir-${TORCH_MLIR_COMMIT}-${{ matrix.os }}"
+          cd "$TORCH_MLIR_INSTALL_DIR"/..
+          XZ_OPT='-T0 -9' tar -cJf "${OUTPUT}.tar.xz" torch_mlir_install
+
+          mkdir -p ${{ github.sha }}/
+          mv *.tar.xz ${{ github.sha }}/
+
+      - name: Upload an artifact
+        uses: actions/upload-artifact@v3
+        with:
+          if-no-files-found: error
+          name: build_artifact
+          path: ${{ github.sha }}
 
   upload-tarballs:
 
@@ -116,19 +136,31 @@ jobs:
       - name: Set up a release page
         id: setup_release
         run: |
-          TORCH_MLIR_COMMIT="${{ needs.build.outputs.torch_mlir_commit }}"
+          TORCH_MLIR_COMMIT="${{ needs.build.outputs.TORCH_MLIR_COMMIT }}"
           echo "Created at $(date) build of [https://github.com/llvm/torch-mlir/commit/${TORCH_MLIR_COMMIT}](https://github.com/llvm/torch-mlir/commit/${TORCH_MLIR_COMMIT})" > body.md
-          echo "{tag_name}=${tag_name}" | tee -a $GITHUB_OUTPUT
-          echo "{release_title}=${tag_name}" | tee -a $GITHUB_OUTPUT
+          echo "tag_name=torch-mlir-${TORCH_MLIR_COMMIT}" | tee -a $GITHUB_OUTPUT
+          echo "release_title=torch-mlir-${TORCH_MLIR_COMMIT}" | tee -a $GITHUB_OUTPUT
 
-      - name: Upload tarballs
+      - name: Release current commit
         uses: ncipollo/release-action@v1
         with:
           artifacts: "${{ github.sha }}/*.tar.xz,${{ github.sha }}/*.whl,${{ github.sha }}/*.exe"
           bodyFile: body.md
-          token: "${{ secrets.GITHUB_TOKEN }}"
+          token: "${{ secrets.PI_CI }}"
           tag: "${{ steps.setup_release.outputs.tag_name }}"
           name: "${{ steps.setup_release.outputs.release_title }}"
           removeArtifacts: false
+          allowUpdates: true
+          replacesArtifacts: true
+          
+      - name: Update latest release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "${{ github.sha }}/*.tar.xz,${{ github.sha }}/*.whl,${{ github.sha }}/*.exe"
+          bodyFile: body.md
+          token: "${{ secrets.PI_CI }}"
+          tag: "torch-mlir-latest"
+          name: "torch-mlir-latest"
+          removeArtifacts: true
           allowUpdates: true
           replacesArtifacts: true
