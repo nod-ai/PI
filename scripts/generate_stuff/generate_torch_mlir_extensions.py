@@ -17,6 +17,9 @@ from torch_mlir.dialects.torch.importer.jit_ir.build_tools.registry import (
     _get_default_value,
 )
 from torch_mlir.dialects.torch.importer.jit_ir.build_tools.utils import TextEmitter
+from torch_mlir.dialects.torch.importer.jit_ir.build_tools.torch_ods_gen import (
+    TORCH_TYPE_TO_ODS_TYPE,
+)
 from torch_mlir.dialects import torch as torch_dialect
 
 
@@ -35,8 +38,8 @@ UNIQUE_OPS = []
 def py_reserved_keywords(k):
     subs = {
         "from": "from_",
-        "self": "self_",
-        "list": "list_",
+        # "self": "self_",
+        # "list": "list_",
     }
     return subs.get(k, k)
 
@@ -379,19 +382,19 @@ def raw_emit_op(
     has_folder: bool,
     has_canonicalizer: bool,
 ):
-    op_name, cpp_class_name = operator.get_mlir_names()
-    if cpp_class_name in BLACKLIST:
-        return
-    if operator.unqualified_name == "torch.quantized.linear":
-        return
-
-    if operator.is_vararg:
-        warnings.warn(f"{cpp_class_name} is vararg; skipping")
-        return
-
-    if operator.is_varret:
-        warnings.warn(f"{cpp_class_name} is vararg; skipping")
-        return
+    # op_name, cpp_class_name = operator.get_mlir_names()
+    # if cpp_class_name in BLACKLIST:
+    #     return
+    # if operator.unqualified_name == "torch.quantized.linear":
+    #     return
+    #
+    # if operator.is_vararg:
+    #     warnings.warn(f"{cpp_class_name} is vararg; skipping")
+    #     return
+    #
+    # if operator.is_varret:
+    #     warnings.warn(f"{cpp_class_name} is vararg; skipping")
+    #     return
 
     UNIQUE_OPS.append(operator)
     ALL_OPS.append(operator.unqualified_name)
@@ -408,6 +411,7 @@ from torch_mlir.dialects.torch.importer.jit_ir.build_tools.torch_ods_gen import 
 
 def generate_exts():
     registry = Registry.load()
+
     with open("JitOperatorRegistry.txt", "w") as f:
         for op in registry.by_unique_key.values():
             print(op, file=f)
@@ -417,18 +421,76 @@ def generate_exts():
         emit_ops(emitter_td, registry)
 
 
+def my_get_ods_type(a):
+    return get_ods_type(a).replace("Any", "")
+
+
+def print_ods_types():
+    registry = Registry.load()
+    with tempfile.NamedTemporaryFile() as f_td:
+        emitter_td = TextEmitter(f_td)
+        emit_ops(emitter_td, registry)
+
+    ODS_TYPES = {v.replace("Any", "") for k, v in TORCH_TYPE_TO_ODS_TYPE.items()}
+    # print(sorted(ODS_TYPES))
+
+    torch_wrappers_fp = "_torch_wrappers.py"
+    with open(torch_wrappers_fp, "w") as stubs_td:
+        stubs_emitter_td = TextEmitter(stubs_td)
+        stubs_emitter_td._INDENT = "    "
+        stub_td = lambda *args: stubs_emitter_td.print(*args)
+        stub_td("from ._mlir_libs._pi_mlir import (")
+        with stubs_emitter_td.indent():
+            for t in sorted(ODS_TYPES):
+                stub_td(f"{t},")
+            stub_td(f"Variadic,")
+        stub_td(")\n")
+        stub_td("from .dialects import torch")
+
+        for operator in sorted(UNIQUE_OPS, key=lambda o: o.unqualified_name):
+            op_name, cpp_class_name = operator.get_mlir_names()
+            multiple_results = len(operator.returns) > 1
+
+            def generic_result_name(i):
+                return "result" + (str(i) if multiple_results else "")
+
+            if operator.is_vararg:
+                params = ["operands"]
+                params_types = ["Variadic[TorchType]"]
+            else:
+                params = [
+                    py_reserved_keywords(arg["name"]) for arg in operator.arguments
+                ]
+                params_types = [
+                    my_get_ods_type(arg["type"]) for arg in operator.arguments
+                ]
+            if operator.is_varret:
+                ret_type_str = "Variadic[TorchType]"
+            else:
+                ret_type_str = ", ".join(
+                    [
+                        f"""{my_get_ods_type(ret["type"])}"""
+                        for e, ret in enumerate(operator.returns)
+                    ]
+                )
+            param_str = ", ".join(f"{p}: {t}" for p, t in zip(params, params_types))
+            if ret_type_str:
+                if "," in ret_type_str:
+                    ret_type_str = f" -> ({ret_type_str}):"
+                else:
+                    ret_type_str = f" -> {ret_type_str}:"
+
+            else:
+                ret_type_str = ":"
+            stub_td(f"def {operator.unqualified_name}({param_str}){ret_type_str}")
+            with stubs_emitter_td.indent():
+                stub_td(f"return torch.{cpp_class_name}({', '.join(params)})")
+
+
 def main(args):
     generate_exts()
     generate_torch_wrappers(args.wrapper_dir)
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Generate PI wrappers")
-    parser.add_argument(
-        "--wrapper_dir",
-        help="directory where PyTorch wrappers should be placed",
-        default="../../pi",
-        type=Path,
-    )
-    args = parser.parse_args()
-    main(args)
+    print_ods_types()

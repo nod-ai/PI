@@ -3,33 +3,47 @@ from textwrap import dedent
 
 from pi.mlir.utils import mlir_mod_ctx
 from pi.mlir import (
-    TorchAnyValue,
-    TorchBoolValue,
-    TorchDeviceValue,
-    TorchDictValue,
-    TorchFloatValue,
-    TorchGeneratorValue,
-    TorchIntValue,
-    TorchLinearParamsValue,
-    TorchListValue,
-    TorchNnModuleValue,
-    TorchNonValueTensorValue,
-    TorchNoneValue,
-    TorchNumberValue,
-    TorchOptionalValue,
-    TorchQInt8Value,
-    TorchQUInt8Value,
-    TorchStringValue,
-    TorchTupleValue,
-    TorchUnionValue,
-    TorchValueTensorValue,
-    TorchIntType,
-    TorchBoolType,
-    TorchFloatType,
-    TorchTupleType,
-    TorchListType,
-    TorchNonValueTensorType,
-    TorchValueTensorType,
+    # AnyTorchDictKeyValue,
+    # AnyTorchListOfOptionalIntValue,
+    # AnyTorchListOfOptionalTensorValue,
+    # AnyTorchListOfTensorValue,
+    AnyTorchListOfTorchBoolValue,
+    AnyTorchListOfTorchIntValue,
+    AnyTorchListOfTorchStringValue,
+    AnyTorchListValue,
+    AnyTorchListType,
+    AnyTorchOptionalBoolValue,
+    AnyTorchOptionalDeviceValue,
+    AnyTorchOptionalFloatValue,
+    AnyTorchOptionalGeneratorValue,
+    AnyTorchOptionalIntValue,
+    AnyTorchOptionalStringValue,
+    # AnyTorchOptionalTensorValue,
+
+    AnyTorchOptionalValue,
+
+    # AnyTorchOptionalListOfTorchIntValue,
+    # AnyTorchTensorValue,
+    Torch_BoolType,
+    Torch_DeviceType,
+    Torch_DictType,
+    Torch_FloatType,
+    Torch_IntType,
+
+    Torch_BoolValue,
+    Torch_DeviceValue,
+    Torch_DictValue,
+    Torch_FloatValue,
+    Torch_IntValue,
+    Torch_LinearParamsValue,
+    Torch_NnModuleValue,
+    Torch_NonValueTensorValue,
+    Torch_NoneValue,
+    Torch_NumberValue,
+    Torch_StringValue,
+    Torch_TupleValue,
+    Torch_TupleType,
+    Torch_ValueTensorValue,
     torch_dialect as torch,
     _fp64ElementsAttr,
 )
@@ -71,56 +85,56 @@ class TestTorchValues:
                 str(tfloat.owner)
                 == "%float1.000000e00 = torch.constant.float 1.000000e+00"
             )
-            assert TorchFloatValue.isinstance(tfloat)
+            assert Torch_FloatValue.isinstance(tfloat)
             assert (
                 str(tfloat)
-                == "TorchFloatValue(%float1.000000e00 = torch.constant.float 1.000000e+00)"
+                == "Torch_FloatValue(%float1.000000e00 = torch.constant.float 1.000000e+00)"
             )
 
             tint = torch.ConstantIntOp(1)
             assert str(tint.owner) == "%int1 = torch.constant.int 1"
-            assert TorchIntValue.isinstance(tint)
-            assert str(tint) == "TorchIntValue(%int1 = torch.constant.int 1)"
+            assert Torch_IntValue.isinstance(tint)
+            assert str(tint) == "Torch_IntValue(%int1 = torch.constant.int 1)"
 
             tbool = torch.ConstantBoolOp(True)
             assert str(tbool.owner) == "%true = torch.constant.bool true"
-            assert TorchBoolValue.isinstance(tbool)
-            assert str(tbool) == "TorchBoolValue(%true = torch.constant.bool true)"
+            assert Torch_BoolValue.isinstance(tbool)
+            assert str(tbool) == "Torch_BoolValue(%true = torch.constant.bool true)"
 
             tdevice = torch.ConstantDeviceOp("cuda")
             assert str(tdevice.owner) == '%cuda = torch.constant.device "cuda"'
-            assert TorchDeviceValue.isinstance(tdevice)
+            assert Torch_DeviceValue.isinstance(tdevice)
             assert (
-                str(tdevice) == 'TorchDeviceValue(%cuda = torch.constant.device "cuda")'
+                str(tdevice) == 'Torch_DeviceValue(%cuda = torch.constant.device "cuda")'
             )
 
             tnone = torch.ConstantNoneOp()
             assert str(tnone.owner) == "%none = torch.constant.none"
-            assert TorchNoneValue.isinstance(tnone)
-            assert str(tnone) == "TorchNoneValue(%none = torch.constant.none)"
+            assert Torch_NoneValue.isinstance(tnone)
+            assert str(tnone) == "Torch_NoneValue(%none = torch.constant.none)"
 
     def test_agg_values(self):
         with mlir_mod_ctx():
-            tint = TorchIntType.get()
-            tfloat = TorchFloatType.get()
-            tbool = TorchBoolType.get()
+            tint = Torch_IntType.get()
+            tfloat = Torch_FloatType.get()
+            tbool = Torch_BoolType.get()
 
             tintv = torch.ConstantIntOp(1)
             tfloatv = torch.ConstantFloatOp(1.0)
             tboolv = torch.ConstantBoolOp(True)
 
-            t = TorchTupleType.get((tint, tfloat, tbool))
+            t = Torch_TupleType.get((tint, tfloat, tbool))
             tup = torch.PrimTupleConstructOp(t, (tintv, tfloatv, tboolv))
             assert (
                 str(tup)
-                == "TorchTupleValue(%0 = torch.prim.TupleConstruct %int1, %float1.000000e00, %true : !torch.int, !torch.float, !torch.bool -> !torch.tuple<int, float, bool>)"
+                == "Torch_TupleValue(%0 = torch.prim.TupleConstruct %int1, %float1.000000e00, %true : !torch.int, !torch.float, !torch.bool -> !torch.tuple<int, float, bool>)"
             )
 
-            t = TorchListType.get(tint)
+            t = AnyTorchListType.get(tint)
             lis = torch.PrimListConstructOp(t, (tintv, tintv, tintv))
             assert (
                 str(lis)
-                == "TorchListValue(%1 = torch.prim.ListConstruct %int1, %int1, %int1 : (!torch.int, !torch.int, !torch.int) -> !torch.list<int>)"
+                == "AnyTorchListValue(%1 = torch.prim.ListConstruct %int1, %int1, %int1 : (!torch.int, !torch.int, !torch.int) -> !torch.list<int>)"
             )
 
     def test_tensor_values(self):
@@ -128,11 +142,11 @@ class TestTorchValues:
             t = torch.NonValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
             assert (
                 str(t)
-                == "TorchNonValueTensorValue(%0 = torch.tensor.literal(dense<1.000000e+00> : tensor<2x2xf64>) : !torch.tensor<[2,2],f64>)"
+                == "Torch_NonValueTensorValue(%0 = torch.tensor.literal(dense<1.000000e+00> : tensor<2x2xf64>) : !torch.tensor<[2,2],f64>)"
             )
 
             t = torch.ValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
             assert (
                 str(t)
-                == "TorchValueTensorValue(%1 = torch.vtensor.literal(dense<1.000000e+00> : tensor<2x2xf64>) : !torch.vtensor<[2,2],f64>)"
+                == "Torch_ValueTensorValue(%1 = torch.vtensor.literal(dense<1.000000e+00> : tensor<2x2xf64>) : !torch.vtensor<[2,2],f64>)"
             )

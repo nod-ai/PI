@@ -17,7 +17,26 @@ declare_mlir_python_extension(
   ADD_TO_PARENT
   PiPythonSources
   SOURCES
+  TorchTypes.cpp
+  TorchValues.cpp
   PiExtension.cpp)
+
+set(PYBINDINGS_SRC "${MLIR_INSTALL_PREFIX}/src/python/MLIRPythonExtension.Core")
+target_include_directories(PiPythonSources.Extension
+                           INTERFACE "${PYBINDINGS_SRC}")
+# for SetPyError which somehow magically get's linked somewhere...
+target_sources(PiPythonSources.Extension
+               INTERFACE "${PYBINDINGS_SRC}/PybindUtils.cpp")
+
+execute_process(
+  COMMAND python ${CMAKE_SOURCE_DIR}/scripts/regex_mlir_bindings.py
+          ${PYBINDINGS_SRC}/IRModule.h)
+execute_process(
+  COMMAND python ${CMAKE_SOURCE_DIR}/scripts/regex_mlir_bindings.py
+          ${PYBINDINGS_SRC}/IRCore.cpp)
+execute_process(
+  COMMAND python ${CMAKE_SOURCE_DIR}/scripts/regex_mlir_bindings.py
+          ${PYBINDINGS_SRC}/IRAffine.cpp)
 
 declare_mlir_python_extension(
   PiPythonSources.SiteInitialize

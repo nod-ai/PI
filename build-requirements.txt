@@ -1,7 +1,12 @@
+-f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
+--pre
+torch
+
 PyYAML
 black
 cibuildwheel
 cmake
+cmake-format
 ninja
 numpy
 pip

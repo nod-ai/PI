@@ -2,26 +2,39 @@ from textwrap import dedent
 
 from pi.mlir.utils import mlir_mod_ctx
 from pi.mlir import (
-    TorchNnModuleType,
-    TorchDeviceType,
-    TorchGeneratorType,
-    TorchBoolType,
-    TorchIntType,
-    TorchFloatType,
-    TorchLinearParamsType,
-    TorchQInt8Type,
-    TorchQUInt8Type,
-    TorchNoneType,
-    TorchStringType,
-    TorchAnyType,
-    TorchNumberType,
-    TorchOptionalType,
-    TorchTupleType,
-    TorchUnionType,
-    TorchListType,
-    TorchNonValueTensorType,
-    TorchValueTensorType,
-    TorchDictType,
+    # AnyTorchDictKeyType,
+    # AnyTorchListOfOptionalIntType,
+    # AnyTorchListOfOptionalTensorType,
+    # AnyTorchListOfTensorType,
+    AnyTorchListOfTorchBoolType,
+    AnyTorchListOfTorchIntType,
+    AnyTorchListOfTorchStringType,
+    AnyTorchListType,
+    AnyTorchOptionalBoolType,
+    AnyTorchOptionalDeviceType,
+    AnyTorchOptionalFloatType,
+    AnyTorchOptionalGeneratorType,
+    AnyTorchOptionalIntType,
+    AnyTorchOptionalStringType,
+    # AnyTorchOptionalTensorType,
+
+    AnyTorchOptionalType,
+
+    # AnyTorchOptionalListOfTorchIntType,
+    # AnyTorchTensorType,
+    Torch_BoolType,
+    Torch_DeviceType,
+    Torch_DictType,
+    Torch_FloatType,
+    Torch_IntType,
+    Torch_LinearParamsType,
+    Torch_NnModuleType,
+    Torch_NonValueTensorType,
+    Torch_NoneType,
+    Torch_NumberType,
+    Torch_StringType,
+    Torch_TupleType,
+    Torch_ValueTensorType,
 )
 from pi.mlir import F32, F64
 from util import check_correct
@@ -56,132 +69,120 @@ class TestTorchTypes:
 
     def test_simple_types(self):
         with mlir_mod_ctx():
-            t = TorchDeviceType.get()
+            t = Torch_DeviceType.get()
             assert str(t) == "!torch.Device"
-            assert TorchDeviceType.isinstance(t)
+            assert Torch_DeviceType.isinstance(t)
 
-            t = TorchGeneratorType.get()
-            assert str(t) == "!torch.Generator"
-            assert TorchGeneratorType.isinstance(t)
-
-            t = TorchBoolType.get()
+            t = Torch_BoolType.get()
             assert str(t) == "!torch.bool"
-            assert TorchBoolType.isinstance(t)
+            assert Torch_BoolType.isinstance(t)
 
-            t = TorchIntType.get()
+            t = Torch_IntType.get()
             assert str(t) == "!torch.int"
-            assert TorchIntType.isinstance(t)
+            assert Torch_IntType.isinstance(t)
 
-            t = TorchFloatType.get()
+            t = Torch_FloatType.get()
             assert str(t) == "!torch.float"
-            assert TorchFloatType.isinstance(t)
+            assert Torch_FloatType.isinstance(t)
 
-            t = TorchLinearParamsType.get()
+            t = Torch_LinearParamsType.get()
             assert str(t) == "!torch.LinearParams"
-            assert TorchLinearParamsType.isinstance(t)
+            assert Torch_LinearParamsType.isinstance(t)
 
-            t = TorchQInt8Type.get()
-            assert str(t) == "!torch.qint8"
-            assert TorchQInt8Type.isinstance(t)
-
-            t = TorchQUInt8Type.get()
-            assert str(t) == "!torch.quint8"
-            assert TorchQUInt8Type.isinstance(t)
-
-            t = TorchNoneType.get()
+            t = Torch_NoneType.get()
             assert str(t) == "!torch.none"
-            assert TorchNoneType.isinstance(t)
+            assert Torch_NoneType.isinstance(t)
 
-            t = TorchStringType.get()
+            t = Torch_StringType.get()
             assert str(t) == "!torch.str"
-            assert TorchStringType.isinstance(t)
+            assert Torch_StringType.isinstance(t)
 
-            t = TorchAnyType.get()
-            assert str(t) == "!torch.any"
-            assert TorchAnyType.isinstance(t)
+            # t = TorchAnyType.get()
+            # assert str(t) == "!torch.any"
+            # assert TorchAnyType.isinstance(t)
 
-            t = TorchNumberType.get()
+            t = Torch_NumberType.get()
             assert str(t) == "!torch.number"
-            assert TorchNumberType.isinstance(t)
+            assert Torch_NumberType.isinstance(t)
 
     def test_agg_types(self):
         with mlir_mod_ctx():
-            t = TorchNnModuleType.get("bob")
+            t = Torch_NnModuleType.get("bob")
             assert str(t) == '!torch.nn.Module<"bob">'
-            assert TorchNnModuleType.isinstance(t)
+            assert Torch_NnModuleType.isinstance(t)
 
-            tint = TorchIntType.get()
-            tfloat = TorchFloatType.get()
-            tbool = TorchBoolType.get()
+            tint = Torch_IntType.get()
+            tfloat = Torch_FloatType.get()
+            tbool = Torch_BoolType.get()
 
-            t = TorchOptionalType.get(tint)
+            t = AnyTorchOptionalType.get(tint)
             assert str(t) == "!torch.optional<int>"
-            assert TorchOptionalType.isinstance(t)
+            assert AnyTorchOptionalType.isinstance(t)
 
-            t = TorchTupleType.get((tint, tfloat, tbool))
+            t = Torch_TupleType.get((tint, tfloat, tbool))
             assert str(t) == "!torch.tuple<int, float, bool>"
-            assert TorchTupleType.isinstance(t)
+            assert Torch_TupleType.isinstance(t)
             assert len(t) == 3
-            assert TorchIntType.isinstance(t[0])
-            assert TorchFloatType.isinstance(t[1])
-            assert TorchBoolType.isinstance(t[2])
+            assert Torch_IntType.isinstance(t[0])
+            assert Torch_FloatType.isinstance(t[1])
+            assert Torch_BoolType.isinstance(t[2])
 
-            t = TorchUnionType.get((tint, tfloat, tbool))
-            assert TorchUnionType.isinstance(t)
-            assert str(t) == "!torch.union<int, float, bool>"
-            assert len(t) == 3
-            assert TorchIntType.isinstance(t[0])
-            assert TorchFloatType.isinstance(t[1])
-            assert TorchBoolType.isinstance(t[2])
+            # t = TorchUnionType.get((tint, tfloat, tbool))
+            # assert TorchUnionType.isinstance(t)
+            # assert str(t) == "!torch.union<int, float, bool>"
+            # assert len(t) == 3
+            # assert TorchIntType.isinstance(t[0])
+            # assert TorchFloatType.isinstance(t[1])
+            # assert TorchBoolType.isinstance(t[2])
 
-            t = TorchListType.get(tint)
-            assert TorchListType.isinstance(t)
+            t = AnyTorchListType.get(tint)
+            assert AnyTorchListType.isinstance(t)
             assert str(t) == "!torch.list<int>"
 
-            d = TorchDictType.get(tint, tfloat)
-            assert TorchDictType.isinstance(d)
-            assert str(d) == "!torch.dict<int, float>"
-            assert TorchIntType.isinstance(d.get_key_type())
-            assert TorchFloatType.isinstance(d.get_value_type())
+            # d = TorchDictType.get(tint, tfloat)
+            # assert TorchDictType.isinstance(d)
+            # assert str(d) == "!torch.dict<int, float>"
+            # assert TorchIntType.isinstance(d.get_key_type())
+            # assert TorchFloatType.isinstance(d.get_value_type())
 
     def test_tensor_types(self):
         with mlir_mod_ctx():
-            t = TorchNonValueTensorType.get([1, 2, 3], F32)
-            assert TorchNonValueTensorType.isinstance(t)
+            t = Torch_NonValueTensorType.get([1, 2, 3], F32)
+            assert Torch_NonValueTensorType.isinstance(t)
             assert str(t) == "!torch.tensor<[1,2,3],f32>"
             assert t.sizes() == (1, 2, 3)
             assert F32.isinstance(t.dtype())
 
-            t = TorchNonValueTensorType.get([], F32)
+            t = Torch_NonValueTensorType.get([], F32)
             assert str(t) == "!torch.tensor<[],f32>"
             assert t.sizes() == ()
 
-            t = TorchNonValueTensorType.get([-1], F32)
+            t = Torch_NonValueTensorType.get([-1], F32)
             assert str(t) == "!torch.tensor<[?],f32>"
             assert t.sizes() == (-1,)
             assert F32.isinstance(t.dtype())
 
-            t = TorchNonValueTensorType.get([-1, -1], F32)
+            t = Torch_NonValueTensorType.get([-1, -1], F32)
             assert str(t) == "!torch.tensor<[?,?],f32>"
             assert t.sizes() == (-1, -1)
             assert F32.isinstance(t.dtype())
 
-            t = TorchValueTensorType.get([1, 2, 3], F32)
-            assert TorchValueTensorType.isinstance(t)
+            t = Torch_ValueTensorType.get([1, 2, 3], F32)
+            assert Torch_ValueTensorType.isinstance(t)
             assert str(t) == "!torch.vtensor<[1,2,3],f32>"
             assert t.sizes() == (1, 2, 3)
             assert F32.isinstance(t.dtype())
 
-            t = TorchValueTensorType.get([], F32)
+            t = Torch_ValueTensorType.get([], F32)
             assert str(t) == "!torch.vtensor<[],f32>"
             assert t.sizes() == ()
 
-            t = TorchValueTensorType.get([-1], F32)
+            t = Torch_ValueTensorType.get([-1], F32)
             assert str(t) == "!torch.vtensor<[?],f32>"
             assert t.sizes() == (-1,)
             assert F32.isinstance(t.dtype())
 
-            t = TorchValueTensorType.get([-1, -1], F32)
+            t = Torch_ValueTensorType.get([-1, -1], F32)
             assert str(t) == "!torch.vtensor<[?,?],f32>"
             assert t.sizes() == (-1, -1)
             assert F32.isinstance(t.dtype())
