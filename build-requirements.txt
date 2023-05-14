@@ -8,3 +8,5 @@ pip
 pybind11
 setuptools>=42
 wheel
+requests
+beautifulsoup4

@@ -3,27 +3,23 @@ import platform
 import re
 import subprocess
 import sys
-import tarfile
-import urllib.request
 from pathlib import Path
 
+import requests
+from bs4 import BeautifulSoup
 from pip._internal.req import parse_requirements
-from setuptools import Extension, setup, find_namespace_packages
+from setuptools import Extension, find_namespace_packages, setup
 from setuptools.command.build_ext import build_ext
 
 
-def get_llvm_url():
-    system = platform.system()
-    system_suffix = {"Linux": "linux-gnu-ubuntu-22.04", "Darwin": "apple-darwin"}[
-        system
-    ]
-    LIB_ARCH = os.environ.get("LIB_ARCH", platform.machine())
-    assert LIB_ARCH, "empty LIB_ARCH"
-    LLVM_RELEASE_VERSION = os.environ.get("LLVM_RELEASE_VERSION", "17.0.0")
-    assert LLVM_RELEASE_VERSION, "empty LLVM_RELEASE_VERSION"
-    name = f"llvm+mlir+openmp-{sys.version_info.major}.{sys.version_info.minor}-{LLVM_RELEASE_VERSION}-{LIB_ARCH}-{system_suffix}-release"
-    url = f"https://github.com/makslevental/llvm-releases/releases/download/llvm-{LLVM_RELEASE_VERSION}/{name}.tar.xz"
-    return url
+def get_torch_mlir_url():
+    system = {"Linux": "ubuntu", "Darwin": "macos"}[platform.system()]
+    url = "https://github.com/nod-ai/PI/releases/expanded_assets/torch-mlir-latest"
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, "html.parser")
+    download_link = soup.find("a", href=re.compile(rf".*{system}.*"))
+    assert download_link, "couldn't find correct torch-mlir distro download link"
+    return f"https://github.com/{download_link['href']}"
 
 
 # A CMakeExtension needs a sourcedir instead of a file list.
@@ -105,8 +101,8 @@ VERSION = "0.0.3"
 
 if len(sys.argv) > 1 and sys.argv[1] == "--version":
     print(VERSION)
-if len(sys.argv) > 1 and sys.argv[1] == "--llvm-url":
-    print(get_llvm_url())
+if len(sys.argv) > 1 and sys.argv[1] == "--torch-mlir-url":
+    print(get_torch_mlir_url())
 else:
     install_reqs = parse_requirements("requirements.txt", session="hack")
     setup(
