@@ -38,10 +38,10 @@ bool isAAnyTorchOptionalType(MlirType type);
 
 bool isAAnyTorchOptionalListOfTorchIntType(MlirType type);
 
-// bool isAAnyTorchOptionalScalarType(MlirType type) ;
-// bool isAAnyTorchScalarType(MlirType type) ;
+bool isAAnyTorchOptionalScalarType(MlirType type);
+bool isAAnyTorchScalarType(MlirType type);
 bool isAAnyTorchTensorType(MlirType type);
-// bool isAAnyTorchType(MlirType type) ;
+bool isAAnyTorchType(MlirType type);
 
 bool isATorch_BoolType(MlirType type);
 bool isATorch_DeviceType(MlirType type);
@@ -62,8 +62,11 @@ public:
   static constexpr IsAFunctionTy isaFunction = isAAnyTorchListType;
   static constexpr const char *pyClassName = "AnyTorchListType";
   using PyConcreteType::PyConcreteType;
+  PyAnyTorchListType(MlirType containedType, DefaultingPyMlirContext context)
+      : PyConcreteType(context->getRef(),
+                       torchMlirTorchListTypeGet(containedType)) {}
 
-  static void bindDerived(ClassTy &element_type);
+  static void bindDerived(ClassTy &containedType);
 };
 
 class PyAnyTorchOptionalType : public PyConcreteType<PyAnyTorchOptionalType> {
@@ -71,6 +74,10 @@ public:
   static constexpr IsAFunctionTy isaFunction = isAAnyTorchOptionalType;
   static constexpr const char *pyClassName = "AnyTorchOptionalType";
   using PyConcreteType::PyConcreteType;
+  PyAnyTorchOptionalType(MlirType containedType,
+                         DefaultingPyMlirContext context)
+      : PyConcreteType(context->getRef(),
+                       torchMlirTorchOptionalTypeGet(containedType)) {}
 
   static void bindDerived(ClassTy &c);
 };
@@ -98,6 +105,12 @@ public:
     static constexpr const char *pyClassName =                                 \
         "AnyTorchListOf" #CONCRETETYPE "Type";                                 \
     using PyConcreteType::PyConcreteType;                                      \
+    PyAnyTorchListOf##CONCRETETYPE##Type(DefaultingPyMlirContext context)      \
+        : PyConcreteType(                                                      \
+              context->getRef(),                                               \
+              torchMlirTorchListTypeGet(                                       \
+                  torchMlir##CONCRETETYPE##TypeGet(context->get()))) {}        \
+                                                                               \
     static void bindDerived(ClassTy &c);                                       \
   };
 FORALL_LIST_BASE_CONCRETE_TYPES(DECLARE_LIST_BASE_CONCRETE_TYPE)
@@ -114,36 +127,132 @@ FORALL_LIST_BASE_CONCRETE_TYPES(DECLARE_LIST_BASE_CONCRETE_TYPE)
         "AnyTorchOptional" #CONCRETETYPE "Type";                               \
     using PyConcreteType::PyConcreteType;                                      \
     static void bindDerived(ClassTy &c);                                       \
+    PyAnyTorchOptional##CONCRETETYPE##Type(DefaultingPyMlirContext context)    \
+        : PyConcreteType(                                                      \
+              context->getRef(),                                               \
+              torchMlirTorchOptionalTypeGet(                                   \
+                  torchMlirTorch##CONCRETETYPE##TypeGet(context->get()))) {}   \
   };
 FORALL_OPTIONAL_BASE_CONCRETE_TYPES(DECLARE_OPTIONAL_BASE_CONCRETE_TYPE)
 #undef DECLARE_OPTIONAL_BASE_CONCRETE_TYPE
 
-#define FORALL_CONCRETE_TYPES(_)                                               \
-  _(_Bool)                                                                     \
-  _(_Device)                                                                   \
-  _(_Dict)                                                                     \
-  _(_Float)                                                                    \
-  _(_Int)                                                                      \
-  _(_LinearParams)                                                             \
-  _(_NnModule)                                                                 \
-  _(_NonValueTensor)                                                           \
-  _(_None)                                                                     \
-  _(_Number)                                                                   \
-  _(_String)                                                                   \
-  _(_Tuple)                                                                    \
-  _(_ValueTensor)
+#define FORALL_SCALAR_TYPES(_)                                                 \
+  _(Bool)                                                                      \
+  _(Device)                                                                    \
+  _(Float)                                                                     \
+  _(Int)                                                                       \
+  _(LinearParams)                                                              \
+  _(None)                                                                      \
+  _(Number)                                                                    \
+  _(String)
 
-#define DECLARE_CONCRETE_TYPE(CONCRETETYPE)                                    \
-  class PyTorch##CONCRETETYPE##Type                                            \
-      : public PyConcreteType<PyTorch##CONCRETETYPE##Type> {                   \
+#define DECLARE_SCALAR_TYPE(SCALARTYPE)                                        \
+  class PyTorch_##SCALARTYPE##Type                                             \
+      : public PyConcreteType<PyTorch_##SCALARTYPE##Type> {                    \
   public:                                                                      \
-    static constexpr IsAFunctionTy isaFunction = isATorch##CONCRETETYPE##Type; \
-    static constexpr const char *pyClassName = "Torch" #CONCRETETYPE "Type";   \
+    static constexpr IsAFunctionTy isaFunction = isATorch_##SCALARTYPE##Type;  \
+    static constexpr const char *pyClassName = "Torch_" #SCALARTYPE "Type";    \
     using PyConcreteType::PyConcreteType;                                      \
     static void bindDerived(ClassTy &c);                                       \
+    PyTorch_##SCALARTYPE##Type(DefaultingPyMlirContext context)                \
+        : PyConcreteType(                                                      \
+              context->getRef(),                                               \
+              torchMlirTorch##SCALARTYPE##TypeGet(context->get())) {}          \
   };
-FORALL_CONCRETE_TYPES(DECLARE_CONCRETE_TYPE)
-#undef DECLARE_CONCRETE_TYPE
+FORALL_SCALAR_TYPES(DECLARE_SCALAR_TYPE)
+#undef DECLARE_SCALAR_TYPE
+
+class PyTorch_DictType : public PyConcreteType<PyTorch_DictType> {
+public:
+  static constexpr IsAFunctionTy isaFunction = isATorch_DictType;
+  static constexpr const char *pyClassName = "Torch_DictType";
+  using PyConcreteType::PyConcreteType;
+  PyTorch_DictType(MlirType keyType, MlirType valueType,
+                   DefaultingPyMlirContext context)
+      : PyConcreteType(context->getRef(),
+                       torchMlirTorchDictTypeGetChecked(context->get(), keyType,
+                                                        valueType)) {}
+  static void bindDerived(ClassTy &c);
+};
+
+class PyTorch_TupleType : public PyConcreteType<PyTorch_TupleType> {
+public:
+  static constexpr IsAFunctionTy isaFunction = isATorch_TupleType;
+  static constexpr const char *pyClassName = "Torch_TupleType";
+  using PyConcreteType::PyConcreteType;
+  PyTorch_TupleType(std::vector<MlirType> elementTypes,
+                    DefaultingPyMlirContext context)
+      : PyConcreteType(context->getRef(),
+                       torchMlirTorchTupleTypeGet(context->get(),
+                                                  elementTypes.size(),
+                                                  elementTypes.data())) {}
+
+  static void bindDerived(ClassTy &c);
+};
+
+class PyTorch_NnModuleType : public PyConcreteType<PyTorch_NnModuleType> {
+public:
+  static constexpr IsAFunctionTy isaFunction = isATorch_NnModuleType;
+  static constexpr const char *pyClassName = "Torch_NnModuleType";
+  using PyConcreteType::PyConcreteType;
+  PyTorch_NnModuleType(MlirStringRef name, DefaultingPyMlirContext context)
+      : PyConcreteType(context->getRef(),
+                       torchMlirTorchNnModuleTypeGet(context->get(), name)) {}
+  static void bindDerived(ClassTy &c);
+};
+
+class PyTorch_NonValueTensorType
+    : public PyConcreteType<PyTorch_NonValueTensorType> {
+public:
+  static constexpr IsAFunctionTy isaFunction = isATorch_NonValueTensorType;
+  static constexpr const char *pyClassName = "Torch_NonValueTensorType";
+  using PyConcreteType::PyConcreteType;
+  PyTorch_NonValueTensorType(std::vector<int64_t> sizes, MlirType dtype,
+                             DefaultingPyMlirContext context)
+      : PyConcreteType(context->getRef(),
+                       torchMlirTorchNonValueTensorTypeGet(
+                           context->get(), sizes.size(), sizes.data(), dtype)) {
+  }
+  static PyTorch_NonValueTensorType
+  getWithLeastStaticInformation(DefaultingPyMlirContext context);
+
+  static void bindDerived(ClassTy &c);
+};
+
+class PyTorch_ValueTensorType : public PyConcreteType<PyTorch_ValueTensorType> {
+public:
+  static constexpr IsAFunctionTy isaFunction = isATorch_ValueTensorType;
+  static constexpr const char *pyClassName = "Torch_ValueTensorType";
+  using PyConcreteType::PyConcreteType;
+  PyTorch_ValueTensorType(std::vector<int64_t> sizes, MlirType dtype,
+                          DefaultingPyMlirContext context)
+      : PyConcreteType(context->getRef(),
+                       torchMlirTorchValueTensorTypeGet(
+                           context->get(), sizes.size(), sizes.data(), dtype)) {
+  }
+  static PyTorch_ValueTensorType
+  getWithLeastStaticInformation(DefaultingPyMlirContext context);
+
+  static void bindDerived(ClassTy &c);
+};
+
+class PyAnyTorchTensorType
+    : public PyConcreteType<PyAnyTorchTensorType, PyTorch_NonValueTensorType> {
+public:
+  static constexpr IsAFunctionTy isaFunction = isAAnyTorchTensorType;
+  static constexpr const char *pyClassName = "AnyTorchTensorType";
+  using PyConcreteType::PyConcreteType;
+  PyAnyTorchTensorType(std::vector<int64_t> sizes, MlirType dtype,
+                       DefaultingPyMlirContext context)
+      : PyConcreteType(context->getRef(),
+                       torchMlirTorchNonValueTensorTypeGet(
+                           context->get(), sizes.size(), sizes.data(), dtype)) {
+  }
+  static PyAnyTorchTensorType
+  getWithLeastStaticInformation(DefaultingPyMlirContext context);
+
+  static void bindDerived(ClassTy &c);
+};
 
 void populateTorchMLIRTypes(py::module &m);
 

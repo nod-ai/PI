@@ -17,11 +17,9 @@ from pi.mlir import (
     AnyTorchOptionalIntType,
     AnyTorchOptionalStringType,
     # AnyTorchOptionalTensorType,
-
     AnyTorchOptionalType,
-
     # AnyTorchOptionalListOfTorchIntType,
-    # AnyTorchTensorType,
+    AnyTorchTensorType,
     Torch_BoolType,
     Torch_DeviceType,
     Torch_DictType,
@@ -66,6 +64,18 @@ class TestTorchTypes:
         """
         )
         check_correct(correct, module)
+
+    def test_list_optional_types(self):
+        with mlir_mod_ctx():
+            tint = Torch_IntType.get()
+
+            t = AnyTorchOptionalType.get(tint)
+            assert str(t) == "!torch.optional<int>"
+            assert AnyTorchOptionalType.isinstance(t)
+
+            t = AnyTorchListType.get(tint)
+            assert AnyTorchListType.isinstance(t)
+            assert str(t) == "!torch.list<int>"
 
     def test_simple_types(self):
         with mlir_mod_ctx():
@@ -186,3 +196,17 @@ class TestTorchTypes:
             assert str(t) == "!torch.vtensor<[?,?],f32>"
             assert t.sizes() == (-1, -1)
             assert F32.isinstance(t.dtype())
+
+    def test_least_static_info(self):
+        with mlir_mod_ctx():
+            t = Torch_NonValueTensorType.get_with_least_static_information()
+            assert str(t) == "!torch.tensor"
+
+            t = Torch_ValueTensorType.get_with_least_static_information()
+            assert str(t) == "!torch.vtensor"
+
+            t = AnyTorchTensorType.get_with_least_static_information()
+            assert str(t) == "!torch.tensor"
+
+            t = AnyTorchListOfTorchStringType.get()
+            assert str(t) == "!torch.list<str>"

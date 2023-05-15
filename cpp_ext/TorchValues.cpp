@@ -62,14 +62,21 @@ bool isAAnyTorchOptionalValue(MlirValue value) {
   return torchMlirTypeIsATorchOptional(mlirValueGetType(value));
 }
 
-// bool isAAnyTorchOptionalScalarValue(MlirValue value) ;
-// bool isAAnyTorchScalarValue(MlirValue value) ;
+bool isAAnyTorchOptionalScalarValue(MlirValue value) {
+  return isAAnyTorchOptionalScalarType(mlirValueGetType(value));
+}
+bool isAAnyTorchScalarValue(MlirValue value) {
+  return isAAnyTorchScalarType(mlirValueGetType(value));
+}
 
 bool isAAnyTorchTensorValue(MlirValue value) {
   return isAAnyTorchTensorType(mlirValueGetType(value));
 }
 
-// bool isAAnyTorchValue(MlirValue value) ;
+bool isAAnyTorchValue(MlirValue value) {
+  return isAAnyTorchType(mlirValueGetType(value));
+}
+
 bool isATorch_BoolValue(MlirValue value) {
   return isATorch_BoolType(mlirValueGetType(value));
 }
@@ -156,10 +163,17 @@ FORALL_LIST_BASE_CONCRETE_TYPES(DECLARE_LIST_BASE_CONCRETE_VALUE)
 FORALL_OPTIONAL_BASE_CONCRETE_TYPES(DECLARE_OPTIONAL_BASE_CONCRETE_VALUE)
 #undef DECLARE_OPTIONAL_BASE_CONCRETE_VALUE
 
-#define DECLARE_CONCRETE_VALUE(CONCRETEVALUE)                                  \
-  void PyTorch##CONCRETEVALUE##Value::bindDerived(ClassTy &c) {}
-FORALL_CONCRETE_TYPES(DECLARE_CONCRETE_VALUE)
-#undef DECLARE_CONCRETE_VALUE
+#define DECLARE_SCALAR_VALUE(SCALARVALUE)                                      \
+  void PyTorch_##SCALARVALUE##Value::bindDerived(ClassTy &c) {}
+FORALL_SCALAR_TYPES(DECLARE_SCALAR_VALUE)
+#undef DECLARE_SCALAR_VALUE
+
+void PyTorch_DictValue::bindDerived(ClassTy &c) {}
+void PyTorch_TupleValue::bindDerived(ClassTy &c) {}
+void PyTorch_NnModuleValue::bindDerived(ClassTy &c) {}
+void PyTorch_NonValueTensorValue::bindDerived(ClassTy &c) {}
+void PyTorch_ValueTensorValue::bindDerived(ClassTy &c) {}
+void PyAnyTorchTensorValue::bindDerived(ClassTy &c) {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -173,9 +187,16 @@ void populateTorchMLIRValues(py::module &m) {
 #define BIND_VALUE(VALUE) PyAnyTorchOptional##VALUE##Value::bind(m);
   FORALL_OPTIONAL_BASE_CONCRETE_TYPES(BIND_VALUE)
 #undef BIND_VALUE
-#define BIND_VALUE(VALUE) PyTorch##VALUE##Value::bind(m);
-  FORALL_CONCRETE_TYPES(BIND_VALUE)
+#define BIND_VALUE(VALUE) PyTorch_##VALUE##Value::bind(m);
+  FORALL_SCALAR_TYPES(BIND_VALUE)
 #undef BIND_VALUE
+
+  PyTorch_DictValue::bind(m);
+  PyTorch_TupleValue::bind(m);
+  PyTorch_NnModuleValue::bind(m);
+  PyTorch_NonValueTensorValue::bind(m);
+  PyTorch_ValueTensorValue::bind(m);
+  PyAnyTorchTensorValue::bind(m);
 }
 
 } // namespace mlir::torch

@@ -3,13 +3,17 @@ import re
 from textwrap import dedent
 
 
-def check_correct(correct, module):
-    correct = dedent(re.sub(r"([%#@]\w+)|(\^bb\d+)|(0x\w+)", "%DONT_CARE", correct))
-    module = dedent(re.sub(r"([%#@]\w+)|(\^bb\d+)|(0x\w+)", "%DONT_CARE", str(module)))
+def check_correct(correct, op):
+    correct = dedent(
+        re.sub(r"([%#@]\w+)|(\^bb\d+)|(0x\w+)|dense<.*?>", "%DONT_CARE", correct)
+    )
+    op = dedent(
+        re.sub(r"([%#@]\w+)|(\^bb\d+)|(0x\w+)|dense<.*?>", "%DONT_CARE", str(op))
+    )
     diff = list(
         difflib.unified_diff(
             correct.splitlines(),
-            module.splitlines(),
+            op.splitlines(),
             lineterm="",
         )
     )

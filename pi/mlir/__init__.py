@@ -43,11 +43,9 @@ from ._mlir_libs._pi_mlir import (
     AnyTorchOptionalIntType,
     AnyTorchOptionalStringType,
     # AnyTorchOptionalTensorType,
-
     AnyTorchOptionalType,
-
     # AnyTorchOptionalListOfTorchIntType,
-    # AnyTorchTensorType,
+    AnyTorchTensorType,
     Torch_BoolType,
     Torch_DeviceType,
     Torch_DictType,
@@ -78,11 +76,9 @@ from ._mlir_libs._pi_mlir import (
     AnyTorchOptionalIntValue,
     AnyTorchOptionalStringValue,
     # AnyTorchOptionalTensorValue,
-
     AnyTorchOptionalValue,
-
     # AnyTorchOptionalListOfTorchIntValue,
-    # AnyTorchTensorValue,
+    AnyTorchTensorValue,
     Torch_BoolValue,
     Torch_DeviceValue,
     Torch_DictValue,
@@ -146,6 +142,8 @@ class ValueMeta(type(Value)):
                 return AnyTorchListValue(val)
             if Torch_NnModuleType.isinstance(val.type):
                 return Torch_NnModuleValue(val)
+            if AnyTorchTensorType.isinstance(val.type):
+                return AnyTorchTensorValue(val)
             if Torch_NonValueTensorType.isinstance(val.type):
                 return Torch_NonValueTensorValue(val)
             if Torch_NoneType.isinstance(val.type):
@@ -270,8 +268,9 @@ def _i1Attr(x, context):
     return IntegerAttr.get(IntegerType.get_signless(1, context=context), x)
 
 
-def _fp64ElementsAttr(x):
+@register_attribute_builder("ElementsAttr")
+def _fp64ElementsAttr(x, context=None):
     return DenseElementsAttr.get(
         np.array(x, dtype=np.float64),
-        type=F64Type.get(),
+        type=F64Type.get(context=context),
     )

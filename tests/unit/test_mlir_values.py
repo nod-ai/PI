@@ -142,11 +142,11 @@ class TestTorchValues:
             t = torch.NonValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
             assert (
                 str(t)
-                == "Torch_NonValueTensorValue(%0 = torch.tensor.literal(dense<1.000000e+00> : tensor<2x2xf64>) : !torch.tensor<[2,2],f64>)"
+                == "AnyTorchTensorValue(%0 = torch.tensor.literal(dense<1.000000e+00> : tensor<2x2xf64>) : !torch.tensor<[2,2],f64>)"
             )
 
             t = torch.ValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
             assert (
                 str(t)
-                == "Torch_ValueTensorValue(%1 = torch.vtensor.literal(dense<1.000000e+00> : tensor<2x2xf64>) : !torch.vtensor<[2,2],f64>)"
+                == "AnyTorchTensorValue(%1 = torch.vtensor.literal(dense<1.000000e+00> : tensor<2x2xf64>) : !torch.vtensor<[2,2],f64>)"
             )

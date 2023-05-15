@@ -4,6 +4,8 @@
 
 #include "TorchTypes.h"
 
+#include <utility>
+
 #include "mlir/Bindings/Python/PybindAdaptors.h"
 
 namespace pybind11::detail {
@@ -136,41 +138,42 @@ bool isAAnyTorchOptionalType(MlirType type) {
   return torchMlirTypeIsATorchOptional(type);
 }
 
-// bool isAAnyTorchOptionalScalarType(MlirType type) {
-//   return ((((isValidSubtype(type, ::mlir::torch::Torch::NumberType::get(
-//                                       type.getContext())))) ||
-//            ((torchMlirTypeIsATorchOptional(type))) ||
-//            ((torchMlirTypeIsATorchNone(type)))));
-// }
+bool isAAnyTorchOptionalScalarType(MlirType type) {
+  auto isValidSubtype = torchMlirTypeIsValidSubtype(
+      type, torchMlirTorchNumberTypeGet(mlirTypeGetContext(type)));
+  return ((((isValidSubtype)) || ((torchMlirTypeIsATorchOptional(type))) ||
+           ((torchMlirTypeIsATorchNone(type)))));
+}
 
-// bool isAAnyTorchScalarType(MlirType type) {
-//   return (((isValidSubtype(
-//       type, ::mlir::torch::Torch::NumberType::get(type.getContext())))));
-// }
+bool isAAnyTorchScalarType(MlirType type) {
+  return torchMlirTypeIsValidSubtype(
+      type, torchMlirTorchNumberTypeGet(mlirTypeGetContext(type)));
+}
 
 bool isAAnyTorchTensorType(MlirType type) {
   return (((torchMlirTypeIsATorchBaseTensor(type))));
 }
 
-// bool isAAnyTorchType(MlirType type) {
-//   return ((((isValidSubtype(type, ::mlir::torch::Torch::NumberType::get(
-//                                       type.getContext())))) ||
-//            ((torchMlirTypeIsATorchBaseTensor(type))) ||
-//            ((torchMlirTypeIsATorchAny(type))) ||
-//            ((torchMlirTypeIsATorchBool(type))) ||
-//            ((torchMlirTypeIsATorchDict(type))) ||
-//            ((torchMlirTypeIsATorchDevice(type))) ||
-//            ((torchMlirTypeIsATorchGenerator(type))) ||
-//            ((torchMlirTypeIsATorchList(type))) ||
-//            ((torchMlirTypeIsATorchLinearParams(type))) ||
-//            ((torchMlirTypeIsATorchNumber(type))) ||
-//            ((torchMlirTypeIsATorchNnModule(type))) ||
-//            ((torchMlirTypeIsATorchNone(type))) ||
-//            ((torchMlirTypeIsATorchOptional(type))) ||
-//            ((torchMlirTypeIsATorchString(type))) ||
-//            ((torchMlirTypeIsATorchTuple(type))) ||
-//            ((torchMlirTypeIsATorchUnion(type)))));
-// }
+bool isAAnyTorchType(MlirType type) {
+
+  auto isValidSubtype = torchMlirTypeIsValidSubtype(
+      type, torchMlirTorchNumberTypeGet(mlirTypeGetContext(type)));
+  return ((((isValidSubtype)) || ((torchMlirTypeIsATorchBaseTensor(type))) ||
+           ((torchMlirTypeIsATorchAny(type))) ||
+           ((torchMlirTypeIsATorchBool(type))) ||
+           ((torchMlirTypeIsATorchDict(type))) ||
+           ((torchMlirTypeIsATorchDevice(type))) ||
+           ((torchMlirTypeIsATorchGenerator(type))) ||
+           ((torchMlirTypeIsATorchList(type))) ||
+           ((torchMlirTypeIsATorchLinearParams(type))) ||
+           ((torchMlirTypeIsATorchNumber(type))) ||
+           ((torchMlirTypeIsATorchNnModule(type))) ||
+           ((torchMlirTypeIsATorchNone(type))) ||
+           ((torchMlirTypeIsATorchOptional(type))) ||
+           ((torchMlirTypeIsATorchString(type))) ||
+           ((torchMlirTypeIsATorchTuple(type))) ||
+           ((torchMlirTypeIsATorchUnion(type)))));
+}
 
 bool isATorch_BoolType(MlirType type) {
   return (((torchMlirTypeIsATorchBool(type))));
@@ -227,27 +230,26 @@ bool isATorch_ValueTensorType(MlirType type) {
 void PyAnyTorchListType::bindDerived(ClassTy &c) {
   c.def_static(
       "get",
-      [](MlirType element_type, DefaultingPyMlirContext context) {
-        MlirType listType = torchMlirTorchListTypeGet(element_type);
-        return PyAnyTorchListType(context->getRef(), listType);
+      [](MlirType containedType, DefaultingPyMlirContext context) {
+        return PyAnyTorchListType(containedType, context);
       },
-      py::arg("element_type"), py::arg("context") = py::none(),
+      py::arg("contained_type"), py::arg("context") = py::none(),
       "Create a list type.");
   c.def(
-      "get_contained_type",
+      "contained_type",
       [](PyAnyTorchListType &self) {
         return torchMlirTorchListTypeGetContainedType(self.get());
       },
       "Get list element type.");
 }
+
 void PyAnyTorchOptionalType::bindDerived(ClassTy &c) {
   c.def_static(
       "get",
       [](MlirType containedType, DefaultingPyMlirContext context) {
-        MlirType optionalType = torchMlirTorchOptionalTypeGet(containedType);
-        return PyAnyTorchOptionalType(context->getRef(), optionalType);
+        return PyAnyTorchOptionalType(containedType, context);
       },
-      py::arg("element_type"), py::arg("context") = py::none(),
+      py::arg("contained_type"), py::arg("context") = py::none(),
       "Create a optional type.");
   c.def(
       "get_contained_type",
@@ -262,12 +264,7 @@ void PyAnyTorchOptionalType::bindDerived(ClassTy &c) {
     c.def_static(                                                              \
         "get",                                                                 \
         [](DefaultingPyMlirContext context) {                                  \
-          MlirType containedType =                                             \
-              torchMlir##CONCRETETYPE##TypeGet(context->get());                \
-          MlirType listType =                                                  \
-              torchMlirTorchListTypeGetContainedType(containedType);           \
-          return PyAnyTorchListOf##CONCRETETYPE##Type(context->getRef(),       \
-                                                      listType);               \
+          return PyAnyTorchListOf##CONCRETETYPE##Type(context);                \
         },                                                                     \
         py::arg("context") = py::none(), "Create a " #CONCRETETYPE " type.");  \
   }
@@ -280,12 +277,7 @@ FORALL_LIST_BASE_CONCRETE_TYPES(DEFINE_LIST_BASE_CONCRETE_TYPE)
     c.def_static(                                                              \
         "get",                                                                 \
         [](DefaultingPyMlirContext context) {                                  \
-          MlirType containedType =                                             \
-              torchMlirTorch##CONCRETETYPE##TypeGet(context->get());           \
-          MlirType optionalType =                                              \
-              torchMlirTorchOptionalTypeGetContained(containedType);           \
-          return PyAnyTorchOptional##CONCRETETYPE##Type(context->getRef(),     \
-                                                        optionalType);         \
+          return PyAnyTorchOptional##CONCRETETYPE##Type(context);              \
         },                                                                     \
         py::arg("context") = py::none(), "Create a " #CONCRETETYPE " type.");  \
   }
@@ -293,26 +285,12 @@ FORALL_LIST_BASE_CONCRETE_TYPES(DEFINE_LIST_BASE_CONCRETE_TYPE)
 FORALL_OPTIONAL_BASE_CONCRETE_TYPES(DEFINE_OPTIONAL_BASE_CONCRETE_TYPE)
 #undef DEFINE_OPTIONAL_BASE_CONCRETE_TYPE
 
-// TODO(max): missing tensor and some others (check commented out types in
-// mlir.__init__.py
-// no underscores here because the CAPI getters don't have underscores...
-#define FORALL_SCALAR_TYPES(_)                                                 \
-  _(Bool)                                                                      \
-  _(Device)                                                                    \
-  _(Float)                                                                     \
-  _(Int)                                                                       \
-  _(LinearParams)                                                              \
-  _(None)                                                                      \
-  _(Number)                                                                    \
-  _(String)
-
 #define DEFINE_SCALAR_TYPE(SCALARTYPE)                                         \
   void PyTorch_##SCALARTYPE##Type::bindDerived(ClassTy &c) {                   \
     c.def_static(                                                              \
         "get",                                                                 \
         [](DefaultingPyMlirContext context) {                                  \
-          MlirType type = torchMlirTorch##SCALARTYPE##TypeGet(context->get()); \
-          return PyTorch_##SCALARTYPE##Type(context->getRef(), type);          \
+          return PyTorch_##SCALARTYPE##Type(context);                          \
         },                                                                     \
         py::arg("context") = py::none(), "Create a " #SCALARTYPE " type.");    \
   }
@@ -324,8 +302,7 @@ void PyTorch_DictType::bindDerived(ClassTy &c) {
       "get",
       [](MlirType keyType, MlirType valueType,
          DefaultingPyMlirContext context) {
-        MlirType dictType = torchMlirTorchDictTypeGet(keyType, valueType);
-        return PyTorch_DictType(context->getRef(), dictType);
+        return PyTorch_DictType(keyType, valueType, context);
       },
       py::arg("key_type"), py::arg("value_type"),
       py::arg("context") = py::none(), "Create a dict type.");
@@ -338,9 +315,7 @@ void PyTorch_TupleType::bindDerived(ClassTy &c) {
       "get",
       [](const py::tuple &elementTypes, DefaultingPyMlirContext context) {
         auto types = elementTypes.cast<std::vector<MlirType>>();
-        MlirType tupleType = torchMlirTorchTupleTypeGet(
-            context->get(), types.size(), types.data());
-        return PyTorch_TupleType(context->getRef(), tupleType);
+        return PyTorch_TupleType(types, context);
       },
       py::arg("element_types"), py::arg("context") = py::none(),
       "Create a tuple type.");
@@ -355,12 +330,19 @@ void PyTorch_NnModuleType::bindDerived(ClassTy &c) {
   c.def_static(
       "get",
       [](MlirStringRef name, DefaultingPyMlirContext context) {
-        MlirType nnModuleType =
-            torchMlirTorchNnModuleTypeGet(context->get(), name);
-        return PyTorch_NnModuleType(context->getRef(), nnModuleType);
+        return PyTorch_NnModuleType(name, context);
       },
       py::arg("element_types"), py::arg("context") = py::none(),
       "Create a tuple type.");
+}
+
+PyTorch_NonValueTensorType
+PyTorch_NonValueTensorType::getWithLeastStaticInformation(
+    DefaultingPyMlirContext context) {
+  MlirType valueTensorType =
+      torchMlirTorchNonValueTensorTypeGetWithLeastStaticInformation(
+          context->get());
+  return {context->getRef(), valueTensorType};
 }
 
 void PyTorch_NonValueTensorType::bindDerived(ClassTy &c) {
@@ -368,20 +350,14 @@ void PyTorch_NonValueTensorType::bindDerived(ClassTy &c) {
       "get",
       [](std::vector<int64_t> sizes, MlirType dtype,
          DefaultingPyMlirContext context) {
-        MlirType nonValueTensorType = torchMlirTorchNonValueTensorTypeGet(
-            context->get(), sizes.size(), sizes.data(), dtype);
-        return PyTorch_NonValueTensorType(context->getRef(),
-                                          nonValueTensorType);
+        return PyTorch_NonValueTensorType(std::move(sizes), dtype, context);
       },
       py::arg("sizes"), py::arg("dtype"), py::arg("context") = py::none());
   c.def_static(
       "get_with_least_static_information",
       [](DefaultingPyMlirContext context) {
-        MlirType nonValueTensorType =
-            torchMlirTorchNonValueTensorTypeGetWithLeastStaticInformation(
-                context->get());
-        return PyTorch_NonValueTensorType(context->getRef(),
-                                          nonValueTensorType);
+        return PyTorch_NonValueTensorType::getWithLeastStaticInformation(
+            context);
       },
       py::arg("context") = py::none());
   c.def("sizes", [](MlirType self) {
@@ -395,23 +371,26 @@ void PyTorch_NonValueTensorType::bindDerived(ClassTy &c) {
   });
 }
 
+PyTorch_ValueTensorType PyTorch_ValueTensorType::getWithLeastStaticInformation(
+    DefaultingPyMlirContext context) {
+  MlirType valueTensorType =
+      torchMlirTorchValueTensorTypeGetWithLeastStaticInformation(
+          context->get());
+  return {context->getRef(), valueTensorType};
+}
+
 void PyTorch_ValueTensorType::bindDerived(ClassTy &c) {
   c.def_static(
       "get",
       [](std::vector<int64_t> sizes, MlirType dtype,
          DefaultingPyMlirContext context) {
-        MlirType valueTensorType = torchMlirTorchValueTensorTypeGet(
-            context->get(), sizes.size(), sizes.data(), dtype);
-        return PyTorch_ValueTensorType(context->getRef(), valueTensorType);
+        return PyTorch_ValueTensorType(sizes, dtype, context);
       },
       py::arg("sizes"), py::arg("dtype"), py::arg("context") = py::none());
   c.def_static(
       "get_with_least_static_information",
       [](DefaultingPyMlirContext context) {
-        MlirType valueTensorType =
-            torchMlirTorchValueTensorTypeGetWithLeastStaticInformation(
-                context->get());
-        return PyTorch_ValueTensorType(context->getRef(), valueTensorType);
+        return PyTorch_ValueTensorType::getWithLeastStaticInformation(context);
       },
       py::arg("context") = py::none());
   c.def("sizes", [](MlirType self) {
@@ -423,6 +402,30 @@ void PyTorch_ValueTensorType::bindDerived(ClassTy &c) {
   c.def("dtype", [](MlirType self) {
     return torchMlirTorchValueTensorTypeGetDtype(self);
   });
+}
+
+PyAnyTorchTensorType PyAnyTorchTensorType::getWithLeastStaticInformation(
+    DefaultingPyMlirContext context) {
+  MlirType nonValueTensorType =
+      torchMlirTorchNonValueTensorTypeGetWithLeastStaticInformation(
+          context->get());
+  return {context->getRef(), nonValueTensorType};
+}
+
+void PyAnyTorchTensorType::bindDerived(ClassTy &c) {
+  c.def_static(
+      "get",
+      [](std::vector<int64_t> sizes, MlirType dtype,
+         DefaultingPyMlirContext context) {
+        return PyAnyTorchTensorType(sizes, dtype, context);
+      },
+      py::arg("sizes"), py::arg("dtype"), py::arg("context") = py::none());
+  c.def_static(
+      "get_with_least_static_information",
+      [](DefaultingPyMlirContext context) {
+        return PyAnyTorchTensorType::getWithLeastStaticInformation(context);
+      },
+      py::arg("context") = py::none());
 }
 
 void populateTorchMLIRTypes(py::module &m) {
@@ -437,9 +440,16 @@ void populateTorchMLIRTypes(py::module &m) {
 #define BIND_TYPE(TYPE) PyAnyTorchOptional##TYPE##Type::bind(m);
   FORALL_OPTIONAL_BASE_CONCRETE_TYPES(BIND_TYPE)
 #undef BIND_TYPE
-#define BIND_TYPE(TYPE) PyTorch##TYPE##Type::bind(m);
-  FORALL_CONCRETE_TYPES(BIND_TYPE)
+#define BIND_TYPE(TYPE) PyTorch_##TYPE##Type::bind(m);
+  FORALL_SCALAR_TYPES(BIND_TYPE)
 #undef BIND_TYPE
+
+  PyTorch_DictType::bind(m);
+  PyTorch_TupleType::bind(m);
+  PyTorch_NnModuleType::bind(m);
+  PyTorch_NonValueTensorType::bind(m);
+  PyTorch_ValueTensorType::bind(m);
+  PyAnyTorchTensorType::bind(m);
 }
 
 } // namespace mlir::torch
