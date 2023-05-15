@@ -3,15 +3,10 @@
 //
 
 #include "TorchOps.h"
-#include "mlir-c/Bindings/Python/Interop.h"
+#include "TorchTensor.h"
 
-#include <pybind11/cast.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
-#include <vector>
-
-#include "TorchTypes.h"
-#include "TorchValues.h"
 
 namespace py = pybind11;
 using namespace mlir::python;

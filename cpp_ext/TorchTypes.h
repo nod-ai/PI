@@ -43,19 +43,25 @@ bool isAAnyTorchScalarType(MlirType type);
 bool isAAnyTorchTensorType(MlirType type);
 bool isAAnyTorchType(MlirType type);
 
-bool isATorch_BoolType(MlirType type);
-bool isATorch_DeviceType(MlirType type);
-bool isATorch_DictType(MlirType type);
-bool isATorch_FloatType(MlirType type);
-bool isATorch_IntType(MlirType type);
-bool isATorch_LinearParamsType(MlirType type);
-bool isATorch_NnModuleType(MlirType type);
-bool isATorch_NonValueTensorType(MlirType type);
-bool isATorch_NoneType(MlirType type);
-bool isATorch_NumberType(MlirType type);
-bool isATorch_StringType(MlirType type);
-bool isATorch_TupleType(MlirType type);
-bool isATorch_ValueTensorType(MlirType type);
+#define FORALL_UNDERSCORE_TYPES(_)                                             \
+  _(Any)                                                                       \
+  _(Bool)                                                                      \
+  _(Device)                                                                    \
+  _(Dict)                                                                      \
+  _(Float)                                                                     \
+  _(Int)                                                                       \
+  _(LinearParams)                                                              \
+  _(NnModule)                                                                  \
+  _(NonValueTensor)                                                            \
+  _(None)                                                                      \
+  _(Number)                                                                    \
+  _(String)                                                                    \
+  _(Tuple)                                                                     \
+  _(ValueTensor)
+#define DECLARE_ISA_UNDERSCORE_TYPE(UNDERSCORETYPE)                            \
+  bool isATorch_##UNDERSCORETYPE##Type(MlirType type);
+FORALL_UNDERSCORE_TYPES(DECLARE_ISA_UNDERSCORE_TYPE)
+#undef DECLARE_ISA_UNDERSCORE_TYPE
 
 class PyAnyTorchListType : public PyConcreteType<PyAnyTorchListType> {
 public:
@@ -137,6 +143,7 @@ FORALL_OPTIONAL_BASE_CONCRETE_TYPES(DECLARE_OPTIONAL_BASE_CONCRETE_TYPE)
 #undef DECLARE_OPTIONAL_BASE_CONCRETE_TYPE
 
 #define FORALL_SCALAR_TYPES(_)                                                 \
+  _(Any)                                                                       \
   _(Bool)                                                                      \
   _(Device)                                                                    \
   _(Float)                                                                     \

@@ -14,13 +14,19 @@
 #include "mlir-c/Support.h"
 #include "torch-mlir-c/TorchTypes.h"
 
+#include "TorchTensor.h"
+#include "TorchTypes.h"
+#include "TorchValues.h"
+
 namespace py = pybind11;
 using namespace mlir::python;
 
 namespace mlir::torch {
 
+#include "TorchOps.inc.h"
+
 void populateTorchMLIROps(py::module &m);
 
-}
+} // namespace mlir::torch
 
 #endif // PI_TORCHOPS_H

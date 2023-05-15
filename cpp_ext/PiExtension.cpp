@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "TorchOps.h"
+#include "TorchTensor.h"
 #include "TorchTypes.h"
 #include "TorchValues.h"
 
@@ -16,6 +17,7 @@ using namespace mlir::torch;
 PYBIND11_MODULE(_pi_mlir, m) {
   populateTorchMLIRTypes(m);
   populateTorchMLIRValues(m);
+  populateTorchTensorOps(m);
   auto ops = m.def_submodule("ops");
   populateTorchMLIROps(ops);
 }

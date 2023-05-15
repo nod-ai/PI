@@ -175,57 +175,12 @@ bool isAAnyTorchType(MlirType type) {
            ((torchMlirTypeIsATorchUnion(type)))));
 }
 
-bool isATorch_BoolType(MlirType type) {
-  return (((torchMlirTypeIsATorchBool(type))));
-}
-
-bool isATorch_DeviceType(MlirType type) {
-  return (((torchMlirTypeIsATorchDevice(type))));
-}
-
-bool isATorch_DictType(MlirType type) {
-  return (((torchMlirTypeIsATorchDict(type))));
-}
-
-bool isATorch_FloatType(MlirType type) {
-  return (((torchMlirTypeIsATorchFloat(type))));
-}
-
-bool isATorch_IntType(MlirType type) {
-  return (((torchMlirTypeIsATorchInt(type))));
-}
-
-bool isATorch_LinearParamsType(MlirType type) {
-  return (((torchMlirTypeIsATorchLinearParams(type))));
-}
-
-bool isATorch_NnModuleType(MlirType type) {
-  return (((torchMlirTypeIsATorchNnModule(type))));
-}
-
-bool isATorch_NonValueTensorType(MlirType type) {
-  return (((torchMlirTypeIsATorchNonValueTensor(type))));
-}
-
-bool isATorch_NoneType(MlirType type) {
-  return (((torchMlirTypeIsATorchNone(type))));
-}
-
-bool isATorch_NumberType(MlirType type) {
-  return (((torchMlirTypeIsATorchNumber(type))));
-}
-
-bool isATorch_StringType(MlirType type) {
-  return (((torchMlirTypeIsATorchString(type))));
-}
-
-bool isATorch_TupleType(MlirType type) {
-  return (((torchMlirTypeIsATorchTuple(type))));
-}
-
-bool isATorch_ValueTensorType(MlirType type) {
-  return (((torchMlirTypeIsATorchValueTensor(type))));
-}
+#define DECLARE_ISA_UNDERSCORE_TYPE(UNDERSCORETYPE)                            \
+  bool isATorch_##UNDERSCORETYPE##Type(MlirType type) {                        \
+    return torchMlirTypeIsATorch##UNDERSCORETYPE(type);                        \
+  }
+FORALL_UNDERSCORE_TYPES(DECLARE_ISA_UNDERSCORE_TYPE)
+#undef DECLARE_ISA_UNDERSCORE_TYPE
 
 void PyAnyTorchListType::bindDerived(ClassTy &c) {
   c.def_static(

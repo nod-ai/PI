@@ -19,9 +19,7 @@ from pi.mlir import (
     AnyTorchOptionalIntValue,
     AnyTorchOptionalStringValue,
     # AnyTorchOptionalTensorValue,
-
     AnyTorchOptionalValue,
-
     # AnyTorchOptionalListOfTorchIntValue,
     # AnyTorchTensorValue,
     Torch_BoolType,
@@ -29,7 +27,6 @@ from pi.mlir import (
     Torch_DictType,
     Torch_FloatType,
     Torch_IntType,
-
     Torch_BoolValue,
     Torch_DeviceValue,
     Torch_DictValue,
@@ -105,7 +102,8 @@ class TestTorchValues:
             assert str(tdevice.owner) == '%cuda = torch.constant.device "cuda"'
             assert Torch_DeviceValue.isinstance(tdevice)
             assert (
-                str(tdevice) == 'Torch_DeviceValue(%cuda = torch.constant.device "cuda")'
+                str(tdevice)
+                == 'Torch_DeviceValue(%cuda = torch.constant.device "cuda")'
             )
 
             tnone = torch.ConstantNoneOp()
@@ -142,11 +140,11 @@ class TestTorchValues:
             t = torch.NonValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
             assert (
                 str(t)
-                == "AnyTorchTensorValue(%0 = torch.tensor.literal(dense<1.000000e+00> : tensor<2x2xf64>) : !torch.tensor<[2,2],f64>)"
+                == "Tensor(%0 = torch.tensor.literal(dense<1.000000e+00> : tensor<2x2xf64>) : !torch.tensor<[2,2],f64>)"
             )
 
             t = torch.ValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
             assert (
                 str(t)
-                == "AnyTorchTensorValue(%1 = torch.vtensor.literal(dense<1.000000e+00> : tensor<2x2xf64>) : !torch.vtensor<[2,2],f64>)"
+                == "Tensor(%1 = torch.vtensor.literal(dense<1.000000e+00> : tensor<2x2xf64>) : !torch.vtensor<[2,2],f64>)"
             )

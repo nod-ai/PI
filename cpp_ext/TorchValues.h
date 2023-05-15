@@ -8,6 +8,7 @@
 #include "IRModule.h"
 #include "TorchTypes.h"
 
+using llvm::Twine;
 namespace py = pybind11;
 using namespace mlir::python;
 
@@ -40,37 +41,50 @@ bool isAAnyTorchScalarValue(MlirValue value);
 bool isAAnyTorchTensorValue(MlirValue value);
 bool isAAnyTorchValue(MlirValue value);
 
-bool isATorch_BoolValue(MlirValue value);
-bool isATorch_DeviceValue(MlirValue value);
-bool isATorch_DictValue(MlirValue value);
-bool isATorch_FloatValue(MlirValue value);
-bool isATorch_IntValue(MlirValue value);
-bool isATorch_LinearParamsValue(MlirValue value);
-bool isATorch_NnModuleValue(MlirValue value);
-bool isATorch_NonValueTensorValue(MlirValue value);
-bool isATorch_NoneValue(MlirValue value);
-bool isATorch_NumberValue(MlirValue value);
-bool isATorch_StringValue(MlirValue value);
-bool isATorch_TupleValue(MlirValue value);
-bool isATorch_ValueTensorValue(MlirValue value);
+#define DECLARE_ISA_UNDERSCORE_VALUE(UNDERSCOREVALUE)                          \
+  bool isATorch_##UNDERSCOREVALUE##Value(MlirValue value);
+FORALL_UNDERSCORE_TYPES(DECLARE_ISA_UNDERSCORE_VALUE)
+#undef DECLARE_ISA_UNDERSCORE_VALUE
 
-template <typename DerivedTy> class PyConcreteValue : public PyValue {
+template <typename DerivedTy, typename BaseTy = PyValue>
+class PyConcreteValue : public BaseTy {
 public:
-  using ClassTy = py::class_<DerivedTy, PyValue>;
+  using ClassTy = py::class_<DerivedTy, BaseTy>;
   using IsAFunctionTy = bool (*)(MlirValue);
 
   PyConcreteValue() = default;
   PyConcreteValue(PyOperationRef operationRef, MlirValue value)
-      : PyValue(operationRef, value) {}
+      : BaseTy(operationRef, value) {}
   PyConcreteValue(PyValue &orig)
       : PyConcreteValue(orig.getParentOperation(), castFrom(orig)) {}
 
-  /// Attempts to cast the original value to the derived type and throws on
-  /// type mismatches.
-  static MlirValue castFrom(PyValue &orig);
+  static MlirValue castFrom(PyValue &orig) {
+    if (!DerivedTy::isaFunction(orig.get())) {
+      auto origRepr = py::repr(py::cast(orig)).cast<std::string>();
+      throw SetPyError(PyExc_ValueError, Twine("Cannot cast value to ") +
+                                             DerivedTy::pyClassName +
+                                             " (from " + origRepr + ")");
+    }
+    return orig.get();
+  }
 
-  /// Binds the Python module objects to functions of this class.
-  static void bind(py::module &m);
+  static void bind(py::module &m) {
+    auto cls = ClassTy(m, DerivedTy::pyClassName);
+    cls.def(py::init<PyValue &>(), py::keep_alive<0, 1>(), py::arg("value"));
+    cls.def_static(
+        "isinstance",
+        [](PyValue &otherValue) -> bool {
+          return DerivedTy::isaFunction(otherValue);
+        },
+        py::arg("other_value"));
+    cls.def("__str__", [](const py::object &self) {
+      auto Value =
+          py::module::import(MAKE_MLIR_PYTHON_QUALNAME("ir")).attr("Value");
+      return py::str(Value(self))
+          .attr("replace")("Value", DerivedTy::pyClassName);
+    });
+    DerivedTy::bindDerived(cls);
+  }
 
   /// Implemented by derived classes to add methods to the Python subclass.
   static void bindDerived(ClassTy &m) {}
@@ -96,7 +110,8 @@ public:
 
 #define DECLARE_LIST_BASE_CONCRETE_VALUE(CONCRETEVALUE)                        \
   class PyAnyTorchListOf##CONCRETEVALUE##Value                                 \
-      : public PyConcreteValue<PyAnyTorchListOf##CONCRETEVALUE##Value> {       \
+      : public PyConcreteValue<PyAnyTorchListOf##CONCRETEVALUE##Value,         \
+                               PyAnyTorchListValue> {                          \
   public:                                                                      \
     static constexpr IsAFunctionTy isaFunction =                               \
         isAAnyTorchListOf##CONCRETEVALUE##Value;                               \
@@ -110,7 +125,8 @@ FORALL_LIST_BASE_CONCRETE_TYPES(DECLARE_LIST_BASE_CONCRETE_VALUE)
 
 #define DECLARE_OPTIONAL_BASE_CONCRETE_VALUE(CONCRETEVALUE)                    \
   class PyAnyTorchOptional##CONCRETEVALUE##Value                               \
-      : public PyConcreteValue<PyAnyTorchOptional##CONCRETEVALUE##Value> {     \
+      : public PyConcreteValue<PyAnyTorchOptional##CONCRETEVALUE##Value,       \
+                               PyAnyTorchOptionalValue> {                      \
   public:                                                                      \
     static constexpr IsAFunctionTy isaFunction =                               \
         isAAnyTorchOptional##CONCRETEVALUE##Value;                             \
@@ -174,15 +190,6 @@ public:
   static constexpr IsAFunctionTy isaFunction = isATorch_ValueTensorValue;
   static constexpr const char *pyClassName = "Torch_ValueTensorValue";
   using PyConcreteValue::PyConcreteValue;
-  static void bindDerived(ClassTy &c);
-};
-
-class PyAnyTorchTensorValue : public PyConcreteValue<PyAnyTorchTensorValue> {
-public:
-  static constexpr IsAFunctionTy isaFunction = isAAnyTorchTensorValue;
-  static constexpr const char *pyClassName = "AnyTorchTensorValue";
-  using PyConcreteValue::PyConcreteValue;
-
   static void bindDerived(ClassTy &c);
 };
 

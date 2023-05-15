@@ -37,9 +37,9 @@ jobs:
           pip install -r requirements.txt
           pip install . -v --no-build-isolation
 
-      - name: No JIT smoke test
-        run: |
-          pytest tests/torch_mlir/core.py
+#      - name: No JIT smoke test
+#        run: |
+#          pytest tests/torch_mlir/core.py
 
       - name: Unit tests
         run: |

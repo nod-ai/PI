@@ -1,6 +1,8 @@
+import ast
 import inspect
 import tempfile
 import warnings
+from collections import defaultdict
 from pathlib import Path
 from textwrap import dedent
 from typing import List
@@ -13,12 +15,10 @@ from torch_mlir.dialects.torch.importer.jit_ir.build_tools.registry import (
 from torch_mlir.dialects.torch.importer.jit_ir.build_tools.torch_ods_gen import (
     TORCH_TYPE_TO_ODS_TYPE,
 )
-from torch_mlir.dialects.torch.importer.jit_ir.build_tools.utils import TextEmitter
-
-
 from torch_mlir.dialects.torch.importer.jit_ir.build_tools.torch_ods_gen import (
     get_ods_type,
 )
+from torch_mlir.dialects.torch.importer.jit_ir.build_tools.utils import TextEmitter
 
 UNIQUE_OPS = []
 
@@ -55,7 +55,7 @@ def generate_exts():
         emit_ops(emitter_td, registry)
 
 
-def generate_pybind_bindings(cpp_ext_dir):
+def generate_pybind_bindings_for_ops(cpp_ext_dir):
     registry = Registry.load()
     with tempfile.NamedTemporaryFile() as f_td:
         emitter_td = TextEmitter(f_td)
@@ -139,10 +139,14 @@ def generate_pybind_bindings(cpp_ext_dir):
             )
         )
 
-    with open(f"{cpp_ext_dir}/TorchOps.impls.cpp", "w") as stubs_td:
-        stubs_emitter_td = TextEmitter(stubs_td)
-        stubs_emitter_td._INDENT = "    "
-        stub_td = lambda *args: stubs_emitter_td.print(*args)
+    with open(f"{cpp_ext_dir}/TorchOps.impls.cpp", "w") as impls_file, open(
+        f"{cpp_ext_dir}/TorchOps.inc.h", "w"
+    ) as impls_h_file:
+        impls_h_emitter = TextEmitter(impls_h_file)
+        impls_emitter = TextEmitter(impls_file)
+        impls_emitter._INDENT = "    "
+        impls_td = lambda *args: impls_emitter.print(*args)
+        impls_h_td = lambda *args: impls_h_emitter.print(*args)
         for (
             unqualified_name,
             params,
@@ -193,12 +197,19 @@ def generate_pybind_bindings(cpp_ext_dir):
                     }}
                 """
             )
-            stub_td(impl)
+            impls_td(impl)
+            header = dedent(
+                f"""
+                    // {schema}
+                    py::object {unqualified_name}({param_str});
+                """
+            )
+            impls_h_td(header)
 
-    with open(f"{cpp_ext_dir}/TorchOps.pybinds.cpp", "w") as stubs_td:
-        stubs_emitter_td = TextEmitter(stubs_td)
-        stubs_emitter_td._INDENT = "    "
-        stub_td = lambda *args: stubs_emitter_td.print(*args)
+    with open(f"{cpp_ext_dir}/TorchOps.pybinds.cpp", "w") as impls_file:
+        impls_emitter = TextEmitter(impls_file)
+        impls_emitter._INDENT = "    "
+        impls_td = lambda *args: impls_emitter.print(*args)
         for (
             unqualified_name,
             params,
@@ -216,9 +227,175 @@ def generate_pybind_bindings(cpp_ext_dir):
                     m.def("{unqualified_name}", py::overload_cast<{param_str}>(&{unqualified_name}));
                 """
             )
-            stub_td(impl)
+            impls_td(impl)
+
+    return ops
+
+
+class TensorMethodVisitor(ast.NodeVisitor):
+    skip = [
+        "run_on_actual_value",
+        "__subclasscheck__",
+        "__instancecheck__",
+        "_is_pi_tensor",
+        "__class__",
+        "type",
+        "value",
+        "__init__",
+    ]
+
+    def __init__(self, ops):
+        self.ops = ops
+        self.binds_file = open(f"{cpp_ext_dir}/TorchTensor.pybinds.cpp", "w")
+        self.binds_emitter = TextEmitter(self.binds_file)
+        self.binds_emitter._INDENT = "    "
+        self.binds_td = lambda *args: self.binds_emitter.print(*args)
+
+        self.binds_tramps_file = open(
+            f"{cpp_ext_dir}/TorchTensor.pybinds_tramps.cpp", "w"
+        )
+        self.binds_tramps_emitter = TextEmitter(self.binds_tramps_file)
+        self.binds_tramps_emitter._INDENT = "    "
+        self.binds_tramps_td = lambda *args: self.binds_tramps_emitter.print(*args)
+        self.visited = set()
+
+    def emit_not_implemented(self, method_sig, op_name):
+        impl = dedent(
+            f"""
+                // {method_sig}
+                c.def("{op_name}", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) {{ throw NotImplementedError("{op_name} with signature {method_sig}"); }});
+            """
+        )
+        self.binds_td(impl)
+
+    def visit_FunctionDef(self, node: ast.FunctionDef):
+        method_sig = (
+            ast.unparse(node)
+            .replace("def", "")
+            .replace("\n", "")
+            .replace("...", "")
+            .replace(":", "")
+            .strip()
+        )
+
+        op_name = node.name
+        if op_name in self.skip:
+            if method_sig not in self.visited:
+                self.visited.add(method_sig)
+                # self.emit_not_implemented(method_sig, op_name)
+            return
+        if op_name not in self.ops and op_name.replace("__", "") not in self.ops:
+            if method_sig not in self.visited:
+                self.visited.add(method_sig)
+                self.emit_not_implemented(method_sig, op_name)
+            return
+
+        posonlyargs = {k.arg for k in node.args.posonlyargs}
+        assert len(posonlyargs) == 0
+        kwonlyargs = {k.arg for k in node.args.kwonlyargs}
+        arg_names = [a.arg for a in node.args.args if a not in kwonlyargs]
+        arg_types = [a.annotation for a in node.args.args if a not in kwonlyargs]
+        if node.args.vararg:
+            arg_names.append(f"*{node.args.vararg.arg}")
+        if node.args.kwonlyargs:
+            for kwarg in node.args.kwonlyargs:
+                arg_names.append(kwarg.arg)
+                arg_types.append(kwarg.annotation)
+
+        def try_to_find_op(op_name):
+
+            for i, (params, returns, cpp_class_name, schema) in enumerate(
+                self.ops.get(op_name, [])
+            ):
+                params_dict = dict(params)
+                if (
+                    set(arg_names) == set(params_dict.keys())
+                    and "self" in params_dict
+                    and params_dict["self"] == "AnyTorchTensorType"
+                ):
+                    return params, returns, cpp_class_name, schema, op_name
+
+        op = try_to_find_op(op_name)
+        if op is None and op_name.startswith("__") and op_name.endswith("__"):
+            op = try_to_find_op(op_name.replace("__", ""))
+
+        if op is None:
+            warnings.warn(f"found no matching overload for {op_name=}")
+            return
+
+        params, returns, cpp_class_name, schema, overload_op_name = op
+        if schema in self.visited:
+            return
+
+        self.visited.add(schema)
+
+        params_dict = dict(params)
+        if arg_names != [p[0] for p in params]:
+            # different orders...
+            tramp_param_str = ", ".join(
+                [
+                    f"const mlir::torch::Py{params_dict[name].replace('Type', 'Value')} &{name}"
+                    for name in arg_names
+                ]
+            )
+            impl = dedent(
+                f"""
+                        // {schema}
+                        py::object {op_name}({tramp_param_str}) {{
+                          return mlir::torch::{overload_op_name}({', '.join([p[0] for p in params])});
+                        }}
+                    """
+            )
+            self.binds_tramps_td(impl)
+
+        param_str = ", ".join(
+            [
+                f"const Py{params_dict[name].replace('Type', 'Value')}&"
+                for name in arg_names
+            ]
+        )
+        if kwonlyargs:
+            warnings.warn(f"{op_name=} has kwonly args: {kwonlyargs=}")
+        impl = dedent(
+            f"""
+                // {method_sig}
+                // {schema}
+                c.def("{op_name}", py::overload_cast<{param_str}>(&{overload_op_name}));
+            """
+        )
+        self.binds_td(impl)
+
+
+class FindTensorClass(ast.NodeVisitor):
+    def __init__(self, ops):
+        self.ops = ops
+        self.tens_visitor = TensorMethodVisitor(self.ops)
+
+    def visit_ClassDef(self, node: ast.ClassDef):
+        if node.name == "_TensorBase":
+            self.tens_visitor.visit(node)
+
+
+def generate_tensor_bindings(ops):
+    with open("torch/_C/__init__.pyi") as f:
+        tree = ast.parse(f.read())
+
+    ops_dict = defaultdict(list)
+    for (
+        unqualified_name,
+        params,
+        returns,
+        cpp_class_name,
+        schema,
+    ) in ops:
+        ops_dict[unqualified_name].append((params, returns, cpp_class_name, schema))
+    f = FindTensorClass(ops_dict)
+    f.visit(tree)
+    f.tens_visitor.binds_file.close()
+    f.tens_visitor.binds_tramps_file.close()
 
 
 if __name__ == "__main__":
     cpp_ext_dir = str((Path(__file__).parent.parent.parent / "cpp_ext").absolute())
-    generate_pybind_bindings(cpp_ext_dir)
+    ops = generate_pybind_bindings_for_ops(cpp_ext_dir)
+    generate_tensor_bindings(ops)

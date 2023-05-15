@@ -5,8 +5,6 @@
 #include "TorchValues.h"
 #include "TorchTypes.h"
 
-using llvm::Twine;
-
 namespace mlir::torch {
 
 bool isAAnyTorchDictKeyValue(MlirValue value) {
@@ -77,75 +75,12 @@ bool isAAnyTorchValue(MlirValue value) {
   return isAAnyTorchType(mlirValueGetType(value));
 }
 
-bool isATorch_BoolValue(MlirValue value) {
-  return isATorch_BoolType(mlirValueGetType(value));
-}
-bool isATorch_DeviceValue(MlirValue value) {
-  return isATorch_DeviceType(mlirValueGetType(value));
-}
-bool isATorch_DictValue(MlirValue value) {
-  return isATorch_DictType(mlirValueGetType(value));
-}
-bool isATorch_FloatValue(MlirValue value) {
-  return isATorch_FloatType(mlirValueGetType(value));
-}
-bool isATorch_IntValue(MlirValue value) {
-  return isATorch_IntType(mlirValueGetType(value));
-}
-bool isATorch_LinearParamsValue(MlirValue value) {
-  return isATorch_LinearParamsType(mlirValueGetType(value));
-}
-bool isATorch_NnModuleValue(MlirValue value) {
-  return isATorch_NnModuleType(mlirValueGetType(value));
-}
-bool isATorch_NonValueTensorValue(MlirValue value) {
-  return isATorch_NonValueTensorType(mlirValueGetType(value));
-}
-bool isATorch_NoneValue(MlirValue value) {
-  return isATorch_NoneType(mlirValueGetType(value));
-}
-bool isATorch_NumberValue(MlirValue value) {
-  return isATorch_NumberType(mlirValueGetType(value));
-}
-bool isATorch_StringValue(MlirValue value) {
-  return isATorch_StringType(mlirValueGetType(value));
-}
-bool isATorch_TupleValue(MlirValue value) {
-  return isATorch_TupleType(mlirValueGetType(value));
-}
-bool isATorch_ValueTensorValue(MlirValue value) {
-  return isATorch_ValueTensorType(mlirValueGetType(value));
-}
-
-template <typename DerivedTy>
-MlirValue PyConcreteValue<DerivedTy>::castFrom(PyValue &orig) {
-  if (!DerivedTy::isaFunction(orig.get())) {
-    auto origRepr = py::repr(py::cast(orig)).cast<std::string>();
-    throw SetPyError(PyExc_ValueError, Twine("Cannot cast value to ") +
-                                           DerivedTy::pyClassName + " (from " +
-                                           origRepr + ")");
+#define DECLARE_ISA_UNDERSCORE_VALUE(UNDERSCOREVALUE)                          \
+  bool isATorch_##UNDERSCOREVALUE##Value(MlirValue value) {                    \
+    return isATorch_##UNDERSCOREVALUE##Type(mlirValueGetType(value));          \
   }
-  return orig.get();
-}
-
-template <typename DerivedTy>
-void PyConcreteValue<DerivedTy>::bind(py::module &m) {
-  auto cls = ClassTy(m, DerivedTy::pyClassName);
-  cls.def(py::init<PyValue &>(), py::keep_alive<0, 1>(), py::arg("value"));
-  cls.def_static(
-      "isinstance",
-      [](PyValue &otherValue) -> bool {
-        return DerivedTy::isaFunction(otherValue);
-      },
-      py::arg("other_value"));
-  cls.def("__str__", [](const py::object &self) {
-    auto Value =
-        py::module::import(MAKE_MLIR_PYTHON_QUALNAME("ir")).attr("Value");
-    return py::str(Value(self))
-        .attr("replace")("Value", DerivedTy::pyClassName);
-  });
-  DerivedTy::bindDerived(cls);
-}
+FORALL_UNDERSCORE_TYPES(DECLARE_ISA_UNDERSCORE_VALUE)
+#undef DECLARE_ISA_UNDERSCORE_VALUE
 
 // these are here (even though they're empty) as a reminder (because it might
 // be hard to miss in the macros...
@@ -153,27 +88,26 @@ void PyAnyTorchListValue::bindDerived(ClassTy &c) {}
 
 void PyAnyTorchOptionalValue::bindDerived(ClassTy &c) {}
 
-#define DECLARE_LIST_BASE_CONCRETE_VALUE(CONCRETEVALUE)                        \
+#define DEFINE_LIST_BASE_CONCRETE_VALUE(CONCRETEVALUE)                         \
   void PyAnyTorchListOf##CONCRETEVALUE##Value::bindDerived(ClassTy &c) {}
-FORALL_LIST_BASE_CONCRETE_TYPES(DECLARE_LIST_BASE_CONCRETE_VALUE)
-#undef DECLARE_LIST_BASE_CONCRETE_VALUE
+FORALL_LIST_BASE_CONCRETE_TYPES(DEFINE_LIST_BASE_CONCRETE_VALUE)
+#undef DEFINE_LIST_BASE_CONCRETE_VALUE
 
-#define DECLARE_OPTIONAL_BASE_CONCRETE_VALUE(CONCRETEVALUE)                    \
+#define DEFINE_OPTIONAL_BASE_CONCRETE_VALUE(CONCRETEVALUE)                     \
   void PyAnyTorchOptional##CONCRETEVALUE##Value::bindDerived(ClassTy &c) {}
-FORALL_OPTIONAL_BASE_CONCRETE_TYPES(DECLARE_OPTIONAL_BASE_CONCRETE_VALUE)
-#undef DECLARE_OPTIONAL_BASE_CONCRETE_VALUE
+FORALL_OPTIONAL_BASE_CONCRETE_TYPES(DEFINE_OPTIONAL_BASE_CONCRETE_VALUE)
+#undef DEFINE_OPTIONAL_BASE_CONCRETE_VALUE
 
-#define DECLARE_SCALAR_VALUE(SCALARVALUE)                                      \
+#define DEFINE_SCALAR_VALUE(SCALARVALUE)                                       \
   void PyTorch_##SCALARVALUE##Value::bindDerived(ClassTy &c) {}
-FORALL_SCALAR_TYPES(DECLARE_SCALAR_VALUE)
-#undef DECLARE_SCALAR_VALUE
+FORALL_SCALAR_TYPES(DEFINE_SCALAR_VALUE)
+#undef DEFINE_SCALAR_VALUE
 
 void PyTorch_DictValue::bindDerived(ClassTy &c) {}
 void PyTorch_TupleValue::bindDerived(ClassTy &c) {}
 void PyTorch_NnModuleValue::bindDerived(ClassTy &c) {}
 void PyTorch_NonValueTensorValue::bindDerived(ClassTy &c) {}
 void PyTorch_ValueTensorValue::bindDerived(ClassTy &c) {}
-void PyAnyTorchTensorValue::bindDerived(ClassTy &c) {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -196,7 +130,6 @@ void populateTorchMLIRValues(py::module &m) {
   PyTorch_NnModuleValue::bind(m);
   PyTorch_NonValueTensorValue::bind(m);
   PyTorch_ValueTensorValue::bind(m);
-  PyAnyTorchTensorValue::bind(m);
 }
 
 } // namespace mlir::torch

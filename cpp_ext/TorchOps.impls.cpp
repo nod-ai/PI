@@ -263,12 +263,6 @@ py::object as_strided_scatter(const PyAnyTorchTensorValue &self, const PyAnyTorc
   return torch.attr("AtenAsStridedScatterOp")(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, src, size, stride, storage_offset);
 }
 
-// aten::atan : (Tensor) -> (Tensor)
-py::object atan(const PyAnyTorchTensorValue &self) {
-  auto torch = py::module::import(MAKE_MLIR_PYTHON_QUALNAME("dialects")).attr("torch");
-  return torch.attr("AtenAtanOp")(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self);
-}
-
 // aten::atan2 : (Tensor, Tensor) -> (Tensor)
 py::object atan2(const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &other) {
   auto torch = py::module::import(MAKE_MLIR_PYTHON_QUALNAME("dialects")).attr("torch");
@@ -279,12 +273,6 @@ py::object atan2(const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue 
 py::object atan2_(const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &other) {
   auto torch = py::module::import(MAKE_MLIR_PYTHON_QUALNAME("dialects")).attr("torch");
   return torch.attr("AtenAtan2_Op")(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, other);
-}
-
-// aten::atan_ : (Tensor) -> (Tensor)
-py::object atan_(const PyAnyTorchTensorValue &self) {
-  auto torch = py::module::import(MAKE_MLIR_PYTHON_QUALNAME("dialects")).attr("torch");
-  return torch.attr("AtenAtan_Op")(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self);
 }
 
 // aten::avg_pool2d : (Tensor, int[], int[], int[], bool, bool, int?) -> (Tensor)
@@ -833,12 +821,6 @@ py::object hardswish_(const PyAnyTorchTensorValue &self) {
   return torch.attr("AtenHardswish_Op")(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self);
 }
 
-// aten::imag : (Tensor) -> (Tensor)
-py::object imag(const PyAnyTorchTensorValue &self) {
-  auto torch = py::module::import(MAKE_MLIR_PYTHON_QUALNAME("dialects")).attr("torch");
-  return torch.attr("AtenImagOp")(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self);
-}
-
 // aten::index_select : (Tensor, int, Tensor) -> (Tensor)
 py::object index_select(const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyAnyTorchTensorValue &index) {
   auto torch = py::module::import(MAKE_MLIR_PYTHON_QUALNAME("dialects")).attr("torch");
@@ -1151,22 +1133,10 @@ py::object mm(const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &ma
   return torch.attr("AtenMmOp")(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, mat2);
 }
 
-// aten::movedim.int : (Tensor, int, int) -> (Tensor)
-py::object movedim(const PyAnyTorchTensorValue &self, const PyTorch_IntValue &source, const PyTorch_IntValue &destination) {
-  auto torch = py::module::import(MAKE_MLIR_PYTHON_QUALNAME("dialects")).attr("torch");
-  return torch.attr("AtenMovedimIntOp")(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, source, destination);
-}
-
 // aten::mse_loss : (Tensor, Tensor, int) -> (Tensor)
 py::object mse_loss(const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &target, const PyTorch_IntValue &reduction) {
   auto torch = py::module::import(MAKE_MLIR_PYTHON_QUALNAME("dialects")).attr("torch");
   return torch.attr("AtenMseLossOp")(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, target, reduction);
-}
-
-// aten::mse_loss_backward : (Tensor, Tensor, Tensor, int) -> (Tensor)
-py::object mse_loss_backward(const PyAnyTorchTensorValue &grad_output, const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &target, const PyTorch_IntValue &reduction) {
-  auto torch = py::module::import(MAKE_MLIR_PYTHON_QUALNAME("dialects")).attr("torch");
-  return torch.attr("AtenMseLossBackwardOp")(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), grad_output, self, target, reduction);
 }
 
 // aten::mul.Tensor : (Tensor, Tensor) -> (Tensor)
@@ -1307,12 +1277,6 @@ py::object numpy_T(const PyAnyTorchTensorValue &self) {
   return torch.attr("AtenNumpyTOp")(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self);
 }
 
-// aten::one_hot : (Tensor, int) -> (Tensor)
-py::object one_hot(const PyAnyTorchTensorValue &self, const PyTorch_IntValue &num_classes) {
-  auto torch = py::module::import(MAKE_MLIR_PYTHON_QUALNAME("dialects")).attr("torch");
-  return torch.attr("AtenOneHotOp")(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, num_classes);
-}
-
 // aten::ones : (int[], int?, int?, Device?, bool?) -> (Tensor)
 py::object ones(const PyAnyTorchListOfTorchIntValue &size, const PyAnyTorchOptionalIntValue &dtype, const PyAnyTorchOptionalIntValue &layout, const PyAnyTorchOptionalDeviceValue &device, const PyAnyTorchOptionalBoolValue &pin_memory) {
   auto torch = py::module::import(MAKE_MLIR_PYTHON_QUALNAME("dialects")).attr("torch");
@@ -1373,12 +1337,6 @@ py::object randint(const PyTorch_IntValue &low, const PyTorch_IntValue &high, co
   return torch.attr("AtenRandintLowOp")(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), low, high, size, dtype, layout, device, pin_memory);
 }
 
-// aten::randint : (int, int[], int?, int?, Device?, bool?) -> (Tensor)
-py::object randint(const PyTorch_IntValue &high, const PyAnyTorchListOfTorchIntValue &size, const PyAnyTorchOptionalIntValue &dtype, const PyAnyTorchOptionalIntValue &layout, const PyAnyTorchOptionalDeviceValue &device, const PyAnyTorchOptionalBoolValue &pin_memory) {
-  auto torch = py::module::import(MAKE_MLIR_PYTHON_QUALNAME("dialects")).attr("torch");
-  return torch.attr("AtenRandintOp")(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), high, size, dtype, layout, device, pin_memory);
-}
-
 // aten::randn : (int[], int?, int?, Device?, bool?) -> (Tensor)
 py::object randn(const PyAnyTorchListOfTorchIntValue &size, const PyAnyTorchOptionalIntValue &dtype, const PyAnyTorchOptionalIntValue &layout, const PyAnyTorchOptionalDeviceValue &device, const PyAnyTorchOptionalBoolValue &pin_memory) {
   auto torch = py::module::import(MAKE_MLIR_PYTHON_QUALNAME("dialects")).attr("torch");
@@ -1395,12 +1353,6 @@ py::object randn(const PyAnyTorchListOfTorchIntValue &size, const PyAnyTorchOpti
 py::object randn_like(const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalIntValue &dtype, const PyAnyTorchOptionalIntValue &layout, const PyAnyTorchOptionalDeviceValue &device, const PyAnyTorchOptionalBoolValue &pin_memory, const PyAnyTorchOptionalIntValue &memory_format) {
   auto torch = py::module::import(MAKE_MLIR_PYTHON_QUALNAME("dialects")).attr("torch");
   return torch.attr("AtenRandnLikeOp")(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, dtype, layout, device, pin_memory, memory_format);
-}
-
-// aten::real : (Tensor) -> (Tensor)
-py::object real(const PyAnyTorchTensorValue &self) {
-  auto torch = py::module::import(MAKE_MLIR_PYTHON_QUALNAME("dialects")).attr("torch");
-  return torch.attr("AtenRealOp")(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self);
 }
 
 // aten::reciprocal : (Tensor) -> (Tensor)
@@ -1491,12 +1443,6 @@ py::object rsqrt(const PyAnyTorchTensorValue &self) {
 py::object rsqrt_(const PyAnyTorchTensorValue &self) {
   auto torch = py::module::import(MAKE_MLIR_PYTHON_QUALNAME("dialects")).attr("torch");
   return torch.attr("AtenRsqrt_Op")(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self);
-}
-
-// aten::scatter.src : (Tensor, int, Tensor, Tensor) -> (Tensor)
-py::object scatter(const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyAnyTorchTensorValue &index, const PyAnyTorchTensorValue &src) {
-  auto torch = py::module::import(MAKE_MLIR_PYTHON_QUALNAME("dialects")).attr("torch");
-  return torch.attr("AtenScatterSrcOp")(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, dim, index, src);
 }
 
 // aten::scatter_add : (Tensor, int, Tensor, Tensor) -> (Tensor)
@@ -1659,12 +1605,6 @@ py::object squeeze(const PyAnyTorchTensorValue &self, const PyTorch_IntValue &di
 py::object squeeze(const PyAnyTorchTensorValue &self) {
   auto torch = py::module::import(MAKE_MLIR_PYTHON_QUALNAME("dialects")).attr("torch");
   return torch.attr("AtenSqueezeOp")(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self);
-}
-
-// prims::squeeze : (Tensor, int[]) -> (Tensor)
-py::object squeeze(const PyAnyTorchTensorValue &a, const PyAnyTorchListOfTorchIntValue &dimensions) {
-  auto torch = py::module::import(MAKE_MLIR_PYTHON_QUALNAME("dialects")).attr("torch");
-  return torch.attr("PrimsSqueezeOp")(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), a, dimensions);
 }
 
 // aten::squeeze_copy : (Tensor) -> (Tensor)
@@ -1871,12 +1811,6 @@ py::object view(const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTorchIn
   return torch.attr("AtenViewOp")(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, size);
 }
 
-// aten::view_as_complex : (Tensor) -> (Tensor)
-py::object view_as_complex(const PyAnyTorchTensorValue &self) {
-  auto torch = py::module::import(MAKE_MLIR_PYTHON_QUALNAME("dialects")).attr("torch");
-  return torch.attr("AtenViewAsComplexOp")(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self);
-}
-
 // aten::view_copy : (Tensor, int[]) -> (Tensor)
 py::object view_copy(const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTorchIntValue &size) {
   auto torch = py::module::import(MAKE_MLIR_PYTHON_QUALNAME("dialects")).attr("torch");
@@ -1887,12 +1821,6 @@ py::object view_copy(const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTo
 py::object view_copy(const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dtype) {
   auto torch = py::module::import(MAKE_MLIR_PYTHON_QUALNAME("dialects")).attr("torch");
   return torch.attr("AtenViewCopyDtypeOp")(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, dtype);
-}
-
-// prims::view_of : (Tensor) -> (Tensor)
-py::object view_of(const PyAnyTorchTensorValue &a) {
-  auto torch = py::module::import(MAKE_MLIR_PYTHON_QUALNAME("dialects")).attr("torch");
-  return torch.attr("PrimsViewOfOp")(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), a);
 }
 
 // aten::where.self : (Tensor, Tensor, Tensor) -> (Tensor)
