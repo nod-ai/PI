@@ -1,6 +1,7 @@
 import os
 import platform
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -42,13 +43,13 @@ class CMakeBuild(build_ext):
 
         cmake_generator = os.environ.get("CMAKE_GENERATOR", "")
         cmake_args = [
-            f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={ext_build_lib_dir}{os.sep}pi",
+            f"-DCMAKE_INSTALL_PREFIX={ext_build_lib_dir}/{PACKAGE_NAME}",
             f"-DPython3_EXECUTABLE={sys.executable}",
             f"-DCMAKE_BUILD_TYPE={cfg}",  # not used on MSVC, but no harm
         ]
-        llvm_install_dir = os.environ.get("LLVM_INSTALL_DIR", None)
-        if llvm_install_dir is not None:
-            cmake_args.append(f"-DLLVM_INSTALL_DIR={llvm_install_dir}")
+        torch_mlir_install_dir = os.environ.get("TORCH_MLIR_INSTALL_DIR", None)
+        if torch_mlir_install_dir is not None:
+            cmake_args.append(f"-DTORCH_MLIR_INSTALL_DIR={torch_mlir_install_dir}")
         build_args = []
         if "CMAKE_ARGS" in os.environ:
             cmake_args += [item for item in os.environ["CMAKE_ARGS"].split(" ") if item]
@@ -65,7 +66,7 @@ class CMakeBuild(build_ext):
             except ImportError:
                 pass
 
-        if sys.platform.startswith("darwin"):
+        if sys.platform.lower().startswith("darwin"):
             # Cross-compile support for macOS - respect ARCHFLAGS if set
             archs = re.findall(r"-arch (\S+)", os.environ.get("ARCHFLAGS", ""))
             if archs:
@@ -86,17 +87,65 @@ class CMakeBuild(build_ext):
             ["cmake", ext.sourcedir] + cmake_args, cwd=build_temp, check=True
         )
         subprocess.run(
-            ["cmake", "--build", "."] + build_args, cwd=build_temp, check=True
+            ["cmake", "--build", ".", "--target", "install"] + build_args,
+            cwd=build_temp,
+            check=True,
         )
 
+        if platform.system() == "Darwin":
+            shlib_ext = "dylib"
+        elif platform.system() == "Linux":
+            shlib_ext = "so"
+        else:
+            raise NotImplementedError(f"unknown platform {platform.system()}")
+
+        mlir_libs_dir = Path(
+            f"{ext_build_lib_dir}/{PACKAGE_NAME}/mlir/_mlir/_mlir_libs"
+        )
+        shlibs = [
+            "LTO",
+            "MLIR-C",
+            "Remarks",
+            "mlir_async_runtime",
+            "mlir_c_runner_utils",
+            "mlir_float16_utils",
+            "mlir_runner_utils",
+        ]
+
+        for shlib in shlibs:
+            shlib_name = f"lib{shlib}.{shlib_ext}"
+            torch_mlir_install_dir = (
+                Path(".").parent / "torch_mlir_install"
+            ).absolute()
+            assert torch_mlir_install_dir.exists()
+            torch_mlir_install_fp = (
+                torch_mlir_install_dir / "lib" / shlib_name
+            ).absolute()
+            assert torch_mlir_install_fp.exists()
+            dst_path = mlir_libs_dir / shlib_name
+            shutil.copyfile(torch_mlir_install_fp, dst_path)
+            if platform.system() == "Linux":
+                shutil.copyfile(torch_mlir_install_fp, f"{dst_path}.17git")
+                subprocess.run(
+                    ["patchelf", "--set-rpath", "$ORIGIN", dst_path],
+                    cwd=build_temp,
+                    check=True,
+                )
+                subprocess.run(
+                    ["patchelf", "--set-rpath", "$ORIGIN", f"{dst_path}.17git"],
+                    cwd=build_temp,
+                    check=True,
+                )
+
+
+PACKAGE_NAME = "pi"
 
 packages = find_namespace_packages(
     include=[
-        "pi",
-        "pi.*",
+        PACKAGE_NAME,
+        f"{PACKAGE_NAME}.*",
     ],
 )
-
 VERSION = "0.0.3"
 
 if len(sys.argv) > 1 and sys.argv[1] == "--version":
@@ -106,7 +155,7 @@ if len(sys.argv) > 1 and sys.argv[1] == "--torch-mlir-url":
 else:
     install_reqs = parse_requirements("requirements.txt", session="hack")
     setup(
-        name="PI",
+        name=PACKAGE_NAME,
         version=VERSION,
         author="Maksim Levental",
         author_email="maksim.levental@gmail.com",

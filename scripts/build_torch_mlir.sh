@@ -2,8 +2,8 @@
 set -eu -o pipefail
 
 GITHUB_WORKSPACE=$PWD
-if [ ! -d "$GITHUB_WORKSPACE" ]; then
-  git clone --recursive git@github.com:makslevental/torch-mlir.git
+if [ ! -d "$GITHUB_WORKSPACE/torch-mlir" ]; then
+  git clone --recursive --depth 1 git@github.com:llvm/torch-mlir.git
 fi
 TORCH_MLIR_MAIN_SRC_DIR=${GITHUB_WORKSPACE}/torch-mlir
 TORCH_MLIR_MAIN_BINARY_DIR=${GITHUB_WORKSPACE}/torch-mlir/build
@@ -25,7 +25,9 @@ CMAKE_CONFIGS="\
   -DLLVM_INCLUDE_UTILS=ON \
   -DLLVM_INSTALL_UTILS=ON \
   -DLLVM_USE_HOST_TOOLS=ON \
+  -DMLIR_BUILD_MLIR_C_DYLIB=1 \
   -DMLIR_ENABLE_BINDINGS_PYTHON=ON \
+  -DMLIR_ENABLE_EXECUTION_ENGINE=ON \
   -DPython3_EXECUTABLE=$(which python) \
   -DTORCH_MLIR_ENABLE_ONLY_MLIR_PYTHON_BINDINGS=ON \
   -DTORCH_MLIR_ENABLE_LTC=OFF \
@@ -45,5 +47,3 @@ cmake -G Ninja \
       -B${TORCH_MLIR_MAIN_BINARY_DIR}
 
 cmake --build ${TORCH_MLIR_MAIN_BINARY_DIR} --target install
-cp $TORCH_MLIR_MAIN_BINARY_DIR/tools/torch-mlir/python_packages/torch_mlir/torch_mlir/_mlir_libs/_jit_ir_importer* \
-  $TORCH_MLIR_INSTALL_DIR/python_packages/torch_mlir/torch_mlir/_mlir_libs/

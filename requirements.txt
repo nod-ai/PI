@@ -1,9 +1,15 @@
-# Torch-MLIR
--f https://llvm.github.io/torch-mlir/package-index/
-torch-mlir-core
-
+PyYAML
+black
+cibuildwheel
+cmake
+cmake-format
+ninja
 numpy
-typeguard==3.0.0b2
-multiprocess
+pip
 pybind11
+setuptools>=42
+wheel
+requests
+beautifulsoup4
 pytest
+patchelf; sys_platform == 'linux'
