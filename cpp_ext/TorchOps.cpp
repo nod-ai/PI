@@ -8,6 +8,8 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
 
+#include "Globals.h"
+
 namespace py = pybind11;
 using namespace mlir::python;
 

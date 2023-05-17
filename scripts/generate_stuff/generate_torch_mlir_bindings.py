@@ -57,6 +57,11 @@ def generate_exts():
 
 def generate_pybind_bindings_for_ops(cpp_ext_dir):
     registry = Registry.load()
+
+    with open("JitOperatorRegistry.txt", "w") as f:
+        for op in registry.by_unique_key.values():
+            print(op, file=f)
+
     with tempfile.NamedTemporaryFile() as f_td:
         emitter_td = TextEmitter(f_td)
         emit_ops(emitter_td, registry)
@@ -131,6 +136,7 @@ def generate_pybind_bindings_for_ops(cpp_ext_dir):
 
         ops.append(
             (
+                op_name,
                 operator.unqualified_name,
                 params,
                 returns,
@@ -148,6 +154,7 @@ def generate_pybind_bindings_for_ops(cpp_ext_dir):
         impls_td = lambda *args: impls_emitter.print(*args)
         impls_h_td = lambda *args: impls_h_emitter.print(*args)
         for (
+            torch_dialect_op_name,
             unqualified_name,
             params,
             returns,
@@ -192,8 +199,7 @@ def generate_pybind_bindings_for_ops(cpp_ext_dir):
                 f"""
                     // {schema}
                     py::object {unqualified_name}({param_str}) {{
-                      auto torch = py::module::import(MAKE_MLIR_PYTHON_QUALNAME("dialects")).attr("torch");
-                      return torch.attr("{cpp_class_name}")({', '.join([name for name, _typ in params])});
+                      return PyGlobals::get().lookupOperationClass("torch.{torch_dialect_op_name}").value()({', '.join([name for name, _typ in params])});
                     }}
                 """
             )
@@ -211,6 +217,7 @@ def generate_pybind_bindings_for_ops(cpp_ext_dir):
         impls_emitter._INDENT = "    "
         impls_td = lambda *args: impls_emitter.print(*args)
         for (
+            _torch_dialect_op_name,
             unqualified_name,
             params,
             returns,
@@ -382,6 +389,7 @@ def generate_tensor_bindings(ops):
 
     ops_dict = defaultdict(list)
     for (
+        _torch_dialect_op_name,
         unqualified_name,
         params,
         returns,

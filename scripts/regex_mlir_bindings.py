@@ -36,9 +36,9 @@ def ir_core(fp):
 
 if __name__ == "__main__":
     fp = sys.argv[1]
-    if fp.endswith("IRModule.h") or fp.endswith("PybindUtils.h"):
+    if fp.endswith(".h"):
         ir_module(fp)
-    elif fp.endswith("IRCore.cpp") or fp.endswith("IRAffine.cpp"):
+    elif fp.endswith(".cpp"):
         ir_core(fp)
     else:
         raise NotImplementedError(f"unknown fp {fp=}")

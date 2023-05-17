@@ -34,6 +34,9 @@ execute_process(
   COMMAND python ${CMAKE_SOURCE_DIR}/scripts/regex_mlir_bindings.py
           ${PYBINDINGS_SRC}/IRModule.h)
 execute_process(
+        COMMAND python ${CMAKE_SOURCE_DIR}/scripts/regex_mlir_bindings.py
+        ${PYBINDINGS_SRC}/Globals.h)
+execute_process(
   COMMAND python ${CMAKE_SOURCE_DIR}/scripts/regex_mlir_bindings.py
           ${PYBINDINGS_SRC}/IRCore.cpp)
 execute_process(
