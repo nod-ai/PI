@@ -2,31 +2,56 @@ name: Build torch-mlir
 
 on:
 # uncomment these when iterating on this file
-  pull_request:
-    branches:
-      - main
+#  pull_request:
+#    branches:
+#      - main
   workflow_dispatch:
 
 jobs:
-  build:
-    name: Build distro of TorchMLIR
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ ubuntu-latest, macos-latest ]
+
+  get_torch_mlir_commit:
+    name: Get latest torch-mlir commit
+    runs-on: ubuntu-latest
     outputs:
       TORCH_MLIR_COMMIT: ${{ steps.get_torch_mlir_commit.outputs.TORCH_MLIR_COMMIT }}
     steps:
-      - name: Compute torch-mlir base path
+      - name: Get torch-mlir commit
+        id: get_torch_mlir_commit
+        run: |
+          sudo apt install jq
+          TORCH_MLIR_COMMIT=$(curl -s https://api.github.com/repos/llvm/torch-mlir/commits/main | jq -r '.sha[:8]')
+          echo "TORCH_MLIR_COMMIT=${TORCH_MLIR_COMMIT}" | tee -a $GITHUB_OUTPUT
+
+  build:
+    name: Build distro of TorchMLIR
+    needs: get_torch_mlir_commit
+    runs-on: ${{ matrix.os }}
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, macos-latest ]
+        arch: [ AArch64, X86 ]
+        py_version: [ "3.11" ]
+        exclude:
+          - os: macos-latest
+            arch: X86
+    outputs:
+      TORCH_MLIR_COMMIT: ${{ needs.get_torch_mlir_commit.outputs.TORCH_MLIR_COMMIT }}
+
+    steps:
+      - name: Compute torch-mlir base path and output commit
         run: |
           echo "TORCH_MLIR_MAIN_SRC_DIR=${GITHUB_WORKSPACE}/sandbox" | tee -a $GITHUB_ENV
           echo "TORCH_MLIR_MAIN_BINARY_DIR=${GITHUB_WORKSPACE}/sandbox/build" | tee -a $GITHUB_ENV
           echo "TORCH_MLIR_INSTALL_DIR=${GITHUB_WORKSPACE}/torch_mlir_install" | tee -a $GITHUB_ENV
+          echo "TORCH_MLIR_HOST_MAIN_BINARY_DIR=${GITHUB_WORKSPACE}/sandbox/build_host" | tee -a $GITHUB_ENV
+          echo "TORCH_MLIR_COMMIT=${{ needs.get_torch_mlir_commit.outputs.TORCH_MLIR_COMMIT }}" | tee -a $GITHUB_ENV
 
       - name: Set up Python
         uses: actions/setup-python@13ae5bb136fac2878aff31522b9efb785519f984 # v4.3.0
         with:
-          python-version: 3.11
+          python-version: ${{ matrix.py_version }}
 
       - name: Checkout torch-mlir
         uses: actions/checkout@v3
@@ -34,20 +59,10 @@ jobs:
           repository: llvm/torch-mlir
           path: sandbox
           submodules: recursive
-          
-      - name: Get torch-mlir commit
-        id: get_torch_mlir_commit
-        run: |
-          cd $TORCH_MLIR_MAIN_SRC_DIR
-          TORCH_MLIR_COMMIT=$(git rev-parse --short HEAD)
-          echo "TORCH_MLIR_COMMIT=${TORCH_MLIR_COMMIT}" | tee -a $GITHUB_ENV
-          echo "TORCH_MLIR_COMMIT=${TORCH_MLIR_COMMIT}" | tee -a $GITHUB_OUTPUT
 
       - name: Install Python depends
         run: |
           python -m pip install -r ${TORCH_MLIR_MAIN_SRC_DIR}/build-requirements.txt
-          python -m pip install -r ${TORCH_MLIR_MAIN_SRC_DIR}/pytorch-requirements.txt
-          python -m pip install -r ${TORCH_MLIR_MAIN_SRC_DIR}/whl-requirements.txt
 
       - name: Install Ninja
         uses: llvm/actions/install-ninja@6a57890d0e3f9f35dfc72e7e48bc5e1e527cdd6c # Jan 17
@@ -55,53 +70,116 @@ jobs:
       - name: Ccache for C++ compilation
         uses: hendrikmuhs/ccache-action@621a41397ed83711c72862638d9ff6e63fca3041 # v1.2.3
         with:
-          key: ${{ runner.os }}-torch-mlir
+          key: ${{ matrix.os }}-${{ matrix.arch }}-torch-mlir
           # LLVM needs serious cache size
           max-size: 6G
+
+      - name: Install cross-compilation toolchain
+        if: contains(matrix.os, 'ubuntu') && contains(matrix.arch, 'AArch64')
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y binutils-aarch64-linux-gnu \
+            g++-aarch64-linux-gnu gcc-aarch64-linux-gnu
+
+      - name: Build host llvmtblgen/mlirtblgen
+        if: contains(matrix.os, 'ubuntu') && contains(matrix.arch, 'AArch64')
+        run: |
+          cmake \
+            -DBUILD_SHARED_LIBS=OFF \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_COMPILER=g++ \
+            -DCMAKE_CXX_FLAGS="-O2 -static-libgcc -static-libstdc++" \
+            -DCMAKE_C_COMPILER=gcc \
+            -DLLVM_ENABLE_PROJECTS=mlir \
+            -DLLVM_ENABLE_TERMINFO=OFF \
+            -DLLVM_ENABLE_ZLIB=OFF \
+            -DLLVM_ENABLE_ZSTD=OFF \
+            -DLLVM_TARGETS_TO_BUILD=X86 \
+            -S${TORCH_MLIR_MAIN_SRC_DIR}/externals/llvm-project/llvm \
+            -B${TORCH_MLIR_HOST_MAIN_BINARY_DIR}
+          
+          cmake --build ${TORCH_MLIR_HOST_MAIN_BINARY_DIR} \
+            --target llvm-tblgen mlir-tblgen mlir-linalg-ods-yaml-gen mlir-pdll
+
+      - name: Choose compiler and set env vars
+        run: |
+          if [ x"${{ matrix.os }}" == x"macos-latest" ]; then
+            echo "CXX_COMPILER=clang++" | tee -a $GITHUB_ENV
+            echo "C_COMPILER=clang" | tee -a $GITHUB_ENV
+            echo "LLVM_DEFAULT_TARGET_TRIPLE=arm64-apple-darwin21.6.0" | tee -a $GITHUB_ENV
+            echo "LLVM_HOST_TRIPLE=arm64-apple-darwin21.6.0" | tee -a $GITHUB_ENV
+            echo "ARCH=AArch64" | tee -a $GITHUB_ENV
+          elif [ x"${{ matrix.os }}" == x"ubuntu-latest" ] && [ x"${{ matrix.arch }}" == x"AArch64" ]; then
+            echo "CXX_COMPILER=aarch64-linux-gnu-g++" | tee -a $GITHUB_ENV
+            echo "C_COMPILER=aarch64-linux-gnu-gcc" | tee -a $GITHUB_ENV
+            echo "LLVM_DEFAULT_TARGET_TRIPLE=aarch64-linux-gnu" | tee -a $GITHUB_ENV
+            echo "LLVM_HOST_TRIPLE=aarch64-linux-gnu" | tee -a $GITHUB_ENV
+            echo "ARCH=AArch64" | tee -a $GITHUB_ENV
+          else
+            echo "CXX_COMPILER=g++" | tee -a $GITHUB_ENV
+            echo "C_COMPILER=gcc" | tee -a $GITHUB_ENV
+            echo "LLVM_DEFAULT_TARGET_TRIPLE=x86_64-unknown-linux-gnu" | tee -a $GITHUB_ENV
+            echo "LLVM_HOST_TRIPLE=x86_64-unknown-linux-gnu" | tee -a $GITHUB_ENV
+            echo "ARCH=X86" | tee -a $GITHUB_ENV
+          fi
 
       - name: Configure CMake
         run: |
           CMAKE_CONFIGS="\
             -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_CXX_COMPILER=clang++ \
-            -DCMAKE_C_COMPILER=clang \
+            -DCMAKE_CXX_COMPILER=$CXX_COMPILER \
+            -DCMAKE_C_COMPILER=$C_COMPILER \
             -DCMAKE_INSTALL_PREFIX=$TORCH_MLIR_INSTALL_DIR \
             -DLLVM_CCACHE_BUILD=ON \
+            -DLLVM_DEFAULT_TARGET_TRIPLE=$LLVM_DEFAULT_TARGET_TRIPLE \
             -DLLVM_ENABLE_ASSERTIONS=ON \
-            -DCMAKE_LINKER=lld \
             -DLLVM_ENABLE_PROJECTS=mlir \
             -DLLVM_ENABLE_ZSTD=OFF \
             -DLLVM_EXTERNAL_PROJECTS=torch-mlir;torch-mlir-dialects \
             -DLLVM_EXTERNAL_TORCH_MLIR_DIALECTS_SOURCE_DIR=${TORCH_MLIR_MAIN_SRC_DIR}/externals/llvm-external-projects/torch-mlir-dialects \
             -DLLVM_EXTERNAL_TORCH_MLIR_SOURCE_DIR=$TORCH_MLIR_MAIN_SRC_DIR \
+            -DLLVM_HOST_TRIPLE=$LLVM_HOST_TRIPLE \
             -DLLVM_INCLUDE_UTILS=ON \
             -DLLVM_INSTALL_UTILS=ON \
+            -DLLVM_TARGETS_TO_BUILD=$ARCH \
+            -DLLVM_TARGET_ARCH=$ARCH \
             -DLLVM_USE_HOST_TOOLS=ON \
             -DMLIR_BUILD_MLIR_C_DYLIB=1 \
             -DMLIR_ENABLE_BINDINGS_PYTHON=ON \
             -DMLIR_ENABLE_EXECUTION_ENGINE=ON \
             -DPython3_EXECUTABLE=$(which python) \
-            -DTORCH_MLIR_ENABLE_ONLY_MLIR_PYTHON_BINDINGS=ON \
             -DTORCH_MLIR_ENABLE_LTC=OFF \
+            -DTORCH_MLIR_ENABLE_ONLY_MLIR_PYTHON_BINDINGS=ON \
             -DTORCH_MLIR_ENABLE_STABLEHLO=OFF \
             -DTORCH_MLIR_USE_INSTALLED_PYTORCH=ON"
           
           if [ x"${{ matrix.os }}" == x"macos-latest" ]; then
             CMAKE_CONFIGS="${CMAKE_CONFIGS} \
               -DCMAKE_OSX_ARCHITECTURES=arm64 \
-              -DLLVM_TARGET_ARCH=AArch64 \
-              -DLLVM_TARGETS_TO_BUILD=AArch64 \
               -DMACOSX_DEPLOYMENT_TARGET=12.0"
-          else
+          elif [ x"${{ matrix.os }}" == x"ubuntu-latest" ] && [ x"${{ matrix.arch }}" == x"AArch64" ]; then
             CMAKE_CONFIGS="${CMAKE_CONFIGS} \
-              -DLLVM_TARGET_ARCH=X86 \
-              -DLLVM_TARGETS_TO_BUILD=X86"
+              -DLLVM_TABLEGEN=$TORCH_MLIR_HOST_MAIN_BINARY_DIR/bin/llvm-tblgen \
+              -DMLIR_LINALG_ODS_YAML_GEN=$TORCH_MLIR_HOST_MAIN_BINARY_DIR/bin/mlir-linalg-ods-yaml-gen \
+              -DMLIR_LINALG_ODS_YAML_GEN_EXE=$TORCH_MLIR_HOST_MAIN_BINARY_DIR/bin/mlir-linalg-ods-yaml-gen \
+              -DMLIR_PDLL_TABLEGEN=$TORCH_MLIR_HOST_MAIN_BINARY_DIR/bin/mlir-pdll \
+              -DMLIR_TABLEGEN=$TORCH_MLIR_HOST_MAIN_BINARY_DIR/bin/mlir-tblgen"
           fi
           
-          cmake -G Ninja \
+          echo $CMAKE_CONFIGS
+          
+          if [ x"${{ matrix.os }}" == x"ubuntu-latest" ] && [ x"${{ matrix.arch }}" == x"AArch64" ]; then
+            cmake -G Ninja \
                 $CMAKE_CONFIGS \
+                -DCMAKE_CXX_FLAGS="-O2 -static-libgcc -static-libstdc++" \
                 -S${TORCH_MLIR_MAIN_SRC_DIR}/externals/llvm-project/llvm \
                 -B${TORCH_MLIR_MAIN_BINARY_DIR}
+          else
+            cmake -G Ninja \
+                  $CMAKE_CONFIGS \
+                  -S${TORCH_MLIR_MAIN_SRC_DIR}/externals/llvm-project/llvm \
+                  -B${TORCH_MLIR_MAIN_BINARY_DIR}
+          fi
 
       - name: Build distro
         run: |
@@ -110,7 +188,7 @@ jobs:
 
       - name: Make tarballs
         run: |
-          OUTPUT="torch-mlir-${TORCH_MLIR_COMMIT}-${{ matrix.os }}"
+          OUTPUT="torch-mlir-${TORCH_MLIR_COMMIT}-${{ matrix.os }}-${{ matrix.arch }}"
           cd "$TORCH_MLIR_INSTALL_DIR"/..
           XZ_OPT='-T0 -9' tar -cJf "${OUTPUT}.tar.xz" torch_mlir_install
 
