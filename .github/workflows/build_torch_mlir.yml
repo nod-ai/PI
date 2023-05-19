@@ -6,6 +6,12 @@ on:
 #    branches:
 #      - main
   workflow_dispatch:
+  push:
+    paths:
+      - externals/**
+  pull_request:
+    paths:
+      - externals/**
 
 jobs:
 
