@@ -73,7 +73,7 @@ if(TORCH_MLIR_DOWNLOAD_STATUS_CODE EQUAL 0)
   set(TORCH_MLIR_INSTALL_DIR
       "${CMAKE_CURRENT_SOURCE_DIR}/torch_mlir_install/torch_mlir_install")
 else()
-  message(STATUS "Failed to download torch-mlir because ${STATUS_STRING}.")
+  message(STATUS "Failed to download torch-mlir because ${TORCH_MLIR_DOWNLOAD_STATUS_STRING}.")
   message(STATUS "Will unshallow submodule and build and install.")
 
   execute_process(

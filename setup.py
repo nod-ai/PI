@@ -12,17 +12,6 @@ from pip._internal.req import parse_requirements
 from setuptools import Extension, find_namespace_packages, setup
 from setuptools.command.build_ext import build_ext
 
-
-def get_torch_mlir_url():
-    system = {"Linux": "ubuntu", "Darwin": "macos"}[platform.system()]
-    url = "https://github.com/nod-ai/PI/releases/expanded_assets/torch-mlir-latest"
-    page = requests.get(url)
-    soup = BeautifulSoup(page.content, "html.parser")
-    download_link = soup.find("a", href=re.compile(rf".*{system}.*"))
-    assert download_link, "couldn't find correct torch-mlir distro download link"
-    return f"https://github.com/{download_link['href']}"
-
-
 # A CMakeExtension needs a sourcedir instead of a file list.
 # The name must be the _single_ output extension from the CMake build.
 # If you need multiple extensions, see scikit-build.
@@ -150,8 +139,6 @@ VERSION = "0.0.3"
 
 if len(sys.argv) > 1 and sys.argv[1] == "--version":
     print(VERSION)
-if len(sys.argv) > 1 and sys.argv[1] == "--torch-mlir-url":
-    print(get_torch_mlir_url())
 else:
     install_reqs = parse_requirements("requirements.txt", session="hack")
     setup(
