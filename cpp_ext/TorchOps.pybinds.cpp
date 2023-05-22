@@ -242,6 +242,9 @@ m.def("broadcast_to", py::overload_cast<const PyAnyTorchTensorValue &, const PyA
 // aten::bucketize.Tensor : (Tensor, Tensor, bool, bool) -> (Tensor)
 m.def("bucketize", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyTorch_BoolValue &, const PyTorch_BoolValue &>(&bucketize));
 
+// aten::cat : (Tensor[], int) -> (Tensor)
+m.def("cat", py::overload_cast<const PyAnyTorchListOfTensorValue &, const PyTorch_IntValue &>(&cat));
+
 // aten::ceil : (Tensor) -> (Tensor)
 m.def("ceil", py::overload_cast<const PyAnyTorchTensorValue &>(&ceil));
 
@@ -535,6 +538,15 @@ m.def("hardtanh_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyT
 
 // aten::hardtanh_backward : (Tensor, Tensor, Scalar, Scalar) -> (Tensor)
 m.def("hardtanh_backward", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &, const PyAnyTorchScalarValue &>(&hardtanh_backward));
+
+// aten::index.Tensor_hacked_twin : (Tensor, Tensor[]) -> (Tensor)
+m.def("index", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchListOfTensorValue &>(&index));
+
+// aten::index_put.hacked_twin : (Tensor, Tensor[], Tensor, bool) -> (Tensor)
+m.def("index_put", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchListOfTensorValue &, const PyAnyTorchTensorValue &, const PyTorch_BoolValue &>(&index_put));
+
+// aten::index_put_.hacked_twin : (Tensor, Tensor[], Tensor, bool) -> (Tensor)
+m.def("index_put_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchListOfTensorValue &, const PyAnyTorchTensorValue &, const PyTorch_BoolValue &>(&index_put_));
 
 // aten::index_select : (Tensor, int, Tensor) -> (Tensor)
 m.def("index_select", py::overload_cast<const PyAnyTorchTensorValue &, const PyTorch_IntValue &, const PyAnyTorchTensorValue &>(&index_select));
@@ -988,6 +1000,9 @@ m.def("squeeze_copy", py::overload_cast<const PyAnyTorchTensorValue &>(&squeeze_
 
 // aten::squeeze_copy.dim : (Tensor, int) -> (Tensor)
 m.def("squeeze_copy", py::overload_cast<const PyAnyTorchTensorValue &, const PyTorch_IntValue &>(&squeeze_copy));
+
+// aten::stack : (Tensor[], int) -> (Tensor)
+m.def("stack", py::overload_cast<const PyAnyTorchListOfTensorValue &, const PyTorch_IntValue &>(&stack));
 
 // aten::std : (Tensor, bool) -> (Tensor)
 m.def("std", py::overload_cast<const PyAnyTorchTensorValue &, const PyTorch_BoolValue &>(&std));

@@ -93,6 +93,11 @@ void PyAnyTorchOptionalValue::bindDerived(ClassTy &c) {}
 FORALL_LIST_BASE_CONCRETE_TYPES(DEFINE_LIST_BASE_CONCRETE_VALUE)
 #undef DEFINE_LIST_BASE_CONCRETE_VALUE
 
+void PyAnyTorchListOfTensorValue::bindDerived(ClassTy &c) {
+  py::implicitly_convertible<PyAnyTorchListValue,
+                             PyAnyTorchListOfTensorValue>();
+}
+
 #define DEFINE_OPTIONAL_BASE_CONCRETE_VALUE(CONCRETEVALUE)                     \
   void PyAnyTorchOptional##CONCRETEVALUE##Value::bindDerived(ClassTy &c) {}
 FORALL_OPTIONAL_BASE_CONCRETE_TYPES(DEFINE_OPTIONAL_BASE_CONCRETE_VALUE)
@@ -117,6 +122,7 @@ void populateTorchMLIRValues(py::module &m) {
 
 #define BIND_VALUE(VALUE) PyAnyTorchListOf##VALUE##Value::bind(m);
   FORALL_LIST_BASE_CONCRETE_TYPES(BIND_VALUE)
+  BIND_VALUE(Tensor)
 #undef BIND_VALUE
 #define BIND_VALUE(VALUE) PyAnyTorchOptional##VALUE##Value::bind(m);
   FORALL_OPTIONAL_BASE_CONCRETE_TYPES(BIND_VALUE)

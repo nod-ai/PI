@@ -11,6 +11,8 @@ from pi.mlir import (
     AnyTorchListOfTorchIntValue,
     AnyTorchListOfTorchStringValue,
     AnyTorchListValue,
+    AnyTorchListOfTensorValue,
+    AnyTorchListOfTensorType,
     AnyTorchListType,
     AnyTorchOptionalBoolValue,
     AnyTorchOptionalDeviceValue,
@@ -170,6 +172,16 @@ class TestTorchValues:
             check_correct(
                 str(res),
                 "Tensor(%3 = torch.aten.add_.Tensor %1, %1, %float1.000000e00 : !torch.vtensor<[2,2],f64>, !torch.vtensor<[2,2],f64>, !torch.float -> !torch.tensor)",
+            )
+
+            tintv = torch.ConstantIntOp(1)
+            t = torch.ValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
+            lis_t = AnyTorchListOfTensorType.get(t.type)
+            lis = torch.PrimListConstructOp(lis_t, (t, t))
+            tcat = ops.cat(lis, tintv)
+            check_correct(
+                str(tcat),
+                "Tensor(%6 = torch.aten.cat %5, %int1_0 : !torch.list<vtensor<[2,2],f64>>, !torch.int -> !torch.tensor)",
             )
 
     def test_scalar_type(self):

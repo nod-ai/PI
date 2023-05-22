@@ -46,14 +46,14 @@ bool isAAnyTorchScalarType(MlirType type);
 bool isAAnyTorchTensorType(MlirType type);
 bool isAAnyTorchType(MlirType type);
 //
-//enum SignednessSemantics : uint32_t {
+// enum SignednessSemantics : uint32_t {
 //  Signless, /// No signedness semantics
 //  Signed,   /// Signed integer
 //  Unsigned, /// Unsigned integer
 //};
 //
-//torch_upstream::ScalarType getScalarTypeForType(MlirType type);
-//MlirType getTypeForScalarType(MlirContext context,
+// torch_upstream::ScalarType getScalarTypeForType(MlirType type);
+// MlirType getTypeForScalarType(MlirContext context,
 //                              torch_upstream::ScalarType dtypeInt,
 //                              SignednessSemantics signedness);
 
@@ -135,6 +135,20 @@ public:
   };
 FORALL_LIST_BASE_CONCRETE_TYPES(DECLARE_LIST_BASE_CONCRETE_TYPE)
 #undef DECLARE_LIST_BASE_CONCRETE_TYPE
+
+class PyAnyTorchListOfTensorType
+    : public PyConcreteType<PyAnyTorchListOfTensorType, PyAnyTorchListType> {
+public:
+  static constexpr IsAFunctionTy isaFunction = isAAnyTorchListOfTensorType;
+  static constexpr const char *pyClassName = "AnyTorchListOf"
+                                             "Tensor"
+                                             "Type";
+  using PyConcreteType::PyConcreteType;
+  PyAnyTorchListOfTensorType(MlirType containedType,
+                             DefaultingPyMlirContext context)
+      : PyConcreteType(context->getRef(),
+                       torchMlirTorchListTypeGet(containedType)) {}
+};
 
 #define DECLARE_OPTIONAL_BASE_CONCRETE_TYPE(CONCRETETYPE)                      \
   class PyAnyTorchOptional##CONCRETETYPE##Type                                 \

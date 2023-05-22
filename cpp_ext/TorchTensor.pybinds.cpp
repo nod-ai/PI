@@ -68,9 +68,6 @@ c.def("__imod__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwar
 // __imul__(self, other Any) -> Tensor
 c.def("__imul__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__imul__ with signature __imul__(self, other Any) -> Tensor"); });
 
-// __index__(self) -> builtins.int
-c.def("__index__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__index__ with signature __index__(self) -> builtins.int"); });
-
 // __int__(self) -> builtins.int
 c.def("__int__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__int__ with signature __int__(self) -> builtins.int"); });
 
@@ -1171,10 +1168,12 @@ c.def("index_fill_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs k
 c.def("index_fill_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("index_fill_ with signature @overload index_fill_(self, dim Union[str, ellipsis, None], index Tensor, value Number) -> Tensor"); });
 
 // index_put(self, indices Optional[Union[Tuple[Tensor, ], List[Tensor]]], values Tensor, accumulate _bool=False) -> Tensor
-c.def("index_put", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("index_put with signature index_put(self, indices Optional[Union[Tuple[Tensor, ], List[Tensor]]], values Tensor, accumulate _bool=False) -> Tensor"); });
+// aten::index_put.hacked_twin : (Tensor, Tensor[], Tensor, bool) -> (Tensor)
+c.def("index_put", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchListOfTensorValue&, const PyAnyTorchTensorValue&, const PyTorch_BoolValue&>(&index_put));
 
 // index_put_(self, indices Optional[Union[Tuple[Tensor, ], List[Tensor]]], values Tensor, accumulate _bool=False) -> Tensor
-c.def("index_put_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("index_put_ with signature index_put_(self, indices Optional[Union[Tuple[Tensor, ], List[Tensor]]], values Tensor, accumulate _bool=False) -> Tensor"); });
+// aten::index_put_.hacked_twin : (Tensor, Tensor[], Tensor, bool) -> (Tensor)
+c.def("index_put_", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchListOfTensorValue&, const PyAnyTorchTensorValue&, const PyTorch_BoolValue&>(&index_put_));
 
 // index_reduce(self, dim _int, index Tensor, source Tensor, reduce str, *, include_self _bool=True) -> Tensor
 c.def("index_reduce", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("index_reduce with signature index_reduce(self, dim _int, index Tensor, source Tensor, reduce str, *, include_self _bool=True) -> Tensor"); });

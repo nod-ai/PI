@@ -404,6 +404,11 @@ py::object bucketize(const PyAnyTorchTensorValue &self, const PyAnyTorchTensorVa
   return PyGlobals::get().lookupOperationClass("torch.aten.bucketize.Tensor").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, boundaries, out_int32, right);
 }
 
+// aten::cat : (Tensor[], int) -> (Tensor)
+py::object cat(const PyAnyTorchListOfTensorValue &tensors, const PyTorch_IntValue &dim) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.cat").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), tensors, dim);
+}
+
 // aten::ceil : (Tensor) -> (Tensor)
 py::object ceil(const PyAnyTorchTensorValue &self) {
   return PyGlobals::get().lookupOperationClass("torch.aten.ceil").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self);
@@ -892,6 +897,21 @@ py::object hardtanh_(const PyAnyTorchTensorValue &self, const PyAnyTorchScalarVa
 // aten::hardtanh_backward : (Tensor, Tensor, Scalar, Scalar) -> (Tensor)
 py::object hardtanh_backward(const PyAnyTorchTensorValue &grad_output, const PyAnyTorchTensorValue &self, const PyAnyTorchScalarValue &min_val, const PyAnyTorchScalarValue &max_val) {
   return PyGlobals::get().lookupOperationClass("torch.aten.hardtanh_backward").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), grad_output, self, min_val, max_val);
+}
+
+// aten::index.Tensor_hacked_twin : (Tensor, Tensor[]) -> (Tensor)
+py::object index(const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTensorValue &indices) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.index.Tensor_hacked_twin").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, indices);
+}
+
+// aten::index_put.hacked_twin : (Tensor, Tensor[], Tensor, bool) -> (Tensor)
+py::object index_put(const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTensorValue &indices, const PyAnyTorchTensorValue &values, const PyTorch_BoolValue &accumulate) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.index_put.hacked_twin").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, indices, values, accumulate);
+}
+
+// aten::index_put_.hacked_twin : (Tensor, Tensor[], Tensor, bool) -> (Tensor)
+py::object index_put_(const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTensorValue &indices, const PyAnyTorchTensorValue &values, const PyTorch_BoolValue &accumulate) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.index_put_.hacked_twin").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, indices, values, accumulate);
 }
 
 // aten::index_select : (Tensor, int, Tensor) -> (Tensor)
@@ -1647,6 +1667,11 @@ py::object squeeze_copy(const PyAnyTorchTensorValue &self) {
 // aten::squeeze_copy.dim : (Tensor, int) -> (Tensor)
 py::object squeeze_copy(const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim) {
   return PyGlobals::get().lookupOperationClass("torch.aten.squeeze_copy.dim").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, dim);
+}
+
+// aten::stack : (Tensor[], int) -> (Tensor)
+py::object stack(const PyAnyTorchListOfTensorValue &tensors, const PyTorch_IntValue &dim) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.stack").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), tensors, dim);
 }
 
 // aten::std : (Tensor, bool) -> (Tensor)

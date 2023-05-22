@@ -242,6 +242,9 @@ py::object broadcast_to(const PyAnyTorchTensorValue &self, const PyAnyTorchListO
 // aten::bucketize.Tensor : (Tensor, Tensor, bool, bool) -> (Tensor)
 py::object bucketize(const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &boundaries, const PyTorch_BoolValue &out_int32, const PyTorch_BoolValue &right);
 
+// aten::cat : (Tensor[], int) -> (Tensor)
+py::object cat(const PyAnyTorchListOfTensorValue &tensors, const PyTorch_IntValue &dim);
+
 // aten::ceil : (Tensor) -> (Tensor)
 py::object ceil(const PyAnyTorchTensorValue &self);
 
@@ -535,6 +538,15 @@ py::object hardtanh_(const PyAnyTorchTensorValue &self, const PyAnyTorchScalarVa
 
 // aten::hardtanh_backward : (Tensor, Tensor, Scalar, Scalar) -> (Tensor)
 py::object hardtanh_backward(const PyAnyTorchTensorValue &grad_output, const PyAnyTorchTensorValue &self, const PyAnyTorchScalarValue &min_val, const PyAnyTorchScalarValue &max_val);
+
+// aten::index.Tensor_hacked_twin : (Tensor, Tensor[]) -> (Tensor)
+py::object index(const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTensorValue &indices);
+
+// aten::index_put.hacked_twin : (Tensor, Tensor[], Tensor, bool) -> (Tensor)
+py::object index_put(const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTensorValue &indices, const PyAnyTorchTensorValue &values, const PyTorch_BoolValue &accumulate);
+
+// aten::index_put_.hacked_twin : (Tensor, Tensor[], Tensor, bool) -> (Tensor)
+py::object index_put_(const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTensorValue &indices, const PyAnyTorchTensorValue &values, const PyTorch_BoolValue &accumulate);
 
 // aten::index_select : (Tensor, int, Tensor) -> (Tensor)
 py::object index_select(const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyAnyTorchTensorValue &index);
@@ -988,6 +1000,9 @@ py::object squeeze_copy(const PyAnyTorchTensorValue &self);
 
 // aten::squeeze_copy.dim : (Tensor, int) -> (Tensor)
 py::object squeeze_copy(const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim);
+
+// aten::stack : (Tensor[], int) -> (Tensor)
+py::object stack(const PyAnyTorchListOfTensorValue &tensors, const PyTorch_IntValue &dim);
 
 // aten::std : (Tensor, bool) -> (Tensor)
 py::object std(const PyAnyTorchTensorValue &self, const PyTorch_BoolValue &unbiased);

@@ -121,6 +121,7 @@ public:
     static void bindDerived(ClassTy &c);                                       \
   };
 FORALL_LIST_BASE_CONCRETE_TYPES(DECLARE_LIST_BASE_CONCRETE_VALUE)
+DECLARE_LIST_BASE_CONCRETE_VALUE(Tensor)
 #undef DECLARE_LIST_BASE_CONCRETE_VALUE
 
 #define DECLARE_OPTIONAL_BASE_CONCRETE_VALUE(CONCRETEVALUE)                    \
