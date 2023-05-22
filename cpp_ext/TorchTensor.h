@@ -13,6 +13,7 @@
 #include "torch-mlir-c/TorchTypes.h"
 
 #include "TorchValues.h"
+#include "TorchTypes.h"
 
 namespace mlir::torch {
 

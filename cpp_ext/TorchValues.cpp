@@ -130,6 +130,7 @@ void populateTorchMLIRValues(py::module &m) {
   PyTorch_NnModuleValue::bind(m);
   PyTorch_NonValueTensorValue::bind(m);
   PyTorch_ValueTensorValue::bind(m);
+  PyAnyTorchScalarValue::bind(m);
 }
 
 } // namespace mlir::torch

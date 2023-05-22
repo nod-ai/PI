@@ -405,6 +405,7 @@ void populateTorchMLIRTypes(py::module &m) {
   PyTorch_NonValueTensorType::bind(m);
   PyTorch_ValueTensorType::bind(m);
   PyAnyTorchTensorType::bind(m);
+  PyAnyTorchScalarType::bind(m);
 }
 
 } // namespace mlir::torch

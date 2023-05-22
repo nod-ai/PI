@@ -13,17 +13,6 @@
 #include "TorchOps.h"
 #include "TorchTensor.h"
 
-namespace py = pybind11;
-using namespace mlir::python;
-
-struct NotImplementedError : public std::exception {
-  NotImplementedError(std::string msg) : message(std::move(msg)) {}
-  [[nodiscard]] const char *what() const noexcept override {
-    return message.data();
-  }
-
-  std::string message;
-};
 
 namespace {
 #include "TorchTensor.pybinds_tramps.cpp"
@@ -35,15 +24,6 @@ void PyAnyTorchTensorValue::bindDerived(ClassTy &c) {
 }
 
 void populateTorchTensorOps(py::module &m) {
-  py::register_exception_translator([](std::exception_ptr p) {
-    try {
-      if (p)
-        std::rethrow_exception(p);
-    } catch (const NotImplementedError &e) {
-      PyErr_SetString(PyExc_NotImplementedError, e.what());
-    }
-  });
-
   PyAnyTorchTensorValue::bind(m);
 }
 } // namespace mlir::torch

@@ -14,6 +14,9 @@ m.def("Delete", py::overload_cast<const PyTorch_DictValue &, const PyTorch_Strin
 // aten::Float.Tensor : (Tensor) -> (float)
 m.def("Float", py::overload_cast<const PyAnyTorchTensorValue &>(&Float));
 
+// aten::Float.Scalar : (Scalar) -> (float)
+m.def("Float", py::overload_cast<const PyAnyTorchScalarValue &>(&Float));
+
 // aten::Float.str : (str) -> (float)
 m.def("Float", py::overload_cast<const PyTorch_StringValue &>(&Float));
 
@@ -26,11 +29,17 @@ m.def("Int", py::overload_cast<const PyAnyTorchTensorValue &>(&Int));
 // aten::Int.float : (float) -> (int)
 m.def("Int", py::overload_cast<const PyTorch_FloatValue &>(&Int));
 
+// aten::Int.Scalar : (Scalar) -> (int)
+m.def("Int", py::overload_cast<const PyAnyTorchScalarValue &>(&Int));
+
 // aten::Int.bool : (bool) -> (int)
 m.def("Int", py::overload_cast<const PyTorch_BoolValue &>(&Int));
 
 // aten::IntImplicit : (Tensor) -> (int)
 m.def("IntImplicit", py::overload_cast<const PyAnyTorchTensorValue &>(&IntImplicit));
+
+// prim::NumToTensor.Scalar : (Scalar) -> (Tensor)
+m.def("NumToTensor", py::overload_cast<const PyAnyTorchScalarValue &>(&NumToTensor));
 
 // prim::RaiseException : (str, str?) -> ()
 m.def("RaiseException", py::overload_cast<const PyTorch_StringValue &, const PyAnyTorchOptionalStringValue &>(&RaiseException));
@@ -92,6 +101,12 @@ m.def("abs_", py::overload_cast<const PyAnyTorchTensorValue &>(&abs_));
 // aten::adaptive_avg_pool2d : (Tensor, int[]) -> (Tensor)
 m.def("adaptive_avg_pool2d", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchListOfTorchIntValue &>(&adaptive_avg_pool2d));
 
+// aten::add.Tensor : (Tensor, Tensor, Scalar) -> (Tensor)
+m.def("add", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&add));
+
+// aten::add.Scalar : (Tensor, Scalar, Scalar) -> (Tensor)
+m.def("add", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &, const PyAnyTorchScalarValue &>(&add));
+
 // aten::add.str : (str, str) -> (str)
 m.def("add", py::overload_cast<const PyTorch_StringValue &, const PyTorch_StringValue &>(&add));
 
@@ -100,6 +115,27 @@ m.def("add", py::overload_cast<const PyTorch_IntValue &, const PyTorch_IntValue 
 
 // aten::add.float_int : (float, int) -> (float)
 m.def("add", py::overload_cast<const PyTorch_FloatValue &, const PyTorch_IntValue &>(&add));
+
+// aten::add_.Tensor : (Tensor, Tensor, Scalar) -> (Tensor)
+m.def("add_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&add_));
+
+// aten::add_.Scalar : (Tensor, Scalar, Scalar) -> (Tensor)
+m.def("add_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &, const PyAnyTorchScalarValue &>(&add_));
+
+// aten::addcdiv : (Tensor, Tensor, Tensor, Scalar) -> (Tensor)
+m.def("addcdiv", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&addcdiv));
+
+// aten::addcdiv_ : (Tensor, Tensor, Tensor, Scalar) -> (Tensor)
+m.def("addcdiv_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&addcdiv_));
+
+// aten::addcmul : (Tensor, Tensor, Tensor, Scalar) -> (Tensor)
+m.def("addcmul", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&addcmul));
+
+// aten::addcmul_ : (Tensor, Tensor, Tensor, Scalar) -> (Tensor)
+m.def("addcmul_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&addcmul_));
+
+// aten::addmm : (Tensor, Tensor, Tensor, Scalar, Scalar) -> (Tensor)
+m.def("addmm", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &, const PyAnyTorchScalarValue &>(&addmm));
 
 // aten::alias_copy : (Tensor) -> (Tensor)
 m.def("alias_copy", py::overload_cast<const PyAnyTorchTensorValue &>(&alias_copy));
@@ -122,6 +158,18 @@ m.def("any", py::overload_cast<const PyAnyTorchTensorValue &, const PyTorch_IntV
 // aten::any.bool : (bool[]) -> (bool)
 m.def("any", py::overload_cast<const PyAnyTorchListOfTorchBoolValue &>(&any));
 
+// aten::arange : (Scalar, int?, int?, Device?, bool?) -> (Tensor)
+m.def("arange", py::overload_cast<const PyAnyTorchScalarValue &, const PyAnyTorchOptionalIntValue &, const PyAnyTorchOptionalIntValue &, const PyAnyTorchOptionalDeviceValue &, const PyAnyTorchOptionalBoolValue &>(&arange));
+
+// aten::arange.start : (Scalar, Scalar, int?, int?, Device?, bool?) -> (Tensor)
+m.def("arange", py::overload_cast<const PyAnyTorchScalarValue &, const PyAnyTorchScalarValue &, const PyAnyTorchOptionalIntValue &, const PyAnyTorchOptionalIntValue &, const PyAnyTorchOptionalDeviceValue &, const PyAnyTorchOptionalBoolValue &>(&arange));
+
+// aten::arange.start_step : (Scalar, Scalar, Scalar, int?, int?, Device?, bool?) -> (Tensor)
+m.def("arange", py::overload_cast<const PyAnyTorchScalarValue &, const PyAnyTorchScalarValue &, const PyAnyTorchScalarValue &, const PyAnyTorchOptionalIntValue &, const PyAnyTorchOptionalIntValue &, const PyAnyTorchOptionalDeviceValue &, const PyAnyTorchOptionalBoolValue &>(&arange));
+
+// aten::arange.start_out : (Scalar, Scalar, Scalar, Tensor) -> (Tensor)
+m.def("arange", py::overload_cast<const PyAnyTorchScalarValue &, const PyAnyTorchScalarValue &, const PyAnyTorchScalarValue &, const PyAnyTorchTensorValue &>(&arange));
+
 // aten::argmax : (Tensor, int?, bool) -> (Tensor)
 m.def("argmax", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchOptionalIntValue &, const PyTorch_BoolValue &>(&argmax));
 
@@ -139,6 +187,12 @@ m.def("atan2_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorc
 
 // aten::avg_pool2d : (Tensor, int[], int[], int[], bool, bool, int?) -> (Tensor)
 m.def("avg_pool2d", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchListOfTorchIntValue &, const PyAnyTorchListOfTorchIntValue &, const PyAnyTorchListOfTorchIntValue &, const PyTorch_BoolValue &, const PyTorch_BoolValue &, const PyAnyTorchOptionalIntValue &>(&avg_pool2d));
+
+// aten::baddbmm : (Tensor, Tensor, Tensor, Scalar, Scalar) -> (Tensor)
+m.def("baddbmm", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &, const PyAnyTorchScalarValue &>(&baddbmm));
+
+// aten::baddbmm_ : (Tensor, Tensor, Tensor, Scalar, Scalar) -> (Tensor)
+m.def("baddbmm_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &, const PyAnyTorchScalarValue &>(&baddbmm_));
 
 // aten::bernoulli : (Tensor, Generator?) -> (Tensor)
 m.def("bernoulli", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchOptionalGeneratorValue &>(&bernoulli));
@@ -197,8 +251,23 @@ m.def("ceil", py::overload_cast<const PyTorch_FloatValue &>(&ceil));
 // aten::ceil_ : (Tensor) -> (Tensor)
 m.def("ceil_", py::overload_cast<const PyAnyTorchTensorValue &>(&ceil_));
 
+// aten::clamp_max : (Tensor, Scalar) -> (Tensor)
+m.def("clamp_max", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&clamp_max));
+
+// aten::clamp_max_ : (Tensor, Scalar) -> (Tensor)
+m.def("clamp_max_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&clamp_max_));
+
+// aten::clamp_min : (Tensor, Scalar) -> (Tensor)
+m.def("clamp_min", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&clamp_min));
+
+// aten::clamp_min_ : (Tensor, Scalar) -> (Tensor)
+m.def("clamp_min_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&clamp_min_));
+
 // aten::clone : (Tensor, int?) -> (Tensor)
 m.def("clone", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchOptionalIntValue &>(&clone));
+
+// aten::constant_pad_nd : (Tensor, int[], Scalar) -> (Tensor)
+m.def("constant_pad_nd", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchListOfTorchIntValue &, const PyAnyTorchScalarValue &>(&constant_pad_nd));
 
 // aten::contiguous : (Tensor, int) -> (Tensor)
 m.def("contiguous", py::overload_cast<const PyAnyTorchTensorValue &, const PyTorch_IntValue &>(&contiguous));
@@ -245,6 +314,9 @@ m.def("dim", py::overload_cast<const PyAnyTorchTensorValue &>(&dim));
 // aten::div.Tensor : (Tensor, Tensor) -> (Tensor)
 m.def("div", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &>(&div));
 
+// aten::div.Scalar : (Tensor, Scalar) -> (Tensor)
+m.def("div", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&div));
+
 // aten::div.Tensor_mode : (Tensor, Tensor, str?) -> (Tensor)
 m.def("div", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchOptionalStringValue &>(&div));
 
@@ -254,8 +326,14 @@ m.def("div", py::overload_cast<const PyTorch_IntValue &, const PyTorch_IntValue 
 // aten::div.float : (float, float) -> (float)
 m.def("div", py::overload_cast<const PyTorch_FloatValue &, const PyTorch_FloatValue &>(&div));
 
+// aten::div : (Scalar, Scalar) -> (float)
+m.def("div", py::overload_cast<const PyAnyTorchScalarValue &, const PyAnyTorchScalarValue &>(&div));
+
 // aten::div_.Tensor : (Tensor, Tensor) -> (Tensor)
 m.def("div_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &>(&div_));
+
+// aten::div_.Scalar : (Tensor, Scalar) -> (Tensor)
+m.def("div_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&div_));
 
 // aten::div_.Tensor_mode : (Tensor, Tensor, str?) -> (Tensor)
 m.def("div_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchOptionalStringValue &>(&div_));
@@ -284,6 +362,9 @@ m.def("empty_like", py::overload_cast<const PyAnyTorchTensorValue &, const PyAny
 // aten::eq.Tensor : (Tensor, Tensor) -> (Tensor)
 m.def("eq", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &>(&eq));
 
+// aten::eq.Scalar : (Tensor, Scalar) -> (Tensor)
+m.def("eq", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&eq));
+
 // aten::eq.int_list : (int[], int[]) -> (bool)
 m.def("eq", py::overload_cast<const PyAnyTorchListOfTorchIntValue &, const PyAnyTorchListOfTorchIntValue &>(&eq));
 
@@ -301,6 +382,9 @@ m.def("eq", py::overload_cast<const PyTorch_DeviceValue &, const PyTorch_DeviceV
 
 // aten::eq_.Tensor : (Tensor, Tensor) -> (Tensor)
 m.def("eq_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &>(&eq_));
+
+// aten::eq_.Scalar : (Tensor, Scalar) -> (Tensor)
+m.def("eq_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&eq_));
 
 // aten::erf : (Tensor) -> (Tensor)
 m.def("erf", py::overload_cast<const PyAnyTorchTensorValue &>(&erf));
@@ -332,8 +416,14 @@ m.def("expm1_", py::overload_cast<const PyAnyTorchTensorValue &>(&expm1_));
 // aten::fft_fft : (Tensor, int?, int, str?) -> (Tensor)
 m.def("fft_fft", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchOptionalIntValue &, const PyTorch_IntValue &, const PyAnyTorchOptionalStringValue &>(&fft_fft));
 
+// aten::fill.Scalar : (Tensor, Scalar) -> (Tensor)
+m.def("fill", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&fill));
+
 // aten::fill.Tensor : (Tensor, Tensor) -> (Tensor)
 m.def("fill", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &>(&fill));
+
+// aten::fill_.Scalar : (Tensor, Scalar) -> (Tensor)
+m.def("fill_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&fill_));
 
 // aten::fill_.Tensor : (Tensor, Tensor) -> (Tensor)
 m.def("fill_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &>(&fill_));
@@ -353,17 +443,35 @@ m.def("floor_", py::overload_cast<const PyAnyTorchTensorValue &>(&floor_));
 // aten::floor_divide : (Tensor, Tensor) -> (Tensor)
 m.def("floor_divide", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &>(&floor_divide));
 
+// aten::floor_divide.Scalar : (Tensor, Scalar) -> (Tensor)
+m.def("floor_divide", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&floor_divide));
+
 // aten::floordiv.int : (int, int) -> (int)
 m.def("floordiv", py::overload_cast<const PyTorch_IntValue &, const PyTorch_IntValue &>(&floordiv));
 
+// aten::fmod.Scalar : (Tensor, Scalar) -> (Tensor)
+m.def("fmod", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&fmod));
+
+// aten::fmod_.Scalar : (Tensor, Scalar) -> (Tensor)
+m.def("fmod_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&fmod_));
+
 // aten::frobenius_norm.dim : (Tensor, int[], bool) -> (Tensor)
 m.def("frobenius_norm", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchListOfTorchIntValue &, const PyTorch_BoolValue &>(&frobenius_norm));
+
+// aten::full : (int[], Scalar, int?, int?, Device?, bool?) -> (Tensor)
+m.def("full", py::overload_cast<const PyAnyTorchListOfTorchIntValue &, const PyAnyTorchScalarValue &, const PyAnyTorchOptionalIntValue &, const PyAnyTorchOptionalIntValue &, const PyAnyTorchOptionalDeviceValue &, const PyAnyTorchOptionalBoolValue &>(&full));
+
+// aten::full_like : (Tensor, Scalar, int?, int?, Device?, bool?, int?) -> (Tensor)
+m.def("full_like", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &, const PyAnyTorchOptionalIntValue &, const PyAnyTorchOptionalIntValue &, const PyAnyTorchOptionalDeviceValue &, const PyAnyTorchOptionalBoolValue &, const PyAnyTorchOptionalIntValue &>(&full_like));
 
 // aten::gather : (Tensor, int, Tensor, bool) -> (Tensor)
 m.def("gather", py::overload_cast<const PyAnyTorchTensorValue &, const PyTorch_IntValue &, const PyAnyTorchTensorValue &, const PyTorch_BoolValue &>(&gather));
 
 // aten::ge.Tensor : (Tensor, Tensor) -> (Tensor)
 m.def("ge", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &>(&ge));
+
+// aten::ge.Scalar : (Tensor, Scalar) -> (Tensor)
+m.def("ge", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&ge));
 
 // aten::ge.int : (int, int) -> (bool)
 m.def("ge", py::overload_cast<const PyTorch_IntValue &, const PyTorch_IntValue &>(&ge));
@@ -377,6 +485,9 @@ m.def("ge", py::overload_cast<const PyTorch_FloatValue &, const PyTorch_IntValue
 // aten::ge_.Tensor : (Tensor, Tensor) -> (Tensor)
 m.def("ge_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &>(&ge_));
 
+// aten::ge_.Scalar : (Tensor, Scalar) -> (Tensor)
+m.def("ge_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&ge_));
+
 // aten::gelu : (Tensor, str) -> (Tensor)
 m.def("gelu", py::overload_cast<const PyAnyTorchTensorValue &, const PyTorch_StringValue &>(&gelu));
 
@@ -385,6 +496,9 @@ m.def("gelu_backward", py::overload_cast<const PyAnyTorchTensorValue &, const Py
 
 // aten::gt.Tensor : (Tensor, Tensor) -> (Tensor)
 m.def("gt", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &>(&gt));
+
+// aten::gt.Scalar : (Tensor, Scalar) -> (Tensor)
+m.def("gt", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&gt));
 
 // aten::gt.int : (int, int) -> (bool)
 m.def("gt", py::overload_cast<const PyTorch_IntValue &, const PyTorch_IntValue &>(&gt));
@@ -398,6 +512,9 @@ m.def("gt", py::overload_cast<const PyTorch_FloatValue &, const PyTorch_IntValue
 // aten::gt_.Tensor : (Tensor, Tensor) -> (Tensor)
 m.def("gt_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &>(&gt_));
 
+// aten::gt_.Scalar : (Tensor, Scalar) -> (Tensor)
+m.def("gt_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&gt_));
+
 // aten::hardsigmoid : (Tensor) -> (Tensor)
 m.def("hardsigmoid", py::overload_cast<const PyAnyTorchTensorValue &>(&hardsigmoid));
 
@@ -409,6 +526,15 @@ m.def("hardswish", py::overload_cast<const PyAnyTorchTensorValue &>(&hardswish))
 
 // aten::hardswish_ : (Tensor) -> (Tensor)
 m.def("hardswish_", py::overload_cast<const PyAnyTorchTensorValue &>(&hardswish_));
+
+// aten::hardtanh : (Tensor, Scalar, Scalar) -> (Tensor)
+m.def("hardtanh", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &, const PyAnyTorchScalarValue &>(&hardtanh));
+
+// aten::hardtanh_ : (Tensor, Scalar, Scalar) -> (Tensor)
+m.def("hardtanh_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &, const PyAnyTorchScalarValue &>(&hardtanh_));
+
+// aten::hardtanh_backward : (Tensor, Tensor, Scalar, Scalar) -> (Tensor)
+m.def("hardtanh_backward", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &, const PyAnyTorchScalarValue &>(&hardtanh_backward));
 
 // aten::index_select : (Tensor, int, Tensor) -> (Tensor)
 m.def("index_select", py::overload_cast<const PyAnyTorchTensorValue &, const PyTorch_IntValue &, const PyAnyTorchTensorValue &>(&index_select));
@@ -428,11 +554,26 @@ m.def("layout", py::overload_cast<const PyAnyTorchTensorValue &>(&layout));
 // aten::le.Tensor : (Tensor, Tensor) -> (Tensor)
 m.def("le", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &>(&le));
 
+// aten::le.Scalar : (Tensor, Scalar) -> (Tensor)
+m.def("le", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&le));
+
 // aten::le.int : (int, int) -> (bool)
 m.def("le", py::overload_cast<const PyTorch_IntValue &, const PyTorch_IntValue &>(&le));
 
 // aten::le_.Tensor : (Tensor, Tensor) -> (Tensor)
 m.def("le_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &>(&le_));
+
+// aten::le_.Scalar : (Tensor, Scalar) -> (Tensor)
+m.def("le_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&le_));
+
+// aten::leaky_relu : (Tensor, Scalar) -> (Tensor)
+m.def("leaky_relu", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&leaky_relu));
+
+// aten::leaky_relu_ : (Tensor, Scalar) -> (Tensor)
+m.def("leaky_relu_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&leaky_relu_));
+
+// aten::leaky_relu_backward : (Tensor, Tensor, Scalar, bool) -> (Tensor)
+m.def("leaky_relu_backward", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &, const PyTorch_BoolValue &>(&leaky_relu_backward));
 
 // aten::len.Tensor : (Tensor) -> (int)
 m.def("len", py::overload_cast<const PyAnyTorchTensorValue &>(&len));
@@ -506,6 +647,9 @@ m.def("logsumexp", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyT
 // aten::lt.Tensor : (Tensor, Tensor) -> (Tensor)
 m.def("lt", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &>(&lt));
 
+// aten::lt.Scalar : (Tensor, Scalar) -> (Tensor)
+m.def("lt", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&lt));
+
 // aten::lt.int : (int, int) -> (bool)
 m.def("lt", py::overload_cast<const PyTorch_IntValue &, const PyTorch_IntValue &>(&lt));
 
@@ -518,8 +662,17 @@ m.def("lt", py::overload_cast<const PyTorch_FloatValue &, const PyTorch_IntValue
 // aten::lt_.Tensor : (Tensor, Tensor) -> (Tensor)
 m.def("lt_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &>(&lt_));
 
+// aten::lt_.Scalar : (Tensor, Scalar) -> (Tensor)
+m.def("lt_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&lt_));
+
+// aten::masked_fill.Scalar : (Tensor, Tensor, Scalar) -> (Tensor)
+m.def("masked_fill", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&masked_fill));
+
 // aten::masked_fill.Tensor : (Tensor, Tensor, Tensor) -> (Tensor)
 m.def("masked_fill", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &>(&masked_fill));
+
+// aten::masked_fill_.Scalar : (Tensor, Tensor, Scalar) -> (Tensor)
+m.def("masked_fill_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&masked_fill_));
 
 // aten::masked_fill_.Tensor : (Tensor, Tensor, Tensor) -> (Tensor)
 m.def("masked_fill_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &>(&masked_fill_));
@@ -572,6 +725,9 @@ m.def("mse_loss", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTo
 // aten::mul.Tensor : (Tensor, Tensor) -> (Tensor)
 m.def("mul", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &>(&mul));
 
+// aten::mul.Scalar : (Tensor, Scalar) -> (Tensor)
+m.def("mul", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&mul));
+
 // aten::mul.int : (int, int) -> (int)
 m.def("mul", py::overload_cast<const PyTorch_IntValue &, const PyTorch_IntValue &>(&mul));
 
@@ -580,6 +736,9 @@ m.def("mul", py::overload_cast<const PyTorch_FloatValue &, const PyTorch_FloatVa
 
 // aten::mul_.Tensor : (Tensor, Tensor) -> (Tensor)
 m.def("mul_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &>(&mul_));
+
+// aten::mul_.Scalar : (Tensor, Scalar) -> (Tensor)
+m.def("mul_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&mul_));
 
 // aten::mv : (Tensor, Tensor) -> (Tensor)
 m.def("mv", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &>(&mv));
@@ -592,6 +751,9 @@ m.def("native_dropout_backward", py::overload_cast<const PyAnyTorchTensorValue &
 
 // aten::ne.Tensor : (Tensor, Tensor) -> (Tensor)
 m.def("ne", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &>(&ne));
+
+// aten::ne.Scalar : (Tensor, Scalar) -> (Tensor)
+m.def("ne", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&ne));
 
 // aten::ne.int_list : (int[], int[]) -> (bool)
 m.def("ne", py::overload_cast<const PyAnyTorchListOfTorchIntValue &, const PyAnyTorchListOfTorchIntValue &>(&ne));
@@ -607,6 +769,9 @@ m.def("ne", py::overload_cast<const PyTorch_BoolValue &, const PyTorch_BoolValue
 
 // aten::ne_.Tensor : (Tensor, Tensor) -> (Tensor)
 m.def("ne_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &>(&ne_));
+
+// aten::ne_.Scalar : (Tensor, Scalar) -> (Tensor)
+m.def("ne_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&ne_));
 
 // aten::neg : (Tensor) -> (Tensor)
 m.def("neg", py::overload_cast<const PyAnyTorchTensorValue &>(&neg));
@@ -653,6 +818,9 @@ m.def("permute", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTor
 // aten::permute_copy : (Tensor, int[]) -> (Tensor)
 m.def("permute_copy", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchListOfTorchIntValue &>(&permute_copy));
 
+// aten::pow.Tensor_Scalar : (Tensor, Scalar) -> (Tensor)
+m.def("pow", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&pow));
+
 // aten::pow.Tensor_Tensor : (Tensor, Tensor) -> (Tensor)
 m.def("pow", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &>(&pow));
 
@@ -698,6 +866,9 @@ m.def("relu_", py::overload_cast<const PyAnyTorchTensorValue &>(&relu_));
 // aten::remainder.int : (int, int) -> (int)
 m.def("remainder", py::overload_cast<const PyTorch_IntValue &, const PyTorch_IntValue &>(&remainder));
 
+// aten::remainder.Scalar : (Tensor, Scalar) -> (Tensor)
+m.def("remainder", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&remainder));
+
 // aten::repeat : (Tensor, int[]) -> (Tensor)
 m.def("repeat", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchListOfTorchIntValue &>(&repeat));
 
@@ -721,6 +892,9 @@ m.def("rsqrt", py::overload_cast<const PyAnyTorchTensorValue &>(&rsqrt));
 
 // aten::rsqrt_ : (Tensor) -> (Tensor)
 m.def("rsqrt_", py::overload_cast<const PyAnyTorchTensorValue &>(&rsqrt_));
+
+// aten::rsub.Scalar : (Tensor, Scalar, Scalar) -> (Tensor)
+m.def("rsub", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &, const PyAnyTorchScalarValue &>(&rsub));
 
 // aten::scatter_add : (Tensor, int, Tensor, Tensor) -> (Tensor)
 m.def("scatter_add", py::overload_cast<const PyAnyTorchTensorValue &, const PyTorch_IntValue &, const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &>(&scatter_add));
@@ -779,6 +953,9 @@ m.def("slice_scatter", py::overload_cast<const PyAnyTorchTensorValue &, const Py
 // aten::softmax.int : (Tensor, int, int?) -> (Tensor)
 m.def("softmax", py::overload_cast<const PyAnyTorchTensorValue &, const PyTorch_IntValue &, const PyAnyTorchOptionalIntValue &>(&softmax));
 
+// aten::softplus : (Tensor, Scalar, Scalar) -> (Tensor)
+m.def("softplus", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &, const PyAnyTorchScalarValue &>(&softplus));
+
 // aten::sort.int : (int[], bool) -> ()
 m.def("sort", py::overload_cast<const PyAnyTorchListOfTorchIntValue &, const PyTorch_BoolValue &>(&sort));
 
@@ -812,11 +989,23 @@ m.def("squeeze_copy", py::overload_cast<const PyAnyTorchTensorValue &, const PyT
 // aten::std : (Tensor, bool) -> (Tensor)
 m.def("std", py::overload_cast<const PyAnyTorchTensorValue &, const PyTorch_BoolValue &>(&std));
 
+// aten::sub.Tensor : (Tensor, Tensor, Scalar) -> (Tensor)
+m.def("sub", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&sub));
+
+// aten::sub.Scalar : (Tensor, Scalar, Scalar) -> (Tensor)
+m.def("sub", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &, const PyAnyTorchScalarValue &>(&sub));
+
 // aten::sub.int : (int, int) -> (int)
 m.def("sub", py::overload_cast<const PyTorch_IntValue &, const PyTorch_IntValue &>(&sub));
 
 // aten::sub.float : (float, float) -> (float)
 m.def("sub", py::overload_cast<const PyTorch_FloatValue &, const PyTorch_FloatValue &>(&sub));
+
+// aten::sub_.Tensor : (Tensor, Tensor, Scalar) -> (Tensor)
+m.def("sub_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&sub_));
+
+// aten::sub_.Scalar : (Tensor, Scalar, Scalar) -> (Tensor)
+m.def("sub_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &, const PyAnyTorchScalarValue &>(&sub_));
 
 // aten::sum : (Tensor, int?) -> (Tensor)
 m.def("sum", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchOptionalIntValue &>(&sum));
@@ -844,6 +1033,15 @@ m.def("tensor", py::overload_cast<const PyTorch_IntValue &, const PyAnyTorchOpti
 
 // aten::tensor.float : (float, int?, Device?, bool) -> (Tensor)
 m.def("tensor", py::overload_cast<const PyTorch_FloatValue &, const PyAnyTorchOptionalIntValue &, const PyAnyTorchOptionalDeviceValue &, const PyTorch_BoolValue &>(&tensor));
+
+// aten::threshold : (Tensor, Scalar, Scalar) -> (Tensor)
+m.def("threshold", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &, const PyAnyTorchScalarValue &>(&threshold));
+
+// aten::threshold_ : (Tensor, Scalar, Scalar) -> (Tensor)
+m.def("threshold_", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &, const PyAnyTorchScalarValue &>(&threshold_));
+
+// aten::threshold_backward : (Tensor, Tensor, Scalar) -> (Tensor)
+m.def("threshold_backward", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&threshold_backward));
 
 // aten::to.dtype : (Tensor, int, bool, bool, int?) -> (Tensor)
 m.def("to", py::overload_cast<const PyAnyTorchTensorValue &, const PyTorch_IntValue &, const PyTorch_BoolValue &, const PyTorch_BoolValue &, const PyAnyTorchOptionalIntValue &>(&to));
@@ -913,6 +1111,15 @@ m.def("view_copy", py::overload_cast<const PyAnyTorchTensorValue &, const PyTorc
 
 // aten::where.self : (Tensor, Tensor, Tensor) -> (Tensor)
 m.def("where", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &>(&where));
+
+// aten::where.Scalar : (Tensor, Scalar, Scalar) -> (Tensor)
+m.def("where", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &, const PyAnyTorchScalarValue &>(&where));
+
+// aten::where.ScalarOther : (Tensor, Tensor, Scalar) -> (Tensor)
+m.def("where", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &>(&where));
+
+// aten::where.ScalarSelf : (Tensor, Scalar, Tensor) -> (Tensor)
+m.def("where", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchScalarValue &, const PyAnyTorchTensorValue &>(&where));
 
 // aten::zero : (Tensor) -> (Tensor)
 m.def("zero", py::overload_cast<const PyAnyTorchTensorValue &>(&zero));

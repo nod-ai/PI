@@ -21,7 +21,15 @@ declare_mlir_python_extension(
   TorchValues.cpp
   TorchOps.cpp
   TorchTensor.cpp
-  PiExtension.cpp)
+  PiExtension.cpp
+  # Headers must be included explicitly so they are installed.
+  TorchOps.h
+  TorchOps.inc.h
+  TorchTensor.h
+  TorchTypes.h
+  TorchValues.h
+  PRIVATE_LINK_LIBS
+  TorchMLIRTorchUtils)
 
 set(PYBINDINGS_SRC "${MLIR_INSTALL_PREFIX}/src/python/MLIRPythonExtension.Core")
 target_include_directories(PiPythonSources.Extension
@@ -46,7 +54,6 @@ foreach(PATCH ${FILES_TO_PATCH})
     message(FATAL_ERROR "Failed to patch ${PATCH} because ${RESVAR} ${LOG1}")
   endif()
 endforeach()
-
 
 declare_mlir_python_extension(
   PiPythonSources.SiteInitialize

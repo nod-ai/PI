@@ -193,6 +193,22 @@ public:
   static void bindDerived(ClassTy &c);
 };
 
+class PyAnyTorchScalarValue : public PyConcreteValue<PyAnyTorchScalarValue> {
+public:
+  static constexpr IsAFunctionTy isaFunction = isAAnyTorchScalarValue;
+  static constexpr const char *pyClassName = "AnyTorchScalarValue";
+  using PyConcreteValue::PyConcreteValue;
+  static void bindDerived(ClassTy &c) {
+    pybind11::implicitly_convertible<PyValue, PyAnyTorchScalarValue>();
+    c.def("__repr__", [](PyAnyTorchScalarValue &self) {
+      auto origRepr =
+          pybind11::repr(pybind11::cast(PyValue(self))).cast<std::string>();
+      return std::regex_replace(origRepr, std::regex("Value"),
+                                "AnyTorchScalarValue");
+    });
+  };
+};
+
 void populateTorchMLIRValues(py::module &m);
 
 } // namespace mlir::torch

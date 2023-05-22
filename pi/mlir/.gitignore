@@ -3,3 +3,4 @@ runtime
 execution_engine.py
 ir.py
 passmanager.py
+_mlir_libs

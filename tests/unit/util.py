@@ -5,7 +5,7 @@ from textwrap import dedent
 
 def check_correct(correct, op):
     correct = dedent(
-        re.sub(r"([%#@]\w+)|(\^bb\d+)|(0x\w+)|dense<.*?>", "%DONT_CARE", correct)
+        re.sub(r"([%#@]\w+)|(\^bb\d+)|(0x\w+)|dense<.*?>", "%DONT_CARE", correct.strip())
     )
     op = dedent(
         re.sub(r"([%#@]\w+)|(\^bb\d+)|(0x\w+)|dense<.*?>", "%DONT_CARE", str(op))

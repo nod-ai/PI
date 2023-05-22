@@ -68,7 +68,7 @@ if(TORCH_MLIR_DOWNLOAD_STATUS_CODE EQUAL 0)
     message(STATUS "Downloaded torch-mlir successfully; untarring...")
     file(ARCHIVE_EXTRACT INPUT
          "${CMAKE_CURRENT_SOURCE_DIR}/torch-mlir-install.tar.xz" DESTINATION
-         "${CMAKE_CURRENT_SOURCE_DIR}/torch_mlir_install" VERBOSE)
+         "${CMAKE_CURRENT_SOURCE_DIR}/torch_mlir_install")
   endif()
   set(TORCH_MLIR_INSTALL_DIR
       "${CMAKE_CURRENT_SOURCE_DIR}/torch_mlir_install/torch_mlir_install")

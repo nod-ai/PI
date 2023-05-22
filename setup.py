@@ -6,11 +6,10 @@ import subprocess
 import sys
 from pathlib import Path
 
-import requests
-from bs4 import BeautifulSoup
 from pip._internal.req import parse_requirements
 from setuptools import Extension, find_namespace_packages, setup
 from setuptools.command.build_ext import build_ext
+
 
 # A CMakeExtension needs a sourcedir instead of a file list.
 # The name must be the _single_ output extension from the CMake build.
@@ -88,9 +87,7 @@ class CMakeBuild(build_ext):
         else:
             raise NotImplementedError(f"unknown platform {platform.system()}")
 
-        mlir_libs_dir = Path(
-            f"{ext_build_lib_dir}/{PACKAGE_NAME}/mlir/_mlir/_mlir_libs"
-        )
+        mlir_libs_dir = Path(f"{ext_build_lib_dir}/{PACKAGE_NAME}/mlir/_mlir_libs")
         shlibs = [
             "LTO",
             "MLIR-C",
@@ -104,13 +101,13 @@ class CMakeBuild(build_ext):
         for shlib in shlibs:
             shlib_name = f"lib{shlib}.{shlib_ext}"
             torch_mlir_install_dir = (
-                Path(".").parent / "torch_mlir_install"
+                Path(".").parent / "torch_mlir_install/torch_mlir_install"
             ).absolute()
-            assert torch_mlir_install_dir.exists()
+            assert torch_mlir_install_dir.exists(), f"missing {torch_mlir_install_dir=}"
             torch_mlir_install_fp = (
                 torch_mlir_install_dir / "lib" / shlib_name
             ).absolute()
-            assert torch_mlir_install_fp.exists()
+            assert torch_mlir_install_fp.exists(), f"missing {torch_mlir_install_fp=}"
             dst_path = mlir_libs_dir / shlib_name
             shutil.copyfile(torch_mlir_install_fp, dst_path)
             if platform.system() == "Linux":
@@ -147,7 +144,7 @@ else:
         author="Maksim Levental",
         author_email="maksim.levental@gmail.com",
         description="A lightweight MLIR Python frontend with PyTorch like syntax",
-        ext_modules=[CMakeExtension("_mlir")],
+        ext_modules=[CMakeExtension("_pi_mlir")],
         cmdclass={"build_ext": CMakeBuild},
         packages=packages,
         zip_safe=False,

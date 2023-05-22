@@ -72,7 +72,6 @@ def generate_pybind_bindings_for_ops(cpp_ext_dir):
         "AnyTorchOptionalScalarValue",
         "AnyTorchOptionalTensorValue",
         "AnyTorchValue",
-        "AnyTorchScalarValue",
         "AnyTorchOptionalListOfTorchIntValue",
         "AnyTorchListOfOptionalTensorValue",
         #
@@ -81,7 +80,6 @@ def generate_pybind_bindings_for_ops(cpp_ext_dir):
         "AnyTorchOptionalScalarType",
         "AnyTorchOptionalTensorType",
         "AnyTorchType",
-        "AnyTorchScalarType",
         "AnyTorchOptionalListOfTorchIntType",
         "AnyTorchListOfOptionalTensorType",
         "Variadic",
@@ -110,8 +108,16 @@ def generate_pybind_bindings_for_ops(cpp_ext_dir):
         for u in unimplemented_types:
             if u in [t for n, t in params + returns]:
                 unimplemented = True
-                warnings.warn(f"not implemented type: {u}")
+                warnings.warn(
+                    f"not implemented type: {u} for {op_name} {cpp_class_name}"
+                )
                 break
+
+        if "AnyTorchScalarType" in [t for n, t in returns]:
+            warnings.warn(
+                f"not implemented return type AnyTorchScalarType for {cpp_class_name}"
+            )
+            continue
 
         if unimplemented:
             continue
@@ -178,22 +184,18 @@ def generate_pybind_bindings_for_ops(cpp_ext_dir):
                             "",
                         )
                     ] + params
-                elif typ == "AnyTorchListOfTorchStringType":
+                elif typ in {
+                    "AnyTorchListOfTorchStringType",
+                    "AnyTorchListOfTorchIntType",
+                }:
                     params = [
                         (
-                            "PyAnyTorchListOfTorchStringType(DefaultingPyMlirContext::resolve())",
-                            "",
-                        )
-                    ] + params
-                elif typ == "AnyTorchListOfTorchIntType":
-                    params = [
-                        (
-                            "PyAnyTorchListOfTorchIntType(DefaultingPyMlirContext::resolve())",
+                            f"Py{typ}(DefaultingPyMlirContext::resolve())",
                             "",
                         )
                     ] + params
                 else:
-                    raise NotImplementedError(typ)
+                    raise NotImplementedError(f"{typ} return type for {cpp_class_name}")
 
             impl = dedent(
                 f"""
@@ -275,6 +277,7 @@ class TensorMethodVisitor(ast.NodeVisitor):
         )
         self.binds_td(impl)
 
+    # TODO(max): default args
     def visit_FunctionDef(self, node: ast.FunctionDef):
         method_sig = (
             ast.unparse(node)
@@ -289,7 +292,6 @@ class TensorMethodVisitor(ast.NodeVisitor):
         if op_name in self.skip:
             if method_sig not in self.visited:
                 self.visited.add(method_sig)
-                # self.emit_not_implemented(method_sig, op_name)
             return
         if op_name not in self.ops and op_name.replace("__", "") not in self.ops:
             if method_sig not in self.visited:

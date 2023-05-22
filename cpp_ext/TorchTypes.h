@@ -1,6 +1,9 @@
 #ifndef PI_TORCHTYPES_H
 #define PI_TORCHTYPES_H
 
+#include <regex>
+#include <string>
+
 // hack
 #include "IRModule.h"
 
@@ -42,6 +45,17 @@ bool isAAnyTorchOptionalScalarType(MlirType type);
 bool isAAnyTorchScalarType(MlirType type);
 bool isAAnyTorchTensorType(MlirType type);
 bool isAAnyTorchType(MlirType type);
+//
+//enum SignednessSemantics : uint32_t {
+//  Signless, /// No signedness semantics
+//  Signed,   /// Signed integer
+//  Unsigned, /// Unsigned integer
+//};
+//
+//torch_upstream::ScalarType getScalarTypeForType(MlirType type);
+//MlirType getTypeForScalarType(MlirContext context,
+//                              torch_upstream::ScalarType dtypeInt,
+//                              SignednessSemantics signedness);
 
 #define FORALL_UNDERSCORE_TYPES(_)                                             \
   _(Any)                                                                       \
@@ -259,6 +273,22 @@ public:
   getWithLeastStaticInformation(DefaultingPyMlirContext context);
 
   static void bindDerived(ClassTy &c);
+};
+
+class PyAnyTorchScalarType : public PyConcreteType<PyAnyTorchScalarType> {
+public:
+  static constexpr IsAFunctionTy isaFunction = isAAnyTorchScalarType;
+  static constexpr const char *pyClassName = "AnyTorchScalarType";
+  using PyConcreteType::PyConcreteType;
+  static void bindDerived(ClassTy &c) {
+    pybind11::implicitly_convertible<PyType, PyAnyTorchScalarType>();
+    c.def("__repr__", [](PyAnyTorchScalarType &self) {
+      auto origRepr =
+          pybind11::repr(pybind11::cast(PyType(self))).cast<std::string>();
+      return std::regex_replace(origRepr, std::regex("Type"),
+                                "AnyTorchScalarType");
+    });
+  };
 };
 
 void populateTorchMLIRTypes(py::module &m);

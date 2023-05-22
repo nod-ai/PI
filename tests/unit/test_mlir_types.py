@@ -20,6 +20,7 @@ from pi.mlir import (
     AnyTorchOptionalType,
     # AnyTorchOptionalListOfTorchIntType,
     AnyTorchTensorType,
+    AnyTorchScalarType,
     Torch_BoolType,
     Torch_DeviceType,
     Torch_DictType,
@@ -34,7 +35,7 @@ from pi.mlir import (
     Torch_TupleType,
     Torch_ValueTensorType,
 )
-from pi.mlir import F32, F64
+from pi.mlir import F32, ops
 from util import check_correct
 
 
@@ -210,3 +211,22 @@ class TestTorchTypes:
 
             t = AnyTorchListOfTorchStringType.get()
             assert str(t) == "!torch.list<str>"
+
+    def test_scalar_type(self):
+        with mlir_mod_ctx():
+            tint = Torch_IntType.get()
+            t = AnyTorchScalarType(tint)
+            assert repr(t) == "AnyTorchScalarType(!torch.int)"
+
+            try:
+                t = Torch_NonValueTensorType.get_with_least_static_information()
+                t = AnyTorchScalarType(t)
+            except ValueError as e:
+                assert (
+                    e.args[0]
+                    == "Cannot cast type to AnyTorchScalarType (from Type(!torch.tensor))"
+                )
+
+            tfloat = Torch_FloatType.get()
+            t = AnyTorchScalarType(tfloat)
+            assert repr(t) == "AnyTorchScalarType(!torch.float)"

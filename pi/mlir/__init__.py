@@ -46,6 +46,7 @@ from ._mlir_libs._pi_mlir import (
     AnyTorchOptionalType,
     # AnyTorchOptionalListOfTorchIntType,
     AnyTorchTensorType,
+    AnyTorchScalarType,
     Torch_BoolType,
     Torch_DeviceType,
     Torch_DictType,
@@ -79,6 +80,7 @@ from ._mlir_libs._pi_mlir import (
     AnyTorchOptionalValue,
     # AnyTorchOptionalListOfTorchIntValue,
     Tensor,
+    AnyTorchScalarValue,
     Torch_BoolValue,
     Torch_DeviceValue,
     Torch_DictValue,
@@ -144,6 +146,8 @@ class ValueMeta(type(Value)):
                 return Torch_NnModuleValue(val)
             if AnyTorchTensorType.isinstance(val.type):
                 return Tensor(val)
+            if AnyTorchScalarType.isinstance(val.type):
+                return AnyTorchScalarValue(val)
             if Torch_NonValueTensorType.isinstance(val.type):
                 return Torch_NonValueTensorValue(val)
             if Torch_NoneType.isinstance(val.type):
