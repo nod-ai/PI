@@ -969,6 +969,11 @@ py::object len(const PyTorch_StringValue &s) {
   return PyGlobals::get().lookupOperationClass("torch.aten.len.str").value()(s);
 }
 
+// aten::len.t : (t[]) -> (int)
+py::object len(const PyAnyTorchListValue &a) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.len.t").value()(a);
+}
+
 // aten::lerp.Tensor : (Tensor, Tensor, Tensor) -> (Tensor)
 py::object lerp(const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &end, const PyAnyTorchTensorValue &weight) {
   return PyGlobals::get().lookupOperationClass("torch.aten.lerp.Tensor").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, end, weight);
@@ -1707,6 +1712,11 @@ py::object tanh_(const PyAnyTorchTensorValue &self) {
 // aten::tanh_backward : (Tensor, Tensor) -> (Tensor)
 py::object tanh_backward(const PyAnyTorchTensorValue &grad_output, const PyAnyTorchTensorValue &output) {
   return PyGlobals::get().lookupOperationClass("torch.aten.tanh_backward").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), grad_output, output);
+}
+
+// aten::tensor : (t[], int?, Device?, bool) -> (Tensor)
+py::object tensor(const PyAnyTorchListValue &data, const PyAnyTorchOptionalIntValue &dtype, const PyAnyTorchOptionalDeviceValue &device, const PyTorch_BoolValue &requires_grad) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.tensor").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), data, dtype, device, requires_grad);
 }
 
 // aten::tensor.bool : (bool, int?, Device?, bool) -> (Tensor)

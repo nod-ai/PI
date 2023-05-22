@@ -581,6 +581,9 @@ m.def("len", py::overload_cast<const PyAnyTorchTensorValue &>(&len));
 // aten::len.str : (str) -> (int)
 m.def("len", py::overload_cast<const PyTorch_StringValue &>(&len));
 
+// aten::len.t : (t[]) -> (int)
+m.def("len", py::overload_cast<const PyAnyTorchListValue &>(&len));
+
 // aten::lerp.Tensor : (Tensor, Tensor, Tensor) -> (Tensor)
 m.def("lerp", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &>(&lerp));
 
@@ -1024,6 +1027,9 @@ m.def("tanh_", py::overload_cast<const PyAnyTorchTensorValue &>(&tanh_));
 
 // aten::tanh_backward : (Tensor, Tensor) -> (Tensor)
 m.def("tanh_backward", py::overload_cast<const PyAnyTorchTensorValue &, const PyAnyTorchTensorValue &>(&tanh_backward));
+
+// aten::tensor : (t[], int?, Device?, bool) -> (Tensor)
+m.def("tensor", py::overload_cast<const PyAnyTorchListValue &, const PyAnyTorchOptionalIntValue &, const PyAnyTorchOptionalDeviceValue &, const PyTorch_BoolValue &>(&tensor));
 
 // aten::tensor.bool : (bool, int?, Device?, bool) -> (Tensor)
 m.def("tensor", py::overload_cast<const PyTorch_BoolValue &, const PyAnyTorchOptionalIntValue &, const PyAnyTorchOptionalDeviceValue &, const PyTorch_BoolValue &>(&tensor));

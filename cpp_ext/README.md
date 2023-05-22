@@ -1,6 +1,6 @@
 # Adding new types 
 
-Although you probably won't have to do this, https://github.com/nod-ai/PI/pull/20/commits/d76a9c922d47ee61e72027f95287d51fe9d6434f
+Although you probably won't have to do this, [this commit](https://github.com/nod-ai/PI/pull/20/commits/d298cb8e331c80b477a7ad8a10276711f5f81766)
 illustrates all these pieces to touch.
 
 # Gotchas

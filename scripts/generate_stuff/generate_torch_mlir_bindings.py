@@ -67,7 +67,6 @@ def generate_pybind_bindings_for_ops(cpp_ext_dir):
         emit_ops(emitter_td, registry)
 
     unimplemented_types = [
-        "AnyTorchListValue",
         "AnyTorchListOfTensorValue",
         "AnyTorchOptionalScalarValue",
         "AnyTorchOptionalTensorValue",
@@ -75,7 +74,6 @@ def generate_pybind_bindings_for_ops(cpp_ext_dir):
         "AnyTorchOptionalListOfTorchIntValue",
         "AnyTorchListOfOptionalTensorValue",
         #
-        "AnyTorchListType",
         "AnyTorchListOfTensorType",
         "AnyTorchOptionalScalarType",
         "AnyTorchOptionalTensorType",
@@ -85,6 +83,10 @@ def generate_pybind_bindings_for_ops(cpp_ext_dir):
         "Variadic",
     ]
     skips = ["prims::sqrt", "prim::Print", "aten::format"]
+    skip_return_types = [
+        "AnyTorchScalarType",
+        "AnyTorchListType",
+    ]
 
     ops = []
     for operator in sorted(UNIQUE_OPS, key=lambda o: o.unqualified_name):
@@ -113,11 +115,11 @@ def generate_pybind_bindings_for_ops(cpp_ext_dir):
                 )
                 break
 
-        if "AnyTorchScalarType" in [t for n, t in returns]:
-            warnings.warn(
-                f"not implemented return type AnyTorchScalarType for {cpp_class_name}"
-            )
-            continue
+        for u in skip_return_types:
+            if u in [t for n, t in returns]:
+                warnings.warn(f"not implemented return type {u} for {cpp_class_name}")
+                unimplemented = True
+                break
 
         if unimplemented:
             continue
@@ -230,6 +232,7 @@ def generate_pybind_bindings_for_ops(cpp_ext_dir):
                 [f"const Py{typ.replace('Type', 'Value')} &" for name, typ in params]
             )
 
+            # TODO(max): generate with param names
             impl = dedent(
                 f"""
                     // {schema}

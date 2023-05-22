@@ -581,6 +581,9 @@ py::object len(const PyAnyTorchTensorValue &t);
 // aten::len.str : (str) -> (int)
 py::object len(const PyTorch_StringValue &s);
 
+// aten::len.t : (t[]) -> (int)
+py::object len(const PyAnyTorchListValue &a);
+
 // aten::lerp.Tensor : (Tensor, Tensor, Tensor) -> (Tensor)
 py::object lerp(const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &end, const PyAnyTorchTensorValue &weight);
 
@@ -1024,6 +1027,9 @@ py::object tanh_(const PyAnyTorchTensorValue &self);
 
 // aten::tanh_backward : (Tensor, Tensor) -> (Tensor)
 py::object tanh_backward(const PyAnyTorchTensorValue &grad_output, const PyAnyTorchTensorValue &output);
+
+// aten::tensor : (t[], int?, Device?, bool) -> (Tensor)
+py::object tensor(const PyAnyTorchListValue &data, const PyAnyTorchOptionalIntValue &dtype, const PyAnyTorchOptionalDeviceValue &device, const PyTorch_BoolValue &requires_grad);
 
 // aten::tensor.bool : (bool, int?, Device?, bool) -> (Tensor)
 py::object tensor(const PyTorch_BoolValue &t, const PyAnyTorchOptionalIntValue &dtype, const PyAnyTorchOptionalDeviceValue &device, const PyTorch_BoolValue &requires_grad);

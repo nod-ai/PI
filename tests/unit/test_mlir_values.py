@@ -138,6 +138,12 @@ class TestTorchValues:
                 "AnyTorchListValue(%1 = torch.prim.ListConstruct %int1, %int1, %int1 : (!torch.int, !torch.int, !torch.int) -> !torch.list<int>)",
             )
 
+            l = ops.len(lis)
+            check_correct(
+                str(l),
+                "Torch_IntValue(%2 = torch.aten.len.t %1 : !torch.list<int> -> !torch.int)",
+            )
+
     def test_tensor_values(self):
         with mlir_mod_ctx():
             t = torch.NonValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
