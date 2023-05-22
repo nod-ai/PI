@@ -30,18 +30,23 @@ target_include_directories(PiPythonSources.Extension
 target_sources(PiPythonSources.Extension
                INTERFACE "${PYBINDINGS_SRC}/PybindUtils.cpp")
 
-execute_process(
-  COMMAND python ${CMAKE_SOURCE_DIR}/scripts/regex_mlir_bindings.py
-          ${PYBINDINGS_SRC}/IRModule.h)
-execute_process(
-        COMMAND python ${CMAKE_SOURCE_DIR}/scripts/regex_mlir_bindings.py
-        ${PYBINDINGS_SRC}/Globals.h)
-execute_process(
-  COMMAND python ${CMAKE_SOURCE_DIR}/scripts/regex_mlir_bindings.py
-          ${PYBINDINGS_SRC}/IRCore.cpp)
-execute_process(
-  COMMAND python ${CMAKE_SOURCE_DIR}/scripts/regex_mlir_bindings.py
-          ${PYBINDINGS_SRC}/IRAffine.cpp)
+set(FILES_TO_PATCH IRModule.h;Globals.h;IRCore.cpp;IRAffine.cpp)
+
+foreach(PATCH ${FILES_TO_PATCH})
+  message(STATUS "Patching ${PATCH}")
+  execute_process(
+    COMMAND
+      ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/scripts/regex_mlir_bindings.py
+      ${PYBINDINGS_SRC}/${PATCH}
+    RESULT_VARIABLE RESVAR
+    OUTPUT_VARIABLE LOG1
+    ERROR_VARIABLE LOG1 COMMAND_ECHO STDOUT ECHO_OUTPUT_VARIABLE
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  if(NOT RESVAR EQUAL 0)
+    message(FATAL_ERROR "Failed to patch ${PATCH} because ${RESVAR} ${LOG1}")
+  endif()
+endforeach()
+
 
 declare_mlir_python_extension(
   PiPythonSources.SiteInitialize
