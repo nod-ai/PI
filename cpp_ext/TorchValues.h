@@ -5,9 +5,18 @@
 #ifndef PI_TORCHVALUES_H
 #define PI_TORCHVALUES_H
 
+#include "Globals.h"
 #include "IRModule.h"
-#include "TorchTypes.h"
+
+#include "mlir-c/IR.h"
+#include "mlir/Bindings/Python/PybindAdaptors.h"
+#include "mlir/IR/TypeSupport.h"
+
+#include <functional>
 #include <pybind11/pybind11.h>
+#include <pybind11/pytypes.h>
+
+#include "TorchTypes.h"
 
 using llvm::Twine;
 namespace py = pybind11;
@@ -110,6 +119,32 @@ public:
   static void bindDerived(ClassTy &c);
 };
 
+template <typename DerivedTy, typename T> class PyDefaultingTorchOptionalValue {
+public:
+  using ReferrentTy = T;
+  PyDefaultingTorchOptionalValue() = default;
+  PyDefaultingTorchOptionalValue(MlirValue referrent) : referrent(referrent) {}
+
+  [[nodiscard]] ReferrentTy get() const {
+    MlirOperation owner;
+    if (mlirValueIsAOpResult(referrent))
+      owner = mlirOpResultGetOwner(referrent);
+    if (mlirValueIsABlockArgument(referrent))
+      owner = mlirBlockGetParentOperation(mlirBlockArgumentGetOwner(referrent));
+    if (mlirOperationIsNull(owner))
+      throw py::error_already_set();
+    MlirContext ctx = mlirOperationGetContext(owner);
+    PyOperationRef ownerRef =
+        PyOperation::forOperation(PyMlirContext::forContext(ctx), owner);
+    return ReferrentTy(ownerRef, referrent);
+  }
+  ReferrentTy operator->() { return get(); }
+  operator ReferrentTy() { return get(); }
+
+private:
+  MlirValue referrent;
+};
+
 #define DECLARE_LIST_BASE_CONCRETE_VALUE(CONCRETEVALUE)                        \
   class PyAnyTorchListOf##CONCRETEVALUE##Value                                 \
       : public PyConcreteValue<PyAnyTorchListOf##CONCRETEVALUE##Value,         \
@@ -137,7 +172,17 @@ DECLARE_LIST_BASE_CONCRETE_VALUE(Tensor)
         "AnyTorchOptional" #CONCRETEVALUE "Value";                             \
     using PyConcreteValue::PyConcreteValue;                                    \
     static void bindDerived(ClassTy &c);                                       \
+  };                                                                           \
+  class PyDefaultingTorchOptional##CONCRETEVALUE##Value                        \
+      : public PyDefaultingTorchOptionalValue<                                 \
+            PyDefaultingTorchOptional##CONCRETEVALUE##Value,                   \
+            PyAnyTorchOptional##CONCRETEVALUE##Value> {                        \
+  public:                                                                      \
+    using PyDefaultingTorchOptionalValue::PyDefaultingTorchOptionalValue;      \
+    static constexpr const char kTypeDescription[] =                           \
+        MAKE_MLIR_PYTHON_QUALNAME("AnyTorchOptional" #CONCRETEVALUE "Value");  \
   };
+
 FORALL_OPTIONAL_BASE_CONCRETE_TYPES(DECLARE_OPTIONAL_BASE_CONCRETE_VALUE)
 DECLARE_OPTIONAL_BASE_CONCRETE_VALUE(Tensor)
 #undef DECLARE_OPTIONAL_BASE_CONCRETE_VALUE
@@ -216,5 +261,46 @@ public:
 void populateTorchMLIRValues(py::module &m);
 
 } // namespace mlir::torch
+
+namespace pybind11 {
+namespace detail {
+
+template <typename DefaultingTy> struct TorchMlirDefaultingCaster {
+  PYBIND11_TYPE_CASTER(DefaultingTy, _(DefaultingTy::kTypeDescription));
+  bool load(handle src, bool) {
+    if (src.is_none()) {
+      auto none = mlir::python::PyGlobals::get()
+                      .lookupOperationClass("torch.constant.none")
+                      .value()()
+                      .cast<typename DefaultingTy::ReferrentTy>();
+      value = DefaultingTy(none);
+      return true;
+    }
+    try {
+      value = DefaultingTy(py::cast<typename DefaultingTy::ReferrentTy>(src));
+      return true;
+    } catch (std::exception &) {
+      return false;
+    }
+  }
+  static handle cast(DefaultingTy src, return_value_policy policy,
+                     handle parent) {
+    return pybind11::cast(src, policy);
+  }
+};
+
+#define DECLARE_OPTIONAL_BASE_CONCRETE_VALUE(CONCRETEVALUE)                    \
+  template <>                                                                  \
+  struct type_caster<                                                          \
+      mlir::torch::PyDefaultingTorchOptional##CONCRETEVALUE##Value>            \
+      : TorchMlirDefaultingCaster<                                             \
+            mlir::torch::PyDefaultingTorchOptional##CONCRETEVALUE##Value> {};
+
+FORALL_OPTIONAL_BASE_CONCRETE_TYPES(DECLARE_OPTIONAL_BASE_CONCRETE_VALUE)
+DECLARE_OPTIONAL_BASE_CONCRETE_VALUE(Tensor)
+#undef DECLARE_OPTIONAL_BASE_CONCRETE_VALUE
+
+} // namespace detail
+} // namespace pybind11
 
 #endif // PI_TORCHVALUES_H

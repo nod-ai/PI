@@ -184,12 +184,91 @@ class TestTorchValues:
                 "Tensor(%6 = torch.aten.cat %5, %int1_0 : !torch.list<vtensor<[2,2],f64>>, !torch.int -> !torch.tensor)",
             )
 
+    def test_defaulting_optional_values(self):
+        with mlir_mod_ctx():
+            tintv = torch.ConstantIntOp(1)
+            r = ops._test_defaulting_Int(tintv)
+            check_correct(
+                str(r), "AnyTorchOptionalIntValue(%int_1 = torch.constant.int 1)"
+            )
+
+            r = ops._test_defaulting_Int(None)
+            check_correct(
+                str(r), "AnyTorchOptionalIntValue(%none_1 = torch.constant.none)"
+            )
+
+            r = ops._test_defaulting_Int()
+            check_correct(
+                str(r), "AnyTorchOptionalIntValue(%none_1 = torch.constant.none)"
+            )
+
+            r = ops._test_defaulting_Bool(None)
+            check_correct(
+                str(r), "AnyTorchOptionalBoolValue(%none_1 = torch.constant.none)"
+            )
+
+            r = ops._test_defaulting_Device(None)
+            check_correct(
+                str(r), "AnyTorchOptionalDeviceValue(%none_1 = torch.constant.none)"
+            )
+
+            r = ops._test_defaulting_Device(None)
+            check_correct(
+                str(r), "AnyTorchOptionalDeviceValue(%none_1 = torch.constant.none)"
+            )
+
+            r = ops._test_defaulting_Float(None)
+            check_correct(
+                str(r), "AnyTorchOptionalFloatValue(%none_1 = torch.constant.none)"
+            )
+
+            r = ops._test_defaulting_Tensor(None)
+            check_correct(
+                str(r), "AnyTorchOptionalTensorValue(%none_1 = torch.constant.none)"
+            )
+
             t = torch.ValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
             opt_t = torch.ConstantNoneOp()
             clamped_t = ops.clamp(t, opt_t, opt_t)
             check_correct(
                 str(clamped_t),
                 "Tensor(%8 = torch.aten.clamp.Tensor %7, %none, %none : !torch.vtensor<[2,2],f64>, !torch.none, !torch.none -> !torch.tensor)",
+            )
+
+            t = torch.ValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
+            opt_t = torch.ConstantNoneOp()
+            clamped_t = ops.clamp(t, opt_t, None)
+            check_correct(
+                str(clamped_t),
+                "Tensor(%8 = torch.aten.clamp.Tensor %7, %none, %none : !torch.vtensor<[2,2],f64>, !torch.none, !torch.none -> !torch.tensor)",
+            )
+
+            t = torch.ValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
+            clamped_t = ops.clamp(t, None, None)
+            check_correct(
+                str(clamped_t),
+                "Tensor(%8 = torch.aten.clamp.Tensor %7, %none, %none : !torch.vtensor<[2,2],f64>, !torch.none, !torch.none -> !torch.tensor)",
+            )
+
+            t = torch.ValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
+            clamped_t = ops.clamp(t)
+            check_correct(
+                str(clamped_t),
+                "Tensor(%8 = torch.aten.clamp.Tensor %7, %none, %none : !torch.vtensor<[2,2],f64>, !torch.none, !torch.none -> !torch.tensor)",
+            )
+
+            t = torch.ValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
+            clamped_t = ops.clamp(t, t)
+            check_correct(
+                str(clamped_t),
+                "Tensor(%9 = torch.aten.clamp.Tensor %8, %8, %none_13 : !torch.vtensor<[2,2],f64>, !torch.vtensor<[2,2],f64>, !torch.none -> !torch.tensor)",
+            )
+
+            t = torch.ValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
+            clamped_t = ops.clamp(t, t, t)
+            check_correct(
+                str(clamped_t),
+                "Tensor(%11 = torch.aten.clamp.Tensor %10, %10, %10 : !torch.vtensor<[2,2],f64>, !torch.vtensor<[2,2],f64>, !torch.vtensor<[2,2],f64> -> !torch.tensor)",
             )
 
     def test_scalar_type(self):

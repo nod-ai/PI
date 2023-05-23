@@ -55,6 +55,17 @@ def generate_exts():
         emit_ops(emitter_td, registry)
 
 
+def get_clean_name(name):
+    RESERVED_NAMES = {
+        # since this is an aten op
+        "pad": "pad__"
+    }
+
+    if name in RESERVED_NAMES:
+        return RESERVED_NAMES[name]
+    return name
+
+
 def generate_pybind_bindings_for_ops(cpp_ext_dir):
     registry = Registry.load()
 
@@ -67,11 +78,6 @@ def generate_pybind_bindings_for_ops(cpp_ext_dir):
         emit_ops(emitter_td, registry)
 
     unimplemented_types = [
-        "AnyTorchOptionalScalarValue",
-        "AnyTorchValue",
-        "AnyTorchOptionalListOfTorchIntValue",
-        "AnyTorchListOfOptionalTensorValue",
-        #
         "AnyTorchOptionalScalarType",
         "AnyTorchType",
         "AnyTorchOptionalListOfTorchIntType",
@@ -94,7 +100,8 @@ def generate_pybind_bindings_for_ops(cpp_ext_dir):
             params = [("res", "Variadic<TorchType>")]
         else:
             params = [
-                (arg["name"], get_ods_type(arg["type"])) for arg in operator.arguments
+                (get_clean_name(arg["name"]), get_ods_type(arg["type"]))
+                for arg in operator.arguments
             ]
 
         if operator.is_varret:
@@ -226,17 +233,44 @@ def generate_pybind_bindings_for_ops(cpp_ext_dir):
             cpp_class_name,
             schema,
         ) in ops:
-            param_str = ", ".join(
-                [f"const Py{typ.replace('Type', 'Value')} &" for name, typ in params]
-            )
+            if any("AnyTorchOptional" in t for n, t in params):
+                param_str = ", ".join(
+                    [
+                        f"const Py{typ.replace('Type', 'Value').replace('AnyTorchOptional', 'DefaultingTorchOptional')} &{name}"
+                        for name, typ in params
+                    ]
+                )
+                tramp_str = ", ".join(
+                    [f"{n}.get()" if "AnyTorchOptional" in t else n for n, t in params]
+                )
+                labels_str = ", ".join(
+                    [
+                        f'"{n}"_a = py::none()'
+                        if "AnyTorchOptional" in t
+                        else f'"{n}"_a'
+                        for n, t in params
+                    ]
+                )
 
-            # TODO(max): generate with param names
-            impl = dedent(
-                f"""
-                    // {schema}
-                    m.def("{unqualified_name}", py::overload_cast<{param_str}>(&{unqualified_name}));
-                """
-            )
+                impl = dedent(
+                    f"""
+                        // {schema}
+                        m.def("{unqualified_name}", []({param_str}) {{ return {unqualified_name}({tramp_str}); }}, {labels_str});
+                    """
+                )
+            else:
+                param_str = ", ".join(
+                    [
+                        f"const Py{typ.replace('Type', 'Value')} &"
+                        for name, typ in params
+                    ]
+                )
+                impl = dedent(
+                    f"""
+                            // {schema}
+                            m.def("{unqualified_name}", py::overload_cast<{param_str}>(&{unqualified_name}));
+                        """
+                )
             impls_td(impl)
 
     return ops
@@ -358,21 +392,53 @@ class TensorMethodVisitor(ast.NodeVisitor):
             )
             self.binds_tramps_td(impl)
 
-        param_str = ", ".join(
-            [
-                f"const Py{params_dict[name].replace('Type', 'Value')}&"
-                for name in arg_names
+        if any("AnyTorchOptional" in t for n, t in params):
+            param_str = ", ".join(
+                [
+                    f"const Py{typ.replace('Type', 'Value').replace('AnyTorchOptional', 'DefaultingTorchOptional')} &{name}"
+                    for name, typ in params
+                ]
+            )
+            tramp_str = ", ".join(
+                [f"{n}.get()" if "AnyTorchOptional" in t else n for n, t in params]
+            )
+            assert params[0][0] == "self"
+            # apparently you can't label the self arg for a class method???
+            labels = [
+                f'"{n}"_a = py::none()' if "AnyTorchOptional" in t else f'"{n}"_a'
+                for n, t in params
             ]
-        )
-        if kwonlyargs:
-            warnings.warn(f"{op_name=} has kwonly args: {kwonlyargs=}")
-        impl = dedent(
-            f"""
-                // {method_sig}
-                // {schema}
-                c.def("{op_name}", py::overload_cast<{param_str}>(&{overload_op_name}));
-            """
-        )
+            last_opt_idx = next(
+                i for i, l in reversed(list(enumerate(labels))) if "py::none()" in l
+            )
+            if last_opt_idx < len(labels) - 1:
+                labels.insert(last_opt_idx + 1, "py::kw_only()")
+
+            labels_str = ", ".join(labels[1:])
+
+            impl = dedent(
+                f"""
+                        // {schema}
+                        c.def("{op_name}", []({param_str}) {{ return {op_name}({tramp_str}); }}, {labels_str});
+                    """
+            )
+
+        else:
+            param_str = ", ".join(
+                [
+                    f"const Py{params_dict[name].replace('Type', 'Value')}&"
+                    for name in arg_names
+                ]
+            )
+            if kwonlyargs:
+                warnings.warn(f"{op_name=} has kwonly args: {kwonlyargs=}")
+            impl = dedent(
+                f"""
+                    // {method_sig}
+                    // {schema}
+                    c.def("{op_name}", py::overload_cast<{param_str}>(&{overload_op_name}));
+                """
+            )
         self.binds_td(impl)
 
 

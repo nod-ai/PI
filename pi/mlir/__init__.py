@@ -31,7 +31,6 @@ from ._mlir_libs._pi_mlir import (
     # AnyTorchDictKeyType,
     # AnyTorchListOfOptionalIntType,
     # AnyTorchListOfOptionalTensorType,
-    # AnyTorchListOfTensorType,
     AnyTorchListOfTorchBoolType,
     AnyTorchListOfTorchIntType,
     AnyTorchListOfTorchStringType,
@@ -66,7 +65,6 @@ from ._mlir_libs._pi_mlir import (
     # AnyTorchDictKeyValue,
     # AnyTorchListOfOptionalIntValue,
     # AnyTorchListOfOptionalTensorValue,
-    # AnyTorchListOfTensorValue,
     AnyTorchListOfTorchBoolValue,
     AnyTorchListOfTorchIntValue,
     AnyTorchListOfTorchStringValue,
@@ -77,6 +75,7 @@ from ._mlir_libs._pi_mlir import (
     AnyTorchOptionalFloatValue,
     AnyTorchOptionalGeneratorValue,
     AnyTorchOptionalIntValue,
+    AnyTorchOptionalIntType,
     AnyTorchOptionalStringValue,
     AnyTorchOptionalTensorValue,
     AnyTorchOptionalValue,
@@ -160,6 +159,16 @@ class ValueMeta(type(Value)):
                 return Torch_NumberValue(val)
             if AnyTorchOptionalType.isinstance(val.type):
                 return AnyTorchOptionalValue(val)
+            if AnyTorchOptionalIntType.isinstance(val.type):
+                return AnyTorchOptionalIntValue(val)
+            if AnyTorchOptionalBoolType.isinstance(val.type):
+                return AnyTorchOptionalBoolValue(val)
+            if AnyTorchOptionalDeviceType.isinstance(val.type):
+                return AnyTorchOptionalDeviceValue(val)
+            if AnyTorchOptionalFloatType.isinstance(val.type):
+                return AnyTorchOptionalFloatValue(val)
+            if AnyTorchOptionalTensorType.isinstance(val.type):
+                return AnyTorchOptionalTensorValue(val)
             # if TorchQInt8Type.isinstance(val.type):
             #     return TorchQInt8Value(val)
             # if TorchQUInt8Type.isinstance(val.type):

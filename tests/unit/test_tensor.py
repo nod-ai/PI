@@ -1,3 +1,5 @@
+from textwrap import dedent
+
 import numpy as np
 
 from pi.mlir.utils import mlir_mod_ctx
@@ -49,4 +51,45 @@ class TestOverloadCast:
                 assert (
                     str(e)
                     == "__mod__ with signature __mod__(self, other Any) -> Tensor"
+                )
+
+    def test_optional_args(self):
+        with mlir_mod_ctx():
+            ttt = torch.NonValueTensorLiteralOp(np.random.randint(0, 10, (10, 10)))
+            r = ttt.argmax(keepdim=torch.ConstantBoolOp(False))
+            check_correct(
+                "Tensor(%5 = torch.aten.argmax %4, %none, %false : !torch.tensor<[10,10],f64>, !torch.none, !torch.bool -> !torch.tensor)",
+                str(r),
+            )
+            try:
+                r = ttt.argmax(torch.ConstantBoolOp(False))
+            except TypeError as e:
+                print()
+                check_correct(
+                    dedent(
+                        """\
+                        argmax(): incompatible function arguments. The following argument types are supported:
+                            1. (self: pi.mlir._mlir_libs._pi_mlir.Tensor, dim: pi.mlir.AnyTorchOptionalIntValue = None, keepdim: pi.mlir._mlir_libs._pi_mlir.Torch_BoolValue) -> object
+
+                        Invoked with: <pi.mlir._mlir_libs._pi_mlir.Tensor object at 0x107c0feb0>, <pi.mlir._mlir_libs._pi_mlir.Torch_BoolValue object at 0x107baf2f0>
+                        """
+                    ),
+                    str(e),
+                )
+
+            # keepdim is a kwonly arg
+            try:
+                r = ttt.argmax(None, torch.ConstantBoolOp(False))
+            except TypeError as e:
+                print()
+                check_correct(
+                    dedent(
+                        """\
+                        argmax(): incompatible function arguments. The following argument types are supported:
+                            1. (self: pi.mlir._mlir_libs._pi_mlir.Tensor, dim: pi.mlir.AnyTorchOptionalIntValue = None, keepdim: pi.mlir._mlir_libs._pi_mlir.Torch_BoolValue) -> object
+
+                        Invoked with: <pi.mlir._mlir_libs._pi_mlir.Tensor object at 0x107c0feb0>, <pi.mlir._mlir_libs._pi_mlir.Torch_BoolValue object at 0x107baf2f0>
+                        """
+                    ),
+                    str(e),
                 )

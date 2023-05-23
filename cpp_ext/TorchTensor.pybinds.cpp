@@ -41,8 +41,8 @@ c.def("__iadd__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwar
 // @overload __iand__(self, other Tensor) -> Tensor
 c.def("__iand__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__iand__ with signature @overload __iand__(self, other Tensor) -> Tensor"); });
 
-// @overload __iand__(self, other Number) -> Tensor
-c.def("__iand__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__iand__ with signature @overload __iand__(self, other Number) -> Tensor"); });
+// @overload __iand__(self, other Union[Number, _complex]) -> Tensor
+c.def("__iand__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__iand__ with signature @overload __iand__(self, other Union[Number, _complex]) -> Tensor"); });
 
 // @overload __iand__(self, other Any) -> Tensor
 c.def("__iand__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__iand__ with signature @overload __iand__(self, other Any) -> Tensor"); });
@@ -56,8 +56,8 @@ c.def("__ifloordiv__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs
 // @overload __ilshift__(self, other Tensor) -> Tensor
 c.def("__ilshift__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__ilshift__ with signature @overload __ilshift__(self, other Tensor) -> Tensor"); });
 
-// @overload __ilshift__(self, other Number) -> Tensor
-c.def("__ilshift__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__ilshift__ with signature @overload __ilshift__(self, other Number) -> Tensor"); });
+// @overload __ilshift__(self, other Union[Number, _complex]) -> Tensor
+c.def("__ilshift__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__ilshift__ with signature @overload __ilshift__(self, other Union[Number, _complex]) -> Tensor"); });
 
 // @overload __ilshift__(self, other Any) -> Tensor
 c.def("__ilshift__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__ilshift__ with signature @overload __ilshift__(self, other Any) -> Tensor"); });
@@ -77,8 +77,8 @@ c.def("__invert__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kw
 // @overload __ior__(self, other Tensor) -> Tensor
 c.def("__ior__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__ior__ with signature @overload __ior__(self, other Tensor) -> Tensor"); });
 
-// @overload __ior__(self, other Number) -> Tensor
-c.def("__ior__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__ior__ with signature @overload __ior__(self, other Number) -> Tensor"); });
+// @overload __ior__(self, other Union[Number, _complex]) -> Tensor
+c.def("__ior__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__ior__ with signature @overload __ior__(self, other Union[Number, _complex]) -> Tensor"); });
 
 // @overload __ior__(self, other Any) -> Tensor
 c.def("__ior__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__ior__ with signature @overload __ior__(self, other Any) -> Tensor"); });
@@ -86,8 +86,8 @@ c.def("__ior__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwarg
 // @overload __irshift__(self, other Tensor) -> Tensor
 c.def("__irshift__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__irshift__ with signature @overload __irshift__(self, other Tensor) -> Tensor"); });
 
-// @overload __irshift__(self, other Number) -> Tensor
-c.def("__irshift__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__irshift__ with signature @overload __irshift__(self, other Number) -> Tensor"); });
+// @overload __irshift__(self, other Union[Number, _complex]) -> Tensor
+c.def("__irshift__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__irshift__ with signature @overload __irshift__(self, other Union[Number, _complex]) -> Tensor"); });
 
 // @overload __irshift__(self, other Any) -> Tensor
 c.def("__irshift__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__irshift__ with signature @overload __irshift__(self, other Any) -> Tensor"); });
@@ -98,8 +98,8 @@ c.def("__isub__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwar
 // @overload __ixor__(self, other Tensor) -> Tensor
 c.def("__ixor__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__ixor__ with signature @overload __ixor__(self, other Tensor) -> Tensor"); });
 
-// @overload __ixor__(self, other Number) -> Tensor
-c.def("__ixor__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__ixor__ with signature @overload __ixor__(self, other Number) -> Tensor"); });
+// @overload __ixor__(self, other Union[Number, _complex]) -> Tensor
+c.def("__ixor__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__ixor__ with signature @overload __ixor__(self, other Union[Number, _complex]) -> Tensor"); });
 
 // @overload __ixor__(self, other Any) -> Tensor
 c.def("__ixor__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__ixor__ with signature @overload __ixor__(self, other Any) -> Tensor"); });
@@ -114,8 +114,8 @@ c.def("__long__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwar
 // @overload __lshift__(self, other Tensor) -> Tensor
 c.def("__lshift__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__lshift__ with signature @overload __lshift__(self, other Tensor) -> Tensor"); });
 
-// @overload __lshift__(self, other Number) -> Tensor
-c.def("__lshift__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__lshift__ with signature @overload __lshift__(self, other Number) -> Tensor"); });
+// @overload __lshift__(self, other Union[Number, _complex]) -> Tensor
+c.def("__lshift__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__lshift__ with signature @overload __lshift__(self, other Union[Number, _complex]) -> Tensor"); });
 
 // @overload __lshift__(self, other Any) -> Tensor
 c.def("__lshift__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__lshift__ with signature @overload __lshift__(self, other Any) -> Tensor"); });
@@ -149,8 +149,8 @@ c.def("__nonzero__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs k
 // @overload __or__(self, other Tensor) -> Tensor
 c.def("__or__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__or__ with signature @overload __or__(self, other Tensor) -> Tensor"); });
 
-// @overload __or__(self, other Number) -> Tensor
-c.def("__or__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__or__ with signature @overload __or__(self, other Number) -> Tensor"); });
+// @overload __or__(self, other Union[Number, _complex]) -> Tensor
+c.def("__or__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__or__ with signature @overload __or__(self, other Union[Number, _complex]) -> Tensor"); });
 
 // @overload __or__(self, other Any) -> Tensor
 c.def("__or__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__or__ with signature @overload __or__(self, other Any) -> Tensor"); });
@@ -176,8 +176,8 @@ c.def("__rpow__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwar
 // @overload __rshift__(self, other Tensor) -> Tensor
 c.def("__rshift__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__rshift__ with signature @overload __rshift__(self, other Tensor) -> Tensor"); });
 
-// @overload __rshift__(self, other Number) -> Tensor
-c.def("__rshift__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__rshift__ with signature @overload __rshift__(self, other Number) -> Tensor"); });
+// @overload __rshift__(self, other Union[Number, _complex]) -> Tensor
+c.def("__rshift__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__rshift__ with signature @overload __rshift__(self, other Union[Number, _complex]) -> Tensor"); });
 
 // @overload __rshift__(self, other Any) -> Tensor
 c.def("__rshift__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__rshift__ with signature @overload __rshift__(self, other Any) -> Tensor"); });
@@ -197,14 +197,14 @@ c.def("__truediv__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs k
 // @overload __xor__(self, other Tensor) -> Tensor
 c.def("__xor__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__xor__ with signature @overload __xor__(self, other Tensor) -> Tensor"); });
 
-// @overload __xor__(self, other Number) -> Tensor
-c.def("__xor__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__xor__ with signature @overload __xor__(self, other Number) -> Tensor"); });
+// @overload __xor__(self, other Union[Number, _complex]) -> Tensor
+c.def("__xor__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__xor__ with signature @overload __xor__(self, other Union[Number, _complex]) -> Tensor"); });
 
 // @overload __xor__(self, other Any) -> Tensor
 c.def("__xor__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("__xor__ with signature @overload __xor__(self, other Any) -> Tensor"); });
 
-// _addmm_activation(self, mat1 Tensor, mat2 Tensor, *, beta Number=1, alpha Number=1, use_gelu _bool=False) -> Tensor
-c.def("_addmm_activation", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("_addmm_activation with signature _addmm_activation(self, mat1 Tensor, mat2 Tensor, *, beta Number=1, alpha Number=1, use_gelu _bool=False) -> Tensor"); });
+// _addmm_activation(self, mat1 Tensor, mat2 Tensor, *, beta Union[Number, _complex]=1, alpha Union[Number, _complex]=1, use_gelu _bool=False) -> Tensor
+c.def("_addmm_activation", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("_addmm_activation with signature _addmm_activation(self, mat1 Tensor, mat2 Tensor, *, beta Union[Number, _complex]=1, alpha Union[Number, _complex]=1, use_gelu _bool=False) -> Tensor"); });
 
 // _autocast_to_full_precision(self, cuda_enabled _bool, cpu_enabled _bool) -> Tensor
 c.def("_autocast_to_full_precision", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("_autocast_to_full_precision with signature _autocast_to_full_precision(self, cuda_enabled _bool, cpu_enabled _bool) -> Tensor"); });
@@ -292,46 +292,46 @@ c.def("acosh_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs
 // aten::add_.Tensor : (Tensor, Tensor, Scalar) -> (Tensor)
 c.def("add_", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchTensorValue&, const PyAnyTorchScalarValue&>(&add_));
 
-// addbmm(self, batch1 Tensor, batch2 Tensor, *, beta Number=1, alpha Number=1) -> Tensor
-c.def("addbmm", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("addbmm with signature addbmm(self, batch1 Tensor, batch2 Tensor, *, beta Number=1, alpha Number=1) -> Tensor"); });
+// addbmm(self, batch1 Tensor, batch2 Tensor, *, beta Union[Number, _complex]=1, alpha Union[Number, _complex]=1) -> Tensor
+c.def("addbmm", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("addbmm with signature addbmm(self, batch1 Tensor, batch2 Tensor, *, beta Union[Number, _complex]=1, alpha Union[Number, _complex]=1) -> Tensor"); });
 
-// addbmm_(self, batch1 Tensor, batch2 Tensor, *, beta Number=1, alpha Number=1) -> Tensor
-c.def("addbmm_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("addbmm_ with signature addbmm_(self, batch1 Tensor, batch2 Tensor, *, beta Number=1, alpha Number=1) -> Tensor"); });
+// addbmm_(self, batch1 Tensor, batch2 Tensor, *, beta Union[Number, _complex]=1, alpha Union[Number, _complex]=1) -> Tensor
+c.def("addbmm_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("addbmm_ with signature addbmm_(self, batch1 Tensor, batch2 Tensor, *, beta Union[Number, _complex]=1, alpha Union[Number, _complex]=1) -> Tensor"); });
 
-// addcdiv(self, tensor1 Tensor, tensor2 Tensor, *, value Number=1) -> Tensor
+// addcdiv(self, tensor1 Tensor, tensor2 Tensor, *, value Union[Number, _complex]=1) -> Tensor
 // aten::addcdiv : (Tensor, Tensor, Tensor, Scalar) -> (Tensor)
 c.def("addcdiv", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchTensorValue&, const PyAnyTorchTensorValue&, const PyAnyTorchScalarValue&>(&addcdiv));
 
-// addcdiv_(self, tensor1 Tensor, tensor2 Tensor, *, value Number=1) -> Tensor
+// addcdiv_(self, tensor1 Tensor, tensor2 Tensor, *, value Union[Number, _complex]=1) -> Tensor
 // aten::addcdiv_ : (Tensor, Tensor, Tensor, Scalar) -> (Tensor)
 c.def("addcdiv_", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchTensorValue&, const PyAnyTorchTensorValue&, const PyAnyTorchScalarValue&>(&addcdiv_));
 
-// addcmul(self, tensor1 Tensor, tensor2 Tensor, *, value Number=1) -> Tensor
+// addcmul(self, tensor1 Tensor, tensor2 Tensor, *, value Union[Number, _complex]=1) -> Tensor
 // aten::addcmul : (Tensor, Tensor, Tensor, Scalar) -> (Tensor)
 c.def("addcmul", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchTensorValue&, const PyAnyTorchTensorValue&, const PyAnyTorchScalarValue&>(&addcmul));
 
-// addcmul_(self, tensor1 Tensor, tensor2 Tensor, *, value Number=1) -> Tensor
+// addcmul_(self, tensor1 Tensor, tensor2 Tensor, *, value Union[Number, _complex]=1) -> Tensor
 // aten::addcmul_ : (Tensor, Tensor, Tensor, Scalar) -> (Tensor)
 c.def("addcmul_", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchTensorValue&, const PyAnyTorchTensorValue&, const PyAnyTorchScalarValue&>(&addcmul_));
 
-// addmm(self, mat1 Tensor, mat2 Tensor, *, beta Number=1, alpha Number=1) -> Tensor
+// addmm(self, mat1 Tensor, mat2 Tensor, *, beta Union[Number, _complex]=1, alpha Union[Number, _complex]=1) -> Tensor
 // aten::addmm : (Tensor, Tensor, Tensor, Scalar, Scalar) -> (Tensor)
 c.def("addmm", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchTensorValue&, const PyAnyTorchTensorValue&, const PyAnyTorchScalarValue&, const PyAnyTorchScalarValue&>(&addmm));
 
-// addmm_(self, mat1 Tensor, mat2 Tensor, *, beta Number=1, alpha Number=1) -> Tensor
-c.def("addmm_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("addmm_ with signature addmm_(self, mat1 Tensor, mat2 Tensor, *, beta Number=1, alpha Number=1) -> Tensor"); });
+// addmm_(self, mat1 Tensor, mat2 Tensor, *, beta Union[Number, _complex]=1, alpha Union[Number, _complex]=1) -> Tensor
+c.def("addmm_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("addmm_ with signature addmm_(self, mat1 Tensor, mat2 Tensor, *, beta Union[Number, _complex]=1, alpha Union[Number, _complex]=1) -> Tensor"); });
 
-// addmv(self, mat Tensor, vec Tensor, *, beta Number=1, alpha Number=1) -> Tensor
-c.def("addmv", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("addmv with signature addmv(self, mat Tensor, vec Tensor, *, beta Number=1, alpha Number=1) -> Tensor"); });
+// addmv(self, mat Tensor, vec Tensor, *, beta Union[Number, _complex]=1, alpha Union[Number, _complex]=1) -> Tensor
+c.def("addmv", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("addmv with signature addmv(self, mat Tensor, vec Tensor, *, beta Union[Number, _complex]=1, alpha Union[Number, _complex]=1) -> Tensor"); });
 
-// addmv_(self, mat Tensor, vec Tensor, *, beta Number=1, alpha Number=1) -> Tensor
-c.def("addmv_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("addmv_ with signature addmv_(self, mat Tensor, vec Tensor, *, beta Number=1, alpha Number=1) -> Tensor"); });
+// addmv_(self, mat Tensor, vec Tensor, *, beta Union[Number, _complex]=1, alpha Union[Number, _complex]=1) -> Tensor
+c.def("addmv_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("addmv_ with signature addmv_(self, mat Tensor, vec Tensor, *, beta Union[Number, _complex]=1, alpha Union[Number, _complex]=1) -> Tensor"); });
 
-// addr(self, vec1 Tensor, vec2 Tensor, *, beta Number=1, alpha Number=1) -> Tensor
-c.def("addr", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("addr with signature addr(self, vec1 Tensor, vec2 Tensor, *, beta Number=1, alpha Number=1) -> Tensor"); });
+// addr(self, vec1 Tensor, vec2 Tensor, *, beta Union[Number, _complex]=1, alpha Union[Number, _complex]=1) -> Tensor
+c.def("addr", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("addr with signature addr(self, vec1 Tensor, vec2 Tensor, *, beta Union[Number, _complex]=1, alpha Union[Number, _complex]=1) -> Tensor"); });
 
-// addr_(self, vec1 Tensor, vec2 Tensor, *, beta Number=1, alpha Number=1) -> Tensor
-c.def("addr_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("addr_ with signature addr_(self, vec1 Tensor, vec2 Tensor, *, beta Number=1, alpha Number=1) -> Tensor"); });
+// addr_(self, vec1 Tensor, vec2 Tensor, *, beta Union[Number, _complex]=1, alpha Union[Number, _complex]=1) -> Tensor
+c.def("addr_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("addr_ with signature addr_(self, vec1 Tensor, vec2 Tensor, *, beta Union[Number, _complex]=1, alpha Union[Number, _complex]=1) -> Tensor"); });
 
 // adjoint(self) -> Tensor
 c.def("adjoint", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("adjoint with signature adjoint(self) -> Tensor"); });
@@ -418,9 +418,8 @@ c.def("arctanh", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwarg
 // arctanh_(self) -> Tensor
 c.def("arctanh_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("arctanh_ with signature arctanh_(self) -> Tensor"); });
 
-// argmax(self, dim Optional[_int]=None, keepdim _bool=False) -> Tensor
 // aten::argmax : (Tensor, int?, bool) -> (Tensor)
-c.def("argmax", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchOptionalIntValue&, const PyTorch_BoolValue&>(&argmax));
+c.def("argmax", [](const PyAnyTorchTensorValue &self, const PyDefaultingTorchOptionalIntValue &dim, const PyTorch_BoolValue &keepdim) { return argmax(self, dim.get(), keepdim); }, "dim"_a = py::none(), py::kw_only(), "keepdim"_a);
 
 // argmin(self, dim Optional[_int]=None, keepdim _bool=False) -> Tensor
 c.def("argmin", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("argmin with signature argmin(self, dim Optional[_int]=None, keepdim _bool=False) -> Tensor"); });
@@ -443,9 +442,8 @@ c.def("as_strided", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kw
 // as_strided_(self, size Sequence[Union[_int, SymInt]], stride Sequence[Union[_int, SymInt]], storage_offset Optional[Union[_int, SymInt]]=None) -> Tensor
 c.def("as_strided_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("as_strided_ with signature as_strided_(self, size Sequence[Union[_int, SymInt]], stride Sequence[Union[_int, SymInt]], storage_offset Optional[Union[_int, SymInt]]=None) -> Tensor"); });
 
-// as_strided_scatter(self, src Tensor, size Sequence[Union[_int, SymInt]], stride Sequence[Union[_int, SymInt]], storage_offset Optional[Union[_int, SymInt]]=None) -> Tensor
 // aten::as_strided_scatter : (Tensor, Tensor, int[], int[], int?) -> (Tensor)
-c.def("as_strided_scatter", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchTensorValue&, const PyAnyTorchListOfTorchIntValue&, const PyAnyTorchListOfTorchIntValue&, const PyAnyTorchOptionalIntValue&>(&as_strided_scatter));
+c.def("as_strided_scatter", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &src, const PyAnyTorchListOfTorchIntValue &size, const PyAnyTorchListOfTorchIntValue &stride, const PyDefaultingTorchOptionalIntValue &storage_offset) { return as_strided_scatter(self, src, size, stride, storage_offset.get()); }, "src"_a, "size"_a, "stride"_a, "storage_offset"_a = py::none());
 
 // as_subclass(self, cls Type[S]) -> S
 c.def("as_subclass", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("as_subclass with signature as_subclass(self, cls Type[S]) -> S"); });
@@ -463,7 +461,8 @@ c.def("asinh", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs)
 c.def("asinh_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("asinh_ with signature asinh_(self) -> Tensor"); });
 
 // atan(self) -> Tensor
-c.def("atan", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("atan with signature atan(self) -> Tensor"); });
+// aten::atan : (Tensor) -> (Tensor)
+c.def("atan", py::overload_cast<const PyAnyTorchTensorValue&>(&atan));
 
 // atan2(self, other Tensor) -> Tensor
 // aten::atan2 : (Tensor, Tensor) -> (Tensor)
@@ -474,7 +473,8 @@ c.def("atan2", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchT
 c.def("atan2_", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchTensorValue&>(&atan2_));
 
 // atan_(self) -> Tensor
-c.def("atan_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("atan_ with signature atan_(self) -> Tensor"); });
+// aten::atan_ : (Tensor) -> (Tensor)
+c.def("atan_", py::overload_cast<const PyAnyTorchTensorValue&>(&atan_));
 
 // atanh(self) -> Tensor
 c.def("atanh", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("atanh with signature atanh(self) -> Tensor"); });
@@ -482,32 +482,28 @@ c.def("atanh", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs)
 // atanh_(self) -> Tensor
 c.def("atanh_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("atanh_ with signature atanh_(self) -> Tensor"); });
 
-// baddbmm(self, batch1 Tensor, batch2 Tensor, *, beta Number=1, alpha Number=1) -> Tensor
+// baddbmm(self, batch1 Tensor, batch2 Tensor, *, beta Union[Number, _complex]=1, alpha Union[Number, _complex]=1) -> Tensor
 // aten::baddbmm : (Tensor, Tensor, Tensor, Scalar, Scalar) -> (Tensor)
 c.def("baddbmm", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchTensorValue&, const PyAnyTorchTensorValue&, const PyAnyTorchScalarValue&, const PyAnyTorchScalarValue&>(&baddbmm));
 
-// baddbmm_(self, batch1 Tensor, batch2 Tensor, *, beta Number=1, alpha Number=1) -> Tensor
+// baddbmm_(self, batch1 Tensor, batch2 Tensor, *, beta Union[Number, _complex]=1, alpha Union[Number, _complex]=1) -> Tensor
 // aten::baddbmm_ : (Tensor, Tensor, Tensor, Scalar, Scalar) -> (Tensor)
 c.def("baddbmm_", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchTensorValue&, const PyAnyTorchTensorValue&, const PyAnyTorchScalarValue&, const PyAnyTorchScalarValue&>(&baddbmm_));
 
-// @overload bernoulli(self, *, generator Optional[Generator]=None) -> Tensor
 // aten::bernoulli : (Tensor, Generator?) -> (Tensor)
-c.def("bernoulli", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchOptionalGeneratorValue&>(&bernoulli));
+c.def("bernoulli", [](const PyAnyTorchTensorValue &self, const PyDefaultingTorchOptionalGeneratorValue &generator) { return bernoulli(self, generator.get()); }, "generator"_a = py::none());
 
-// @overload bernoulli(self, p _float, *, generator Optional[Generator]=None) -> Tensor
 // aten::bernoulli.p : (Tensor, float, Generator?) -> (Tensor)
-c.def("bernoulli", py::overload_cast<const PyAnyTorchTensorValue&, const PyTorch_FloatValue&, const PyAnyTorchOptionalGeneratorValue&>(&bernoulli));
+c.def("bernoulli", [](const PyAnyTorchTensorValue &self, const PyTorch_FloatValue &p, const PyDefaultingTorchOptionalGeneratorValue &generator) { return bernoulli(self, p, generator.get()); }, "p"_a, "generator"_a = py::none());
 
-// @overload bernoulli_(self, p Tensor, *, generator Optional[Generator]=None) -> Tensor
 // aten::bernoulli_.float : (Tensor, float, Generator?) -> (Tensor)
-c.def("bernoulli_", py::overload_cast<const PyAnyTorchTensorValue&, const PyTorch_FloatValue&, const PyAnyTorchOptionalGeneratorValue&>(&bernoulli_));
+c.def("bernoulli_", [](const PyAnyTorchTensorValue &self, const PyTorch_FloatValue &p, const PyDefaultingTorchOptionalGeneratorValue &generator) { return bernoulli_(self, p, generator.get()); }, "p"_a, "generator"_a = py::none());
 
 // bfloat16(self) -> Tensor
 c.def("bfloat16", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("bfloat16 with signature bfloat16(self) -> Tensor"); });
 
-// bincount(self, weights Optional[Tensor]=None, minlength _int=0) -> Tensor
 // aten::bincount : (Tensor, Tensor?, int) -> (Tensor)
-c.def("bincount", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchOptionalTensorValue&, const PyTorch_IntValue&>(&bincount));
+c.def("bincount", [](const PyAnyTorchTensorValue &self, const PyDefaultingTorchOptionalTensorValue &weights, const PyTorch_IntValue &minlength) { return bincount(self, weights.get(), minlength); }, "weights"_a = py::none(), py::kw_only(), "minlength"_a);
 
 // @overload bitwise_and(self, other Tensor) -> Tensor
 // aten::bitwise_and.Tensor : (Tensor, Tensor) -> (Tensor)
@@ -520,14 +516,14 @@ c.def("bitwise_and_", py::overload_cast<const PyAnyTorchTensorValue&, const PyAn
 // @overload bitwise_left_shift(self, other Tensor) -> Tensor
 c.def("bitwise_left_shift", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("bitwise_left_shift with signature @overload bitwise_left_shift(self, other Tensor) -> Tensor"); });
 
-// @overload bitwise_left_shift(self, other Number) -> Tensor
-c.def("bitwise_left_shift", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("bitwise_left_shift with signature @overload bitwise_left_shift(self, other Number) -> Tensor"); });
+// @overload bitwise_left_shift(self, other Union[Number, _complex]) -> Tensor
+c.def("bitwise_left_shift", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("bitwise_left_shift with signature @overload bitwise_left_shift(self, other Union[Number, _complex]) -> Tensor"); });
 
 // @overload bitwise_left_shift_(self, other Tensor) -> Tensor
 c.def("bitwise_left_shift_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("bitwise_left_shift_ with signature @overload bitwise_left_shift_(self, other Tensor) -> Tensor"); });
 
-// @overload bitwise_left_shift_(self, other Number) -> Tensor
-c.def("bitwise_left_shift_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("bitwise_left_shift_ with signature @overload bitwise_left_shift_(self, other Number) -> Tensor"); });
+// @overload bitwise_left_shift_(self, other Union[Number, _complex]) -> Tensor
+c.def("bitwise_left_shift_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("bitwise_left_shift_ with signature @overload bitwise_left_shift_(self, other Union[Number, _complex]) -> Tensor"); });
 
 // bitwise_not(self) -> Tensor
 // aten::bitwise_not : (Tensor) -> (Tensor)
@@ -548,14 +544,14 @@ c.def("bitwise_or_", py::overload_cast<const PyAnyTorchTensorValue&, const PyAny
 // @overload bitwise_right_shift(self, other Tensor) -> Tensor
 c.def("bitwise_right_shift", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("bitwise_right_shift with signature @overload bitwise_right_shift(self, other Tensor) -> Tensor"); });
 
-// @overload bitwise_right_shift(self, other Number) -> Tensor
-c.def("bitwise_right_shift", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("bitwise_right_shift with signature @overload bitwise_right_shift(self, other Number) -> Tensor"); });
+// @overload bitwise_right_shift(self, other Union[Number, _complex]) -> Tensor
+c.def("bitwise_right_shift", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("bitwise_right_shift with signature @overload bitwise_right_shift(self, other Union[Number, _complex]) -> Tensor"); });
 
 // @overload bitwise_right_shift_(self, other Tensor) -> Tensor
 c.def("bitwise_right_shift_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("bitwise_right_shift_ with signature @overload bitwise_right_shift_(self, other Tensor) -> Tensor"); });
 
-// @overload bitwise_right_shift_(self, other Number) -> Tensor
-c.def("bitwise_right_shift_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("bitwise_right_shift_ with signature @overload bitwise_right_shift_(self, other Number) -> Tensor"); });
+// @overload bitwise_right_shift_(self, other Union[Number, _complex]) -> Tensor
+c.def("bitwise_right_shift_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("bitwise_right_shift_ with signature @overload bitwise_right_shift_(self, other Union[Number, _complex]) -> Tensor"); });
 
 // @overload bitwise_xor(self, other Tensor) -> Tensor
 // aten::bitwise_xor.Tensor : (Tensor, Tensor) -> (Tensor)
@@ -611,13 +607,11 @@ c.def("cholesky_solve", [](PyAnyTorchTensorValue& self, py::args args, py::kwarg
 // chunk(self, chunks _int, dim _int=0) -> List[Tensor]
 c.def("chunk", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("chunk with signature chunk(self, chunks _int, dim _int=0) -> List[Tensor]"); });
 
-// @overload clamp(self, min Optional[Tensor]=None, max Optional[Tensor]=None) -> Tensor
 // aten::clamp.Tensor : (Tensor, Tensor?, Tensor?) -> (Tensor)
-c.def("clamp", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchOptionalTensorValue&, const PyAnyTorchOptionalTensorValue&>(&clamp));
+c.def("clamp", [](const PyAnyTorchTensorValue &self, const PyDefaultingTorchOptionalTensorValue &min, const PyDefaultingTorchOptionalTensorValue &max) { return clamp(self, min.get(), max.get()); }, "min"_a = py::none(), "max"_a = py::none());
 
-// @overload clamp_(self, min Optional[Tensor]=None, max Optional[Tensor]=None) -> Tensor
 // aten::clamp_.Tensor : (Tensor, Tensor?, Tensor?) -> (Tensor)
-c.def("clamp_", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchOptionalTensorValue&, const PyAnyTorchOptionalTensorValue&>(&clamp_));
+c.def("clamp_", [](const PyAnyTorchTensorValue &self, const PyDefaultingTorchOptionalTensorValue &min, const PyDefaultingTorchOptionalTensorValue &max) { return clamp_(self, min.get(), max.get()); }, "min"_a = py::none(), "max"_a = py::none());
 
 // @overload clamp_max(self, max Tensor) -> Tensor
 // aten::clamp_max : (Tensor, Scalar) -> (Tensor)
@@ -638,18 +632,17 @@ c.def("clamp_min_", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyT
 // @overload clip(self, min Optional[Tensor]=None, max Optional[Tensor]=None) -> Tensor
 c.def("clip", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("clip with signature @overload clip(self, min Optional[Tensor]=None, max Optional[Tensor]=None) -> Tensor"); });
 
-// @overload clip(self, min Optional[Number]=None, max Optional[Number]=None) -> Tensor
-c.def("clip", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("clip with signature @overload clip(self, min Optional[Number]=None, max Optional[Number]=None) -> Tensor"); });
+// @overload clip(self, min Optional[Union[Number, _complex]]=None, max Optional[Union[Number, _complex]]=None) -> Tensor
+c.def("clip", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("clip with signature @overload clip(self, min Optional[Union[Number, _complex]]=None, max Optional[Union[Number, _complex]]=None) -> Tensor"); });
 
 // @overload clip_(self, min Optional[Tensor]=None, max Optional[Tensor]=None) -> Tensor
 c.def("clip_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("clip_ with signature @overload clip_(self, min Optional[Tensor]=None, max Optional[Tensor]=None) -> Tensor"); });
 
-// @overload clip_(self, min Optional[Number]=None, max Optional[Number]=None) -> Tensor
-c.def("clip_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("clip_ with signature @overload clip_(self, min Optional[Number]=None, max Optional[Number]=None) -> Tensor"); });
+// @overload clip_(self, min Optional[Union[Number, _complex]]=None, max Optional[Union[Number, _complex]]=None) -> Tensor
+c.def("clip_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("clip_ with signature @overload clip_(self, min Optional[Union[Number, _complex]]=None, max Optional[Union[Number, _complex]]=None) -> Tensor"); });
 
-// clone(self, *, memory_format Optional[memory_format]=None) -> Tensor
 // aten::clone : (Tensor, int?) -> (Tensor)
-c.def("clone", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchOptionalIntValue&>(&clone));
+c.def("clone", [](const PyAnyTorchTensorValue &self, const PyDefaultingTorchOptionalIntValue &memory_format) { return clone(self, memory_format.get()); }, "memory_format"_a = py::none());
 
 // coalesce(self) -> Tensor
 c.def("coalesce", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("coalesce with signature coalesce(self) -> Tensor"); });
@@ -677,14 +670,14 @@ c.def("copy_", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchT
 // @overload copysign(self, other Tensor) -> Tensor
 c.def("copysign", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("copysign with signature @overload copysign(self, other Tensor) -> Tensor"); });
 
-// @overload copysign(self, other Number) -> Tensor
-c.def("copysign", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("copysign with signature @overload copysign(self, other Number) -> Tensor"); });
+// @overload copysign(self, other Union[Number, _complex]) -> Tensor
+c.def("copysign", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("copysign with signature @overload copysign(self, other Union[Number, _complex]) -> Tensor"); });
 
 // @overload copysign_(self, other Tensor) -> Tensor
 c.def("copysign_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("copysign_ with signature @overload copysign_(self, other Tensor) -> Tensor"); });
 
-// @overload copysign_(self, other Number) -> Tensor
-c.def("copysign_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("copysign_ with signature @overload copysign_(self, other Number) -> Tensor"); });
+// @overload copysign_(self, other Union[Number, _complex]) -> Tensor
+c.def("copysign_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("copysign_ with signature @overload copysign_(self, other Union[Number, _complex]) -> Tensor"); });
 
 // corrcoef(self) -> Tensor
 c.def("corrcoef", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("corrcoef with signature corrcoef(self) -> Tensor"); });
@@ -752,9 +745,8 @@ c.def("cumprod_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwar
 // @overload cumprod_(self, dim Union[str, ellipsis, None], *, dtype Optional[_dtype]=None) -> Tensor
 c.def("cumprod_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("cumprod_ with signature @overload cumprod_(self, dim Union[str, ellipsis, None], *, dtype Optional[_dtype]=None) -> Tensor"); });
 
-// @overload cumsum(self, dim _int, *, dtype Optional[_dtype]=None) -> Tensor
 // aten::cumsum : (Tensor, int, int?) -> (Tensor)
-c.def("cumsum", py::overload_cast<const PyAnyTorchTensorValue&, const PyTorch_IntValue&, const PyAnyTorchOptionalIntValue&>(&cumsum));
+c.def("cumsum", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyDefaultingTorchOptionalIntValue &dtype) { return cumsum(self, dim, dtype.get()); }, "dim"_a, "dtype"_a = py::none());
 
 // @overload cumsum_(self, dim _int, *, dtype Optional[_dtype]=None) -> Tensor
 c.def("cumsum_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("cumsum_ with signature @overload cumsum_(self, dim _int, *, dtype Optional[_dtype]=None) -> Tensor"); });
@@ -819,16 +811,14 @@ c.def("digamma_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwar
 // aten::dim : (Tensor) -> (int)
 c.def("dim", py::overload_cast<const PyAnyTorchTensorValue&>(&dim));
 
-// dist(self, other Tensor, p Number=2) -> Tensor
-c.def("dist", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("dist with signature dist(self, other Tensor, p Number=2) -> Tensor"); });
+// dist(self, other Tensor, p Union[Number, _complex]=2) -> Tensor
+c.def("dist", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("dist with signature dist(self, other Tensor, p Union[Number, _complex]=2) -> Tensor"); });
 
-// div(self, other Union[Tensor, Number], *, rounding_mode Optional[str]=None) -> Tensor
 // aten::div.Tensor_mode : (Tensor, Tensor, str?) -> (Tensor)
-c.def("div", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchTensorValue&, const PyAnyTorchOptionalStringValue&>(&div));
+c.def("div", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &other, const PyDefaultingTorchOptionalStringValue &rounding_mode) { return div(self, other, rounding_mode.get()); }, "other"_a, "rounding_mode"_a = py::none());
 
-// div_(self, other Union[Tensor, Number], *, rounding_mode Optional[str]=None) -> Tensor
 // aten::div_.Tensor_mode : (Tensor, Tensor, str?) -> (Tensor)
-c.def("div_", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchTensorValue&, const PyAnyTorchOptionalStringValue&>(&div_));
+c.def("div_", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &other, const PyDefaultingTorchOptionalStringValue &rounding_mode) { return div_(self, other, rounding_mode.get()); }, "other"_a, "rounding_mode"_a = py::none());
 
 // @overload divide(self, other Tensor) -> Tensor
 c.def("divide", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("divide with signature @overload divide(self, other Tensor) -> Tensor"); });
@@ -836,11 +826,11 @@ c.def("divide", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs
 // @overload divide(self, other Tensor, *, rounding_mode Optional[str]) -> Tensor
 c.def("divide", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("divide with signature @overload divide(self, other Tensor, *, rounding_mode Optional[str]) -> Tensor"); });
 
-// @overload divide(self, other Number, *, rounding_mode Optional[str]) -> Tensor
-c.def("divide", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("divide with signature @overload divide(self, other Number, *, rounding_mode Optional[str]) -> Tensor"); });
+// @overload divide(self, other Union[Number, _complex], *, rounding_mode Optional[str]) -> Tensor
+c.def("divide", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("divide with signature @overload divide(self, other Union[Number, _complex], *, rounding_mode Optional[str]) -> Tensor"); });
 
-// @overload divide(self, other Number) -> Tensor
-c.def("divide", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("divide with signature @overload divide(self, other Number) -> Tensor"); });
+// @overload divide(self, other Union[Number, _complex]) -> Tensor
+c.def("divide", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("divide with signature @overload divide(self, other Union[Number, _complex]) -> Tensor"); });
 
 // @overload divide_(self, other Tensor) -> Tensor
 c.def("divide_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("divide_ with signature @overload divide_(self, other Tensor) -> Tensor"); });
@@ -848,11 +838,11 @@ c.def("divide_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwarg
 // @overload divide_(self, other Tensor, *, rounding_mode Optional[str]) -> Tensor
 c.def("divide_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("divide_ with signature @overload divide_(self, other Tensor, *, rounding_mode Optional[str]) -> Tensor"); });
 
-// @overload divide_(self, other Number, *, rounding_mode Optional[str]) -> Tensor
-c.def("divide_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("divide_ with signature @overload divide_(self, other Number, *, rounding_mode Optional[str]) -> Tensor"); });
+// @overload divide_(self, other Union[Number, _complex], *, rounding_mode Optional[str]) -> Tensor
+c.def("divide_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("divide_ with signature @overload divide_(self, other Union[Number, _complex], *, rounding_mode Optional[str]) -> Tensor"); });
 
-// @overload divide_(self, other Number) -> Tensor
-c.def("divide_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("divide_ with signature @overload divide_(self, other Number) -> Tensor"); });
+// @overload divide_(self, other Union[Number, _complex]) -> Tensor
+c.def("divide_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("divide_ with signature @overload divide_(self, other Union[Number, _complex]) -> Tensor"); });
 
 // dot(self, tensor Tensor) -> Tensor
 c.def("dot", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("dot with signature dot(self, tensor Tensor) -> Tensor"); });
@@ -936,8 +926,8 @@ c.def("exponential_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs 
 // aten::fill_.Scalar : (Tensor, Scalar) -> (Tensor)
 c.def("fill_", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchScalarValue&>(&fill_));
 
-// fill_diagonal_(self, fill_value Number, wrap _bool=False) -> Tensor
-c.def("fill_diagonal_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("fill_diagonal_ with signature fill_diagonal_(self, fill_value Number, wrap _bool=False) -> Tensor"); });
+// fill_diagonal_(self, fill_value Union[Number, _complex], wrap _bool=False) -> Tensor
+c.def("fill_diagonal_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("fill_diagonal_ with signature fill_diagonal_(self, fill_value Union[Number, _complex], wrap _bool=False) -> Tensor"); });
 
 // fix(self) -> Tensor
 c.def("fix", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("fix with signature fix(self) -> Tensor"); });
@@ -965,14 +955,14 @@ c.def("float", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs)
 // @overload float_power(self, exponent Tensor) -> Tensor
 c.def("float_power", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("float_power with signature @overload float_power(self, exponent Tensor) -> Tensor"); });
 
-// @overload float_power(self, exponent Number) -> Tensor
-c.def("float_power", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("float_power with signature @overload float_power(self, exponent Number) -> Tensor"); });
+// @overload float_power(self, exponent Union[Number, _complex]) -> Tensor
+c.def("float_power", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("float_power with signature @overload float_power(self, exponent Union[Number, _complex]) -> Tensor"); });
 
 // @overload float_power_(self, exponent Tensor) -> Tensor
 c.def("float_power_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("float_power_ with signature @overload float_power_(self, exponent Tensor) -> Tensor"); });
 
-// @overload float_power_(self, exponent Number) -> Tensor
-c.def("float_power_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("float_power_ with signature @overload float_power_(self, exponent Number) -> Tensor"); });
+// @overload float_power_(self, exponent Union[Number, _complex]) -> Tensor
+c.def("float_power_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("float_power_ with signature @overload float_power_(self, exponent Union[Number, _complex]) -> Tensor"); });
 
 // floor(self) -> Tensor
 // aten::floor : (Tensor) -> (Tensor)
@@ -1037,26 +1027,26 @@ c.def("get_device", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kw
 // @overload greater(self, other Tensor) -> Tensor
 c.def("greater", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("greater with signature @overload greater(self, other Tensor) -> Tensor"); });
 
-// @overload greater(self, other Number) -> Tensor
-c.def("greater", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("greater with signature @overload greater(self, other Number) -> Tensor"); });
+// @overload greater(self, other Union[Number, _complex]) -> Tensor
+c.def("greater", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("greater with signature @overload greater(self, other Union[Number, _complex]) -> Tensor"); });
 
 // @overload greater_(self, other Tensor) -> Tensor
 c.def("greater_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("greater_ with signature @overload greater_(self, other Tensor) -> Tensor"); });
 
-// @overload greater_(self, other Number) -> Tensor
-c.def("greater_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("greater_ with signature @overload greater_(self, other Number) -> Tensor"); });
+// @overload greater_(self, other Union[Number, _complex]) -> Tensor
+c.def("greater_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("greater_ with signature @overload greater_(self, other Union[Number, _complex]) -> Tensor"); });
 
 // @overload greater_equal(self, other Tensor) -> Tensor
 c.def("greater_equal", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("greater_equal with signature @overload greater_equal(self, other Tensor) -> Tensor"); });
 
-// @overload greater_equal(self, other Number) -> Tensor
-c.def("greater_equal", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("greater_equal with signature @overload greater_equal(self, other Number) -> Tensor"); });
+// @overload greater_equal(self, other Union[Number, _complex]) -> Tensor
+c.def("greater_equal", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("greater_equal with signature @overload greater_equal(self, other Union[Number, _complex]) -> Tensor"); });
 
 // @overload greater_equal_(self, other Tensor) -> Tensor
 c.def("greater_equal_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("greater_equal_ with signature @overload greater_equal_(self, other Tensor) -> Tensor"); });
 
-// @overload greater_equal_(self, other Number) -> Tensor
-c.def("greater_equal_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("greater_equal_ with signature @overload greater_equal_(self, other Number) -> Tensor"); });
+// @overload greater_equal_(self, other Union[Number, _complex]) -> Tensor
+c.def("greater_equal_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("greater_equal_ with signature @overload greater_equal_(self, other Union[Number, _complex]) -> Tensor"); });
 
 // @overload gt_(self, other Tensor) -> Tensor
 // aten::gt_.Tensor : (Tensor, Tensor) -> (Tensor)
@@ -1065,8 +1055,8 @@ c.def("gt_", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchTen
 // half(self) -> Tensor
 c.def("half", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("half with signature half(self) -> Tensor"); });
 
-// hardshrink(self, lambd Number=0.5) -> Tensor
-c.def("hardshrink", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("hardshrink with signature hardshrink(self, lambd Number=0.5) -> Tensor"); });
+// hardshrink(self, lambd Union[Number, _complex]=0.5) -> Tensor
+c.def("hardshrink", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("hardshrink with signature hardshrink(self, lambd Union[Number, _complex]=0.5) -> Tensor"); });
 
 // has_names(self) -> _bool
 c.def("has_names", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("has_names with signature has_names(self) -> _bool"); });
@@ -1077,8 +1067,8 @@ c.def("heaviside", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwa
 // heaviside_(self, values Tensor) -> Tensor
 c.def("heaviside_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("heaviside_ with signature heaviside_(self, values Tensor) -> Tensor"); });
 
-// histc(self, bins _int=100, min Number=0, max Number=0) -> Tensor
-c.def("histc", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("histc with signature histc(self, bins _int=100, min Number=0, max Number=0) -> Tensor"); });
+// histc(self, bins _int=100, min Union[Number, _complex]=0, max Union[Number, _complex]=0) -> Tensor
+c.def("histc", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("histc with signature histc(self, bins _int=100, min Union[Number, _complex]=0, max Union[Number, _complex]=0) -> Tensor"); });
 
 // @overload histogram(self, bins Tensor, *, weight Optional[Tensor]=None, density _bool=False) -> torch.return_types.histogram
 c.def("histogram", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("histogram with signature @overload histogram(self, bins Tensor, *, weight Optional[Tensor]=None, density _bool=False) -> torch.return_types.histogram"); });
@@ -1119,14 +1109,14 @@ c.def("igammac", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwarg
 // igammac_(self, other Tensor) -> Tensor
 c.def("igammac_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("igammac_ with signature igammac_(self, other Tensor) -> Tensor"); });
 
-// @overload index_add(self, dim _int, index Tensor, source Tensor, *, alpha Number=1) -> Tensor
-c.def("index_add", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("index_add with signature @overload index_add(self, dim _int, index Tensor, source Tensor, *, alpha Number=1) -> Tensor"); });
+// @overload index_add(self, dim _int, index Tensor, source Tensor, *, alpha Union[Number, _complex]=1) -> Tensor
+c.def("index_add", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("index_add with signature @overload index_add(self, dim _int, index Tensor, source Tensor, *, alpha Union[Number, _complex]=1) -> Tensor"); });
 
-// @overload index_add(self, dim Union[str, ellipsis, None], index Tensor, source Tensor, *, alpha Number=1) -> Tensor
-c.def("index_add", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("index_add with signature @overload index_add(self, dim Union[str, ellipsis, None], index Tensor, source Tensor, *, alpha Number=1) -> Tensor"); });
+// @overload index_add(self, dim Union[str, ellipsis, None], index Tensor, source Tensor, *, alpha Union[Number, _complex]=1) -> Tensor
+c.def("index_add", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("index_add with signature @overload index_add(self, dim Union[str, ellipsis, None], index Tensor, source Tensor, *, alpha Union[Number, _complex]=1) -> Tensor"); });
 
-// index_add_(self, dim _int, index Tensor, source Tensor, *, alpha Number=1) -> Tensor
-c.def("index_add_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("index_add_ with signature index_add_(self, dim _int, index Tensor, source Tensor, *, alpha Number=1) -> Tensor"); });
+// index_add_(self, dim _int, index Tensor, source Tensor, *, alpha Union[Number, _complex]=1) -> Tensor
+c.def("index_add_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("index_add_ with signature index_add_(self, dim _int, index Tensor, source Tensor, *, alpha Union[Number, _complex]=1) -> Tensor"); });
 
 // @overload index_copy(self, dim _int, index Tensor, source Tensor) -> Tensor
 c.def("index_copy", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("index_copy with signature @overload index_copy(self, dim _int, index Tensor, source Tensor) -> Tensor"); });
@@ -1146,11 +1136,11 @@ c.def("index_fill", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kw
 // @overload index_fill(self, dim Union[str, ellipsis, None], index Tensor, value Tensor) -> Tensor
 c.def("index_fill", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("index_fill with signature @overload index_fill(self, dim Union[str, ellipsis, None], index Tensor, value Tensor) -> Tensor"); });
 
-// @overload index_fill(self, dim _int, index Tensor, value Number) -> Tensor
-c.def("index_fill", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("index_fill with signature @overload index_fill(self, dim _int, index Tensor, value Number) -> Tensor"); });
+// @overload index_fill(self, dim _int, index Tensor, value Union[Number, _complex]) -> Tensor
+c.def("index_fill", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("index_fill with signature @overload index_fill(self, dim _int, index Tensor, value Union[Number, _complex]) -> Tensor"); });
 
-// @overload index_fill(self, dim Union[str, ellipsis, None], index Tensor, value Number) -> Tensor
-c.def("index_fill", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("index_fill with signature @overload index_fill(self, dim Union[str, ellipsis, None], index Tensor, value Number) -> Tensor"); });
+// @overload index_fill(self, dim Union[str, ellipsis, None], index Tensor, value Union[Number, _complex]) -> Tensor
+c.def("index_fill", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("index_fill with signature @overload index_fill(self, dim Union[str, ellipsis, None], index Tensor, value Union[Number, _complex]) -> Tensor"); });
 
 // @overload index_fill_(self, dim _int, index Tensor, value Tensor) -> Tensor
 c.def("index_fill_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("index_fill_ with signature @overload index_fill_(self, dim _int, index Tensor, value Tensor) -> Tensor"); });
@@ -1158,11 +1148,11 @@ c.def("index_fill_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs k
 // @overload index_fill_(self, dim Union[str, ellipsis, None], index Tensor, value Tensor) -> Tensor
 c.def("index_fill_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("index_fill_ with signature @overload index_fill_(self, dim Union[str, ellipsis, None], index Tensor, value Tensor) -> Tensor"); });
 
-// @overload index_fill_(self, dim _int, index Tensor, value Number) -> Tensor
-c.def("index_fill_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("index_fill_ with signature @overload index_fill_(self, dim _int, index Tensor, value Number) -> Tensor"); });
+// @overload index_fill_(self, dim _int, index Tensor, value Union[Number, _complex]) -> Tensor
+c.def("index_fill_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("index_fill_ with signature @overload index_fill_(self, dim _int, index Tensor, value Union[Number, _complex]) -> Tensor"); });
 
-// @overload index_fill_(self, dim Union[str, ellipsis, None], index Tensor, value Number) -> Tensor
-c.def("index_fill_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("index_fill_ with signature @overload index_fill_(self, dim Union[str, ellipsis, None], index Tensor, value Number) -> Tensor"); });
+// @overload index_fill_(self, dim Union[str, ellipsis, None], index Tensor, value Union[Number, _complex]) -> Tensor
+c.def("index_fill_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("index_fill_ with signature @overload index_fill_(self, dim Union[str, ellipsis, None], index Tensor, value Union[Number, _complex]) -> Tensor"); });
 
 // index_put(self, indices Optional[Union[Tuple[Tensor, ], List[Tensor]]], values Tensor, accumulate _bool=False) -> Tensor
 // aten::index_put.hacked_twin : (Tensor, Tensor[], Tensor, bool) -> (Tensor)
@@ -1300,26 +1290,26 @@ c.def("lerp_", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchT
 // @overload less(self, other Tensor) -> Tensor
 c.def("less", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("less with signature @overload less(self, other Tensor) -> Tensor"); });
 
-// @overload less(self, other Number) -> Tensor
-c.def("less", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("less with signature @overload less(self, other Number) -> Tensor"); });
+// @overload less(self, other Union[Number, _complex]) -> Tensor
+c.def("less", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("less with signature @overload less(self, other Union[Number, _complex]) -> Tensor"); });
 
 // @overload less_(self, other Tensor) -> Tensor
 c.def("less_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("less_ with signature @overload less_(self, other Tensor) -> Tensor"); });
 
-// @overload less_(self, other Number) -> Tensor
-c.def("less_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("less_ with signature @overload less_(self, other Number) -> Tensor"); });
+// @overload less_(self, other Union[Number, _complex]) -> Tensor
+c.def("less_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("less_ with signature @overload less_(self, other Union[Number, _complex]) -> Tensor"); });
 
 // @overload less_equal(self, other Tensor) -> Tensor
 c.def("less_equal", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("less_equal with signature @overload less_equal(self, other Tensor) -> Tensor"); });
 
-// @overload less_equal(self, other Number) -> Tensor
-c.def("less_equal", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("less_equal with signature @overload less_equal(self, other Number) -> Tensor"); });
+// @overload less_equal(self, other Union[Number, _complex]) -> Tensor
+c.def("less_equal", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("less_equal with signature @overload less_equal(self, other Union[Number, _complex]) -> Tensor"); });
 
 // @overload less_equal_(self, other Tensor) -> Tensor
 c.def("less_equal_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("less_equal_ with signature @overload less_equal_(self, other Tensor) -> Tensor"); });
 
-// @overload less_equal_(self, other Number) -> Tensor
-c.def("less_equal_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("less_equal_ with signature @overload less_equal_(self, other Number) -> Tensor"); });
+// @overload less_equal_(self, other Union[Number, _complex]) -> Tensor
+c.def("less_equal_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("less_equal_ with signature @overload less_equal_(self, other Union[Number, _complex]) -> Tensor"); });
 
 // lgamma(self) -> Tensor
 c.def("lgamma", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("lgamma with signature lgamma(self) -> Tensor"); });
@@ -1360,9 +1350,8 @@ c.def("log_", py::overload_cast<const PyAnyTorchTensorValue&>(&log_));
 // log_normal_(self, mean _float=1, std _float=2, *, generator Optional[Generator]=None) -> Tensor
 c.def("log_normal_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("log_normal_ with signature log_normal_(self, mean _float=1, std _float=2, *, generator Optional[Generator]=None) -> Tensor"); });
 
-// @overload log_softmax(self, dim _int, dtype Optional[_dtype]=None) -> Tensor
 // aten::log_softmax.int : (Tensor, int, int?) -> (Tensor)
-c.def("log_softmax", py::overload_cast<const PyAnyTorchTensorValue&, const PyTorch_IntValue&, const PyAnyTorchOptionalIntValue&>(&log_softmax));
+c.def("log_softmax", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyDefaultingTorchOptionalIntValue &dtype) { return log_softmax(self, dim, dtype.get()); }, "dim"_a, "dtype"_a = py::none());
 
 // logaddexp(self, other Tensor) -> Tensor
 c.def("logaddexp", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("logaddexp with signature logaddexp(self, other Tensor) -> Tensor"); });
@@ -1469,9 +1458,8 @@ c.def("max", py::overload_cast<const PyAnyTorchTensorValue&>(&max));
 // aten::maximum : (Tensor, Tensor) -> (Tensor)
 c.def("maximum", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchTensorValue&>(&maximum));
 
-// @overload mean(self, *, dtype Optional[_dtype]=None) -> Tensor
 // aten::mean : (Tensor, int?) -> (Tensor)
-c.def("mean", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchOptionalIntValue&>(&mean));
+c.def("mean", [](const PyAnyTorchTensorValue &self, const PyDefaultingTorchOptionalIntValue &dtype) { return mean(self, dtype.get()); }, "dtype"_a = py::none());
 
 // @overload median(self) -> Tensor
 c.def("median", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("median with signature @overload median(self) -> Tensor"); });
@@ -1503,10 +1491,8 @@ c.def("moveaxis", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwar
 c.def("moveaxis", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("moveaxis with signature @overload moveaxis(self, source _size, destination _size) -> Tensor"); });
 
 // @overload movedim(self, source _int, destination _int) -> Tensor
-c.def("movedim", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("movedim with signature @overload movedim(self, source _int, destination _int) -> Tensor"); });
-
-// @overload movedim(self, source _size, destination _size) -> Tensor
-c.def("movedim", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("movedim with signature @overload movedim(self, source _size, destination _size) -> Tensor"); });
+// aten::movedim.int : (Tensor, int, int) -> (Tensor)
+c.def("movedim", py::overload_cast<const PyAnyTorchTensorValue&, const PyTorch_IntValue&, const PyTorch_IntValue&>(&movedim));
 
 // msort(self) -> Tensor
 c.def("msort", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("msort with signature msort(self) -> Tensor"); });
@@ -1521,14 +1507,14 @@ c.def("multinomial", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs k
 // @overload multiply(self, other Tensor) -> Tensor
 c.def("multiply", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("multiply with signature @overload multiply(self, other Tensor) -> Tensor"); });
 
-// @overload multiply(self, other Number) -> Tensor
-c.def("multiply", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("multiply with signature @overload multiply(self, other Number) -> Tensor"); });
+// @overload multiply(self, other Union[Number, _complex]) -> Tensor
+c.def("multiply", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("multiply with signature @overload multiply(self, other Union[Number, _complex]) -> Tensor"); });
 
 // @overload multiply_(self, other Tensor) -> Tensor
 c.def("multiply_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("multiply_ with signature @overload multiply_(self, other Tensor) -> Tensor"); });
 
-// @overload multiply_(self, other Number) -> Tensor
-c.def("multiply_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("multiply_ with signature @overload multiply_(self, other Number) -> Tensor"); });
+// @overload multiply_(self, other Union[Number, _complex]) -> Tensor
+c.def("multiply_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("multiply_ with signature @overload multiply_(self, other Union[Number, _complex]) -> Tensor"); });
 
 // mv(self, vec Tensor) -> Tensor
 // aten::mv : (Tensor, Tensor) -> (Tensor)
@@ -1606,8 +1592,8 @@ c.def("new", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) {
 // @overload new(self, size _size, *, device Device=None) -> Tensor
 c.def("new", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("new with signature @overload new(self, size _size, *, device Device=None) -> Tensor"); });
 
-// new_full(self, size Sequence[Union[_int, SymInt]], fill_value Number, *, dtype Optional[_dtype]=None, layout Optional[_layout]=None, device Optional[Union[_device, str, None]]=None, pin_memory Optional[_bool]=False, requires_grad Optional[_bool]=False) -> Tensor
-c.def("new_full", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("new_full with signature new_full(self, size Sequence[Union[_int, SymInt]], fill_value Number, *, dtype Optional[_dtype]=None, layout Optional[_layout]=None, device Optional[Union[_device, str, None]]=None, pin_memory Optional[_bool]=False, requires_grad Optional[_bool]=False) -> Tensor"); });
+// new_full(self, size Sequence[Union[_int, SymInt]], fill_value Union[Number, _complex], *, dtype Optional[_dtype]=None, layout Optional[_layout]=None, device Optional[Union[_device, str, None]]=None, pin_memory Optional[_bool]=False, requires_grad Optional[_bool]=False) -> Tensor
+c.def("new_full", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("new_full with signature new_full(self, size Sequence[Union[_int, SymInt]], fill_value Union[Number, _complex], *, dtype Optional[_dtype]=None, layout Optional[_layout]=None, device Optional[Union[_device, str, None]]=None, pin_memory Optional[_bool]=False, requires_grad Optional[_bool]=False) -> Tensor"); });
 
 // new_tensor(self, data Any, dtype Optional[_dtype]=None, device Device=None, requires_grad _bool=False) -> Tensor
 c.def("new_tensor", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("new_tensor with signature new_tensor(self, data Any, dtype Optional[_dtype]=None, device Device=None, requires_grad _bool=False) -> Tensor"); });
@@ -1633,14 +1619,14 @@ c.def("normal_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwarg
 // @overload not_equal(self, other Tensor) -> Tensor
 c.def("not_equal", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("not_equal with signature @overload not_equal(self, other Tensor) -> Tensor"); });
 
-// @overload not_equal(self, other Number) -> Tensor
-c.def("not_equal", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("not_equal with signature @overload not_equal(self, other Number) -> Tensor"); });
+// @overload not_equal(self, other Union[Number, _complex]) -> Tensor
+c.def("not_equal", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("not_equal with signature @overload not_equal(self, other Union[Number, _complex]) -> Tensor"); });
 
 // @overload not_equal_(self, other Tensor) -> Tensor
 c.def("not_equal_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("not_equal_ with signature @overload not_equal_(self, other Tensor) -> Tensor"); });
 
-// @overload not_equal_(self, other Number) -> Tensor
-c.def("not_equal_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("not_equal_ with signature @overload not_equal_(self, other Number) -> Tensor"); });
+// @overload not_equal_(self, other Union[Number, _complex]) -> Tensor
+c.def("not_equal_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("not_equal_ with signature @overload not_equal_(self, other Union[Number, _complex]) -> Tensor"); });
 
 // numel(self) -> _int
 // aten::numel : (Tensor) -> (int)
@@ -1684,8 +1670,8 @@ c.def("pow", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchSca
 // @overload pow_(self, exponent Tensor) -> Tensor
 c.def("pow_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("pow_ with signature @overload pow_(self, exponent Tensor) -> Tensor"); });
 
-// @overload pow_(self, exponent Number) -> Tensor
-c.def("pow_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("pow_ with signature @overload pow_(self, exponent Number) -> Tensor"); });
+// @overload pow_(self, exponent Union[Number, _complex]) -> Tensor
+c.def("pow_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("pow_ with signature @overload pow_(self, exponent Union[Number, _complex]) -> Tensor"); });
 
 // prelu(self, weight Tensor) -> Tensor
 // aten::prelu : (Tensor, Tensor) -> (Tensor)
@@ -1780,8 +1766,8 @@ c.def("remainder", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTo
 // @overload remainder_(self, other Tensor) -> Tensor
 c.def("remainder_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("remainder_ with signature @overload remainder_(self, other Tensor) -> Tensor"); });
 
-// @overload remainder_(self, other Number) -> Tensor
-c.def("remainder_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("remainder_ with signature @overload remainder_(self, other Number) -> Tensor"); });
+// @overload remainder_(self, other Union[Number, _complex]) -> Tensor
+c.def("remainder_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("remainder_ with signature @overload remainder_(self, other Union[Number, _complex]) -> Tensor"); });
 
 // rename(self, names Optional[Sequence[Union[str, ellipsis, None]]]) -> Tensor
 c.def("rename", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("rename with signature rename(self, names Optional[Sequence[Union[str, ellipsis, None]]]) -> Tensor"); });
@@ -1789,11 +1775,11 @@ c.def("rename", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs
 // rename_(self, names Optional[Sequence[Union[str, ellipsis, None]]]) -> Tensor
 c.def("rename_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("rename_ with signature rename_(self, names Optional[Sequence[Union[str, ellipsis, None]]]) -> Tensor"); });
 
-// renorm(self, p Number, dim _int, maxnorm Number) -> Tensor
-c.def("renorm", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("renorm with signature renorm(self, p Number, dim _int, maxnorm Number) -> Tensor"); });
+// renorm(self, p Union[Number, _complex], dim _int, maxnorm Union[Number, _complex]) -> Tensor
+c.def("renorm", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("renorm with signature renorm(self, p Union[Number, _complex], dim _int, maxnorm Union[Number, _complex]) -> Tensor"); });
 
-// renorm_(self, p Number, dim _int, maxnorm Number) -> Tensor
-c.def("renorm_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("renorm_ with signature renorm_(self, p Number, dim _int, maxnorm Number) -> Tensor"); });
+// renorm_(self, p Union[Number, _complex], dim _int, maxnorm Union[Number, _complex]) -> Tensor
+c.def("renorm_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("renorm_ with signature renorm_(self, p Union[Number, _complex], dim _int, maxnorm Union[Number, _complex]) -> Tensor"); });
 
 // @overload repeat(self, repeats Sequence[Union[_int, SymInt]]) -> Tensor
 // aten::repeat : (Tensor, int[]) -> (Tensor)
@@ -1815,9 +1801,8 @@ c.def("reshape", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorc
 // reshape_as(self, other Tensor) -> Tensor
 c.def("reshape_as", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("reshape_as with signature reshape_as(self, other Tensor) -> Tensor"); });
 
-// @overload resize_(self, size Sequence[Union[_int, SymInt]], *, memory_format Optional[memory_format]=None) -> Tensor
 // aten::resize_ : (Tensor, int[], int?) -> (Tensor)
-c.def("resize_", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchListOfTorchIntValue&, const PyAnyTorchOptionalIntValue&>(&resize_));
+c.def("resize_", [](const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTorchIntValue &size, const PyDefaultingTorchOptionalIntValue &memory_format) { return resize_(self, size, memory_format.get()); }, "size"_a, "memory_format"_a = py::none());
 
 // resize_as_(self, the_template Tensor, *, memory_format Optional[memory_format]=None) -> Tensor
 c.def("resize_as_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("resize_as_ with signature resize_as_(self, the_template Tensor, *, memory_format Optional[memory_format]=None) -> Tensor"); });
@@ -1834,7 +1819,7 @@ c.def("resolve_neg", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs k
 // retain_grad(self) -> None
 c.def("retain_grad", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("retain_grad with signature retain_grad(self) -> None"); });
 
-// roll(self, shifts Sequence[Union[_int, SymInt]], dims Union[_int, _size]=()) -> Tensor
+// roll(self, shifts Union[Union[_int, SymInt], Sequence[Union[_int, SymInt]]], dims Union[_int, _size]=()) -> Tensor
 // aten::roll : (Tensor, int[], int[]) -> (Tensor)
 c.def("roll", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchListOfTorchIntValue&, const PyAnyTorchListOfTorchIntValue&>(&roll));
 
@@ -1861,22 +1846,12 @@ c.def("rsqrt", py::overload_cast<const PyAnyTorchTensorValue&>(&rsqrt));
 c.def("rsqrt_", py::overload_cast<const PyAnyTorchTensorValue&>(&rsqrt_));
 
 // @overload scatter(self, dim _int, index Tensor, src Tensor) -> Tensor
-c.def("scatter", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("scatter with signature @overload scatter(self, dim _int, index Tensor, src Tensor) -> Tensor"); });
+// aten::scatter.src : (Tensor, int, Tensor, Tensor) -> (Tensor)
+c.def("scatter", py::overload_cast<const PyAnyTorchTensorValue&, const PyTorch_IntValue&, const PyAnyTorchTensorValue&, const PyAnyTorchTensorValue&>(&scatter));
 
-// @overload scatter(self, dim _int, index Tensor, src Tensor, *, reduce str) -> Tensor
-c.def("scatter", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("scatter with signature @overload scatter(self, dim _int, index Tensor, src Tensor, *, reduce str) -> Tensor"); });
-
-// @overload scatter(self, dim _int, index Tensor, value Number, *, reduce str) -> Tensor
-c.def("scatter", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("scatter with signature @overload scatter(self, dim _int, index Tensor, value Number, *, reduce str) -> Tensor"); });
-
-// @overload scatter(self, dim Union[str, ellipsis, None], index Tensor, src Tensor) -> Tensor
-c.def("scatter", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("scatter with signature @overload scatter(self, dim Union[str, ellipsis, None], index Tensor, src Tensor) -> Tensor"); });
-
-// @overload scatter(self, dim _int, index Tensor, value Number) -> Tensor
-c.def("scatter", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("scatter with signature @overload scatter(self, dim _int, index Tensor, value Number) -> Tensor"); });
-
-// @overload scatter(self, dim Union[str, ellipsis, None], index Tensor, value Number) -> Tensor
-c.def("scatter", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("scatter with signature @overload scatter(self, dim Union[str, ellipsis, None], index Tensor, value Number) -> Tensor"); });
+// @overload scatter(self, dim _int, index Tensor, value Union[Number, _complex]) -> Tensor
+// aten::scatter.value : (Tensor, int, Tensor, Scalar) -> (Tensor)
+c.def("scatter", py::overload_cast<const PyAnyTorchTensorValue&, const PyTorch_IntValue&, const PyAnyTorchTensorValue&, const PyAnyTorchScalarValue&>(&scatter));
 
 // @overload scatter_(self, dim _int, index Tensor, src Tensor) -> Tensor
 c.def("scatter_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("scatter_ with signature @overload scatter_(self, dim _int, index Tensor, src Tensor) -> Tensor"); });
@@ -1884,11 +1859,11 @@ c.def("scatter_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwar
 // @overload scatter_(self, dim _int, index Tensor, src Tensor, *, reduce str) -> Tensor
 c.def("scatter_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("scatter_ with signature @overload scatter_(self, dim _int, index Tensor, src Tensor, *, reduce str) -> Tensor"); });
 
-// @overload scatter_(self, dim _int, index Tensor, value Number, *, reduce str) -> Tensor
-c.def("scatter_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("scatter_ with signature @overload scatter_(self, dim _int, index Tensor, value Number, *, reduce str) -> Tensor"); });
+// @overload scatter_(self, dim _int, index Tensor, value Union[Number, _complex], *, reduce str) -> Tensor
+c.def("scatter_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("scatter_ with signature @overload scatter_(self, dim _int, index Tensor, value Union[Number, _complex], *, reduce str) -> Tensor"); });
 
-// @overload scatter_(self, dim _int, index Tensor, value Number) -> Tensor
-c.def("scatter_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("scatter_ with signature @overload scatter_(self, dim _int, index Tensor, value Number) -> Tensor"); });
+// @overload scatter_(self, dim _int, index Tensor, value Union[Number, _complex]) -> Tensor
+c.def("scatter_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("scatter_ with signature @overload scatter_(self, dim _int, index Tensor, value Union[Number, _complex]) -> Tensor"); });
 
 // @overload scatter_add(self, dim _int, index Tensor, src Tensor) -> Tensor
 // aten::scatter_add : (Tensor, int, Tensor, Tensor) -> (Tensor)
@@ -1974,9 +1949,8 @@ c.def("size", py::overload_cast<const PyAnyTorchTensorValue&>(&size));
 // aten::size.int : (Tensor, int) -> (int)
 c.def("size", py::overload_cast<const PyAnyTorchTensorValue&, const PyTorch_IntValue&>(&size));
 
-// slice_scatter(self, src Tensor, dim _int=0, start Optional[Union[_int, SymInt]]=None, end Optional[Union[_int, SymInt]]=None, step Union[_int, SymInt]=1) -> Tensor
 // aten::slice_scatter : (Tensor, Tensor, int, int?, int?, int) -> (Tensor)
-c.def("slice_scatter", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchTensorValue&, const PyTorch_IntValue&, const PyAnyTorchOptionalIntValue&, const PyAnyTorchOptionalIntValue&, const PyTorch_IntValue&>(&slice_scatter));
+c.def("slice_scatter", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &src, const PyTorch_IntValue &dim, const PyDefaultingTorchOptionalIntValue &start, const PyDefaultingTorchOptionalIntValue &end, const PyTorch_IntValue &step) { return slice_scatter(self, src, dim, start.get(), end.get(), step); }, "src"_a, "dim"_a, "start"_a = py::none(), "end"_a = py::none(), py::kw_only(), "step"_a);
 
 // slogdet(self) -> torch.return_types.slogdet
 c.def("slogdet", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("slogdet with signature slogdet(self) -> torch.return_types.slogdet"); });
@@ -1984,9 +1958,8 @@ c.def("slogdet", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwarg
 // smm(self, mat2 Tensor) -> Tensor
 c.def("smm", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("smm with signature smm(self, mat2 Tensor) -> Tensor"); });
 
-// @overload softmax(self, dim _int, dtype Optional[_dtype]=None) -> Tensor
 // aten::softmax.int : (Tensor, int, int?) -> (Tensor)
-c.def("softmax", py::overload_cast<const PyAnyTorchTensorValue&, const PyTorch_IntValue&, const PyAnyTorchOptionalIntValue&>(&softmax));
+c.def("softmax", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyDefaultingTorchOptionalIntValue &dtype) { return softmax(self, dim, dtype.get()); }, "dim"_a, "dtype"_a = py::none());
 
 // sparse_dim(self) -> _int
 c.def("sparse_dim", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("sparse_dim with signature sparse_dim(self) -> _int"); });
@@ -2048,8 +2021,8 @@ c.def("squeeze_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwar
 // @overload squeeze_(self, dim Union[str, ellipsis, None]) -> Tensor
 c.def("squeeze_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("squeeze_ with signature @overload squeeze_(self, dim Union[str, ellipsis, None]) -> Tensor"); });
 
-// sspaddmm(self, mat1 Tensor, mat2 Tensor, *, beta Number=1, alpha Number=1) -> Tensor
-c.def("sspaddmm", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("sspaddmm with signature sspaddmm(self, mat1 Tensor, mat2 Tensor, *, beta Number=1, alpha Number=1) -> Tensor"); });
+// sspaddmm(self, mat1 Tensor, mat2 Tensor, *, beta Union[Number, _complex]=1, alpha Union[Number, _complex]=1) -> Tensor
+c.def("sspaddmm", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("sspaddmm with signature sspaddmm(self, mat1 Tensor, mat2 Tensor, *, beta Union[Number, _complex]=1, alpha Union[Number, _complex]=1) -> Tensor"); });
 
 // @overload std(self, unbiased _bool=True) -> Tensor
 // aten::std : (Tensor, bool) -> (Tensor)
@@ -2074,21 +2047,20 @@ c.def("stride", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs
 // aten::sub_.Tensor : (Tensor, Tensor, Scalar) -> (Tensor)
 c.def("sub_", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchTensorValue&, const PyAnyTorchScalarValue&>(&sub_));
 
-// @overload subtract(self, other Tensor, *, alpha Number=1) -> Tensor
-c.def("subtract", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("subtract with signature @overload subtract(self, other Tensor, *, alpha Number=1) -> Tensor"); });
+// @overload subtract(self, other Tensor, *, alpha Union[Number, _complex]=1) -> Tensor
+c.def("subtract", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("subtract with signature @overload subtract(self, other Tensor, *, alpha Union[Number, _complex]=1) -> Tensor"); });
 
-// @overload subtract(self, other Number, alpha Number=1) -> Tensor
-c.def("subtract", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("subtract with signature @overload subtract(self, other Number, alpha Number=1) -> Tensor"); });
+// @overload subtract(self, other Union[Number, _complex], alpha Union[Number, _complex]=1) -> Tensor
+c.def("subtract", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("subtract with signature @overload subtract(self, other Union[Number, _complex], alpha Union[Number, _complex]=1) -> Tensor"); });
 
-// @overload subtract_(self, other Tensor, *, alpha Number=1) -> Tensor
-c.def("subtract_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("subtract_ with signature @overload subtract_(self, other Tensor, *, alpha Number=1) -> Tensor"); });
+// @overload subtract_(self, other Tensor, *, alpha Union[Number, _complex]=1) -> Tensor
+c.def("subtract_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("subtract_ with signature @overload subtract_(self, other Tensor, *, alpha Union[Number, _complex]=1) -> Tensor"); });
 
-// @overload subtract_(self, other Number, alpha Number=1) -> Tensor
-c.def("subtract_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("subtract_ with signature @overload subtract_(self, other Number, alpha Number=1) -> Tensor"); });
+// @overload subtract_(self, other Union[Number, _complex], alpha Union[Number, _complex]=1) -> Tensor
+c.def("subtract_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("subtract_ with signature @overload subtract_(self, other Union[Number, _complex], alpha Union[Number, _complex]=1) -> Tensor"); });
 
-// @overload sum(self, *, dtype Optional[_dtype]=None) -> Tensor
 // aten::sum : (Tensor, int?) -> (Tensor)
-c.def("sum", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchOptionalIntValue&>(&sum));
+c.def("sum", [](const PyAnyTorchTensorValue &self, const PyDefaultingTorchOptionalIntValue &dtype) { return sum(self, dtype.get()); }, "dtype"_a = py::none());
 
 // @overload sum_to_size(self, size Sequence[Union[_int, SymInt]]) -> Tensor
 c.def("sum_to_size", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("sum_to_size with signature @overload sum_to_size(self, size Sequence[Union[_int, SymInt]]) -> Tensor"); });
@@ -2153,9 +2125,8 @@ c.def("tile", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) 
 // @overload tile(self, *dims _int) -> Tensor
 c.def("tile", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("tile with signature @overload tile(self, *dims _int) -> Tensor"); });
 
-// @overload to(self, device Optional[Union[_device, str]]=None, dtype Optional[_dtype]=None, non_blocking _bool=False, copy _bool=False) -> Tensor
 // aten::to.prim_Device : (Tensor, Device?, int?, bool, bool) -> (Tensor)
-c.def("to", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchOptionalDeviceValue&, const PyAnyTorchOptionalIntValue&, const PyTorch_BoolValue&, const PyTorch_BoolValue&>(&to));
+c.def("to", [](const PyAnyTorchTensorValue &self, const PyDefaultingTorchOptionalDeviceValue &device, const PyDefaultingTorchOptionalIntValue &dtype, const PyTorch_BoolValue &non_blocking, const PyTorch_BoolValue &copy) { return to(self, device.get(), dtype.get(), non_blocking, copy); }, "device"_a = py::none(), "dtype"_a = py::none(), py::kw_only(), "non_blocking"_a, "copy"_a);
 
 // to_dense(self, dtype Optional[_dtype]=None, *, masked_grad Optional[_bool]=None) -> Tensor
 c.def("to_dense", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("to_dense with signature to_dense(self, dtype Optional[_dtype]=None, *, masked_grad Optional[_bool]=None) -> Tensor"); });
@@ -2298,14 +2269,14 @@ c.def("where", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchT
 // @overload xlogy(self, other Tensor) -> Tensor
 c.def("xlogy", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("xlogy with signature @overload xlogy(self, other Tensor) -> Tensor"); });
 
-// @overload xlogy(self, other Number) -> Tensor
-c.def("xlogy", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("xlogy with signature @overload xlogy(self, other Number) -> Tensor"); });
+// @overload xlogy(self, other Union[Number, _complex]) -> Tensor
+c.def("xlogy", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("xlogy with signature @overload xlogy(self, other Union[Number, _complex]) -> Tensor"); });
 
 // @overload xlogy_(self, other Tensor) -> Tensor
 c.def("xlogy_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("xlogy_ with signature @overload xlogy_(self, other Tensor) -> Tensor"); });
 
-// @overload xlogy_(self, other Number) -> Tensor
-c.def("xlogy_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("xlogy_ with signature @overload xlogy_(self, other Number) -> Tensor"); });
+// @overload xlogy_(self, other Union[Number, _complex]) -> Tensor
+c.def("xlogy_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("xlogy_ with signature @overload xlogy_(self, other Union[Number, _complex]) -> Tensor"); });
 
 // zero_(self) -> Tensor
 // aten::zero_ : (Tensor) -> (Tensor)

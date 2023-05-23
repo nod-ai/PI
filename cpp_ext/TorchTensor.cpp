@@ -13,17 +13,19 @@
 #include "TorchOps.h"
 #include "TorchTensor.h"
 
+namespace py = pybind11;
+using namespace py::literals;
+using namespace mlir::python;
 
 namespace {
 #include "TorchTensor.pybinds_tramps.cpp"
 }
 
 namespace mlir::torch {
+
 void PyAnyTorchTensorValue::bindDerived(ClassTy &c) {
 #include "TorchTensor.pybinds.cpp"
 }
 
-void populateTorchTensorOps(py::module &m) {
-  PyAnyTorchTensorValue::bind(m);
-}
+void populateTorchTensorOps(py::module &m) { PyAnyTorchTensorValue::bind(m); }
 } // namespace mlir::torch

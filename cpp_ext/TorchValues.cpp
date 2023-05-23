@@ -5,6 +5,8 @@
 #include "TorchValues.h"
 #include "TorchTypes.h"
 
+#include <pybind11/pybind11.h>
+
 namespace mlir::torch {
 
 bool isAAnyTorchDictKeyValue(MlirValue value) {
@@ -57,7 +59,7 @@ bool isAAnyTorchOptionalTensorValue(MlirValue value) {
 }
 
 bool isAAnyTorchOptionalValue(MlirValue value) {
-  return torchMlirTypeIsATorchOptional(mlirValueGetType(value));
+  return isAAnyTorchOptionalType(mlirValueGetType(value));
 }
 
 bool isAAnyTorchOptionalScalarValue(MlirValue value) {
