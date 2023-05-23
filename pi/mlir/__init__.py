@@ -43,7 +43,7 @@ from ._mlir_libs._pi_mlir import (
     AnyTorchOptionalGeneratorType,
     AnyTorchOptionalIntType,
     AnyTorchOptionalStringType,
-    # AnyTorchOptionalTensorType,
+    AnyTorchOptionalTensorType,
     AnyTorchOptionalType,
     # AnyTorchOptionalListOfTorchIntType,
     AnyTorchTensorType,
@@ -78,7 +78,7 @@ from ._mlir_libs._pi_mlir import (
     AnyTorchOptionalGeneratorValue,
     AnyTorchOptionalIntValue,
     AnyTorchOptionalStringValue,
-    # AnyTorchOptionalTensorValue,
+    AnyTorchOptionalTensorValue,
     AnyTorchOptionalValue,
     # AnyTorchOptionalListOfTorchIntValue,
     Tensor,
@@ -158,8 +158,8 @@ class ValueMeta(type(Value)):
                 return Torch_NoneValue(val)
             if Torch_NumberType.isinstance(val.type):
                 return Torch_NumberValue(val)
-            # if TorchOptionalType.isinstance(val.type):
-            #     return TorchOptionalValue(val)
+            if AnyTorchOptionalType.isinstance(val.type):
+                return AnyTorchOptionalValue(val)
             # if TorchQInt8Type.isinstance(val.type):
             #     return TorchQInt8Value(val)
             # if TorchQUInt8Type.isinstance(val.type):

@@ -86,21 +86,17 @@ FORALL_UNDERSCORE_TYPES(DECLARE_ISA_UNDERSCORE_VALUE)
 // be hard to miss in the macros...
 void PyAnyTorchListValue::bindDerived(ClassTy &c) {}
 
-void PyAnyTorchOptionalValue::bindDerived(ClassTy &c) {}
-
 #define DEFINE_LIST_BASE_CONCRETE_VALUE(CONCRETEVALUE)                         \
   void PyAnyTorchListOf##CONCRETEVALUE##Value::bindDerived(ClassTy &c) {}
 FORALL_LIST_BASE_CONCRETE_TYPES(DEFINE_LIST_BASE_CONCRETE_VALUE)
+DEFINE_LIST_BASE_CONCRETE_VALUE(Tensor)
 #undef DEFINE_LIST_BASE_CONCRETE_VALUE
-
-void PyAnyTorchListOfTensorValue::bindDerived(ClassTy &c) {
-  py::implicitly_convertible<PyAnyTorchListValue,
-                             PyAnyTorchListOfTensorValue>();
-}
 
 #define DEFINE_OPTIONAL_BASE_CONCRETE_VALUE(CONCRETEVALUE)                     \
   void PyAnyTorchOptional##CONCRETEVALUE##Value::bindDerived(ClassTy &c) {}
 FORALL_OPTIONAL_BASE_CONCRETE_TYPES(DEFINE_OPTIONAL_BASE_CONCRETE_VALUE)
+DEFINE_OPTIONAL_BASE_CONCRETE_VALUE()
+DEFINE_OPTIONAL_BASE_CONCRETE_VALUE(Tensor)
 #undef DEFINE_OPTIONAL_BASE_CONCRETE_VALUE
 
 #define DEFINE_SCALAR_VALUE(SCALARVALUE)                                       \
@@ -126,6 +122,7 @@ void populateTorchMLIRValues(py::module &m) {
 #undef BIND_VALUE
 #define BIND_VALUE(VALUE) PyAnyTorchOptional##VALUE##Value::bind(m);
   FORALL_OPTIONAL_BASE_CONCRETE_TYPES(BIND_VALUE)
+  BIND_VALUE(Tensor)
 #undef BIND_VALUE
 #define BIND_VALUE(VALUE) PyTorch_##VALUE##Value::bind(m);
   FORALL_SCALAR_TYPES(BIND_VALUE)

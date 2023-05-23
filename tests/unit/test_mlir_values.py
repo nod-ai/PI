@@ -6,7 +6,6 @@ from pi.mlir import (
     # AnyTorchDictKeyValue,
     # AnyTorchListOfOptionalIntValue,
     # AnyTorchListOfOptionalTensorValue,
-    # AnyTorchListOfTensorValue,
     AnyTorchListOfTorchBoolValue,
     AnyTorchListOfTorchIntValue,
     AnyTorchListOfTorchStringValue,
@@ -20,7 +19,8 @@ from pi.mlir import (
     AnyTorchOptionalGeneratorValue,
     AnyTorchOptionalIntValue,
     AnyTorchOptionalStringValue,
-    # AnyTorchOptionalTensorValue,
+    AnyTorchOptionalTensorValue,
+    AnyTorchOptionalTensorType,
     AnyTorchOptionalValue,
     # AnyTorchOptionalListOfTorchIntValue,
     # AnyTorchTensorValue,
@@ -182,6 +182,14 @@ class TestTorchValues:
             check_correct(
                 str(tcat),
                 "Tensor(%6 = torch.aten.cat %5, %int1_0 : !torch.list<vtensor<[2,2],f64>>, !torch.int -> !torch.tensor)",
+            )
+
+            t = torch.ValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
+            opt_t = torch.ConstantNoneOp()
+            clamped_t = ops.clamp(t, opt_t, opt_t)
+            check_correct(
+                str(clamped_t),
+                "Tensor(%8 = torch.aten.clamp.Tensor %7, %none, %none : !torch.vtensor<[2,2],f64>, !torch.none, !torch.none -> !torch.tensor)",
             )
 
     def test_scalar_type(self):

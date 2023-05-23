@@ -68,13 +68,11 @@ def generate_pybind_bindings_for_ops(cpp_ext_dir):
 
     unimplemented_types = [
         "AnyTorchOptionalScalarValue",
-        "AnyTorchOptionalTensorValue",
         "AnyTorchValue",
         "AnyTorchOptionalListOfTorchIntValue",
         "AnyTorchListOfOptionalTensorValue",
         #
         "AnyTorchOptionalScalarType",
-        "AnyTorchOptionalTensorType",
         "AnyTorchType",
         "AnyTorchOptionalListOfTorchIntType",
         "AnyTorchListOfOptionalTensorType",
@@ -85,6 +83,7 @@ def generate_pybind_bindings_for_ops(cpp_ext_dir):
         "AnyTorchScalarType",
         "AnyTorchListType",
         "AnyTorchListOfTensorType",
+        "AnyTorchOptionalTensorType",
     ]
 
     ops = []

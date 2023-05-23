@@ -396,6 +396,7 @@ void populateTorchMLIRTypes(py::module &m) {
 
 #define BIND_TYPE(TYPE) PyAnyTorchOptional##TYPE##Type::bind(m);
   FORALL_OPTIONAL_BASE_CONCRETE_TYPES(BIND_TYPE)
+  BIND_TYPE(Tensor)
 #undef BIND_TYPE
 #define BIND_TYPE(TYPE) PyTorch_##TYPE##Type::bind(m);
   FORALL_SCALAR_TYPES(BIND_TYPE)

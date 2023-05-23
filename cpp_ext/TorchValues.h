@@ -7,6 +7,7 @@
 
 #include "IRModule.h"
 #include "TorchTypes.h"
+#include <pybind11/pybind11.h>
 
 using llvm::Twine;
 namespace py = pybind11;
@@ -84,6 +85,7 @@ public:
           .attr("replace")("Value", DerivedTy::pyClassName);
     });
     DerivedTy::bindDerived(cls);
+    pybind11::implicitly_convertible<PyValue, DerivedTy>();
   }
 
   /// Implemented by derived classes to add methods to the Python subclass.
@@ -137,6 +139,7 @@ DECLARE_LIST_BASE_CONCRETE_VALUE(Tensor)
     static void bindDerived(ClassTy &c);                                       \
   };
 FORALL_OPTIONAL_BASE_CONCRETE_TYPES(DECLARE_OPTIONAL_BASE_CONCRETE_VALUE)
+DECLARE_OPTIONAL_BASE_CONCRETE_VALUE(Tensor)
 #undef DECLARE_OPTIONAL_BASE_CONCRETE_VALUE
 
 #define DECLARE_SCALAR_VALUE(SCALARVALUE)                                      \

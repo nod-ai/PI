@@ -506,7 +506,8 @@ c.def("bernoulli_", py::overload_cast<const PyAnyTorchTensorValue&, const PyTorc
 c.def("bfloat16", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("bfloat16 with signature bfloat16(self) -> Tensor"); });
 
 // bincount(self, weights Optional[Tensor]=None, minlength _int=0) -> Tensor
-c.def("bincount", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("bincount with signature bincount(self, weights Optional[Tensor]=None, minlength _int=0) -> Tensor"); });
+// aten::bincount : (Tensor, Tensor?, int) -> (Tensor)
+c.def("bincount", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchOptionalTensorValue&, const PyTorch_IntValue&>(&bincount));
 
 // @overload bitwise_and(self, other Tensor) -> Tensor
 // aten::bitwise_and.Tensor : (Tensor, Tensor) -> (Tensor)
@@ -611,16 +612,12 @@ c.def("cholesky_solve", [](PyAnyTorchTensorValue& self, py::args args, py::kwarg
 c.def("chunk", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("chunk with signature chunk(self, chunks _int, dim _int=0) -> List[Tensor]"); });
 
 // @overload clamp(self, min Optional[Tensor]=None, max Optional[Tensor]=None) -> Tensor
-c.def("clamp", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("clamp with signature @overload clamp(self, min Optional[Tensor]=None, max Optional[Tensor]=None) -> Tensor"); });
-
-// @overload clamp(self, min Optional[Number]=None, max Optional[Number]=None) -> Tensor
-c.def("clamp", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("clamp with signature @overload clamp(self, min Optional[Number]=None, max Optional[Number]=None) -> Tensor"); });
+// aten::clamp.Tensor : (Tensor, Tensor?, Tensor?) -> (Tensor)
+c.def("clamp", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchOptionalTensorValue&, const PyAnyTorchOptionalTensorValue&>(&clamp));
 
 // @overload clamp_(self, min Optional[Tensor]=None, max Optional[Tensor]=None) -> Tensor
-c.def("clamp_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("clamp_ with signature @overload clamp_(self, min Optional[Tensor]=None, max Optional[Tensor]=None) -> Tensor"); });
-
-// @overload clamp_(self, min Optional[Number]=None, max Optional[Number]=None) -> Tensor
-c.def("clamp_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("clamp_ with signature @overload clamp_(self, min Optional[Number]=None, max Optional[Number]=None) -> Tensor"); });
+// aten::clamp_.Tensor : (Tensor, Tensor?, Tensor?) -> (Tensor)
+c.def("clamp_", py::overload_cast<const PyAnyTorchTensorValue&, const PyAnyTorchOptionalTensorValue&, const PyAnyTorchOptionalTensorValue&>(&clamp_));
 
 // @overload clamp_max(self, max Tensor) -> Tensor
 // aten::clamp_max : (Tensor, Scalar) -> (Tensor)

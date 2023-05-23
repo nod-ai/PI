@@ -109,6 +109,16 @@ py::object __range_length(const PyTorch_IntValue &lo, const PyTorch_IntValue &hi
   return PyGlobals::get().lookupOperationClass("torch.aten.__range_length").value()(lo, hi, step);
 }
 
+// aten::_convolution : (Tensor, Tensor, Tensor?, int[], int[], int[], bool, int[], int, bool, bool, bool, bool) -> (Tensor)
+py::object _convolution(const PyAnyTorchTensorValue &input, const PyAnyTorchTensorValue &weight, const PyAnyTorchOptionalTensorValue &bias, const PyAnyTorchListOfTorchIntValue &stride, const PyAnyTorchListOfTorchIntValue &padding, const PyAnyTorchListOfTorchIntValue &dilation, const PyTorch_BoolValue &transposed, const PyAnyTorchListOfTorchIntValue &output_padding, const PyTorch_IntValue &groups, const PyTorch_BoolValue &benchmark, const PyTorch_BoolValue &deterministic, const PyTorch_BoolValue &cudnn_enabled, const PyTorch_BoolValue &allow_tf32) {
+  return PyGlobals::get().lookupOperationClass("torch.aten._convolution").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), input, weight, bias, stride, padding, dilation, transposed, output_padding, groups, benchmark, deterministic, cudnn_enabled, allow_tf32);
+}
+
+// aten::_convolution.deprecated : (Tensor, Tensor, Tensor?, int[], int[], int[], bool, int[], int, bool, bool, bool) -> (Tensor)
+py::object _convolution(const PyAnyTorchTensorValue &input, const PyAnyTorchTensorValue &weight, const PyAnyTorchOptionalTensorValue &bias, const PyAnyTorchListOfTorchIntValue &stride, const PyAnyTorchListOfTorchIntValue &padding, const PyAnyTorchListOfTorchIntValue &dilation, const PyTorch_BoolValue &transposed, const PyAnyTorchListOfTorchIntValue &output_padding, const PyTorch_IntValue &groups, const PyTorch_BoolValue &benchmark, const PyTorch_BoolValue &deterministic, const PyTorch_BoolValue &cudnn_enabled) {
+  return PyGlobals::get().lookupOperationClass("torch.aten._convolution.deprecated").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), input, weight, bias, stride, padding, dilation, transposed, output_padding, groups, benchmark, deterministic, cudnn_enabled);
+}
+
 // aten::_log_softmax : (Tensor, int, bool) -> (Tensor)
 py::object _log_softmax(const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyTorch_BoolValue &half_to_float) {
   return PyGlobals::get().lookupOperationClass("torch.aten._log_softmax").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, dim, half_to_float);
@@ -324,6 +334,11 @@ py::object baddbmm_(const PyAnyTorchTensorValue &self, const PyAnyTorchTensorVal
   return PyGlobals::get().lookupOperationClass("torch.aten.baddbmm_").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, batch1, batch2, beta, alpha);
 }
 
+// aten::batch_norm : (Tensor, Tensor?, Tensor?, Tensor?, Tensor?, bool, float, float, bool) -> (Tensor)
+py::object batch_norm(const PyAnyTorchTensorValue &input, const PyAnyTorchOptionalTensorValue &weight, const PyAnyTorchOptionalTensorValue &bias, const PyAnyTorchOptionalTensorValue &running_mean, const PyAnyTorchOptionalTensorValue &running_var, const PyTorch_BoolValue &training, const PyTorch_FloatValue &momentum, const PyTorch_FloatValue &eps, const PyTorch_BoolValue &cudnn_enabled) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.batch_norm").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), input, weight, bias, running_mean, running_var, training, momentum, eps, cudnn_enabled);
+}
+
 // aten::bernoulli : (Tensor, Generator?) -> (Tensor)
 py::object bernoulli(const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalGeneratorValue &generator) {
   return PyGlobals::get().lookupOperationClass("torch.aten.bernoulli").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, generator);
@@ -347,6 +362,11 @@ py::object bernoulli_(const PyAnyTorchTensorValue &self, const PyTorch_FloatValu
 // aten::bernoulli_.Tensor : (Tensor, Tensor, Generator?) -> (Tensor)
 py::object bernoulli_(const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &p, const PyAnyTorchOptionalGeneratorValue &generator) {
   return PyGlobals::get().lookupOperationClass("torch.aten.bernoulli_.Tensor").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, p, generator);
+}
+
+// aten::bincount : (Tensor, Tensor?, int) -> (Tensor)
+py::object bincount(const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalTensorValue &weights, const PyTorch_IntValue &minlength) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.bincount").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, weights, minlength);
 }
 
 // aten::bitwise_and.Tensor : (Tensor, Tensor) -> (Tensor)
@@ -424,6 +444,16 @@ py::object ceil_(const PyAnyTorchTensorValue &self) {
   return PyGlobals::get().lookupOperationClass("torch.aten.ceil_").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self);
 }
 
+// aten::clamp.Tensor : (Tensor, Tensor?, Tensor?) -> (Tensor)
+py::object clamp(const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalTensorValue &min, const PyAnyTorchOptionalTensorValue &max) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.clamp.Tensor").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, min, max);
+}
+
+// aten::clamp_.Tensor : (Tensor, Tensor?, Tensor?) -> (Tensor)
+py::object clamp_(const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalTensorValue &min, const PyAnyTorchOptionalTensorValue &max) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.clamp_.Tensor").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, min, max);
+}
+
 // aten::clamp_max : (Tensor, Scalar) -> (Tensor)
 py::object clamp_max(const PyAnyTorchTensorValue &self, const PyAnyTorchScalarValue &max) {
   return PyGlobals::get().lookupOperationClass("torch.aten.clamp_max").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, max);
@@ -459,9 +489,39 @@ py::object contiguous(const PyAnyTorchTensorValue &self, const PyTorch_IntValue 
   return PyGlobals::get().lookupOperationClass("torch.aten.contiguous").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, memory_format);
 }
 
+// aten::conv2d : (Tensor, Tensor, Tensor?, int[], int[], int[], int) -> (Tensor)
+py::object conv2d(const PyAnyTorchTensorValue &input, const PyAnyTorchTensorValue &weight, const PyAnyTorchOptionalTensorValue &bias, const PyAnyTorchListOfTorchIntValue &stride, const PyAnyTorchListOfTorchIntValue &padding, const PyAnyTorchListOfTorchIntValue &dilation, const PyTorch_IntValue &groups) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.conv2d").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), input, weight, bias, stride, padding, dilation, groups);
+}
+
+// aten::conv_transpose1d : (Tensor, Tensor, Tensor?, int[], int[], int[], int, int[]) -> (Tensor)
+py::object conv_transpose1d(const PyAnyTorchTensorValue &input, const PyAnyTorchTensorValue &weight, const PyAnyTorchOptionalTensorValue &bias, const PyAnyTorchListOfTorchIntValue &stride, const PyAnyTorchListOfTorchIntValue &padding, const PyAnyTorchListOfTorchIntValue &output_padding, const PyTorch_IntValue &groups, const PyAnyTorchListOfTorchIntValue &dilation) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.conv_transpose1d").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), input, weight, bias, stride, padding, output_padding, groups, dilation);
+}
+
+// aten::conv_transpose2d.input : (Tensor, Tensor, Tensor?, int[], int[], int[], int, int[]) -> (Tensor)
+py::object conv_transpose2d(const PyAnyTorchTensorValue &input, const PyAnyTorchTensorValue &weight, const PyAnyTorchOptionalTensorValue &bias, const PyAnyTorchListOfTorchIntValue &stride, const PyAnyTorchListOfTorchIntValue &padding, const PyAnyTorchListOfTorchIntValue &output_padding, const PyTorch_IntValue &groups, const PyAnyTorchListOfTorchIntValue &dilation) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.conv_transpose2d.input").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), input, weight, bias, stride, padding, output_padding, groups, dilation);
+}
+
+// aten::conv_transpose3d.input : (Tensor, Tensor, Tensor?, int[], int[], int[], int, int[]) -> (Tensor)
+py::object conv_transpose3d(const PyAnyTorchTensorValue &input, const PyAnyTorchTensorValue &weight, const PyAnyTorchOptionalTensorValue &bias, const PyAnyTorchListOfTorchIntValue &stride, const PyAnyTorchListOfTorchIntValue &padding, const PyAnyTorchListOfTorchIntValue &output_padding, const PyTorch_IntValue &groups, const PyAnyTorchListOfTorchIntValue &dilation) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.conv_transpose3d.input").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), input, weight, bias, stride, padding, output_padding, groups, dilation);
+}
+
 // prims::convert_element_type : (Tensor, int) -> (Tensor)
 py::object convert_element_type(const PyAnyTorchTensorValue &a, const PyTorch_IntValue &dtype) {
   return PyGlobals::get().lookupOperationClass("torch.prims.convert_element_type").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), a, dtype);
+}
+
+// aten::convolution : (Tensor, Tensor, Tensor?, int[], int[], int[], bool, int[], int) -> (Tensor)
+py::object convolution(const PyAnyTorchTensorValue &input, const PyAnyTorchTensorValue &weight, const PyAnyTorchOptionalTensorValue &bias, const PyAnyTorchListOfTorchIntValue &stride, const PyAnyTorchListOfTorchIntValue &padding, const PyAnyTorchListOfTorchIntValue &dilation, const PyTorch_BoolValue &transposed, const PyAnyTorchListOfTorchIntValue &output_padding, const PyTorch_IntValue &groups) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.convolution").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), input, weight, bias, stride, padding, dilation, transposed, output_padding, groups);
+}
+
+// aten::convolution_overrideable : (Tensor, Tensor, Tensor?, int[], int[], int[], bool, int[], int) -> (Tensor)
+py::object convolution_overrideable(const PyAnyTorchTensorValue &input, const PyAnyTorchTensorValue &weight, const PyAnyTorchOptionalTensorValue &bias, const PyAnyTorchListOfTorchIntValue &stride, const PyAnyTorchListOfTorchIntValue &padding, const PyAnyTorchListOfTorchIntValue &dilation, const PyTorch_BoolValue &transposed, const PyAnyTorchListOfTorchIntValue &output_padding, const PyTorch_IntValue &groups) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.convolution_overrideable").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), input, weight, bias, stride, padding, dilation, transposed, output_padding, groups);
 }
 
 // aten::copy : (Tensor, Tensor, bool) -> (Tensor)
@@ -934,6 +994,11 @@ py::object keys(const PyTorch_DictValue &self) {
   return PyGlobals::get().lookupOperationClass("torch.aten.keys.str").value()(PyAnyTorchListOfTorchStringType(DefaultingPyMlirContext::resolve()), self);
 }
 
+// aten::layer_norm : (Tensor, int[], Tensor?, Tensor?, float, bool) -> (Tensor)
+py::object layer_norm(const PyAnyTorchTensorValue &input, const PyAnyTorchListOfTorchIntValue &normalized_shape, const PyAnyTorchOptionalTensorValue &weight, const PyAnyTorchOptionalTensorValue &bias, const PyTorch_FloatValue &eps, const PyTorch_BoolValue &cudnn_enable) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.layer_norm").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), input, normalized_shape, weight, bias, eps, cudnn_enable);
+}
+
 // prim::layout : (Tensor) -> (int)
 py::object layout(const PyAnyTorchTensorValue &a) {
   return PyGlobals::get().lookupOperationClass("torch.prim.layout").value()(a);
@@ -1007,6 +1072,11 @@ py::object lerp_(const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue 
 // aten::lift_fresh_copy : (Tensor) -> (Tensor)
 py::object lift_fresh_copy(const PyAnyTorchTensorValue &self) {
   return PyGlobals::get().lookupOperationClass("torch.aten.lift_fresh_copy").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self);
+}
+
+// aten::linear : (Tensor, Tensor, Tensor?) -> (Tensor)
+py::object linear(const PyAnyTorchTensorValue &input, const PyAnyTorchTensorValue &weight, const PyAnyTorchOptionalTensorValue &bias) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.linear").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), input, weight, bias);
 }
 
 // quantized::linear : (Tensor, __torch__.torch.classes.quantized.LinearPackedParamsBase, float, int) -> (Tensor)
@@ -1352,6 +1422,11 @@ py::object new_ones(const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTor
 // aten::new_zeros : (Tensor, int[], int?, int?, Device?, bool?) -> (Tensor)
 py::object new_zeros(const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTorchIntValue &size, const PyAnyTorchOptionalIntValue &dtype, const PyAnyTorchOptionalIntValue &layout, const PyAnyTorchOptionalDeviceValue &device, const PyAnyTorchOptionalBoolValue &pin_memory) {
   return PyGlobals::get().lookupOperationClass("torch.aten.new_zeros").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, size, dtype, layout, device, pin_memory);
+}
+
+// aten::nll_loss_backward : (Tensor, Tensor, Tensor, Tensor?, int, int, Tensor) -> (Tensor)
+py::object nll_loss_backward(const PyAnyTorchTensorValue &grad_output, const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &target, const PyAnyTorchOptionalTensorValue &weight, const PyTorch_IntValue &reduction, const PyTorch_IntValue &ignore_index, const PyAnyTorchTensorValue &total_weight) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.nll_loss_backward").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), grad_output, self, target, weight, reduction, ignore_index, total_weight);
 }
 
 // aten::numel : (Tensor) -> (int)

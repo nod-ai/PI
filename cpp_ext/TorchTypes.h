@@ -170,6 +170,21 @@ public:
 FORALL_OPTIONAL_BASE_CONCRETE_TYPES(DECLARE_OPTIONAL_BASE_CONCRETE_TYPE)
 #undef DECLARE_OPTIONAL_BASE_CONCRETE_TYPE
 
+class PyAnyTorchOptionalTensorType
+    : public PyConcreteType<PyAnyTorchOptionalTensorType,
+                            PyAnyTorchOptionalType> {
+public:
+  static constexpr IsAFunctionTy isaFunction = isAAnyTorchOptionalTensorType;
+  static constexpr const char *pyClassName = "AnyTorchOptional"
+                                             "Tensor"
+                                             "Type";
+  using PyConcreteType::PyConcreteType;
+  PyAnyTorchOptionalTensorType(MlirType containedType,
+                               DefaultingPyMlirContext context)
+      : PyConcreteType(context->getRef(),
+                       torchMlirTorchOptionalTypeGet(containedType)) {}
+};
+
 #define FORALL_SCALAR_TYPES(_)                                                 \
   _(Any)                                                                       \
   _(Bool)                                                                      \
