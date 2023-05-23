@@ -69,9 +69,9 @@ class TestOverloadCast:
                     dedent(
                         """\
                         argmax(): incompatible function arguments. The following argument types are supported:
-                            1. (self: pi.mlir._mlir_libs._pi_mlir.Tensor, dim: pi.mlir.AnyTorchOptionalIntValue = None, keepdim: pi.mlir._mlir_libs._pi_mlir.Torch_BoolValue) -> object
+                            1. (self: pi.mlir._mlir_libs._pi_mlir.Tensor, dim: pi.mlir.AnyTorchOptionalIntValue = None, *, keepdim: pi.mlir._mlir_libs._pi_mlir.Torch_BoolValue) -> object
 
-                        Invoked with: <pi.mlir._mlir_libs._pi_mlir.Tensor object at 0x107c0feb0>, <pi.mlir._mlir_libs._pi_mlir.Torch_BoolValue object at 0x107baf2f0>
+                        Invoked with: <pi.mlir._mlir_libs._pi_mlir.Tensor object at %DONT_CARE>, <pi.mlir._mlir_libs._pi_mlir.Torch_BoolValue object at %DONT_CARE>
                         """
                     ),
                     str(e),
@@ -86,9 +86,9 @@ class TestOverloadCast:
                     dedent(
                         """\
                         argmax(): incompatible function arguments. The following argument types are supported:
-                            1. (self: pi.mlir._mlir_libs._pi_mlir.Tensor, dim: pi.mlir.AnyTorchOptionalIntValue = None, keepdim: pi.mlir._mlir_libs._pi_mlir.Torch_BoolValue) -> object
+                            1. (self: pi.mlir._mlir_libs._pi_mlir.Tensor, dim: pi.mlir.AnyTorchOptionalIntValue = None, *, keepdim: pi.mlir._mlir_libs._pi_mlir.Torch_BoolValue) -> object
 
-                        Invoked with: <pi.mlir._mlir_libs._pi_mlir.Tensor object at 0x107c0feb0>, <pi.mlir._mlir_libs._pi_mlir.Torch_BoolValue object at 0x107baf2f0>
+                        Invoked with: <pi.mlir._mlir_libs._pi_mlir.Tensor object at %DONT_CARE>, None, <pi.mlir._mlir_libs._pi_mlir.Torch_BoolValue object at %DONT_CARE>
                         """
                     ),
                     str(e),

@@ -265,10 +265,13 @@ def generate_pybind_bindings_for_ops(cpp_ext_dir):
                         for name, typ in params
                     ]
                 )
+                labels_str = ", ".join([f'"{n}"_a' for n, t in params])
+                if labels_str:
+                    labels_str = f", {labels_str}"
                 impl = dedent(
                     f"""
                             // {schema}
-                            m.def("{unqualified_name}", py::overload_cast<{param_str}>(&{unqualified_name}));
+                            m.def("{unqualified_name}", py::overload_cast<{param_str}>(&{unqualified_name}){labels_str});
                         """
                 )
             impls_td(impl)
@@ -341,6 +344,7 @@ class TensorMethodVisitor(ast.NodeVisitor):
         arg_types = [a.annotation for a in node.args.args if a not in kwonlyargs]
         if node.args.vararg:
             arg_names.append(f"*{node.args.vararg.arg}")
+        # TODO(max): handle kwonlyargs and defaults for them
         if node.args.kwonlyargs:
             for kwarg in node.args.kwonlyargs:
                 arg_names.append(kwarg.arg)
@@ -430,13 +434,18 @@ class TensorMethodVisitor(ast.NodeVisitor):
                     for name in arg_names
                 ]
             )
+            labels = [f'"{n}"_a' for n, t in params]
+            labels_str = ", ".join(labels[1:])
+            if labels_str:
+                labels_str = f", {labels_str}"
+
             if kwonlyargs:
                 warnings.warn(f"{op_name=} has kwonly args: {kwonlyargs=}")
             impl = dedent(
                 f"""
                     // {method_sig}
                     // {schema}
-                    c.def("{op_name}", py::overload_cast<{param_str}>(&{overload_op_name}));
+                    c.def("{op_name}", py::overload_cast<{param_str}>(&{overload_op_name}){labels_str});
                 """
             )
         self.binds_td(impl)
