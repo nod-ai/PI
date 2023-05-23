@@ -6,6 +6,7 @@ from pi.mlir.utils import mlir_mod_ctx
 from pi.mlir import (
     ops,
     Tensor,
+    Torch_BoolValue,
     torch_dialect as torch,
 )
 from util import check_correct
@@ -69,7 +70,7 @@ class TestOverloadCast:
                     dedent(
                         """\
                         argmax(): incompatible function arguments. The following argument types are supported:
-                            1. (self: pi.mlir._mlir_libs._pi_mlir.Tensor, dim: pi.mlir.AnyTorchOptionalIntValue = None, *, keepdim: pi.mlir._mlir_libs._pi_mlir.Torch_BoolValue) -> object
+                            1. (self: pi.mlir._mlir_libs._pi_mlir.Tensor, dim: pi.mlir._mlir_libs._pi_mlir.AnyTorchOptionalIntValue = None, *, keepdim: pi.mlir._mlir_libs._pi_mlir.Torch_BoolValue = False) -> object
 
                         Invoked with: <pi.mlir._mlir_libs._pi_mlir.Tensor object at %DONT_CARE>, <pi.mlir._mlir_libs._pi_mlir.Torch_BoolValue object at %DONT_CARE>
                         """
@@ -86,10 +87,23 @@ class TestOverloadCast:
                     dedent(
                         """\
                         argmax(): incompatible function arguments. The following argument types are supported:
-                            1. (self: pi.mlir._mlir_libs._pi_mlir.Tensor, dim: pi.mlir.AnyTorchOptionalIntValue = None, *, keepdim: pi.mlir._mlir_libs._pi_mlir.Torch_BoolValue) -> object
+                            1. (self: pi.mlir._mlir_libs._pi_mlir.Tensor, dim: pi.mlir._mlir_libs._pi_mlir.AnyTorchOptionalIntValue = None, *, keepdim: pi.mlir._mlir_libs._pi_mlir.Torch_BoolValue = False) -> object
 
                         Invoked with: <pi.mlir._mlir_libs._pi_mlir.Tensor object at %DONT_CARE>, None, <pi.mlir._mlir_libs._pi_mlir.Torch_BoolValue object at %DONT_CARE>
                         """
                     ),
                     str(e),
                 )
+
+            zero_int = torch.ConstantIntOp(0)
+            r = ops.gather(ttt, zero_int, ttt, False)
+            check_correct(
+                "Tensor(%2 = torch.aten.gather %0, %int0, %0, %false_3 : !torch.tensor<[10,10],f64>, !torch.int, !torch.tensor<[10,10],f64>, !torch.bool -> !torch.tensor)",
+                str(r),
+            )
+
+            r = ops.gather(ttt, zero_int, ttt)
+            check_correct(
+                "Tensor(%2 = torch.aten.gather %0, %int0, %0, %false_3 : !torch.tensor<[10,10],f64>, !torch.int, !torch.tensor<[10,10],f64>, !torch.bool -> !torch.tensor)",
+                str(r),
+            )

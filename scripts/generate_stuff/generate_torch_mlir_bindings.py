@@ -1,5 +1,6 @@
 import ast
 import inspect
+import re
 import tempfile
 import warnings
 from collections import defaultdict
@@ -58,12 +59,37 @@ def generate_exts():
 def get_clean_name(name):
     RESERVED_NAMES = {
         # since this is an aten op
-        "pad": "pad__"
+        "pad": "pad__",
+        "threshold": "threshold__",
     }
 
     if name in RESERVED_NAMES:
         return RESERVED_NAMES[name]
     return name
+
+
+def map_defaults(s, method_sig):
+    if s in {"0", "1", "-1"}:
+        return s
+    if s in {"True", "False"}:
+        return s.lower()
+    if s in "None":
+        return "py::none()"
+    if s in {"none", "constant"}:
+        return '"{s}"'
+    if s == "()":
+        return None
+    if s == "torch.contiguous_format":
+        return "0"
+    if match := re.match(r"\[(\d|,|\s)*\]", s):
+        tuple = match.group()[1:-1]
+        return f"std::vector<int>{{{tuple}}}"
+    try:
+        float(s)
+        return s
+    except:
+        pass
+    raise NotImplementedError(f"{s} for {method_sig}")
 
 
 def generate_pybind_bindings_for_ops(cpp_ext_dir):
@@ -78,14 +104,14 @@ def generate_pybind_bindings_for_ops(cpp_ext_dir):
         emit_ops(emitter_td, registry)
 
     unimplemented_types = [
-        "AnyTorchOptionalScalarType",
         "AnyTorchType",
         "AnyTorchOptionalListOfTorchIntType",
         "AnyTorchListOfOptionalTensorType",
         "Variadic",
     ]
-    skips = ["prims::sqrt", "prim::Print", "aten::format"]
+    skips = ["prims::sqrt", "prim::Print", "aten::format", "aten::where.self"]
     skip_return_types = [
+        "AnyTorchOptionalScalarType",
         "AnyTorchScalarType",
         "AnyTorchListType",
         "AnyTorchListOfTensorType",
@@ -97,23 +123,28 @@ def generate_pybind_bindings_for_ops(cpp_ext_dir):
         op_name, cpp_class_name = operator.get_mlir_names()
 
         if operator.is_vararg:
-            params = [("res", "Variadic<TorchType>")]
+            params = [("res", "Variadic<TorchType>", None)]
         else:
             params = [
-                (get_clean_name(arg["name"]), get_ods_type(arg["type"]))
+                (
+                    get_clean_name(arg["name"]),
+                    get_ods_type(arg["type"]),
+                    arg.get("default_debug"),
+                )
                 for arg in operator.arguments
             ]
 
         if operator.is_varret:
-            returns = [("res", "Variadic<TorchType>")]
+            returns = [("res", "Variadic<TorchType>", None)]
         else:
             returns = [
-                (ret["name"], get_ods_type(ret["type"])) for ret in operator.returns
+                (ret["name"], get_ods_type(ret["type"]), None)
+                for ret in operator.returns
             ]
 
         unimplemented = False
         for u in unimplemented_types:
-            if u in [t for n, t in params + returns]:
+            if u in [t for n, t, d in params + returns]:
                 unimplemented = True
                 warnings.warn(
                     f"not implemented type: {u} for {op_name} {cpp_class_name}"
@@ -121,7 +152,7 @@ def generate_pybind_bindings_for_ops(cpp_ext_dir):
                 break
 
         for u in skip_return_types:
-            if u in [t for n, t in returns]:
+            if u in [t for n, t, d in returns]:
                 warnings.warn(f"not implemented return type {u} for {cpp_class_name}")
                 unimplemented = True
                 break
@@ -177,18 +208,19 @@ def generate_pybind_bindings_for_ops(cpp_ext_dir):
             param_str = ", ".join(
                 [
                     f"const Py{typ.replace('Type', 'Value')} &{name}"
-                    for name, typ in params
+                    for name, typ, default_debug in params
                 ]
             )
 
             init_lines = inspect.getsource(getattr(torch, cpp_class_name).__init__)
             if "InferTypeOpInterface" not in init_lines and returns:
-                _, typ = returns[0]
+                _, typ, _d = returns[0]
                 if typ == "AnyTorchTensorType":
                     params = [
                         (
                             "PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve())",
                             "",
+                            None,
                         )
                     ] + params
                 elif typ in {
@@ -199,6 +231,7 @@ def generate_pybind_bindings_for_ops(cpp_ext_dir):
                         (
                             f"Py{typ}(DefaultingPyMlirContext::resolve())",
                             "",
+                            None,
                         )
                     ] + params
                 else:
@@ -208,7 +241,7 @@ def generate_pybind_bindings_for_ops(cpp_ext_dir):
                 f"""
                     // {schema}
                     py::object {unqualified_name}({param_str}) {{
-                      return PyGlobals::get().lookupOperationClass("torch.{torch_dialect_op_name}").value()({', '.join([name for name, _typ in params])});
+                      return PyGlobals::get().lookupOperationClass("torch.{torch_dialect_op_name}").value()({', '.join([name for name, _typ, _d in params])});
                     }}
                 """
             )
@@ -233,47 +266,44 @@ def generate_pybind_bindings_for_ops(cpp_ext_dir):
             cpp_class_name,
             schema,
         ) in ops:
-            if any("AnyTorchOptional" in t for n, t in params):
-                param_str = ", ".join(
-                    [
-                        f"const Py{typ.replace('Type', 'Value').replace('AnyTorchOptional', 'DefaultingTorchOptional')} &{name}"
-                        for name, typ in params
-                    ]
-                )
-                tramp_str = ", ".join(
-                    [f"{n}.get()" if "AnyTorchOptional" in t else n for n, t in params]
-                )
-                labels_str = ", ".join(
-                    [
-                        f'"{n}"_a = py::none()'
-                        if "AnyTorchOptional" in t
-                        else f'"{n}"_a'
-                        for n, t in params
-                    ]
-                )
+            labels = []
+            param_str = []
+            tramp_str = []
+            for n, t, d in params:
+                t = t.replace("Type", "Value")
+                if "TorchOptional" in t:
+                    param_str.append(f"const Py{t} &{n}")
+                    tramp_str.append(f"{n}")
+                    labels.append(f'"{n}"_a = py::none()')
+                elif d is not None:
+                    param_str.append(f"const Py{t} &{n}")
+                    tramp_str.append(n)
+                    labels.append(f'"{n}"_a = {map_defaults(d, schema)}')
+                else:
+                    param_str.append(f"const Py{t} &{n}")
+                    tramp_str.append(n)
+                    labels.append(f'"{n}"_a')
 
-                impl = dedent(
-                    f"""
-                        // {schema}
-                        m.def("{unqualified_name}", []({param_str}) {{ return {unqualified_name}({tramp_str}); }}, {labels_str});
-                    """
+            try:
+                last_opt_idx = next(
+                    i for i, l in reversed(list(enumerate(labels))) if "py::none()" in l
                 )
-            else:
-                param_str = ", ".join(
-                    [
-                        f"const Py{typ.replace('Type', 'Value')} &"
-                        for name, typ in params
-                    ]
-                )
-                labels_str = ", ".join([f'"{n}"_a' for n, t in params])
-                if labels_str:
-                    labels_str = f", {labels_str}"
-                impl = dedent(
-                    f"""
-                            // {schema}
-                            m.def("{unqualified_name}", py::overload_cast<{param_str}>(&{unqualified_name}){labels_str});
-                        """
-                )
+                if "py::kw_only()" not in labels and last_opt_idx < len(labels) - 1:
+                    labels.insert(last_opt_idx + 1, "py::kw_only()")
+            except StopIteration:
+                pass
+
+            labels_str = ", ".join(labels)
+            tramp_str = ", ".join(tramp_str)
+            param_str = ", ".join(param_str)
+
+            impl = dedent(
+                f"""
+                    // {schema}
+                    m.def("{unqualified_name}", []({param_str}) {{ return {unqualified_name}({tramp_str}); }}, {labels_str});
+                """
+            )
+
             impls_td(impl)
 
     return ops
@@ -289,6 +319,7 @@ class TensorMethodVisitor(ast.NodeVisitor):
         "type",
         "value",
         "__init__",
+        "where",
     ]
 
     def __init__(self, ops):
@@ -339,12 +370,15 @@ class TensorMethodVisitor(ast.NodeVisitor):
 
         posonlyargs = {k.arg for k in node.args.posonlyargs}
         assert len(posonlyargs) == 0
-        kwonlyargs = {k.arg for k in node.args.kwonlyargs}
+        kwonlyargs = {
+            k.arg: node.args.kw_defaults[i] for i, k in enumerate(node.args.kwonlyargs)
+        }
+
+        defaults = node.args.defaults
         arg_names = [a.arg for a in node.args.args if a not in kwonlyargs]
         arg_types = [a.annotation for a in node.args.args if a not in kwonlyargs]
         if node.args.vararg:
             arg_names.append(f"*{node.args.vararg.arg}")
-        # TODO(max): handle kwonlyargs and defaults for them
         if node.args.kwonlyargs:
             for kwarg in node.args.kwonlyargs:
                 arg_names.append(kwarg.arg)
@@ -355,7 +389,7 @@ class TensorMethodVisitor(ast.NodeVisitor):
             for i, (params, returns, cpp_class_name, schema) in enumerate(
                 self.ops.get(op_name, [])
             ):
-                params_dict = dict(params)
+                params_dict = dict([(n, t) for n, t, _d in params])
                 if (
                     set(arg_names) == set(params_dict.keys())
                     and "self" in params_dict
@@ -377,9 +411,8 @@ class TensorMethodVisitor(ast.NodeVisitor):
 
         self.visited.add(schema)
 
-        params_dict = dict(params)
-        if arg_names != [p[0] for p in params]:
-            # different orders...
+        params_dict = dict([(n, t) for n, t, _d in params])
+        if arg_names != [p[0] for p in params] or overload_op_name != op_name:
             tramp_param_str = ", ".join(
                 [
                     f"const mlir::torch::Py{params_dict[name].replace('Type', 'Value')} &{name}"
@@ -388,6 +421,7 @@ class TensorMethodVisitor(ast.NodeVisitor):
             )
             impl = dedent(
                 f"""
+                        // {method_sig}
                         // {schema}
                         py::object {op_name}({tramp_param_str}) {{
                           return mlir::torch::{overload_op_name}({', '.join([p[0] for p in params])});
@@ -396,58 +430,68 @@ class TensorMethodVisitor(ast.NodeVisitor):
             )
             self.binds_tramps_td(impl)
 
-        if any("AnyTorchOptional" in t for n, t in params):
-            param_str = ", ".join(
-                [
-                    f"const Py{typ.replace('Type', 'Value').replace('AnyTorchOptional', 'DefaultingTorchOptional')} &{name}"
-                    for name, typ in params
-                ]
-            )
-            tramp_str = ", ".join(
-                [f"{n}.get()" if "AnyTorchOptional" in t else n for n, t in params]
-            )
-            assert params[0][0] == "self"
-            # apparently you can't label the self arg for a class method???
-            labels = [
-                f'"{n}"_a = py::none()' if "AnyTorchOptional" in t else f'"{n}"_a'
-                for n, t in params
-            ]
+        assert params[0][0] == "self", f"{params} for {method_sig=}"
+        labels = []
+        param_str = []
+        tramp_str = []
+        for i, (n, t, d) in enumerate(params):
+            t = t.replace("Type", "Value")
+            if "TorchOptional" in t:
+                labels.append(f'"{n}"_a = py::none()')
+                param_str.append(f"const Py{t} &{n}")
+                tramp_str.append(f"{n}")
+                continue
+            elif n in kwonlyargs:
+                if "py::kw_only()" not in labels:
+                    labels.append("py::kw_only()")
+                assert (
+                    d is not None
+                ), f"default_debug is None for {n=} {t=} {method_sig=}"
+                defau = map_defaults(d, method_sig)
+                if defau is not None:
+                    labels.append(f'"{n}"_a = {defau}')
+                    param_str.append(f"const Py{t} &{n}")
+                    tramp_str.append(f"{n}")
+                    continue
+            elif len(params) - len(defaults) <= i < len(params):
+                assert (
+                    d is not None
+                ), f"default_debug is None for {n=} {t=} {method_sig=}"
+                defau = map_defaults(d, method_sig)
+                if defau is not None:
+                    labels.append(f'"{n}"_a = {defau}')
+                    param_str.append(f"const Py{t} &{n}")
+                    tramp_str.append(f"{n}")
+                    continue
+
+            param_str.append(f"const Py{t} &{n}")
+            tramp_str.append(n)
+            labels.append(f'"{n}"_a')
+
+        try:
             last_opt_idx = next(
                 i for i, l in reversed(list(enumerate(labels))) if "py::none()" in l
             )
-            if last_opt_idx < len(labels) - 1:
+            if "py::kw_only()" not in labels and last_opt_idx < len(labels) - 1:
                 labels.insert(last_opt_idx + 1, "py::kw_only()")
+        except StopIteration:
+            pass
 
-            labels_str = ", ".join(labels[1:])
+        # apparently you can't label the self arg for a class method???
+        labels_str = ", ".join(labels[1:])
+        if labels_str:
+            labels_str = f", {labels_str}"
+        tramp_str = ", ".join(tramp_str)
+        param_str = ", ".join(param_str)
 
-            impl = dedent(
-                f"""
-                        // {schema}
-                        c.def("{op_name}", []({param_str}) {{ return {op_name}({tramp_str}); }}, {labels_str});
-                    """
-            )
-
-        else:
-            param_str = ", ".join(
-                [
-                    f"const Py{params_dict[name].replace('Type', 'Value')}&"
-                    for name in arg_names
-                ]
-            )
-            labels = [f'"{n}"_a' for n, t in params]
-            labels_str = ", ".join(labels[1:])
-            if labels_str:
-                labels_str = f", {labels_str}"
-
-            if kwonlyargs:
-                warnings.warn(f"{op_name=} has kwonly args: {kwonlyargs=}")
-            impl = dedent(
-                f"""
+        impl = dedent(
+            f"""
                     // {method_sig}
                     // {schema}
-                    c.def("{op_name}", py::overload_cast<{param_str}>(&{overload_op_name}){labels_str});
+                    c.def("{op_name}", []({param_str}) {{ return {op_name}({tramp_str}); }}{labels_str});
                 """
-            )
+        )
+
         self.binds_td(impl)
 
 

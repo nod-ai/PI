@@ -125,18 +125,6 @@ void populateTorchMLIROps(py::module &m) {
   // aten::sub : (Scalar, Scalar) -> (Scalar)
   m.def("sub", py::overload_cast<const PyAnyTorchScalarValue &,
                                  const PyAnyTorchScalarValue &>(&sub));
-
-#define DECLARE_OPTIONAL_BASE_CONCRETE_VALUE(CONCRETEVALUE)                    \
-  m.def(                                                                       \
-      "_test_defaulting_" #CONCRETEVALUE,                                      \
-      [](PyDefaultingTorchOptional##CONCRETEVALUE##Value none) {               \
-        return none.get();                                                     \
-      },                                                                       \
-      "none"_a = py::none());
-
-  FORALL_OPTIONAL_BASE_CONCRETE_TYPES(DECLARE_OPTIONAL_BASE_CONCRETE_VALUE)
-  DECLARE_OPTIONAL_BASE_CONCRETE_VALUE(Tensor)
-#undef DECLARE_OPTIONAL_BASE_CONCRETE_VALUE
 }
 
 } // namespace mlir::torch

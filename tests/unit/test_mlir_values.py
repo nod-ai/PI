@@ -161,14 +161,14 @@ class TestTorchValues:
             )
 
             tintv = torch.ConstantIntOp(1)
-            res = t.add_(t, tintv)
+            res = t.add_(t, alpha=tintv)
             check_correct(
                 str(res),
                 "Tensor(%2 = torch.aten.add_.Tensor %1, %1, %int1 : !torch.vtensor<[2,2],f64>, !torch.vtensor<[2,2],f64>, !torch.int -> !torch.tensor)",
             )
 
             tfloatv = torch.ConstantFloatOp(1)
-            res = t.add_(t, tfloatv)
+            res = t.add_(t, alpha=tfloatv)
             check_correct(
                 str(res),
                 "Tensor(%3 = torch.aten.add_.Tensor %1, %1, %float1.000000e00 : !torch.vtensor<[2,2],f64>, !torch.vtensor<[2,2],f64>, !torch.float -> !torch.tensor)",
@@ -186,53 +186,12 @@ class TestTorchValues:
 
     def test_defaulting_optional_values(self):
         with mlir_mod_ctx():
-            tintv = torch.ConstantIntOp(1)
-            r = ops._test_defaulting_Int(tintv)
-            check_correct(
-                str(r), "AnyTorchOptionalIntValue(%int_1 = torch.constant.int 1)"
-            )
-
-            r = ops._test_defaulting_Int(None)
-            check_correct(
-                str(r), "AnyTorchOptionalIntValue(%none_1 = torch.constant.none)"
-            )
-
-            r = ops._test_defaulting_Int()
-            check_correct(
-                str(r), "AnyTorchOptionalIntValue(%none_1 = torch.constant.none)"
-            )
-
-            r = ops._test_defaulting_Bool(None)
-            check_correct(
-                str(r), "AnyTorchOptionalBoolValue(%none_1 = torch.constant.none)"
-            )
-
-            r = ops._test_defaulting_Device(None)
-            check_correct(
-                str(r), "AnyTorchOptionalDeviceValue(%none_1 = torch.constant.none)"
-            )
-
-            r = ops._test_defaulting_Device(None)
-            check_correct(
-                str(r), "AnyTorchOptionalDeviceValue(%none_1 = torch.constant.none)"
-            )
-
-            r = ops._test_defaulting_Float(None)
-            check_correct(
-                str(r), "AnyTorchOptionalFloatValue(%none_1 = torch.constant.none)"
-            )
-
-            r = ops._test_defaulting_Tensor(None)
-            check_correct(
-                str(r), "AnyTorchOptionalTensorValue(%none_1 = torch.constant.none)"
-            )
-
             t = torch.ValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
             opt_t = torch.ConstantNoneOp()
             clamped_t = ops.clamp(t, opt_t, opt_t)
             check_correct(
                 str(clamped_t),
-                "Tensor(%8 = torch.aten.clamp.Tensor %7, %none, %none : !torch.vtensor<[2,2],f64>, !torch.none, !torch.none -> !torch.tensor)",
+                "Tensor(%8 = torch.aten.clamp %7, %none, %none : !torch.vtensor<[2,2],f64>, !torch.none, !torch.none -> !torch.tensor)",
             )
 
             t = torch.ValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
@@ -240,21 +199,21 @@ class TestTorchValues:
             clamped_t = ops.clamp(t, opt_t, None)
             check_correct(
                 str(clamped_t),
-                "Tensor(%8 = torch.aten.clamp.Tensor %7, %none, %none : !torch.vtensor<[2,2],f64>, !torch.none, !torch.none -> !torch.tensor)",
+                "Tensor(%8 = torch.aten.clamp %7, %none, %none : !torch.vtensor<[2,2],f64>, !torch.none, !torch.none -> !torch.tensor)",
             )
 
             t = torch.ValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
             clamped_t = ops.clamp(t, None, None)
             check_correct(
                 str(clamped_t),
-                "Tensor(%8 = torch.aten.clamp.Tensor %7, %none, %none : !torch.vtensor<[2,2],f64>, !torch.none, !torch.none -> !torch.tensor)",
+                "Tensor(%8 = torch.aten.clamp %7, %none, %none : !torch.vtensor<[2,2],f64>, !torch.none, !torch.none -> !torch.tensor)",
             )
 
             t = torch.ValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
             clamped_t = ops.clamp(t)
             check_correct(
                 str(clamped_t),
-                "Tensor(%8 = torch.aten.clamp.Tensor %7, %none, %none : !torch.vtensor<[2,2],f64>, !torch.none, !torch.none -> !torch.tensor)",
+                "Tensor(%8 = torch.aten.clamp %7, %none, %none : !torch.vtensor<[2,2],f64>, !torch.none, !torch.none -> !torch.tensor)",
             )
 
             t = torch.ValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
@@ -327,14 +286,14 @@ class TestTorchValues:
                     dedent(
                         """
                         add(): incompatible function arguments. The following argument types are supported:
-                            1. (self: pi.mlir._mlir_libs._pi_mlir.Tensor, other: pi.mlir._mlir_libs._pi_mlir.Tensor, alpha: pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue) -> object
-                            2. (self: pi.mlir._mlir_libs._pi_mlir.Tensor, other: pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue, alpha: pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue) -> object
+                            1. (self: pi.mlir._mlir_libs._pi_mlir.Tensor, other: pi.mlir._mlir_libs._pi_mlir.Tensor, alpha: pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue = 1) -> object
+                            2. (self: pi.mlir._mlir_libs._pi_mlir.Tensor, other: pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue, alpha: pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue = 1) -> object
                             3. (a: pi.mlir._mlir_libs._pi_mlir.Torch_StringValue, b: pi.mlir._mlir_libs._pi_mlir.Torch_StringValue) -> object
                             4. (a: pi.mlir._mlir_libs._pi_mlir.Torch_IntValue, b: pi.mlir._mlir_libs._pi_mlir.Torch_IntValue) -> object
                             5. (a: pi.mlir._mlir_libs._pi_mlir.Torch_FloatValue, b: pi.mlir._mlir_libs._pi_mlir.Torch_IntValue) -> object
                             6. (arg0: pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue, arg1: pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue) -> object
                             
-                        Invoked with: <pi.mlir._mlir_libs._pi_mlir.Torch_FloatValue object at 0x104d27fb0>, <pi.mlir._mlir_libs._pi_mlir.Torch_FloatValue object at 0x104d27fb0>, <pi.mlir._mlir_libs._pi_mlir.Torch_FloatValue object at 0x104d27fb0>
+                        Invoked with: <pi.mlir._mlir_libs._pi_mlir.Torch_FloatValue object at 0x107246930>, <pi.mlir._mlir_libs._pi_mlir.Torch_FloatValue object at 0x107246930>, <pi.mlir._mlir_libs._pi_mlir.Torch_FloatValue object at 0x107246930>
                         """
                     ),
                     str(e),
