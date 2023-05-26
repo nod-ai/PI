@@ -1,54 +1,53 @@
 import numpy as np
 from textwrap import dedent
 
-from pi.mlir.utils import mlir_mod_ctx
+from pi.mlir.utils import mlir_mod_ctx, _elementsAttr
 from pi.mlir import (
     # AnyTorchDictKeyValue,
     # AnyTorchListOfOptionalIntValue,
     # AnyTorchListOfOptionalTensorValue,
+    # AnyTorchOptionalListOfTorchIntValue,
+    # AnyTorchTensorValue,
+    AnyTorchListOfTensorType,
+    AnyTorchListOfTensorValue,
     AnyTorchListOfTorchBoolValue,
     AnyTorchListOfTorchIntValue,
     AnyTorchListOfTorchStringValue,
-    AnyTorchListValue,
-    AnyTorchListOfTensorValue,
-    AnyTorchListOfTensorType,
     AnyTorchListType,
+    AnyTorchListValue,
     AnyTorchOptionalBoolValue,
     AnyTorchOptionalDeviceValue,
     AnyTorchOptionalFloatValue,
     AnyTorchOptionalGeneratorValue,
     AnyTorchOptionalIntValue,
     AnyTorchOptionalStringValue,
-    AnyTorchOptionalTensorValue,
     AnyTorchOptionalTensorType,
+    AnyTorchOptionalTensorValue,
     AnyTorchOptionalValue,
-    # AnyTorchOptionalListOfTorchIntValue,
-    # AnyTorchTensorValue,
     AnyTorchScalarValue,
     Torch_BoolType,
-    Torch_DeviceType,
-    Torch_DictType,
-    Torch_FloatType,
-    Torch_IntType,
     Torch_BoolValue,
+    Torch_DeviceType,
     Torch_DeviceValue,
+    Torch_DictType,
     Torch_DictValue,
+    Torch_FloatType,
     Torch_FloatValue,
+    Torch_IntType,
     Torch_IntValue,
     Torch_LinearParamsValue,
     Torch_NnModuleValue,
     Torch_NonValueTensorValue,
+    Torch_NonValueTensorValue,
     Torch_NoneValue,
     Torch_NumberValue,
     Torch_StringValue,
-    Torch_TupleValue,
     Torch_TupleType,
+    Torch_TupleValue,
     Torch_ValueTensorValue,
-    Torch_NonValueTensorValue,
     torch_dialect as torch,
-    _fp64ElementsAttr,
 )
-from pi.mlir import F32, F64, ops
+from pi import ops
 from util import check_correct
 
 
@@ -148,13 +147,13 @@ class TestTorchValues:
 
     def test_tensor_values(self):
         with mlir_mod_ctx():
-            t = torch.NonValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
+            t = torch.NonValueTensorLiteralOp(_elementsAttr(np.ones((2, 2))))
             check_correct(
                 str(t),
                 "Tensor(%0 = torch.tensor.literal(dense<1.000000e+00> : tensor<2x2xf64>) : !torch.tensor<[2,2],f64>)",
             )
 
-            t = torch.ValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
+            t = torch.ValueTensorLiteralOp(_elementsAttr(np.ones((2, 2))))
             check_correct(
                 str(t),
                 "Tensor(%1 = torch.vtensor.literal(dense<1.000000e+00> : tensor<2x2xf64>) : !torch.vtensor<[2,2],f64>)",
@@ -175,7 +174,7 @@ class TestTorchValues:
             )
 
             tintv = torch.ConstantIntOp(1)
-            t = torch.ValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
+            t = torch.ValueTensorLiteralOp(_elementsAttr(np.ones((2, 2))))
             lis_t = AnyTorchListOfTensorType.get(t.type)
             lis = torch.PrimListConstructOp(lis_t, (t, t))
             tcat = ops.cat(lis, tintv)
@@ -186,7 +185,7 @@ class TestTorchValues:
 
     def test_defaulting_optional_values(self):
         with mlir_mod_ctx():
-            t = torch.ValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
+            t = torch.ValueTensorLiteralOp(_elementsAttr(np.ones((2, 2))))
             opt_t = torch.ConstantNoneOp()
             clamped_t = ops.clamp(t, opt_t, opt_t)
             check_correct(
@@ -194,7 +193,7 @@ class TestTorchValues:
                 "Tensor(%8 = torch.aten.clamp %7, %none, %none : !torch.vtensor<[2,2],f64>, !torch.none, !torch.none -> !torch.tensor)",
             )
 
-            t = torch.ValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
+            t = torch.ValueTensorLiteralOp(_elementsAttr(np.ones((2, 2))))
             opt_t = torch.ConstantNoneOp()
             clamped_t = ops.clamp(t, opt_t, None)
             check_correct(
@@ -202,28 +201,28 @@ class TestTorchValues:
                 "Tensor(%8 = torch.aten.clamp %7, %none, %none : !torch.vtensor<[2,2],f64>, !torch.none, !torch.none -> !torch.tensor)",
             )
 
-            t = torch.ValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
+            t = torch.ValueTensorLiteralOp(_elementsAttr(np.ones((2, 2))))
             clamped_t = ops.clamp(t, None, None)
             check_correct(
                 str(clamped_t),
                 "Tensor(%8 = torch.aten.clamp %7, %none, %none : !torch.vtensor<[2,2],f64>, !torch.none, !torch.none -> !torch.tensor)",
             )
 
-            t = torch.ValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
+            t = torch.ValueTensorLiteralOp(_elementsAttr(np.ones((2, 2))))
             clamped_t = ops.clamp(t)
             check_correct(
                 str(clamped_t),
                 "Tensor(%8 = torch.aten.clamp %7, %none, %none : !torch.vtensor<[2,2],f64>, !torch.none, !torch.none -> !torch.tensor)",
             )
 
-            t = torch.ValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
+            t = torch.ValueTensorLiteralOp(_elementsAttr(np.ones((2, 2))))
             clamped_t = ops.clamp(t, t)
             check_correct(
                 str(clamped_t),
                 "Tensor(%9 = torch.aten.clamp.Tensor %8, %8, %none_13 : !torch.vtensor<[2,2],f64>, !torch.vtensor<[2,2],f64>, !torch.none -> !torch.tensor)",
             )
 
-            t = torch.ValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
+            t = torch.ValueTensorLiteralOp(_elementsAttr(np.ones((2, 2))))
             clamped_t = ops.clamp(t, t, t)
             check_correct(
                 str(clamped_t),
@@ -246,7 +245,7 @@ class TestTorchValues:
             )
 
             try:
-                t = torch.NonValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
+                t = torch.NonValueTensorLiteralOp(_elementsAttr(np.ones((2, 2))))
                 t = ops.NumToTensor(t)
             except TypeError as e:
                 msg = " ".join(list(map(lambda x: x.strip(), e.args[0].splitlines())))
@@ -260,8 +259,8 @@ class TestTorchValues:
                 "Torch_FloatValue(%3 = torch.aten.Float.Scalar %int1 : !torch.int -> !torch.float)",
             )
 
-            t1 = torch.NonValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
-            t2 = torch.NonValueTensorLiteralOp(_fp64ElementsAttr(np.ones((2, 2))))
+            t1 = torch.NonValueTensorLiteralOp(_elementsAttr(np.ones((2, 2))))
+            t2 = torch.NonValueTensorLiteralOp(_elementsAttr(np.ones((2, 2))))
             t = ops.Float(tintv)
             t3 = ops.add(t1, t2, t)
             check_correct(

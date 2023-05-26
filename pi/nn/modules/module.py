@@ -5,16 +5,15 @@ from abc import abstractmethod
 from collections import OrderedDict
 from typing import Dict, Optional, Callable, Union
 
-from ..._tensor import Tensor
-from ...types_ import dtype as pi_dtype
+from pi import Tensor, dtype
 from ..parameter import (
     Parameter,
     UninitializedParameter,
     UninitializedBuffer,
     is_uninitialized,
 )
-from ...utils import hooks
-from ...utils.hooks import RemovableHandle
+from . import hooks
+from .hooks import RemovableHandle
 
 
 class Module:
@@ -246,7 +245,7 @@ class Module:
         self._initialize_hook.remove()
         delattr(self, "_initialize_hook")
 
-    def to(self, dtype: pi_dtype):
+    def to(self, dtype_: dtype):
         if initialized_param := self.not_uninitialized():
             raise RuntimeError(
                 f"module {self.__class__.__name__} has already been initialized; {initialized_param}"
@@ -254,11 +253,11 @@ class Module:
 
         for name, param in self._parameters.items():
             assert is_uninitialized(param), f"{param} already initialized"
-            self._parameters[name] = UninitializedParameter(*param.size, dtype=dtype)
+            self._parameters[name] = UninitializedParameter(*param.size, dtype=dtype_)
 
         for name, buffer in self._buffers.items():
             assert is_uninitialized(buffer), f"{buffer} already initialized"
-            self._buffers[name] = UninitializedBuffer(*buffer.size, dtype=dtype)
+            self._buffers[name] = UninitializedBuffer(*buffer.size, dtype=dtype_)
 
         return self
 

@@ -2,13 +2,11 @@ from textwrap import dedent
 
 import numpy as np
 
-from pi.mlir.utils import mlir_mod_ctx
+from pi import ops
 from pi.mlir import (
-    ops,
-    Tensor,
-    Torch_BoolValue,
     torch_dialect as torch,
 )
+from pi.mlir.utils import mlir_mod_ctx
 from util import check_correct
 
 
@@ -17,12 +15,12 @@ class TestOverloadCast:
         with mlir_mod_ctx():
             t = torch.NonValueTensorLiteralOp(np.random.randint(0, 10, (10, 10)))
             check_correct(
-                "Tensor(%2 = torch.tensor.literal(dense<> : tensor<10x10xf64>) : !torch.tensor<[10,10],f64>)",
+                "Tensor(%2 = torch.tensor.literal(dense<> : tensor<10x10xsi64>) : !torch.tensor<[10,10],si64>)",
                 t,
             )
             t = ops.eq(t, t)
             check_correct(
-                "Tensor(%3 = torch.aten.eq.Tensor %2, %2 : !torch.tensor<[10,10],f64>, !torch.tensor<[10,10],f64> -> !torch.tensor)",
+                "Tensor(%3 = torch.aten.eq.Tensor %2, %2 : !torch.tensor<[10,10],si64>, !torch.tensor<[10,10],si64> -> !torch.tensor)",
                 t,
             )
 
@@ -59,7 +57,7 @@ class TestOverloadCast:
             ttt = torch.NonValueTensorLiteralOp(np.random.randint(0, 10, (10, 10)))
             r = ttt.argmax(keepdim=torch.ConstantBoolOp(False))
             check_correct(
-                "Tensor(%5 = torch.aten.argmax %4, %none, %false : !torch.tensor<[10,10],f64>, !torch.none, !torch.bool -> !torch.tensor)",
+                "Tensor(%5 = torch.aten.argmax %4, %none, %false : !torch.tensor<[10,10],si64>, !torch.none, !torch.bool -> !torch.tensor)",
                 str(r),
             )
             try:
@@ -98,12 +96,12 @@ class TestOverloadCast:
             zero_int = torch.ConstantIntOp(0)
             r = ops.gather(ttt, zero_int, ttt, False)
             check_correct(
-                "Tensor(%2 = torch.aten.gather %0, %int0, %0, %false_3 : !torch.tensor<[10,10],f64>, !torch.int, !torch.tensor<[10,10],f64>, !torch.bool -> !torch.tensor)",
+                "Tensor(%2 = torch.aten.gather %0, %int0, %0, %false_3 : !torch.tensor<[10,10],si64>, !torch.int, !torch.tensor<[10,10],si64>, !torch.bool -> !torch.tensor)",
                 str(r),
             )
 
             r = ops.gather(ttt, zero_int, ttt)
             check_correct(
-                "Tensor(%2 = torch.aten.gather %0, %int0, %0, %false_3 : !torch.tensor<[10,10],f64>, !torch.int, !torch.tensor<[10,10],f64>, !torch.bool -> !torch.tensor)",
+                "Tensor(%2 = torch.aten.gather %0, %int0, %0, %false_3 : !torch.tensor<[10,10],si64>, !torch.int, !torch.tensor<[10,10],si64>, !torch.bool -> !torch.tensor)",
                 str(r),
             )

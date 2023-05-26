@@ -4,14 +4,9 @@ import warnings
 from functools import partial
 from typing import Union, List, Tuple
 
+
+from pi import Tensor, dtype, empty
 import pi
-
-# this is the right way to import in order to not screw up the tests (torch.dtype vs pi.type)
-from ..types_ import dtype as pi_dtype
-
-# import pi
-from .._tensor import Tensor
-from ..tensor_helpers import empty
 
 
 class Parameter(Tensor):
@@ -21,7 +16,7 @@ class Parameter(Tensor):
 
 class Uninitialized(partial):
     size: Union[List[int], Tuple[int, ...]]
-    dtype: pi_dtype = None
+    dtype_: dtype = None
     optional: bool = False
 
     def __new__(cls, *args, **keywords):
@@ -41,14 +36,14 @@ class Uninitialized(partial):
             assert all([isinstance(a, int) for a in args]), f"{args}"
             instance = super(Uninitialized, cls).__new__(cls, func, *args, **keywords)
             instance.size = args
-            if "dtype" in keywords and keywords["dtype"] is not None:
-                dtype = keywords["dtype"]
-                if not isinstance(dtype, pi_dtype):
+            if "dtype_" in keywords and keywords["dtype_"] is not None:
+                dtype_ = keywords["dtype_"]
+                if not isinstance(dtype_, dtype):
                     warnings.warn(
-                        f"unknown dtype {type(dtype).__module__}.{type(dtype).__name__} (should be {pi_dtype.__module__}.{pi_dtype.__name__})"
+                        f"unknown dtype_ {type(dtype_).__module__}.{type(dtype_).__name__} (should be {dtype.__module__}.{dtype.__name__})"
                     )
-                instance.dtype = dtype
-        
+                instance.dtype_ = dtype_
+
         instance.optional = keywords.get("optional", False)
         return instance
 
@@ -63,6 +58,8 @@ class Uninitialized(partial):
 
     def __call__(self, /, *args, **keywords):
         keywords = {**self.keywords, **keywords}
+        # this is a little hack to make the numpy factory functions
+        # in mlir/utils.py work
         args = (*self.args, *args)
         return self.func(args, **keywords)
 

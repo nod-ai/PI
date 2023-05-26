@@ -4,8 +4,6 @@ import ctypes
 import inspect
 import sys
 
-import numpy as np
-
 
 @contextlib.contextmanager
 def dl_open_guard():
@@ -25,77 +23,78 @@ with dl_open_guard():
     # noinspection PyUnresolvedReferences
     from ._mlir_libs import _torchMlir
 
-from ._mlir_libs._pi_mlir import ops
-
+# noinspection PyUnresolvedReferences
 from ._mlir_libs._pi_mlir import (
     # AnyTorchDictKeyType,
-    # AnyTorchListOfOptionalIntType,
-    # AnyTorchListOfOptionalTensorType,
-    AnyTorchListOfTorchBoolType,
-    AnyTorchListOfTorchIntType,
-    AnyTorchListOfTorchStringType,
-    AnyTorchListType,
-    AnyTorchListOfTensorType,
-    AnyTorchOptionalBoolType,
-    AnyTorchOptionalDeviceType,
-    AnyTorchOptionalFloatType,
-    AnyTorchOptionalGeneratorType,
-    AnyTorchOptionalIntType,
-    AnyTorchOptionalStringType,
-    AnyTorchOptionalTensorType,
-    AnyTorchOptionalType,
-    # AnyTorchOptionalListOfTorchIntType,
-    AnyTorchTensorType,
-    AnyTorchScalarType,
-    Torch_BoolType,
-    Torch_DeviceType,
-    Torch_DictType,
-    Torch_FloatType,
-    Torch_IntType,
-    Torch_LinearParamsType,
-    Torch_NnModuleType,
-    Torch_NonValueTensorType,
-    Torch_NoneType,
-    Torch_NumberType,
-    Torch_StringType,
-    Torch_TupleType,
-    Torch_ValueTensorType,
-)
-from ._mlir_libs._pi_mlir import (
     # AnyTorchDictKeyValue,
+    # AnyTorchListOfOptionalIntType,
     # AnyTorchListOfOptionalIntValue,
+    # AnyTorchListOfOptionalTensorType,
     # AnyTorchListOfOptionalTensorValue,
-    AnyTorchListOfTorchBoolValue,
-    AnyTorchListOfTorchIntValue,
-    AnyTorchListOfTorchStringValue,
-    AnyTorchListValue,
-    AnyTorchListOfTensorValue,
-    AnyTorchOptionalBoolValue,
-    AnyTorchOptionalDeviceValue,
-    AnyTorchOptionalFloatValue,
-    AnyTorchOptionalGeneratorValue,
-    AnyTorchOptionalIntValue,
-    AnyTorchOptionalIntType,
-    AnyTorchOptionalStringValue,
-    AnyTorchOptionalTensorValue,
-    AnyTorchOptionalValue,
+    # AnyTorchOptionalListOfTorchIntType,
     # AnyTorchOptionalListOfTorchIntValue,
-    Tensor,
+    AnyTorchListOfTensorType,
+    AnyTorchListOfTensorValue,
+    AnyTorchListOfTorchBoolType,
+    AnyTorchListOfTorchBoolValue,
+    AnyTorchListOfTorchIntType,
+    AnyTorchListOfTorchIntValue,
+    AnyTorchListOfTorchStringType,
+    AnyTorchListOfTorchStringValue,
+    AnyTorchListType,
+    AnyTorchListValue,
+    AnyTorchOptionalBoolType,
+    AnyTorchOptionalBoolValue,
+    AnyTorchOptionalDeviceType,
+    AnyTorchOptionalDeviceValue,
+    AnyTorchOptionalFloatType,
+    AnyTorchOptionalFloatValue,
+    AnyTorchOptionalGeneratorType,
+    AnyTorchOptionalGeneratorValue,
+    AnyTorchOptionalIntType,
+    AnyTorchOptionalIntType,
+    AnyTorchOptionalIntValue,
+    AnyTorchOptionalStringType,
+    AnyTorchOptionalStringValue,
+    AnyTorchOptionalTensorType,
+    AnyTorchOptionalTensorValue,
+    AnyTorchOptionalType,
+    AnyTorchOptionalValue,
+    AnyTorchScalarType,
     AnyTorchScalarValue,
+    AnyTorchTensorType,
+    Torch_BoolType,
     Torch_BoolValue,
+    Torch_DeviceType,
     Torch_DeviceValue,
+    Torch_DictType,
     Torch_DictValue,
+    Torch_FloatType,
     Torch_FloatValue,
+    Torch_IntType,
     Torch_IntValue,
+    Torch_LinearParamsType,
     Torch_LinearParamsValue,
+    Torch_NnModuleType,
     Torch_NnModuleValue,
+    Torch_NonValueTensorType,
     Torch_NonValueTensorValue,
+    Torch_NoneType,
     Torch_NoneValue,
+    Torch_NumberType,
     Torch_NumberValue,
+    Torch_StringType,
     Torch_StringValue,
+    Torch_TupleType,
     Torch_TupleValue,
+    Torch_ValueTensorType,
     Torch_ValueTensorValue,
 )
+
+# noinspection PyUnresolvedReferences
+from ._mlir_libs._pi_mlir import Tensor
+
+Tensor = Tensor
 
 from .dialects import _ods_common
 from .dialects._ods_common import get_op_result_or_value
@@ -268,26 +267,3 @@ I16 = IntegerType.get_signless(16)
 I32 = IntegerType.get_signless(32)
 I64 = IntegerType.get_signless(64)
 Index = IndexType.get()
-
-
-@register_attribute_builder("F64Attr")
-def _f64Attr(x, context):
-    return FloatAttr.get(F64Type.get(context=context), x)
-
-
-@register_attribute_builder("AnyI64Attr")
-def _anyI64Attr(x, context):
-    return IntegerAttr.get(IntegerType.get_signless(64, context=context), x)
-
-
-@register_attribute_builder("I1Attr")
-def _i1Attr(x, context):
-    return IntegerAttr.get(IntegerType.get_signless(1, context=context), x)
-
-
-@register_attribute_builder("ElementsAttr")
-def _fp64ElementsAttr(x, context=None):
-    return DenseElementsAttr.get(
-        np.array(x, dtype=np.float64),
-        type=F64Type.get(context=context),
-    )

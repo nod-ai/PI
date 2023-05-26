@@ -1,7 +1,7 @@
 from typing import Tuple, Union
 
 from .module import Module
-from ...types_ import Size
+from ..types import Size
 
 from pi import Tensor
 

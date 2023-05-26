@@ -27,9 +27,6 @@ namespace mlir::torch {
 py::object ScalarImplicit(const PyAnyTorchTensorValue &a) {
   throw NotImplementedError("ScalarImplicit with signature "
                             "aten::ScalarImplicit : (Tensor) -> (Scalar)");
-  //  return PyGlobals::get()
-  //      .lookupOperationClass("torch.aten.ScalarImplicit")
-  //      .value()(a);
 }
 
 // prim::abs.Scalar : (Scalar) -> (Scalar)
@@ -72,8 +69,6 @@ py::object ceil(const PyAnyTorchScalarValue &a) {
 py::object item(const PyAnyTorchTensorValue &self) {
   throw NotImplementedError("ScalarImplicit with signature "
                             "aten::ScalarImplicit : (Tensor) -> (Scalar)");
-  //  return
-  //  PyGlobals::get().lookupOperationClass("torch.aten.item").value()(self);
 }
 
 // aten::sub : (Scalar, Scalar) -> (Scalar)
@@ -105,10 +100,6 @@ void populateTorchMLIROps(py::module &m) {
 
 #include "TorchOps.pybinds.cpp"
 
-  // aten::ScalarImplicit : (Tensor) -> (Scalar)
-  //  m.def("ScalarImplicit",
-  //        py::overload_cast<const PyAnyTorchTensorValue &>(&ScalarImplicit));
-
   // prim::abs.Scalar : (Scalar) -> (Scalar)
   m.def("abs", py::overload_cast<const PyAnyTorchScalarValue &>(&abs));
 
@@ -125,6 +116,15 @@ void populateTorchMLIROps(py::module &m) {
   // aten::sub : (Scalar, Scalar) -> (Scalar)
   m.def("sub", py::overload_cast<const PyAnyTorchScalarValue &,
                                  const PyAnyTorchScalarValue &>(&sub));
+  m.def("avg_pool1d",
+        [](PyAnyTorchTensorValue &self,
+           PyAnyTorchListOfTorchIntType &kernel_size,
+           PyAnyTorchListOfTorchIntType &stride,
+           PyAnyTorchListOfTorchIntType &padding, PyTorch_BoolValue &ceil_mode,
+           PyAnyTorchListOfTorchIntType &count_include_pad) {
+          throw NotImplementedError("aten::avg_pool1d : (Tensor, int[], int[], "
+                                    "int[], bool, bool) -> (Tensor)");
+        });
 }
 
 } // namespace mlir::torch

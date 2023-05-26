@@ -6,9 +6,7 @@ import inspect
 import warnings
 from collections import OrderedDict
 from typing import List, Optional, Tuple, Union
-
-from torch_mlir import ir
-from ..types_ import dtype as pi_dtype
+from pi import dtype, TensorPlaceholder
 
 PI_EXPORT_ATTR_NAME = "_PI_EXPORT"
 PI_ARG_ANNOTATIONS_ATTR_NAME = "_PI_ARG_ANNOTATIONS"
@@ -18,50 +16,7 @@ def export(fn):
     return fn
 
 
-ArgAnnotation = Union[type, Tuple[List[int], pi_dtype]]
-
-
-class TensorPlaceholder:
-    def __init__(self, shape: Union[Tuple[int, ...], List[int]], dtype: pi_dtype):
-        self.shape = shape
-        self.dtype = dtype
-
-    def to_value_tensor_type(self):
-        dtype = self.dtype.to_mlir_type()
-        type = ir.Type.parse(
-            f"!torch.vtensor<[{','.join(map(str, self.shape))}],{dtype}>"
-        )
-        return type
-
-    def to_nonvalue_tensor_type(self):
-        type = ir.Type.parse(f"!torch.tensor")
-        return type
-
-    def to_value_tensor_type_bound(self):
-        type_attr = ir.TypeAttr.get(self.to_value_tensor_type())
-        return ir.DictAttr.get({"torch.type_bound": type_attr})
-
-    def to(self, dtype: pi_dtype):
-        self.dtype = dtype
-        return self
-
-    def type(self, dtype):
-        return self.to(dtype)
-
-    def bool(self):
-        return self.to(pi_dtype.bool)
-
-    def double(self):
-        self.dtype = pi_dtype.float64
-        return self
-
-    def int(self):
-        self.dtype = pi_dtype.int32
-        return self
-
-    def long(self):
-        self.dtype = pi_dtype.int64
-        return self
+ArgAnnotation = Union[type, Tuple[List[int], dtype]]
 
 
 def annotations_to_placeholders(

@@ -1,8 +1,6 @@
 import collections
 from itertools import repeat
-from typing import List, Dict, Any, Tuple
-
-__all__ = ["consume_prefix_in_state_dict_if_present"]
+from typing import List, Any, Tuple
 
 
 def _ntuple(n, name="parse"):
@@ -28,7 +26,6 @@ _quadruple = _ntuple(4, "_quadruple")
 
 
 def _reverse_repeat_tuple(t, n):
-
     return tuple(x for x in reversed(t) for _ in range(n))
 
 
@@ -42,28 +39,3 @@ def _list_with_default(out_size: List[int], defaults: List[int]) -> List[int]:
     return [
         v if v is not None else d for v, d in zip(out_size, defaults[-len(out_size) :])
     ]
-
-
-def consume_prefix_in_state_dict_if_present(
-    state_dict: Dict[str, Any], prefix: str
-) -> None:
-
-    keys = sorted(state_dict.keys())
-    for key in keys:
-        if key.startswith(prefix):
-            newkey = key[len(prefix) :]
-            state_dict[newkey] = state_dict.pop(key)
-
-    # also strip the prefix in metadata if any.
-    if "_metadata" in state_dict:
-        metadata = state_dict["_metadata"]
-        for key in list(metadata.keys()):
-            # for the metadata dict, the key can be:
-            # '': for the DDP module, which we want to remove.
-            # 'module': for the actual model.
-            # 'module.xx.xx': for the rest.
-
-            if len(key) == 0:
-                continue
-            newkey = key[len(prefix) :]
-            metadata[newkey] = metadata.pop(key)

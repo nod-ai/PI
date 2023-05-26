@@ -6,6 +6,8 @@ from pi.mlir import (
     # AnyTorchListOfOptionalIntType,
     # AnyTorchListOfOptionalTensorType,
     # AnyTorchListOfTensorType,
+    # AnyTorchOptionalListOfTorchIntType,
+    # AnyTorchOptionalTensorType,
     AnyTorchListOfTorchBoolType,
     AnyTorchListOfTorchIntType,
     AnyTorchListOfTorchStringType,
@@ -16,11 +18,9 @@ from pi.mlir import (
     AnyTorchOptionalGeneratorType,
     AnyTorchOptionalIntType,
     AnyTorchOptionalStringType,
-    # AnyTorchOptionalTensorType,
     AnyTorchOptionalType,
-    # AnyTorchOptionalListOfTorchIntType,
-    AnyTorchTensorType,
     AnyTorchScalarType,
+    AnyTorchTensorType,
     Torch_BoolType,
     Torch_DeviceType,
     Torch_DictType,
@@ -35,7 +35,7 @@ from pi.mlir import (
     Torch_TupleType,
     Torch_ValueTensorType,
 )
-from pi.mlir import F32, ops
+from pi.mlir import F32
 from util import check_correct
 
 

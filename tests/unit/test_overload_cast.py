@@ -1,11 +1,10 @@
 import numpy as np
 
-from pi.mlir.utils import mlir_mod_ctx
+from pi import ops
 from pi.mlir import (
-    ops,
-    Tensor,
     torch_dialect as torch,
 )
+from pi.mlir.utils import mlir_mod_ctx
 from util import check_correct
 
 
@@ -47,11 +46,11 @@ class TestOverloadCast:
 
             t = torch.NonValueTensorLiteralOp(np.random.randint(0, 10, (10, 10)))
             check_correct(
-                "Tensor(%2 = torch.tensor.literal(dense<> : tensor<10x10xf64>) : !torch.tensor<[10,10],f64>)",
+                "Tensor(%2 = torch.tensor.literal(dense<> : tensor<10x10xsi64>) : !torch.tensor<[10,10],si64>)",
                 t,
             )
             t = ops.eq(t, t)
             check_correct(
-                "Tensor(%3 = torch.aten.eq.Tensor %2, %2 : !torch.tensor<[10,10],f64>, !torch.tensor<[10,10],f64> -> !torch.tensor)",
+                "Tensor(%3 = torch.aten.eq.Tensor %2, %2 : !torch.tensor<[10,10],si64>, !torch.tensor<[10,10],si64> -> !torch.tensor)",
                 t,
             )
