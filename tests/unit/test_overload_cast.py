@@ -14,16 +14,16 @@ class TestOverloadCast:
             one_int = torch.ConstantIntOp(1)
             two_int = torch.ConstantIntOp(2)
             res = ops.add(one_int, two_int)
-            assert (
-                str(res)
-                == "Torch_IntValue(%0 = torch.aten.add.int %int1, %int2 : !torch.int, !torch.int -> !torch.int)"
+            check_correct(
+                "Torch_IntValue(%0 = torch.aten.add.int %int1, %int2 : !torch.int, !torch.int -> !torch.int)",
+                res,
             )
 
             one_float = torch.ConstantFloatOp(1.0)
             res = ops.add(one_float, two_int)
-            assert (
-                str(res)
-                == "Torch_FloatValue(%1 = torch.aten.add.float_int %float1.000000e00, %int2 : !torch.float, !torch.int -> !torch.float)"
+            check_correct(
+                "Torch_FloatValue(%1 = torch.aten.add.float_int %float1.000000e00, %int2 : !torch.float, !torch.int -> !torch.float)",
+                res,
             )
 
     def test_non_infer_returns(self):

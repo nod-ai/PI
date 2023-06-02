@@ -58,7 +58,7 @@ class TestOverloadCast:
             r = ttt.argmax(keepdim=torch.ConstantBoolOp(False))
             check_correct(
                 "Tensor(%5 = torch.aten.argmax %4, %none, %false : !torch.tensor<[10,10],si64>, !torch.none, !torch.bool -> !torch.tensor)",
-                str(r),
+                r,
             )
             try:
                 r = ttt.argmax(torch.ConstantBoolOp(False))
@@ -97,11 +97,11 @@ class TestOverloadCast:
             r = ops.gather(ttt, zero_int, ttt, False)
             check_correct(
                 "Tensor(%2 = torch.aten.gather %0, %int0, %0, %false_3 : !torch.tensor<[10,10],si64>, !torch.int, !torch.tensor<[10,10],si64>, !torch.bool -> !torch.tensor)",
-                str(r),
+                r,
             )
 
             r = ops.gather(ttt, zero_int, ttt)
             check_correct(
                 "Tensor(%2 = torch.aten.gather %0, %int0, %0, %false_3 : !torch.tensor<[10,10],si64>, !torch.int, !torch.tensor<[10,10],si64>, !torch.bool -> !torch.tensor)",
-                str(r),
+                r,
             )
