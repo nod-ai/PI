@@ -420,7 +420,7 @@ c.def("arctanh_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwar
 
 // argmax(self, dim Optional[_int]=None, keepdim _bool=False) -> Tensor
 // aten::argmax : (Tensor, int?, bool) -> (Tensor)
-c.def("argmax", [](const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalIntValue &dim, const PyTorch_BoolValue &keepdim) { return argmax(self, dim, keepdim); }, "dim"_a = py::none(), py::kw_only(), "keepdim"_a = false);
+c.def("argmax", [](const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalIntValue &dim, const PyTorch_BoolValue &keepdim) { return argmax(self, dim, keepdim); }, "dim"_a = py::none(), "keepdim"_a = false);
 
 // argmin(self, dim Optional[_int]=None, keepdim _bool=False) -> Tensor
 c.def("argmin", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("argmin with signature argmin(self, dim Optional[_int]=None, keepdim _bool=False) -> Tensor"); });
@@ -507,7 +507,7 @@ c.def("bfloat16", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwar
 
 // bincount(self, weights Optional[Tensor]=None, minlength _int=0) -> Tensor
 // aten::bincount : (Tensor, Tensor?, int) -> (Tensor)
-c.def("bincount", [](const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalTensorValue &weights, const PyTorch_IntValue &minlength) { return bincount(self, weights, minlength); }, "weights"_a = py::none(), py::kw_only(), "minlength"_a = 0);
+c.def("bincount", [](const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalTensorValue &weights, const PyTorch_IntValue &minlength) { return bincount(self, weights, minlength); }, "weights"_a = py::none(), "minlength"_a = 0);
 
 // @overload bitwise_and(self, other Tensor) -> Tensor
 // aten::bitwise_and.Tensor : (Tensor, Tensor) -> (Tensor)
@@ -1976,7 +1976,7 @@ c.def("size", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim)
 
 // slice_scatter(self, src Tensor, dim _int=0, start Optional[Union[_int, SymInt]]=None, end Optional[Union[_int, SymInt]]=None, step Union[_int, SymInt]=1) -> Tensor
 // aten::slice_scatter : (Tensor, Tensor, int, int?, int?, int) -> (Tensor)
-c.def("slice_scatter", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &src, const PyTorch_IntValue &dim, const PyAnyTorchOptionalIntValue &start, const PyAnyTorchOptionalIntValue &end, const PyTorch_IntValue &step) { return slice_scatter(self, src, dim, start, end, step); }, "src"_a, "dim"_a = 0, "start"_a = py::none(), "end"_a = py::none(), py::kw_only(), "step"_a = 1);
+c.def("slice_scatter", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &src, const PyTorch_IntValue &dim, const PyAnyTorchOptionalIntValue &start, const PyAnyTorchOptionalIntValue &end, const PyTorch_IntValue &step) { return slice_scatter(self, src, dim, start, end, step); }, "src"_a, "dim"_a = 0, "start"_a = py::none(), "end"_a = py::none(), "step"_a = 1);
 
 // slogdet(self) -> torch.return_types.slogdet
 c.def("slogdet", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("slogdet with signature slogdet(self) -> torch.return_types.slogdet"); });
@@ -2155,7 +2155,7 @@ c.def("tile", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) 
 
 // @overload to(self, device Optional[Union[_device, str]]=None, dtype Optional[_dtype]=None, non_blocking _bool=False, copy _bool=False) -> Tensor
 // aten::to.prim_Device : (Tensor, Device?, int?, bool, bool) -> (Tensor)
-c.def("to", [](const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalDeviceValue &device, const PyAnyTorchOptionalIntValue &dtype, const PyTorch_BoolValue &non_blocking, const PyTorch_BoolValue &copy) { return to(self, device, dtype, non_blocking, copy); }, "device"_a = py::none(), "dtype"_a = py::none(), py::kw_only(), "non_blocking"_a = false, "copy"_a = false);
+c.def("to", [](const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalDeviceValue &device, const PyAnyTorchOptionalIntValue &dtype, const PyTorch_BoolValue &non_blocking, const PyTorch_BoolValue &copy) { return to(self, device, dtype, non_blocking, copy); }, "device"_a = py::none(), "dtype"_a = py::none(), "non_blocking"_a = false, "copy"_a = false);
 
 // to_dense(self, dtype Optional[_dtype]=None, *, masked_grad Optional[_bool]=None) -> Tensor
 c.def("to_dense", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("to_dense with signature to_dense(self, dtype Optional[_dtype]=None, *, masked_grad Optional[_bool]=None) -> Tensor"); });

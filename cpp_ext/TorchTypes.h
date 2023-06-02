@@ -27,6 +27,7 @@ bool isAAnyTorchListOfOptionalTensorType(MlirType type);
 bool isAAnyTorchListOfTensorType(MlirType type);
 bool isAAnyTorchListOfTorchBoolType(MlirType type);
 bool isAAnyTorchListOfTorchIntType(MlirType type);
+bool isAAnyTorchListOfTorchFloatType(MlirType type);
 bool isAAnyTorchListOfTorchStringType(MlirType type);
 bool isAAnyTorchListType(MlirType type);
 
@@ -104,16 +105,9 @@ public:
 
 #define FORALL_LIST_BASE_CONCRETE_TYPES(_)                                     \
   _(TorchBool)                                                                 \
+  _(TorchFloat)                                                                \
   _(TorchInt)                                                                  \
   _(TorchString)
-
-#define FORALL_OPTIONAL_BASE_CONCRETE_TYPES(_)                                 \
-  _(Bool)                                                                      \
-  _(Device)                                                                    \
-  _(Float)                                                                     \
-  _(Generator)                                                                 \
-  _(Int)                                                                       \
-  _(String)
 
 #define DECLARE_LIST_BASE_CONCRETE_TYPE(CONCRETETYPE)                          \
   class PyAnyTorchListOf##CONCRETETYPE##Type                                   \
@@ -149,6 +143,14 @@ public:
       : PyConcreteType(context->getRef(),
                        torchMlirTorchListTypeGet(containedType)) {}
 };
+
+#define FORALL_OPTIONAL_BASE_CONCRETE_TYPES(_)                                 \
+  _(Bool)                                                                      \
+  _(Device)                                                                    \
+  _(Float)                                                                     \
+  _(Generator)                                                                 \
+  _(Int)                                                                       \
+  _(String)
 
 #define DECLARE_OPTIONAL_BASE_CONCRETE_TYPE(CONCRETETYPE)                      \
   class PyAnyTorchOptional##CONCRETETYPE##Type                                 \

@@ -289,7 +289,8 @@ def generate_pybind_bindings_for_ops(cpp_ext_dir):
                     i for i, l in reversed(list(enumerate(labels))) if "py::none()" in l
                 )
                 if "py::kw_only()" not in labels and last_opt_idx < len(labels) - 1:
-                    labels.insert(last_opt_idx + 1, "py::kw_only()")
+                    # labels.insert(last_opt_idx + 1, "py::kw_only()")
+                    warnings.warn(f"optional arg that's not the last arg for: {schema=}")
             except StopIteration:
                 pass
 
@@ -473,7 +474,8 @@ class TensorMethodVisitor(ast.NodeVisitor):
                 i for i, l in reversed(list(enumerate(labels))) if "py::none()" in l
             )
             if "py::kw_only()" not in labels and last_opt_idx < len(labels) - 1:
-                labels.insert(last_opt_idx + 1, "py::kw_only()")
+                # labels.insert(last_opt_idx + 1, "py::kw_only()")
+                warnings.warn(f"optional arg that's not the last arg for: {method_sig=}")
         except StopIteration:
             pass
 

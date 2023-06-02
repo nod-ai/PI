@@ -12,8 +12,8 @@
 #include "mlir-c/Support.h"
 #include "torch-mlir-c/TorchTypes.h"
 
-#include "TorchValues.h"
 #include "TorchTypes.h"
+#include "TorchValues.h"
 
 namespace mlir::torch {
 

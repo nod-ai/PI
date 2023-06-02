@@ -74,6 +74,12 @@ bool isAAnyTorchListOfTorchIntType(MlirType type) {
                torchMlirTorchListTypeGetContainedType(type))))));
 }
 
+bool isAAnyTorchListOfTorchFloatType(MlirType type) {
+  return ((((torchMlirTypeIsATorchList(type))) &&
+           ((torchMlirTypeIsATorchFloat(
+               torchMlirTorchListTypeGetContainedType(type))))));
+}
+
 bool isAAnyTorchListOfTorchStringType(MlirType type) {
   return ((((torchMlirTypeIsATorchList(type))) &&
            ((torchMlirTypeIsATorchString(

@@ -37,6 +37,8 @@ from ._mlir_libs._pi_mlir import (
     AnyTorchListOfTensorValue,
     AnyTorchListOfTorchBoolType,
     AnyTorchListOfTorchBoolValue,
+    AnyTorchListOfTorchFloatType,
+    AnyTorchListOfTorchFloatValue,
     AnyTorchListOfTorchIntType,
     AnyTorchListOfTorchIntValue,
     AnyTorchListOfTorchStringType,

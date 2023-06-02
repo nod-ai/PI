@@ -12,6 +12,7 @@ from pi.mlir import (
     AnyTorchListOfTensorValue,
     AnyTorchListOfTorchBoolValue,
     AnyTorchListOfTorchIntValue,
+    AnyTorchListOfTorchFloatValue,
     AnyTorchListOfTorchStringValue,
     AnyTorchListType,
     AnyTorchListValue,
@@ -128,21 +129,45 @@ class TestTorchValues:
             t = Torch_TupleType.get((tint, tfloat, tbool))
             tup = torch.PrimTupleConstructOp(t, (tintv, tfloatv, tboolv))
             check_correct(
-                str(tup),
                 "Torch_TupleValue(%0 = torch.prim.TupleConstruct %int1, %float1.000000e00, %true : !torch.int, !torch.float, !torch.bool -> !torch.tuple<int, float, bool>)",
+                tup,
             )
 
             t = AnyTorchListType.get(tint)
             lis = torch.PrimListConstructOp(t, (tintv, tintv, tintv))
             check_correct(
-                str(lis),
                 "AnyTorchListValue(%1 = torch.prim.ListConstruct %int1, %int1, %int1 : (!torch.int, !torch.int, !torch.int) -> !torch.list<int>)",
+                lis,
             )
 
             l = ops.len(lis)
             check_correct(
-                str(l),
                 "Torch_IntValue(%2 = torch.aten.len.t %1 : !torch.list<int> -> !torch.int)",
+                l,
+            )
+
+            t = AnyTorchListOfTorchBoolValue([True, False])
+            check_correct(
+                "AnyTorchListOfTorchBoolValue(%3 = torch.prim.ListConstruct %true_0, %false : (!torch.bool, !torch.bool) -> !torch.list<bool>)",
+                t,
+            )
+
+            t = AnyTorchListOfTorchIntValue([0, 1])
+            check_correct(
+                "AnyTorchListOfTorchIntValue(%4 = torch.prim.ListConstruct %int0, %int1_1 : (!torch.int, !torch.int) -> !torch.list<int>)",
+                t,
+            )
+
+            t = AnyTorchListOfTorchFloatValue([0.0, 1.0])
+            check_correct(
+                "AnyTorchListOfTorchFloatValue(%5 = torch.prim.ListConstruct %float0.000000e00, %float1.000000e00_2 : (!torch.float, !torch.float) -> !torch.list<float>)",
+                t,
+            )
+
+            t = AnyTorchListOfTorchStringValue(["a", "b"])
+            check_correct(
+                "AnyTorchListOfTorchStringValue(%6 = torch.prim.ListConstruct %str, %str_3 : (!torch.str, !torch.str) -> !torch.list<str>)",
+                t,
             )
 
     def test_tensor_values(self):

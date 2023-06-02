@@ -32,6 +32,7 @@ bool isAAnyTorchListOfOptionalTensorValue(MlirValue value);
 bool isAAnyTorchListOfTensorValue(MlirValue value);
 bool isAAnyTorchListOfTorchBoolValue(MlirValue value);
 bool isAAnyTorchListOfTorchIntValue(MlirValue value);
+bool isAAnyTorchListOfTorchFloatValue(MlirValue value);
 bool isAAnyTorchListOfTorchStringValue(MlirValue value);
 bool isAAnyTorchListValue(MlirValue value);
 
@@ -124,22 +125,6 @@ public:
   static void bindDerived(ClassTy &c);
 };
 
-#define DECLARE_LIST_BASE_CONCRETE_VALUE(CONCRETEVALUE)                        \
-  class PyAnyTorchListOf##CONCRETEVALUE##Value                                 \
-      : public PyConcreteValue<PyAnyTorchListOf##CONCRETEVALUE##Value,         \
-                               PyAnyTorchListValue> {                          \
-  public:                                                                      \
-    static constexpr IsAFunctionTy isaFunction =                               \
-        isAAnyTorchListOf##CONCRETEVALUE##Value;                               \
-    static constexpr const char *pyClassName =                                 \
-        "AnyTorchListOf" #CONCRETEVALUE "Value";                               \
-    using PyConcreteValue::PyConcreteValue;                                    \
-    static void bindDerived(ClassTy &c);                                       \
-  };
-FORALL_LIST_BASE_CONCRETE_TYPES(DECLARE_LIST_BASE_CONCRETE_VALUE)
-DECLARE_LIST_BASE_CONCRETE_VALUE(Tensor)
-#undef DECLARE_LIST_BASE_CONCRETE_VALUE
-
 #define DECLARE_OPTIONAL_BASE_CONCRETE_VALUE(CONCRETEVALUE)                    \
   class PyAnyTorchOptional##CONCRETEVALUE##Value                               \
       : public PyConcreteValue<PyAnyTorchOptional##CONCRETEVALUE##Value,       \
@@ -149,7 +134,7 @@ DECLARE_LIST_BASE_CONCRETE_VALUE(Tensor)
         isAAnyTorchOptional##CONCRETEVALUE##Value;                             \
     static constexpr const char *pyClassName =                                 \
         "AnyTorchOptional" #CONCRETEVALUE "Value";                             \
-    PyAnyTorchOptional##CONCRETEVALUE##Value(py::none n)                       \
+    PyAnyTorchOptional##CONCRETEVALUE##Value(const py::none &n)                \
         : PyAnyTorchOptional##CONCRETEVALUE                                    \
           ##Value(mlir::python::PyGlobals::get()                               \
                       .lookupOperationClass("torch.constant.none")             \
@@ -164,15 +149,6 @@ DECLARE_OPTIONAL_BASE_CONCRETE_VALUE(Tensor)
 DECLARE_OPTIONAL_BASE_CONCRETE_VALUE(Scalar)
 #undef DECLARE_OPTIONAL_BASE_CONCRETE_VALUE
 
-#define _FORALL_SCALAR_TYPES(_)                                                \
-  _(Any)                                                                       \
-  _(Device)                                                                    \
-  _(Float)                                                                     \
-  _(LinearParams)                                                              \
-  _(None)                                                                      \
-  _(Number)                                                                    \
-  _(String)
-
 #define DECLARE_SCALAR_VALUE(SCALARVALUE)                                      \
   class PyTorch_##SCALARVALUE##Value                                           \
       : public PyConcreteValue<PyTorch_##SCALARVALUE##Value> {                 \
@@ -183,33 +159,78 @@ DECLARE_OPTIONAL_BASE_CONCRETE_VALUE(Scalar)
     using PyConcreteValue::PyConcreteValue;                                    \
     static void bindDerived(ClassTy &c);                                       \
   };
-_FORALL_SCALAR_TYPES(DECLARE_SCALAR_VALUE)
+
+DECLARE_SCALAR_VALUE(Any)
+DECLARE_SCALAR_VALUE(LinearParams)
+DECLARE_SCALAR_VALUE(None)
+DECLARE_SCALAR_VALUE(Number)
 #undef DECLARE_SCALAR_VALUE
 
-class PyTorch_BoolValue : public PyConcreteValue<PyTorch_BoolValue> {
+#define DECLARE_SCALAR_VALUE(SCALARVALUE, CPPTYPE, CONSTANTSTR)                \
+  class PyTorch_##SCALARVALUE##Value                                           \
+      : public PyConcreteValue<PyTorch_##SCALARVALUE##Value> {                 \
+  public:                                                                      \
+    static constexpr IsAFunctionTy isaFunction =                               \
+        isATorch_##SCALARVALUE##Value;                                         \
+    static constexpr const char *pyClassName = "Torch_" #SCALARVALUE "Value";  \
+    using PyConcreteValue::PyConcreteValue;                                    \
+    static void bindDerived(ClassTy &c);                                       \
+                                                                               \
+    PyTorch_##SCALARVALUE##Value(CPPTYPE b)                                    \
+        : PyTorch_##SCALARVALUE                                                \
+          ##Value(mlir::python::PyGlobals::get()                               \
+                      .lookupOperationClass("torch.constant." #CONSTANTSTR)    \
+                      .value()(b)                                              \
+                      .cast<PyTorch_##SCALARVALUE##Value>()) {}                \
+  };
+DECLARE_SCALAR_VALUE(Bool, bool, bool)
+DECLARE_SCALAR_VALUE(Device, int, device)
+DECLARE_SCALAR_VALUE(Int, int, int)
+DECLARE_SCALAR_VALUE(Float, float, float)
+DECLARE_SCALAR_VALUE(String, std::string, str)
+#undef DECLARE_SCALAR_VALUE
+
+#define DECLARE_LIST_BASE_CONCRETE_VALUE(CONCRETEVALUE)                        \
+  class PyAnyTorchListOfTorch##CONCRETEVALUE##Value                            \
+      : public PyConcreteValue<PyAnyTorchListOfTorch##CONCRETEVALUE##Value,    \
+                               PyAnyTorchListValue> {                          \
+  public:                                                                      \
+    static constexpr IsAFunctionTy isaFunction =                               \
+        isAAnyTorchListOfTorch##CONCRETEVALUE##Value;                          \
+    static constexpr const char *pyClassName =                                 \
+        "AnyTorchListOfTorch" #CONCRETEVALUE "Value";                          \
+    using PyConcreteValue::PyConcreteValue;                                    \
+                                                                               \
+    PyAnyTorchListOfTorch##CONCRETEVALUE##Value(const py::list &l)             \
+        : PyAnyTorchListOfTorch##CONCRETEVALUE##Value(                         \
+              mlir::python::PyGlobals::get()                                   \
+                  .lookupOperationClass("torch.prim.ListConstruct")            \
+                  .value()(PyAnyTorchListOfTorch##CONCRETEVALUE##Type(         \
+                               DefaultingPyMlirContext::resolve()),            \
+                           [](py::list l) {                                    \
+                             for (unsigned long i = 0; i < l.size(); ++i) {    \
+                               l[i] =                                          \
+                                   py::cast<PyTorch_##CONCRETEVALUE##Value>(   \
+                                       l[i]);                                  \
+                             }                                                 \
+                             return l;                                         \
+                           }(std::move(l)))                                    \
+                  .cast<PyAnyTorchListOfTorch##CONCRETEVALUE##Value>()){};     \
+                                                                               \
+    static void bindDerived(ClassTy &c);                                       \
+  };
+
+DECLARE_LIST_BASE_CONCRETE_VALUE(Bool)
+DECLARE_LIST_BASE_CONCRETE_VALUE(Float)
+DECLARE_LIST_BASE_CONCRETE_VALUE(Int)
+DECLARE_LIST_BASE_CONCRETE_VALUE(String)
+#undef DECLARE_LIST_BASE_CONCRETE_VALUE
+
+class PyAnyTorchListOfTensorValue
+    : public PyConcreteValue<PyAnyTorchListOfTensorValue, PyAnyTorchListValue> {
 public:
-  static constexpr IsAFunctionTy isaFunction = isATorch_BoolValue;
-  static constexpr const char *pyClassName = "Torch_BoolValue";
-  PyTorch_BoolValue(bool b)
-      : PyTorch_BoolValue(mlir::python::PyGlobals::get()
-                              .lookupOperationClass("torch.constant.bool")
-                              .value()(b)
-                              .cast<PyTorch_BoolValue>()) {}
-
-  using PyConcreteValue::PyConcreteValue;
-  static void bindDerived(ClassTy &c);
-};
-
-class PyTorch_IntValue : public PyConcreteValue<PyTorch_IntValue> {
-public:
-  static constexpr IsAFunctionTy isaFunction = isATorch_IntValue;
-  static constexpr const char *pyClassName = "Torch_IntValue";
-  PyTorch_IntValue(int b)
-      : PyTorch_IntValue(mlir::python::PyGlobals::get()
-                             .lookupOperationClass("torch.constant.int")
-                             .value()(b)
-                             .cast<PyTorch_IntValue>()) {}
-
+  static constexpr IsAFunctionTy isaFunction = isAAnyTorchListOfTensorValue;
+  static constexpr const char *pyClassName = "AnyTorchListOfTensorValue";
   using PyConcreteValue::PyConcreteValue;
   static void bindDerived(ClassTy &c);
 };

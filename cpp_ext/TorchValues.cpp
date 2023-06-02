@@ -6,6 +6,8 @@
 #include "TorchTypes.h"
 
 #include <pybind11/pybind11.h>
+#include <pybind11/pytypes.h>
+#include <pybind11/stl.h>
 
 namespace mlir::torch {
 
@@ -26,6 +28,9 @@ bool isAAnyTorchListOfTorchBoolValue(MlirValue value) {
 }
 bool isAAnyTorchListOfTorchIntValue(MlirValue value) {
   return isAAnyTorchListOfTorchIntType(mlirValueGetType(value));
+}
+bool isAAnyTorchListOfTorchFloatValue(MlirValue value) {
+  return isAAnyTorchListOfTorchFloatType(mlirValueGetType(value));
 }
 bool isAAnyTorchListOfTorchStringValue(MlirValue value) {
   return isAAnyTorchListOfTorchStringType(mlirValueGetType(value));
@@ -77,9 +82,9 @@ bool isAAnyTorchValue(MlirValue value) {
   return isAAnyTorchType(mlirValueGetType(value));
 }
 
-#define DECLARE_ISA_UNDERSCORE_VALUE(UNDERSCOREVALUE)                          \
-  bool isATorch_##UNDERSCOREVALUE##Value(MlirValue value) {                    \
-    return isATorch_##UNDERSCOREVALUE##Type(mlirValueGetType(value));          \
+#define DECLARE_ISA_UNDERSCORE_VALUE(TORCHTYPE)                                \
+  bool isATorch_##TORCHTYPE##Value(MlirValue value) {                          \
+    return isATorch_##TORCHTYPE##Type(mlirValueGetType(value));                \
   }
 FORALL_UNDERSCORE_TYPES(DECLARE_ISA_UNDERSCORE_VALUE)
 #undef DECLARE_ISA_UNDERSCORE_VALUE
@@ -88,17 +93,25 @@ FORALL_UNDERSCORE_TYPES(DECLARE_ISA_UNDERSCORE_VALUE)
 // be hard to miss in the macros...
 void PyAnyTorchListValue::bindDerived(ClassTy &c) {}
 
-#define DEFINE_LIST_BASE_CONCRETE_VALUE(CONCRETEVALUE)                         \
-  void PyAnyTorchListOf##CONCRETEVALUE##Value::bindDerived(ClassTy &c) {}
+#define DEFINE_LIST_BASE_CONCRETE_VALUE(TORCHTYPE)                             \
+  void PyAnyTorchListOf##TORCHTYPE##Value::bindDerived(ClassTy &c) {           \
+    c.def(py::init<py::list>(), py::arg("value"));                             \
+    c.def(py::init<py::tuple>(), py::arg("value"));                            \
+    py::implicitly_convertible<py::list,                                       \
+                               PyAnyTorchListOf##TORCHTYPE##Value>();          \
+    py::implicitly_convertible<py::tuple,                                      \
+                               PyAnyTorchListOf##TORCHTYPE##Value>();          \
+  }
 FORALL_LIST_BASE_CONCRETE_TYPES(DEFINE_LIST_BASE_CONCRETE_VALUE)
-DEFINE_LIST_BASE_CONCRETE_VALUE(Tensor)
 #undef DEFINE_LIST_BASE_CONCRETE_VALUE
 
-#define DEFINE_OPTIONAL_BASE_CONCRETE_VALUE(CONCRETEVALUE)                     \
-  void PyAnyTorchOptional##CONCRETEVALUE##Value::bindDerived(ClassTy &c) {     \
+void PyAnyTorchListOfTensorValue::bindDerived(ClassTy &c) {}
+
+#define DEFINE_OPTIONAL_BASE_CONCRETE_VALUE(TORCHTYPE)                         \
+  void PyAnyTorchOptional##TORCHTYPE##Value::bindDerived(ClassTy &c) {         \
     c.def(py::init<py::none>(), py::arg("value"));                             \
     py::implicitly_convertible<py::none,                                       \
-                               PyAnyTorchOptional##CONCRETEVALUE##Value>();    \
+                               PyAnyTorchOptional##TORCHTYPE##Value>();        \
   }
 FORALL_OPTIONAL_BASE_CONCRETE_TYPES(DEFINE_OPTIONAL_BASE_CONCRETE_VALUE)
 DEFINE_OPTIONAL_BASE_CONCRETE_VALUE()
@@ -106,20 +119,25 @@ DEFINE_OPTIONAL_BASE_CONCRETE_VALUE(Tensor)
 DEFINE_OPTIONAL_BASE_CONCRETE_VALUE(Scalar)
 #undef DEFINE_OPTIONAL_BASE_CONCRETE_VALUE
 
-#define DEFINE_SCALAR_VALUE(SCALARVALUE)                                       \
-  void PyTorch_##SCALARVALUE##Value::bindDerived(ClassTy &c) {}
-_FORALL_SCALAR_TYPES(DEFINE_SCALAR_VALUE)
-#undef DEFINE_SCALAR_VALUE
+#define DEFINE_BIND_SCALAR_VALUE(TORCHTYPE)                                    \
+  void PyTorch_##TORCHTYPE##Value::bindDerived(ClassTy &c) {}
+DEFINE_BIND_SCALAR_VALUE(Any)
+DEFINE_BIND_SCALAR_VALUE(LinearParams)
+DEFINE_BIND_SCALAR_VALUE(None)
+DEFINE_BIND_SCALAR_VALUE(Number)
+#undef DEFINE_BIND_SCALAR_VALUE
 
-void PyTorch_BoolValue::bindDerived(ClassTy &c) {
-  c.def(py::init<bool>(), py::arg("value"));
-  py::implicitly_convertible<bool, PyTorch_BoolValue>();
-}
-
-void PyTorch_IntValue::bindDerived(ClassTy &c) {
-  c.def(py::init<int>(), py::arg("value"));
-  py::implicitly_convertible<int, PyTorch_IntValue>();
-}
+#define DEFINE_BIND_SCALAR_VALUE(TORCHTYPE, CPPTYPE)                           \
+  void PyTorch_##TORCHTYPE##Value::bindDerived(ClassTy &c) {                   \
+    c.def(py::init<CPPTYPE>(), py::arg("value"));                              \
+    py::implicitly_convertible<CPPTYPE, PyTorch_##TORCHTYPE##Value>();         \
+  }
+DEFINE_BIND_SCALAR_VALUE(Bool, bool)
+DEFINE_BIND_SCALAR_VALUE(Device, int)
+DEFINE_BIND_SCALAR_VALUE(Int, int)
+DEFINE_BIND_SCALAR_VALUE(Float, float)
+DEFINE_BIND_SCALAR_VALUE(String, std::string)
+#undef DEFINE_BIND_SCALAR_VALUE
 
 void PyTorch_DictValue::bindDerived(ClassTy &c) {}
 void PyTorch_TupleValue::bindDerived(ClassTy &c) {}
@@ -137,11 +155,13 @@ void populateTorchMLIRValues(py::module &m) {
   FORALL_LIST_BASE_CONCRETE_TYPES(BIND_VALUE)
   BIND_VALUE(Tensor)
 #undef BIND_VALUE
+
 #define BIND_VALUE(VALUE) PyAnyTorchOptional##VALUE##Value::bind(m);
   FORALL_OPTIONAL_BASE_CONCRETE_TYPES(BIND_VALUE)
   BIND_VALUE(Tensor)
   BIND_VALUE(Scalar)
 #undef BIND_VALUE
+
 #define BIND_VALUE(VALUE) PyTorch_##VALUE##Value::bind(m);
   FORALL_SCALAR_TYPES(BIND_VALUE)
 #undef BIND_VALUE

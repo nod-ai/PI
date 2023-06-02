@@ -41,5 +41,15 @@ class TestNnModule:
             t = lin(t)
             check_correct(
                 "%3 = torch.aten.linear %0, %2, %1 : !torch.tensor<[10,10],f64>, !torch.tensor<[10,10],f64>, !torch.tensor<[10],f64> -> !torch.tensor",
-                str(t.owner),
+                t.owner,
+            )
+
+    def test_conv(self):
+        with mlir_mod_ctx():
+            t = pi.rand(1, 3, 32, 32)
+            con = conv.Conv2d(3, 3, 3)
+            t = con(t)
+            check_correct(
+                "%6 = torch.aten.conv2d %0, %2, %1, %3, %4, %5, %int1_4 : !torch.tensor<[1,3,32,32],f64>, !torch.tensor<[3,3,3,3],f64>, !torch.tensor<[3],f64>, !torch.list<int>, !torch.list<int>, !torch.list<int>, !torch.int -> !torch.tensor",
+                t.owner,
             )
