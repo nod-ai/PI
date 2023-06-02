@@ -107,17 +107,45 @@ FORALL_LIST_BASE_CONCRETE_TYPES(DEFINE_LIST_BASE_CONCRETE_VALUE)
 
 void PyAnyTorchListOfTensorValue::bindDerived(ClassTy &c) {}
 
-#define DEFINE_OPTIONAL_BASE_CONCRETE_VALUE(TORCHTYPE)                         \
+void PyAnyTorchOptionalGeneratorValue::bindDerived(ClassTy &c) {
+  c.def(py::init<py::none>(), py::arg("value"));
+  py::implicitly_convertible<py::none, PyAnyTorchOptionalGeneratorValue>();
+}
+
+void PyAnyTorchOptionalTensorValue::bindDerived(ClassTy &c) {
+  c.def(py::init<py::none>(), py::arg("value"));
+  py::implicitly_convertible<py::none, PyAnyTorchOptionalTensorValue>();
+}
+
+void PyAnyTorchOptionalValue::bindDerived(ClassTy &c) {
+  c.def(py::init<py::none>(), py::arg("value"));
+  py::implicitly_convertible<py::none, PyAnyTorchOptionalValue>();
+}
+
+#define DEFINE_OPTIONAL_BASE_CONCRETE_VALUE(TORCHTYPE, CPPTYPE)                \
   void PyAnyTorchOptional##TORCHTYPE##Value::bindDerived(ClassTy &c) {         \
     c.def(py::init<py::none>(), py::arg("value"));                             \
+    c.def(py::init<CPPTYPE>(), py::arg("value"));                              \
     py::implicitly_convertible<py::none,                                       \
                                PyAnyTorchOptional##TORCHTYPE##Value>();        \
+    py::implicitly_convertible<CPPTYPE,                                        \
+                               PyAnyTorchOptional##TORCHTYPE##Value>();        \
   }
-FORALL_OPTIONAL_BASE_CONCRETE_TYPES(DEFINE_OPTIONAL_BASE_CONCRETE_VALUE)
-DEFINE_OPTIONAL_BASE_CONCRETE_VALUE()
-DEFINE_OPTIONAL_BASE_CONCRETE_VALUE(Tensor)
-DEFINE_OPTIONAL_BASE_CONCRETE_VALUE(Scalar)
+DEFINE_OPTIONAL_BASE_CONCRETE_VALUE(Bool, bool)
+DEFINE_OPTIONAL_BASE_CONCRETE_VALUE(Device, int)
+DEFINE_OPTIONAL_BASE_CONCRETE_VALUE(Int, int)
+DEFINE_OPTIONAL_BASE_CONCRETE_VALUE(Float, float)
+DEFINE_OPTIONAL_BASE_CONCRETE_VALUE(String, std::string)
 #undef DEFINE_OPTIONAL_BASE_CONCRETE_VALUE
+
+void PyAnyTorchOptionalScalarValue::bindDerived(ClassTy &c) {
+  c.def(py::init<py::none>(), py::arg("value"));
+  c.def(py::init<int>(), py::arg("value"));
+  c.def(py::init<float>(), py::arg("value"));
+  py::implicitly_convertible<py::none, PyAnyTorchOptionalScalarValue>();
+  py::implicitly_convertible<int, PyAnyTorchOptionalScalarValue>();
+  py::implicitly_convertible<float, PyAnyTorchOptionalScalarValue>();
+}
 
 #define DEFINE_BIND_SCALAR_VALUE(TORCHTYPE)                                    \
   void PyTorch_##TORCHTYPE##Value::bindDerived(ClassTy &c) {}
@@ -144,6 +172,18 @@ void PyTorch_TupleValue::bindDerived(ClassTy &c) {}
 void PyTorch_NnModuleValue::bindDerived(ClassTy &c) {}
 void PyTorch_NonValueTensorValue::bindDerived(ClassTy &c) {}
 void PyTorch_ValueTensorValue::bindDerived(ClassTy &c) {}
+void PyAnyTorchScalarValue::bindDerived(ClassTy &c) {
+  c.def("__repr__", [](PyAnyTorchScalarValue &self) {
+    auto origRepr =
+        pybind11::repr(pybind11::cast(PyValue(self))).cast<std::string>();
+    return std::regex_replace(origRepr, std::regex("Value"),
+                              "AnyTorchScalarValue");
+  });
+  c.def(py::init<int>(), py::arg("value"));
+  c.def(py::init<float>(), py::arg("value"));
+  py::implicitly_convertible<int, PyAnyTorchScalarValue>();
+  py::implicitly_convertible<float, PyAnyTorchScalarValue>();
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 

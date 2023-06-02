@@ -66,7 +66,7 @@ class _NormBase(Module):
             )
             self.running_mean: Optional[Tensor]
             self.running_var: Optional[Tensor]
-            factory_kwargs["optional"] = True
+            # factory_kwargs["optional"] = True
             self.register_buffer(
                 "num_batches_tracked",
                 UninitializedBuffer(

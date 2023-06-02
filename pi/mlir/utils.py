@@ -295,6 +295,10 @@ def _elementsAttr(x, context=None):
 
 
 def _np_wrapper(*args, factory=None, **kwargs):
+    if "device" in kwargs:
+        kwargs.pop("device")
+    if "dtype" in kwargs and isinstance(kwargs["dtype"], dtype):
+        kwargs["dtype"] = kwargs["dtype"].to_np_type()
     return torch_dialect.NonValueTensorLiteralOp(factory(*args, **kwargs))
 
 
