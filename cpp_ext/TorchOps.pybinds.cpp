@@ -185,11 +185,17 @@ m.def("as_strided_copy", [](const PyAnyTorchTensorValue &self, const PyAnyTorchL
 // aten::as_strided_scatter : (Tensor, Tensor, int[], int[], int?) -> (Tensor)
 m.def("as_strided_scatter", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &src, const PyAnyTorchListOfTorchIntValue &size, const PyAnyTorchListOfTorchIntValue &stride, const PyAnyTorchOptionalIntValue &storage_offset) { return as_strided_scatter(self, src, size, stride, storage_offset); }, "self"_a, "src"_a, "size"_a, "stride"_a, "storage_offset"_a = py::none());
 
+// aten::atan : (Tensor) -> (Tensor)
+m.def("atan", [](const PyAnyTorchTensorValue &self) { return atan(self); }, "self"_a);
+
 // aten::atan2 : (Tensor, Tensor) -> (Tensor)
 m.def("atan2", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &other) { return atan2(self, other); }, "self"_a, "other"_a);
 
 // aten::atan2_ : (Tensor, Tensor) -> (Tensor)
 m.def("atan2_", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &other) { return atan2_(self, other); }, "self"_a, "other"_a);
+
+// aten::atan_ : (Tensor) -> (Tensor)
+m.def("atan_", [](const PyAnyTorchTensorValue &self) { return atan_(self); }, "self"_a);
 
 // aten::avg_pool2d : (Tensor, int[], int[], int[], bool, bool, int?) -> (Tensor)
 m.def("avg_pool2d", [](const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTorchIntValue &kernel_size, const PyAnyTorchListOfTorchIntValue &stride, const PyAnyTorchListOfTorchIntValue &padding, const PyTorch_BoolValue &ceil_mode, const PyTorch_BoolValue &count_include_pad, const PyAnyTorchOptionalIntValue &divisor_override) { return avg_pool2d(self, kernel_size, stride, padding, ceil_mode, count_include_pad, divisor_override); }, "self"_a, "kernel_size"_a, "stride"_a = std::vector<int>{}, "padding"_a = std::vector<int>{0, 0}, "ceil_mode"_a = false, "count_include_pad"_a = true, "divisor_override"_a = py::none());
@@ -317,9 +323,6 @@ m.def("convert_element_type", [](const PyAnyTorchTensorValue &a, const PyTorch_I
 // aten::convolution : (Tensor, Tensor, Tensor?, int[], int[], int[], bool, int[], int) -> (Tensor)
 m.def("convolution", [](const PyAnyTorchTensorValue &input, const PyAnyTorchTensorValue &weight, const PyAnyTorchOptionalTensorValue &bias, const PyAnyTorchListOfTorchIntValue &stride, const PyAnyTorchListOfTorchIntValue &padding, const PyAnyTorchListOfTorchIntValue &dilation, const PyTorch_BoolValue &transposed, const PyAnyTorchListOfTorchIntValue &output_padding, const PyTorch_IntValue &groups) { return convolution(input, weight, bias, stride, padding, dilation, transposed, output_padding, groups); }, "input"_a, "weight"_a, "bias"_a = py::none(), "stride"_a, "padding"_a, "dilation"_a, "transposed"_a, "output_padding"_a, "groups"_a);
 
-// aten::convolution_overrideable : (Tensor, Tensor, Tensor?, int[], int[], int[], bool, int[], int) -> (Tensor)
-m.def("convolution_overrideable", [](const PyAnyTorchTensorValue &input, const PyAnyTorchTensorValue &weight, const PyAnyTorchOptionalTensorValue &bias, const PyAnyTorchListOfTorchIntValue &stride, const PyAnyTorchListOfTorchIntValue &padding, const PyAnyTorchListOfTorchIntValue &dilation, const PyTorch_BoolValue &transposed, const PyAnyTorchListOfTorchIntValue &output_padding, const PyTorch_IntValue &groups) { return convolution_overrideable(input, weight, bias, stride, padding, dilation, transposed, output_padding, groups); }, "input"_a, "weight"_a, "bias"_a = py::none(), "stride"_a, "padding"_a, "dilation"_a, "transposed"_a, "output_padding"_a, "groups"_a);
-
 // aten::copy : (Tensor, Tensor, bool) -> (Tensor)
 m.def("copy", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &src, const PyTorch_BoolValue &non_blocking) { return copy(self, src, non_blocking); }, "self"_a, "src"_a, "non_blocking"_a = false);
 
@@ -334,6 +337,9 @@ m.def("cos_", [](const PyAnyTorchTensorValue &self) { return cos_(self); }, "sel
 
 // aten::cpu : (Tensor) -> (Tensor)
 m.def("cpu", [](const PyAnyTorchTensorValue &self) { return cpu(self); }, "self"_a);
+
+// aten::cross_entropy_loss : (Tensor, Tensor, Tensor?, int, int, float) -> (Tensor)
+m.def("cross_entropy_loss", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &target, const PyAnyTorchOptionalTensorValue &weight, const PyTorch_IntValue &reduction, const PyTorch_IntValue &ignore_index, const PyTorch_FloatValue &label_smoothing) { return cross_entropy_loss(self, target, weight, reduction, ignore_index, label_smoothing); }, "self"_a, "target"_a, "weight"_a = py::none(), "reduction"_a = 1, "ignore_index"_a = -100, "label_smoothing"_a = 0.);
 
 // aten::cumsum : (Tensor, int, int?) -> (Tensor)
 m.def("cumsum", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyAnyTorchOptionalIntValue &dtype) { return cumsum(self, dim, dtype); }, "self"_a, "dim"_a, "dtype"_a = py::none());
@@ -581,6 +587,9 @@ m.def("hardtanh_", [](const PyAnyTorchTensorValue &self, const PyAnyTorchScalarV
 // aten::hardtanh_backward : (Tensor, Tensor, Scalar, Scalar) -> (Tensor)
 m.def("hardtanh_backward", [](const PyAnyTorchTensorValue &grad_output, const PyAnyTorchTensorValue &self, const PyAnyTorchScalarValue &min_val, const PyAnyTorchScalarValue &max_val) { return hardtanh_backward(grad_output, self, min_val, max_val); }, "grad_output"_a, "self"_a, "min_val"_a, "max_val"_a);
 
+// aten::imag : (Tensor) -> (Tensor)
+m.def("imag", [](const PyAnyTorchTensorValue &self) { return imag(self); }, "self"_a);
+
 // aten::index.Tensor_hacked_twin : (Tensor, Tensor[]) -> (Tensor)
 m.def("index", [](const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTensorValue &indices) { return index(self, indices); }, "self"_a, "indices"_a);
 
@@ -649,6 +658,9 @@ m.def("lerp_", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue
 
 // aten::lift_fresh_copy : (Tensor) -> (Tensor)
 m.def("lift_fresh_copy", [](const PyAnyTorchTensorValue &self) { return lift_fresh_copy(self); }, "self"_a);
+
+// aten::linalg_vector_norm : (Tensor, Scalar, int[]?, bool, int?) -> (Tensor)
+m.def("linalg_vector_norm", [](const PyAnyTorchTensorValue &self, const PyAnyTorchScalarValue &ord, const PyAnyTorchOptionalListOfTorchIntValue &dim, const PyTorch_BoolValue &keepdim, const PyAnyTorchOptionalIntValue &dtype) { return linalg_vector_norm(self, ord, dim, keepdim, dtype); }, "self"_a, "ord"_a = 2, "dim"_a = py::none(), "keepdim"_a = false, "dtype"_a = py::none());
 
 // aten::linear : (Tensor, Tensor, Tensor?) -> (Tensor)
 m.def("linear", [](const PyAnyTorchTensorValue &input, const PyAnyTorchTensorValue &weight, const PyAnyTorchOptionalTensorValue &bias) { return linear(input, weight, bias); }, "input"_a, "weight"_a, "bias"_a = py::none());
@@ -764,6 +776,9 @@ m.def("max_pool2d_with_indices_backward", [](const PyAnyTorchTensorValue &grad_o
 // aten::maximum : (Tensor, Tensor) -> (Tensor)
 m.def("maximum", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &other) { return maximum(self, other); }, "self"_a, "other"_a);
 
+// aten::mean.dim : (Tensor, int[]?, bool, int?) -> (Tensor)
+m.def("mean", [](const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalListOfTorchIntValue &dim, const PyTorch_BoolValue &keepdim, const PyAnyTorchOptionalIntValue &dtype) { return mean(self, dim, keepdim, dtype); }, "self"_a, "dim"_a = py::none(), "keepdim"_a = false, "dtype"_a = py::none());
+
 // aten::mean : (Tensor, int?) -> (Tensor)
 m.def("mean", [](const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalIntValue &dtype) { return mean(self, dtype); }, "self"_a, "dtype"_a = py::none());
 
@@ -782,8 +797,14 @@ m.def("mish", [](const PyAnyTorchTensorValue &self) { return mish(self); }, "sel
 // aten::mm : (Tensor, Tensor) -> (Tensor)
 m.def("mm", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &mat2) { return mm(self, mat2); }, "self"_a, "mat2"_a);
 
+// aten::movedim.int : (Tensor, int, int) -> (Tensor)
+m.def("movedim", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &source, const PyTorch_IntValue &destination) { return movedim(self, source, destination); }, "self"_a, "source"_a, "destination"_a);
+
 // aten::mse_loss : (Tensor, Tensor, int) -> (Tensor)
 m.def("mse_loss", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &target, const PyTorch_IntValue &reduction) { return mse_loss(self, target, reduction); }, "self"_a, "target"_a, "reduction"_a = 1);
+
+// aten::mse_loss_backward : (Tensor, Tensor, Tensor, int) -> (Tensor)
+m.def("mse_loss_backward", [](const PyAnyTorchTensorValue &grad_output, const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &target, const PyTorch_IntValue &reduction) { return mse_loss_backward(grad_output, self, target, reduction); }, "grad_output"_a, "self"_a, "target"_a, "reduction"_a);
 
 // aten::mul.Tensor : (Tensor, Tensor) -> (Tensor)
 m.def("mul", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &other) { return mul(self, other); }, "self"_a, "other"_a);
@@ -860,6 +881,9 @@ m.def("new_ones", [](const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTo
 // aten::new_zeros : (Tensor, int[], int?, int?, Device?, bool?) -> (Tensor)
 m.def("new_zeros", [](const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTorchIntValue &size, const PyAnyTorchOptionalIntValue &dtype, const PyAnyTorchOptionalIntValue &layout, const PyAnyTorchOptionalDeviceValue &device, const PyAnyTorchOptionalBoolValue &pin_memory) { return new_zeros(self, size, dtype, layout, device, pin_memory); }, "self"_a, "size"_a, "dtype"_a = py::none(), "layout"_a = py::none(), "device"_a = py::none(), "pin_memory"_a = py::none());
 
+// aten::nll_loss2d_backward : (Tensor, Tensor, Tensor, Tensor?, int, int, Tensor) -> (Tensor)
+m.def("nll_loss2d_backward", [](const PyAnyTorchTensorValue &grad_output, const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &target, const PyAnyTorchOptionalTensorValue &weight, const PyTorch_IntValue &reduction, const PyTorch_IntValue &ignore_index, const PyAnyTorchTensorValue &total_weight) { return nll_loss2d_backward(grad_output, self, target, weight, reduction, ignore_index, total_weight); }, "grad_output"_a, "self"_a, "target"_a, "weight"_a = py::none(), "reduction"_a, "ignore_index"_a, "total_weight"_a);
+
 // aten::nll_loss_backward : (Tensor, Tensor, Tensor, Tensor?, int, int, Tensor) -> (Tensor)
 m.def("nll_loss_backward", [](const PyAnyTorchTensorValue &grad_output, const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &target, const PyAnyTorchOptionalTensorValue &weight, const PyTorch_IntValue &reduction, const PyTorch_IntValue &ignore_index, const PyAnyTorchTensorValue &total_weight) { return nll_loss_backward(grad_output, self, target, weight, reduction, ignore_index, total_weight); }, "grad_output"_a, "self"_a, "target"_a, "weight"_a = py::none(), "reduction"_a, "ignore_index"_a, "total_weight"_a);
 
@@ -871,6 +895,9 @@ m.def("numel", [](const PyAnyTorchTensorValue &self) { return numel(self); }, "s
 
 // aten::numpy_T : (Tensor) -> (Tensor)
 m.def("numpy_T", [](const PyAnyTorchTensorValue &self) { return numpy_T(self); }, "self"_a);
+
+// aten::one_hot : (Tensor, int) -> (Tensor)
+m.def("one_hot", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &num_classes) { return one_hot(self, num_classes); }, "self"_a, "num_classes"_a = -1);
 
 // aten::ones : (int[], int?, int?, Device?, bool?) -> (Tensor)
 m.def("ones", [](const PyAnyTorchListOfTorchIntValue &size, const PyAnyTorchOptionalIntValue &dtype, const PyAnyTorchOptionalIntValue &layout, const PyAnyTorchOptionalDeviceValue &device, const PyAnyTorchOptionalBoolValue &pin_memory) { return ones(size, dtype, layout, device, pin_memory); }, "size"_a, "dtype"_a = py::none(), "layout"_a = py::none(), "device"_a = py::none(), "pin_memory"_a = py::none());
@@ -893,6 +920,9 @@ m.def("pow", [](const PyAnyTorchTensorValue &self, const PyAnyTorchScalarValue &
 // aten::pow.Tensor_Tensor : (Tensor, Tensor) -> (Tensor)
 m.def("pow", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &exponent) { return pow(self, exponent); }, "self"_a, "exponent"_a);
 
+// aten::pow.Scalar : (Scalar, Tensor) -> (Tensor)
+m.def("pow", [](const PyAnyTorchScalarValue &self, const PyAnyTorchTensorValue &exponent) { return pow(self, exponent); }, "self"_a, "exponent"_a);
+
 // aten::pow.int_float : (int, float) -> (float)
 m.def("pow", [](const PyTorch_IntValue &a, const PyTorch_FloatValue &b) { return pow(a, b); }, "a"_a, "b"_a);
 
@@ -905,6 +935,9 @@ m.def("rand_like", [](const PyAnyTorchTensorValue &self, const PyAnyTorchOptiona
 // aten::randint.low : (int, int, int[], int?, int?, Device?, bool?) -> (Tensor)
 m.def("randint", [](const PyTorch_IntValue &low, const PyTorch_IntValue &high, const PyAnyTorchListOfTorchIntValue &size, const PyAnyTorchOptionalIntValue &dtype, const PyAnyTorchOptionalIntValue &layout, const PyAnyTorchOptionalDeviceValue &device, const PyAnyTorchOptionalBoolValue &pin_memory) { return randint(low, high, size, dtype, layout, device, pin_memory); }, "low"_a, "high"_a, "size"_a, "dtype"_a = py::none(), "layout"_a = py::none(), "device"_a = py::none(), "pin_memory"_a = py::none());
 
+// aten::randint : (int, int[], int?, int?, Device?, bool?) -> (Tensor)
+m.def("randint", [](const PyTorch_IntValue &high, const PyAnyTorchListOfTorchIntValue &size, const PyAnyTorchOptionalIntValue &dtype, const PyAnyTorchOptionalIntValue &layout, const PyAnyTorchOptionalDeviceValue &device, const PyAnyTorchOptionalBoolValue &pin_memory) { return randint(high, size, dtype, layout, device, pin_memory); }, "high"_a, "size"_a, "dtype"_a = py::none(), "layout"_a = py::none(), "device"_a = py::none(), "pin_memory"_a = py::none());
+
 // aten::randn : (int[], int?, int?, Device?, bool?) -> (Tensor)
 m.def("randn", [](const PyAnyTorchListOfTorchIntValue &size, const PyAnyTorchOptionalIntValue &dtype, const PyAnyTorchOptionalIntValue &layout, const PyAnyTorchOptionalDeviceValue &device, const PyAnyTorchOptionalBoolValue &pin_memory) { return randn(size, dtype, layout, device, pin_memory); }, "size"_a, "dtype"_a = py::none(), "layout"_a = py::none(), "device"_a = py::none(), "pin_memory"_a = py::none());
 
@@ -913,6 +946,9 @@ m.def("randn", [](const PyAnyTorchListOfTorchIntValue &size, const PyAnyTorchOpt
 
 // aten::randn_like : (Tensor, int?, int?, Device?, bool?, int?) -> (Tensor)
 m.def("randn_like", [](const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalIntValue &dtype, const PyAnyTorchOptionalIntValue &layout, const PyAnyTorchOptionalDeviceValue &device, const PyAnyTorchOptionalBoolValue &pin_memory, const PyAnyTorchOptionalIntValue &memory_format) { return randn_like(self, dtype, layout, device, pin_memory, memory_format); }, "self"_a, "dtype"_a = py::none(), "layout"_a = py::none(), "device"_a = py::none(), "pin_memory"_a = py::none(), "memory_format"_a = py::none());
+
+// aten::real : (Tensor) -> (Tensor)
+m.def("real", [](const PyAnyTorchTensorValue &self) { return real(self); }, "self"_a);
 
 // aten::reciprocal : (Tensor) -> (Tensor)
 m.def("reciprocal", [](const PyAnyTorchTensorValue &self) { return reciprocal(self); }, "self"_a);
@@ -964,6 +1000,12 @@ m.def("rsqrt_", [](const PyAnyTorchTensorValue &self) { return rsqrt_(self); }, 
 
 // aten::rsub.Scalar : (Tensor, Scalar, Scalar) -> (Tensor)
 m.def("rsub", [](const PyAnyTorchTensorValue &self, const PyAnyTorchScalarValue &other, const PyAnyTorchScalarValue &alpha) { return rsub(self, other, alpha); }, "self"_a, "other"_a, "alpha"_a = 1);
+
+// aten::scatter.src : (Tensor, int, Tensor, Tensor) -> (Tensor)
+m.def("scatter", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyAnyTorchTensorValue &index, const PyAnyTorchTensorValue &src) { return scatter(self, dim, index, src); }, "self"_a, "dim"_a, "index"_a, "src"_a);
+
+// aten::scatter.value : (Tensor, int, Tensor, Scalar) -> (Tensor)
+m.def("scatter", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyAnyTorchTensorValue &index, const PyAnyTorchScalarValue &value) { return scatter(self, dim, index, value); }, "self"_a, "dim"_a, "index"_a, "value"_a);
 
 // aten::scatter_add : (Tensor, int, Tensor, Tensor) -> (Tensor)
 m.def("scatter_add", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyAnyTorchTensorValue &index, const PyAnyTorchTensorValue &src) { return scatter_add(self, dim, index, src); }, "self"_a, "dim"_a, "index"_a, "src"_a);
@@ -1049,6 +1091,9 @@ m.def("squeeze", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &d
 // aten::squeeze : (Tensor) -> (Tensor)
 m.def("squeeze", [](const PyAnyTorchTensorValue &self) { return squeeze(self); }, "self"_a);
 
+// prims::squeeze : (Tensor, int[]) -> (Tensor)
+m.def("squeeze", [](const PyAnyTorchTensorValue &a, const PyAnyTorchListOfTorchIntValue &dimensions) { return squeeze(a, dimensions); }, "a"_a, "dimensions"_a);
+
 // aten::squeeze_copy : (Tensor) -> (Tensor)
 m.def("squeeze_copy", [](const PyAnyTorchTensorValue &self) { return squeeze_copy(self); }, "self"_a);
 
@@ -1060,6 +1105,12 @@ m.def("stack", [](const PyAnyTorchListOfTensorValue &tensors, const PyTorch_IntV
 
 // aten::std : (Tensor, bool) -> (Tensor)
 m.def("std", [](const PyAnyTorchTensorValue &self, const PyTorch_BoolValue &unbiased) { return std(self, unbiased); }, "self"_a, "unbiased"_a = true);
+
+// aten::std.dim : (Tensor, int[]?, bool, bool) -> (Tensor)
+m.def("std", [](const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalListOfTorchIntValue &dim, const PyTorch_BoolValue &unbiased, const PyTorch_BoolValue &keepdim) { return std(self, dim, unbiased, keepdim); }, "self"_a, "dim"_a = py::none(), "unbiased"_a = true, "keepdim"_a = false);
+
+// aten::std.correction : (Tensor, int[]?, Scalar?, bool) -> (Tensor)
+m.def("std", [](const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalListOfTorchIntValue &dim, const PyAnyTorchOptionalScalarValue &correction, const PyTorch_BoolValue &keepdim) { return std(self, dim, correction, keepdim); }, "self"_a, "dim"_a = py::none(), "correction"_a = py::none(), "keepdim"_a = false);
 
 // aten::sub.Tensor : (Tensor, Tensor, Scalar) -> (Tensor)
 m.def("sub", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &other, const PyAnyTorchScalarValue &alpha) { return sub(self, other, alpha); }, "self"_a, "other"_a, "alpha"_a = 1);
@@ -1081,6 +1132,9 @@ m.def("sub_", [](const PyAnyTorchTensorValue &self, const PyAnyTorchScalarValue 
 
 // aten::sum : (Tensor, int?) -> (Tensor)
 m.def("sum", [](const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalIntValue &dtype) { return sum(self, dtype); }, "self"_a, "dtype"_a = py::none());
+
+// aten::sum.dim_IntList : (Tensor, int[]?, bool, int?) -> (Tensor)
+m.def("sum", [](const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalListOfTorchIntValue &dim, const PyTorch_BoolValue &keepdim, const PyAnyTorchOptionalIntValue &dtype) { return sum(self, dim, keepdim, dtype); }, "self"_a, "dim"_a = py::none(), "keepdim"_a = false, "dtype"_a = py::none());
 
 // aten::t : (Tensor) -> (Tensor)
 m.def("t", [](const PyAnyTorchTensorValue &self) { return t(self); }, "self"_a);
@@ -1175,14 +1229,29 @@ m.def("upsample_nearest2d_backward", [](const PyAnyTorchTensorValue &grad_output
 // aten::var : (Tensor, bool) -> (Tensor)
 m.def("var", [](const PyAnyTorchTensorValue &self, const PyTorch_BoolValue &unbiased) { return var(self, unbiased); }, "self"_a, "unbiased"_a = true);
 
+// aten::var.dim : (Tensor, int[]?, bool, bool) -> (Tensor)
+m.def("var", [](const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalListOfTorchIntValue &dim, const PyTorch_BoolValue &unbiased, const PyTorch_BoolValue &keepdim) { return var(self, dim, unbiased, keepdim); }, "self"_a, "dim"_a = py::none(), "unbiased"_a = true, "keepdim"_a = false);
+
+// aten::var.correction : (Tensor, int[]?, Scalar?, bool) -> (Tensor)
+m.def("var", [](const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalListOfTorchIntValue &dim, const PyAnyTorchOptionalScalarValue &correction, const PyTorch_BoolValue &keepdim) { return var(self, dim, correction, keepdim); }, "self"_a, "dim"_a = py::none(), "correction"_a = py::none(), "keepdim"_a = false);
+
+// prims::var : (Tensor, int[]?, float, int?) -> (Tensor)
+m.def("var", [](const PyAnyTorchTensorValue &inp, const PyAnyTorchOptionalListOfTorchIntValue &dims, const PyTorch_FloatValue &correction, const PyAnyTorchOptionalIntValue &output_dtype) { return var(inp, dims, correction, output_dtype); }, "inp"_a, "dims"_a = py::none(), "correction"_a, "output_dtype"_a = py::none());
+
 // aten::view : (Tensor, int[]) -> (Tensor)
 m.def("view", [](const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTorchIntValue &size) { return view(self, size); }, "self"_a, "size"_a);
+
+// aten::view_as_complex : (Tensor) -> (Tensor)
+m.def("view_as_complex", [](const PyAnyTorchTensorValue &self) { return view_as_complex(self); }, "self"_a);
 
 // aten::view_copy : (Tensor, int[]) -> (Tensor)
 m.def("view_copy", [](const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTorchIntValue &size) { return view_copy(self, size); }, "self"_a, "size"_a);
 
 // aten::view_copy.dtype : (Tensor, int) -> (Tensor)
 m.def("view_copy", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dtype) { return view_copy(self, dtype); }, "self"_a, "dtype"_a);
+
+// prims::view_of : (Tensor) -> (Tensor)
+m.def("view_of", [](const PyAnyTorchTensorValue &a) { return view_of(a); }, "a"_a);
 
 // aten::where.Scalar : (Tensor, Scalar, Scalar) -> (Tensor)
 m.def("where", [](const PyAnyTorchTensorValue &condition, const PyAnyTorchScalarValue &self, const PyAnyTorchScalarValue &other) { return where(condition, self, other); }, "condition"_a, "self"_a, "other"_a);

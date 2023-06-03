@@ -27,12 +27,10 @@ with dl_open_guard():
 from ._mlir_libs._pi_mlir import (
     # AnyTorchDictKeyType,
     # AnyTorchDictKeyValue,
-    # AnyTorchListOfOptionalIntType,
-    # AnyTorchListOfOptionalIntValue,
     # AnyTorchListOfOptionalTensorType,
     # AnyTorchListOfOptionalTensorValue,
     # AnyTorchOptionalListOfTorchIntType,
-    # AnyTorchOptionalListOfTorchIntValue,
+    AnyTorchOptionalListOfTorchIntValue,
     AnyTorchListOfTensorType,
     AnyTorchListOfTensorValue,
     AnyTorchListOfTorchBoolType,

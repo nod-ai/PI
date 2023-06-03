@@ -4,9 +4,8 @@ from textwrap import dedent
 from pi.mlir.utils import mlir_mod_ctx, _elementsAttr
 from pi.mlir import (
     # AnyTorchDictKeyValue,
-    # AnyTorchListOfOptionalIntValue,
     # AnyTorchListOfOptionalTensorValue,
-    # AnyTorchOptionalListOfTorchIntValue,
+    AnyTorchOptionalListOfTorchIntValue,
     # AnyTorchTensorValue,
     AnyTorchListOfTensorType,
     AnyTorchListOfTensorValue,
@@ -185,6 +184,39 @@ class TestTorchValues:
             check_correct(
                 "AnyTorchListOfTorchStringValue(%6 = torch.prim.ListConstruct %str, %str_3 : (!torch.str, !torch.str) -> !torch.list<str>)",
                 t,
+            )
+
+            t = AnyTorchOptionalListOfTorchIntValue([1, 2])
+            check_correct(
+                "%7 = torch.prim.ListConstruct %int1_4, %int2 : (!torch.int, !torch.int) -> !torch.list<int>",
+                t.owner,
+            )
+
+            t = AnyTorchOptionalListOfTorchIntValue(None)
+            print(t.owner)
+            check_correct(
+                "%7 = torch.constant.none",
+                t.owner,
+            )
+
+            t1 = torch.NonValueTensorLiteralOp(_elementsAttr(np.ones((2, 2))))
+            t = AnyTorchOptionalListOfTorchIntValue([1, 2])
+            st = ops.linalg_vector_norm(t1, 1.0, t, True, 1)
+            check_correct(
+                "%10 = torch.aten.linalg_vector_norm %8, %float1.000000e00_7, %9, %true_8, %int1_9 : !torch.tensor<[2,2],f64>, !torch.float, !torch.list<int>, !torch.bool, !torch.int -> !torch.tensor",
+                st.owner,
+            )
+
+            st = ops.linalg_vector_norm(t1, 1.0, None, True, 1)
+            check_correct(
+                "%11 = torch.aten.linalg_vector_norm %8, %float1.000000e00_10, %none_11, %true_12, %int1_13 : !torch.tensor<[2,2],f64>, !torch.float, !torch.none, !torch.bool, !torch.int -> !torch.tensor",
+                st.owner,
+            )
+
+            st = ops.linalg_vector_norm(t1, 1.0, None, True)
+            check_correct(
+                "%12 = torch.aten.linalg_vector_norm %8, %float1.000000e00_14, %none_15, %true_16, %none_17 : !torch.tensor<[2,2],f64>, !torch.float, !torch.none, !torch.bool, !torch.none -> !torch.tensor",
+                st.owner,
             )
 
     def test_tensor_values(self):

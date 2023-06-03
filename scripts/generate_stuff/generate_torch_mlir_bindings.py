@@ -105,7 +105,6 @@ def generate_pybind_bindings_for_ops(cpp_ext_dir):
 
     unimplemented_types = [
         "AnyTorchType",
-        "AnyTorchOptionalListOfTorchIntType",
         "AnyTorchListOfOptionalTensorType",
         "Variadic",
     ]

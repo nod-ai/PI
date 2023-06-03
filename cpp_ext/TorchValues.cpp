@@ -147,6 +147,15 @@ void PyAnyTorchOptionalScalarValue::bindDerived(ClassTy &c) {
   py::implicitly_convertible<float, PyAnyTorchOptionalScalarValue>();
 }
 
+void PyAnyTorchOptionalListOfTorchIntValue::bindDerived(ClassTy &c) {
+  c.def(py::init<py::none>(), py::arg("value"));
+  c.def(py::init<py::list>(), py::arg("value"));
+  py::implicitly_convertible<py::none, PyAnyTorchOptionalListOfTorchIntValue>();
+  py::implicitly_convertible<py::list, PyAnyTorchOptionalListOfTorchIntValue>();
+  py::implicitly_convertible<py::tuple,
+                             PyAnyTorchOptionalListOfTorchIntValue>();
+}
+
 #define DEFINE_BIND_SCALAR_VALUE(TORCHTYPE)                                    \
   void PyTorch_##TORCHTYPE##Value::bindDerived(ClassTy &c) {}
 DEFINE_BIND_SCALAR_VALUE(Any)
@@ -201,6 +210,8 @@ void populateTorchMLIRValues(py::module &m) {
   BIND_VALUE(Tensor)
   BIND_VALUE(Scalar)
 #undef BIND_VALUE
+
+  PyAnyTorchOptionalListOfTorchIntValue::bind(m);
 
 #define BIND_VALUE(VALUE) PyTorch_##VALUE##Value::bind(m);
   FORALL_SCALAR_TYPES(BIND_VALUE)

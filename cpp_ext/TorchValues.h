@@ -152,13 +152,12 @@ public:
   static void bindDerived(ClassTy &c);
 };
 
-#define DECLARE_SCALAR_VALUE(SCALARVALUE)                                      \
-  class PyTorch_##SCALARVALUE##Value                                           \
-      : public PyConcreteValue<PyTorch_##SCALARVALUE##Value> {                 \
+#define DECLARE_SCALAR_VALUE(TORCHTYPE)                                        \
+  class PyTorch_##TORCHTYPE##Value                                             \
+      : public PyConcreteValue<PyTorch_##TORCHTYPE##Value> {                   \
   public:                                                                      \
-    static constexpr IsAFunctionTy isaFunction =                               \
-        isATorch_##SCALARVALUE##Value;                                         \
-    static constexpr const char *pyClassName = "Torch_" #SCALARVALUE "Value";  \
+    static constexpr IsAFunctionTy isaFunction = isATorch_##TORCHTYPE##Value;  \
+    static constexpr const char *pyClassName = "Torch_" #TORCHTYPE "Value";    \
     using PyConcreteValue::PyConcreteValue;                                    \
     static void bindDerived(ClassTy &c);                                       \
   };
@@ -318,6 +317,26 @@ public:
       : PyAnyTorchOptionalScalarValue(
             py::cast(PyTorch_FloatValue(n))
                 .cast<PyAnyTorchOptionalScalarValue>()) {}
+  using PyConcreteValue::PyConcreteValue;
+  static void bindDerived(ClassTy &c);
+};
+
+class PyAnyTorchOptionalListOfTorchIntValue
+    : public PyConcreteValue<PyAnyTorchOptionalListOfTorchIntValue,
+                             PyAnyTorchOptionalValue> {
+public:
+  static constexpr IsAFunctionTy isaFunction =
+      isAAnyTorchOptionalListOfTorchIntValue;
+  static constexpr const char *pyClassName =
+      "AnyTorchOptionalListOfTorchIntValue";
+  PyAnyTorchOptionalListOfTorchIntValue(const py::none &n)
+      : PyAnyTorchOptionalListOfTorchIntValue(
+            py::cast(PyTorch_NoneValue(n))
+                .cast<PyAnyTorchOptionalListOfTorchIntValue>()) {}
+  PyAnyTorchOptionalListOfTorchIntValue(const py::list &l)
+      : PyAnyTorchOptionalListOfTorchIntValue(
+            py::cast(PyAnyTorchListOfTorchIntValue(l))
+                .cast<PyAnyTorchOptionalListOfTorchIntValue>()) {}
   using PyConcreteValue::PyConcreteValue;
   static void bindDerived(ClassTy &c);
 };
