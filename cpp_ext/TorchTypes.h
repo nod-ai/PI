@@ -22,9 +22,7 @@ bool torchMlirTypeIsATorchBaseTensor(MlirType type);
 bool isAAnyTorchDictKeyType(MlirType type);
 
 bool isAAnyTorchListOfOptionalIntType(MlirType type);
-bool isAAnyTorchListOfOptionalTensorType(MlirType type);
 
-bool isAAnyTorchListOfTensorType(MlirType type);
 bool isAAnyTorchListOfTorchBoolType(MlirType type);
 bool isAAnyTorchListOfTorchIntType(MlirType type);
 bool isAAnyTorchListOfTorchFloatType(MlirType type);
@@ -37,14 +35,12 @@ bool isAAnyTorchOptionalFloatType(MlirType type);
 bool isAAnyTorchOptionalGeneratorType(MlirType type);
 bool isAAnyTorchOptionalIntType(MlirType type);
 bool isAAnyTorchOptionalStringType(MlirType type);
-bool isAAnyTorchOptionalTensorType(MlirType type);
 bool isAAnyTorchOptionalType(MlirType type);
 
 bool isAAnyTorchOptionalListOfTorchIntType(MlirType type);
 
 bool isAAnyTorchOptionalScalarType(MlirType type);
 bool isAAnyTorchScalarType(MlirType type);
-bool isAAnyTorchTensorType(MlirType type);
 bool isAAnyTorchType(MlirType type);
 //
 // enum SignednessSemantics : uint32_t {
@@ -67,12 +63,10 @@ bool isAAnyTorchType(MlirType type);
   _(Int)                                                                       \
   _(LinearParams)                                                              \
   _(NnModule)                                                                  \
-  _(NonValueTensor)                                                            \
   _(None)                                                                      \
   _(Number)                                                                    \
   _(String)                                                                    \
-  _(Tuple)                                                                     \
-  _(ValueTensor)
+  _(Tuple)
 #define DECLARE_ISA_UNDERSCORE_TYPE(UNDERSCORETYPE)                            \
   bool isATorch_##UNDERSCORETYPE##Type(MlirType type);
 FORALL_UNDERSCORE_TYPES(DECLARE_ISA_UNDERSCORE_TYPE)
@@ -130,32 +124,6 @@ public:
 FORALL_LIST_BASE_CONCRETE_TYPES(DECLARE_LIST_BASE_CONCRETE_TYPE)
 #undef DECLARE_LIST_BASE_CONCRETE_TYPE
 
-class PyAnyTorchListOfTensorType
-    : public PyConcreteType<PyAnyTorchListOfTensorType, PyAnyTorchListType> {
-public:
-  static constexpr IsAFunctionTy isaFunction = isAAnyTorchListOfTensorType;
-  static constexpr const char *pyClassName = "AnyTorchListOfTensorType";
-  using PyConcreteType::PyConcreteType;
-  PyAnyTorchListOfTensorType(MlirType containedType,
-                             DefaultingPyMlirContext context)
-      : PyConcreteType(context->getRef(),
-                       torchMlirTorchListTypeGet(containedType)) {}
-};
-
-class PyAnyTorchListOfOptionalTensorType
-    : public PyConcreteType<PyAnyTorchListOfOptionalTensorType,
-                            PyAnyTorchListType> {
-public:
-  static constexpr IsAFunctionTy isaFunction =
-      isAAnyTorchListOfOptionalTensorType;
-  static constexpr const char *pyClassName = "AnyTorchListOfOptionalTensorType";
-  using PyConcreteType::PyConcreteType;
-  PyAnyTorchListOfOptionalTensorType(MlirType containedType,
-                                     DefaultingPyMlirContext context)
-      : PyConcreteType(context->getRef(),
-                       torchMlirTorchListTypeGet(containedType)) {}
-};
-
 #define FORALL_OPTIONAL_BASE_CONCRETE_TYPES(_)                                 \
   _(Bool)                                                                      \
   _(Device)                                                                    \
@@ -183,21 +151,6 @@ public:
   };
 FORALL_OPTIONAL_BASE_CONCRETE_TYPES(DECLARE_OPTIONAL_BASE_CONCRETE_TYPE)
 #undef DECLARE_OPTIONAL_BASE_CONCRETE_TYPE
-
-class PyAnyTorchOptionalTensorType
-    : public PyConcreteType<PyAnyTorchOptionalTensorType,
-                            PyAnyTorchOptionalType> {
-public:
-  static constexpr IsAFunctionTy isaFunction = isAAnyTorchOptionalTensorType;
-  static constexpr const char *pyClassName = "AnyTorchOptional"
-                                             "Tensor"
-                                             "Type";
-  using PyConcreteType::PyConcreteType;
-  PyAnyTorchOptionalTensorType(MlirType containedType,
-                               DefaultingPyMlirContext context)
-      : PyConcreteType(context->getRef(),
-                       torchMlirTorchOptionalTypeGet(containedType)) {}
-};
 
 #define FORALL_SCALAR_TYPES(_)                                                 \
   _(Any)                                                                       \
@@ -262,59 +215,6 @@ public:
   PyTorch_NnModuleType(MlirStringRef name, DefaultingPyMlirContext context)
       : PyConcreteType(context->getRef(),
                        torchMlirTorchNnModuleTypeGet(context->get(), name)) {}
-  static void bindDerived(ClassTy &c);
-};
-
-class PyTorch_NonValueTensorType
-    : public PyConcreteType<PyTorch_NonValueTensorType> {
-public:
-  static constexpr IsAFunctionTy isaFunction = isATorch_NonValueTensorType;
-  static constexpr const char *pyClassName = "Torch_NonValueTensorType";
-  using PyConcreteType::PyConcreteType;
-  PyTorch_NonValueTensorType(std::vector<int64_t> sizes, MlirType dtype,
-                             DefaultingPyMlirContext context)
-      : PyConcreteType(context->getRef(),
-                       torchMlirTorchNonValueTensorTypeGet(
-                           context->get(), sizes.size(), sizes.data(), dtype)) {
-  }
-  static PyTorch_NonValueTensorType
-  getWithLeastStaticInformation(DefaultingPyMlirContext context);
-
-  static void bindDerived(ClassTy &c);
-};
-
-class PyTorch_ValueTensorType : public PyConcreteType<PyTorch_ValueTensorType> {
-public:
-  static constexpr IsAFunctionTy isaFunction = isATorch_ValueTensorType;
-  static constexpr const char *pyClassName = "Torch_ValueTensorType";
-  using PyConcreteType::PyConcreteType;
-  PyTorch_ValueTensorType(std::vector<int64_t> sizes, MlirType dtype,
-                          DefaultingPyMlirContext context)
-      : PyConcreteType(context->getRef(),
-                       torchMlirTorchValueTensorTypeGet(
-                           context->get(), sizes.size(), sizes.data(), dtype)) {
-  }
-  static PyTorch_ValueTensorType
-  getWithLeastStaticInformation(DefaultingPyMlirContext context);
-
-  static void bindDerived(ClassTy &c);
-};
-
-class PyAnyTorchTensorType
-    : public PyConcreteType<PyAnyTorchTensorType, PyTorch_NonValueTensorType> {
-public:
-  static constexpr IsAFunctionTy isaFunction = isAAnyTorchTensorType;
-  static constexpr const char *pyClassName = "AnyTorchTensorType";
-  using PyConcreteType::PyConcreteType;
-  PyAnyTorchTensorType(std::vector<int64_t> sizes, MlirType dtype,
-                       DefaultingPyMlirContext context)
-      : PyConcreteType(context->getRef(),
-                       torchMlirTorchNonValueTensorTypeGet(
-                           context->get(), sizes.size(), sizes.data(), dtype)) {
-  }
-  static PyAnyTorchTensorType
-  getWithLeastStaticInformation(DefaultingPyMlirContext context);
-
   static void bindDerived(ClassTy &c);
 };
 

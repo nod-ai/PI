@@ -14,53 +14,57 @@ namespace mlir::torch {
 bool isAAnyTorchDictKeyValue(MlirValue value) {
   return isAAnyTorchDictKeyType(mlirValueGetType(value));
 }
+
 bool isAAnyTorchListOfOptionalIntValue(MlirValue value) {
   return isAAnyTorchListOfOptionalIntType(mlirValueGetType(value));
 }
-bool isAAnyTorchListOfOptionalTensorValue(MlirValue value) {
-  return isAAnyTorchListOfOptionalTensorType(mlirValueGetType(value));
-}
-bool isAAnyTorchListOfTensorValue(MlirValue value) {
-  return isAAnyTorchListOfTensorType(mlirValueGetType(value));
-}
+
 bool isAAnyTorchListOfTorchBoolValue(MlirValue value) {
   return isAAnyTorchListOfTorchBoolType(mlirValueGetType(value));
 }
+
 bool isAAnyTorchListOfTorchIntValue(MlirValue value) {
   return isAAnyTorchListOfTorchIntType(mlirValueGetType(value));
 }
+
 bool isAAnyTorchListOfTorchFloatValue(MlirValue value) {
   return isAAnyTorchListOfTorchFloatType(mlirValueGetType(value));
 }
+
 bool isAAnyTorchListOfTorchStringValue(MlirValue value) {
   return isAAnyTorchListOfTorchStringType(mlirValueGetType(value));
 }
+
 bool isAAnyTorchOptionalFloatValue(MlirValue value) {
   return isAAnyTorchOptionalFloatType(mlirValueGetType(value));
 }
+
 bool isAAnyTorchListValue(MlirValue value) {
   return isAAnyTorchListType(mlirValueGetType(value));
 }
+
 bool isAAnyTorchOptionalBoolValue(MlirValue value) {
   return isAAnyTorchOptionalBoolType(mlirValueGetType(value));
 }
+
 bool isAAnyTorchOptionalDeviceValue(MlirValue value) {
   return isAAnyTorchOptionalDeviceType(mlirValueGetType(value));
 }
+
 bool isAAnyTorchOptionalGeneratorValue(MlirValue value) {
   return isAAnyTorchOptionalGeneratorType(mlirValueGetType(value));
 }
+
 bool isAAnyTorchOptionalIntValue(MlirValue value) {
   return isAAnyTorchOptionalIntType(mlirValueGetType(value));
 }
+
 bool isAAnyTorchOptionalListOfTorchIntValue(MlirValue value) {
   return isAAnyTorchOptionalListOfTorchIntType(mlirValueGetType(value));
 }
+
 bool isAAnyTorchOptionalStringValue(MlirValue value) {
   return isAAnyTorchOptionalStringType(mlirValueGetType(value));
-}
-bool isAAnyTorchOptionalTensorValue(MlirValue value) {
-  return isAAnyTorchOptionalTensorType(mlirValueGetType(value));
 }
 
 bool isAAnyTorchOptionalValue(MlirValue value) {
@@ -70,12 +74,9 @@ bool isAAnyTorchOptionalValue(MlirValue value) {
 bool isAAnyTorchOptionalScalarValue(MlirValue value) {
   return isAAnyTorchOptionalScalarType(mlirValueGetType(value));
 }
+
 bool isAAnyTorchScalarValue(MlirValue value) {
   return isAAnyTorchScalarType(mlirValueGetType(value));
-}
-
-bool isAAnyTorchTensorValue(MlirValue value) {
-  return isAAnyTorchTensorType(mlirValueGetType(value));
 }
 
 bool isAAnyTorchValue(MlirValue value) {
@@ -105,16 +106,9 @@ void PyAnyTorchListValue::bindDerived(ClassTy &c) {}
 FORALL_LIST_BASE_CONCRETE_TYPES(DEFINE_LIST_BASE_CONCRETE_VALUE)
 #undef DEFINE_LIST_BASE_CONCRETE_VALUE
 
-void PyAnyTorchListOfTensorValue::bindDerived(ClassTy &c) {}
-
 void PyAnyTorchOptionalGeneratorValue::bindDerived(ClassTy &c) {
   c.def(py::init<py::none>(), py::arg("value"));
   py::implicitly_convertible<py::none, PyAnyTorchOptionalGeneratorValue>();
-}
-
-void PyAnyTorchOptionalTensorValue::bindDerived(ClassTy &c) {
-  c.def(py::init<py::none>(), py::arg("value"));
-  py::implicitly_convertible<py::none, PyAnyTorchOptionalTensorValue>();
 }
 
 void PyAnyTorchOptionalValue::bindDerived(ClassTy &c) {
@@ -179,8 +173,6 @@ DEFINE_BIND_SCALAR_VALUE(String, std::string)
 void PyTorch_DictValue::bindDerived(ClassTy &c) {}
 void PyTorch_TupleValue::bindDerived(ClassTy &c) {}
 void PyTorch_NnModuleValue::bindDerived(ClassTy &c) {}
-void PyTorch_NonValueTensorValue::bindDerived(ClassTy &c) {}
-void PyTorch_ValueTensorValue::bindDerived(ClassTy &c) {}
 void PyAnyTorchScalarValue::bindDerived(ClassTy &c) {
   c.def("__repr__", [](PyAnyTorchScalarValue &self) {
     auto origRepr =
@@ -202,12 +194,10 @@ void populateTorchMLIRValues(py::module &m) {
 
 #define BIND_VALUE(VALUE) PyAnyTorchListOf##VALUE##Value::bind(m);
   FORALL_LIST_BASE_CONCRETE_TYPES(BIND_VALUE)
-  BIND_VALUE(Tensor)
 #undef BIND_VALUE
 
 #define BIND_VALUE(VALUE) PyAnyTorchOptional##VALUE##Value::bind(m);
   FORALL_OPTIONAL_BASE_CONCRETE_TYPES(BIND_VALUE)
-  BIND_VALUE(Tensor)
   BIND_VALUE(Scalar)
 #undef BIND_VALUE
 
@@ -220,8 +210,6 @@ void populateTorchMLIRValues(py::module &m) {
   PyTorch_DictValue::bind(m);
   PyTorch_TupleValue::bind(m);
   PyTorch_NnModuleValue::bind(m);
-  PyTorch_NonValueTensorValue::bind(m);
-  PyTorch_ValueTensorValue::bind(m);
   PyAnyTorchScalarValue::bind(m);
 }
 

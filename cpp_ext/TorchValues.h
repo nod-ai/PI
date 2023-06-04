@@ -27,9 +27,7 @@ namespace mlir::torch {
 bool isAAnyTorchDictKeyValue(MlirValue value);
 
 bool isAAnyTorchListOfOptionalIntValue(MlirValue value);
-bool isAAnyTorchListOfOptionalTensorValue(MlirValue value);
 
-bool isAAnyTorchListOfTensorValue(MlirValue value);
 bool isAAnyTorchListOfTorchBoolValue(MlirValue value);
 bool isAAnyTorchListOfTorchIntValue(MlirValue value);
 bool isAAnyTorchListOfTorchFloatValue(MlirValue value);
@@ -42,14 +40,12 @@ bool isAAnyTorchOptionalFloatValue(MlirValue value);
 bool isAAnyTorchOptionalGeneratorValue(MlirValue value);
 bool isAAnyTorchOptionalIntValue(MlirValue value);
 bool isAAnyTorchOptionalStringValue(MlirValue value);
-bool isAAnyTorchOptionalTensorValue(MlirValue value);
 bool isAAnyTorchOptionalValue(MlirValue value);
 
 bool isAAnyTorchOptionalListOfTorchIntValue(MlirValue value);
 
 bool isAAnyTorchOptionalScalarValue(MlirValue value);
 bool isAAnyTorchScalarValue(MlirValue value);
-bool isAAnyTorchTensorValue(MlirValue value);
 bool isAAnyTorchValue(MlirValue value);
 
 #define DECLARE_ISA_UNDERSCORE_VALUE(UNDERSCOREVALUE)                          \
@@ -222,15 +218,6 @@ DECLARE_LIST_BASE_CONCRETE_VALUE(Int)
 DECLARE_LIST_BASE_CONCRETE_VALUE(String)
 #undef DECLARE_LIST_BASE_CONCRETE_VALUE
 
-class PyAnyTorchListOfTensorValue
-    : public PyConcreteValue<PyAnyTorchListOfTensorValue, PyAnyTorchListValue> {
-public:
-  static constexpr IsAFunctionTy isaFunction = isAAnyTorchListOfTensorValue;
-  static constexpr const char *pyClassName = "AnyTorchListOfTensorValue";
-  using PyConcreteValue::PyConcreteValue;
-  static void bindDerived(ClassTy &c);
-};
-
 class PyAnyTorchOptionalValue
     : public PyConcreteValue<PyAnyTorchOptionalValue> {
 public:
@@ -255,20 +242,6 @@ public:
       : PyAnyTorchOptionalGeneratorValue(
             py::cast(PyTorch_NoneValue(n))
                 .cast<PyAnyTorchOptionalGeneratorValue>()) {}
-  using PyConcreteValue::PyConcreteValue;
-  static void bindDerived(ClassTy &c);
-};
-
-class PyAnyTorchOptionalTensorValue
-    : public PyConcreteValue<PyAnyTorchOptionalTensorValue,
-                             PyAnyTorchOptionalValue> {
-public:
-  static constexpr IsAFunctionTy isaFunction = isAAnyTorchOptionalTensorValue;
-  static constexpr const char *pyClassName = "AnyTorchOptionalTensorValue";
-  PyAnyTorchOptionalTensorValue(const py::none &n)
-      : PyAnyTorchOptionalTensorValue(
-            py::cast(PyTorch_NoneValue(n))
-                .cast<PyAnyTorchOptionalTensorValue>()) {}
   using PyConcreteValue::PyConcreteValue;
   static void bindDerived(ClassTy &c);
 };
@@ -365,24 +338,6 @@ class PyTorch_NnModuleValue : public PyConcreteValue<PyTorch_NnModuleValue> {
 public:
   static constexpr IsAFunctionTy isaFunction = isATorch_NnModuleValue;
   static constexpr const char *pyClassName = "Torch_NnModuleValue";
-  using PyConcreteValue::PyConcreteValue;
-  static void bindDerived(ClassTy &c);
-};
-
-class PyTorch_NonValueTensorValue
-    : public PyConcreteValue<PyTorch_NonValueTensorValue> {
-public:
-  static constexpr IsAFunctionTy isaFunction = isATorch_NonValueTensorValue;
-  static constexpr const char *pyClassName = "Torch_NonValueTensorValue";
-  using PyConcreteValue::PyConcreteValue;
-  static void bindDerived(ClassTy &c);
-};
-
-class PyTorch_ValueTensorValue
-    : public PyConcreteValue<PyTorch_ValueTensorValue> {
-public:
-  static constexpr IsAFunctionTy isaFunction = isATorch_ValueTensorValue;
-  static constexpr const char *pyClassName = "Torch_ValueTensorValue";
   using PyConcreteValue::PyConcreteValue;
   static void bindDerived(ClassTy &c);
 };
