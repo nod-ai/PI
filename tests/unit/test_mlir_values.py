@@ -480,3 +480,13 @@ class TestTorchValues:
                 "%3 = torch.aten.add.t %1, %2 : !torch.list<tensor<[2,2],f64>>, !torch.list<tensor<[2,2],f64>> -> !torch.list<tensor<[2,2],f64>>",
                 r.owner,
             )
+
+    def test_AnyTorchListOfTensorType(self):
+        with mlir_mod_ctx():
+            t = torch.NonValueTensorLiteralOp(_elementsAttr(np.ones((2, 2))))
+            tintv = torch.ConstantIntOp(1)
+            r = ops.unbind(t, tintv)
+            check_correct(
+                "%1 = torch.aten.unbind.int %0, %int1 : !torch.tensor<[2,2],f64>, !torch.int -> !torch.list<tensor>",
+                r.owner,
+            )

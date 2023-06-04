@@ -2357,10 +2357,8 @@ c.def("trunc_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs
 c.def("type_as", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &other) -> PyAnyTorchTensorValue { return type_as(self, other); }, "other"_a);
 
 // @overload unbind(self, dim _int=0) -> List[Tensor]
-c.def("unbind", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("unbind with signature @overload unbind(self, dim _int=0) -> List[Tensor]"); });
-
-// @overload unbind(self, dim Union[str, ellipsis, None]) -> List[Tensor]
-c.def("unbind", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("unbind with signature @overload unbind(self, dim Union[str, ellipsis, None]) -> List[Tensor]"); });
+// aten::unbind.int : (Tensor, int) -> (Tensor[])
+c.def("unbind", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim) -> PyAnyTorchListOfTensorValue { return unbind(self, dim); }, "dim"_a = 0);
 
 // @overload unflatten(self, dim Union[str, ellipsis, None], sizes Sequence[Union[_int, SymInt]], names Sequence[Union[str, ellipsis, None]]) -> Tensor
 c.def("unflatten", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("unflatten with signature @overload unflatten(self, dim Union[str, ellipsis, None], sizes Sequence[Union[_int, SymInt]], names Sequence[Union[str, ellipsis, None]]) -> Tensor"); });

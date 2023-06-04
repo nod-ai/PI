@@ -1178,6 +1178,9 @@ m.def("triu_", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dia
 // aten::type_as : (Tensor, Tensor) -> (Tensor)
 m.def("type_as", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &other) -> PyAnyTorchTensorValue { return type_as(self, other); }, "self"_a, "other"_a);
 
+// aten::unbind.int : (Tensor, int) -> (Tensor[])
+m.def("unbind", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim) -> PyAnyTorchListOfTensorValue { return unbind(self, dim); }, "self"_a, "dim"_a = 0);
+
 // aten::unfold_copy : (Tensor, int, int, int) -> (Tensor)
 m.def("unfold_copy", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dimension, const PyTorch_IntValue &size, const PyTorch_IntValue &step) -> PyAnyTorchTensorValue { return unfold_copy(self, dimension, size, step); }, "self"_a, "dimension"_a, "size"_a, "step"_a);
 

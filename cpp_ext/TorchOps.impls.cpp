@@ -1964,6 +1964,11 @@ PyAnyTorchTensorValue type_as(const PyAnyTorchTensorValue &self, const PyAnyTorc
   return PyGlobals::get().lookupOperationClass("torch.aten.type_as").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, other).cast<PyAnyTorchTensorValue>();
 }
 
+// aten::unbind.int : (Tensor, int) -> (Tensor[])
+PyAnyTorchListOfTensorValue unbind(const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.unbind.int").value()(PyAnyTorchListOfTensorType(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), DefaultingPyMlirContext::resolve()), self, dim).cast<PyAnyTorchListOfTensorValue>();
+}
+
 // aten::unfold_copy : (Tensor, int, int, int) -> (Tensor)
 PyAnyTorchTensorValue unfold_copy(const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dimension, const PyTorch_IntValue &size, const PyTorch_IntValue &step) {
   return PyGlobals::get().lookupOperationClass("torch.aten.unfold_copy").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, dimension, size, step).cast<PyAnyTorchTensorValue>();

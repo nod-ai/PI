@@ -102,6 +102,9 @@ def get_result_type_from_ods(ods):
                 first_arg_name = ods["arguments"]["args"][0][1]
                 contained_type_first_arg = f"torchMlirTorchListTypeGetContainedType(mlirValueGetType({first_arg_name}))"
                 result_type_arg = f"Py{result_type}({contained_type_first_arg}, DefaultingPyMlirContext::resolve())"
+            elif result_type == "AnyTorchListOfTensorType":
+                contained_type_first_arg = "PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve())"
+                result_type_arg = f"Py{result_type}({contained_type_first_arg}, DefaultingPyMlirContext::resolve())"
             else:
                 warnings.warn(f"Unimplemented return type {result_type}")
                 return
@@ -367,7 +370,7 @@ class TensorMethodVisitor(ast.NodeVisitor):
             matching_jitop_ods = try_to_find_op(overload_op_name)
 
         if len(matching_jitop_ods) == 0:
-            warnings.warn(f"found no matching overload for {op_name=}")
+            warnings.warn(f"found no matching overload for {op_name=} with {method_sig=}")
             return
 
         for jit_op, ods in matching_jitop_ods:
