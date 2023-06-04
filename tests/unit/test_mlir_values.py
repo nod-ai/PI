@@ -416,3 +416,22 @@ class TestTorchValues:
                     "Arithmetic ops on Scalar values with like types supported; type a: AnyTorchScalarValue(%int1_0 = torch.constant.int 1), type b: AnyTorchScalarValue(%float1.000000e00 = torch.constant.float 1.000000e+00)",
                     e,
                 )
+
+    def test_multiple_returns(self):
+        with mlir_mod_ctx():
+            # aten::max.dim : (Tensor, int, bool) -> (Tensor, Tensor)
+            t = torch.ValueTensorLiteralOp(_elementsAttr(np.ones((2, 2))))
+            r = ops.max(t, 0, True)
+            assert isinstance(r, tuple)
+            check_correct(
+                "%values, %indices = torch.aten.max.dim %0, %int0, %true : !torch.vtensor<[2,2],f64>, !torch.int, !torch.bool -> !torch.tensor, !torch.tensor",
+                r[0].owner,
+            )
+            assert r[0].owner.results[0].result_number == 0
+            assert r[0].owner.results[0] == r[0]
+            check_correct(
+                "%values, %indices = torch.aten.max.dim %0, %int0, %true : !torch.vtensor<[2,2],f64>, !torch.int, !torch.bool -> !torch.tensor, !torch.tensor",
+                r[1].owner,
+            )
+            assert r[1].owner.results[1].result_number == 1
+            assert r[1].owner.results[1] == r[1]

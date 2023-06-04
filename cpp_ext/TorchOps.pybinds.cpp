@@ -227,6 +227,9 @@ m.def("conv_transpose2d", [](const PyAnyTorchTensorValue &input, const PyAnyTorc
 // aten::conv_transpose3d.input : (Tensor, Tensor, Tensor?, int[], int[], int[], int, int[]) -> (Tensor)
 m.def("conv_transpose3d", [](const PyAnyTorchTensorValue &input, const PyAnyTorchTensorValue &weight, const PyAnyTorchOptionalTensorValue &bias, const PyAnyTorchListOfTorchIntValue &stride, const PyAnyTorchListOfTorchIntValue &padding, const PyAnyTorchListOfTorchIntValue &output_padding, const PyTorch_IntValue &groups, const PyAnyTorchListOfTorchIntValue &dilation) -> PyAnyTorchTensorValue { return conv_transpose3d(input, weight, bias, stride, padding, output_padding, groups, dilation); }, "input"_a, "weight"_a, "bias"_a = py::none(), "stride"_a = std::vector<int>{1, 1, 1}, "padding"_a = std::vector<int>{0, 0, 0}, "output_padding"_a = std::vector<int>{0, 0, 0}, "groups"_a = 1, "dilation"_a = std::vector<int>{1, 1, 1});
 
+// aten::convolution_backward : (Tensor, Tensor, Tensor, int[]?, int[], int[], int[], bool, int[], int, bool[]) -> (Tensor, Tensor, Tensor)
+m.def("convolution_backward", [](const PyAnyTorchTensorValue &grad_output, const PyAnyTorchTensorValue &input, const PyAnyTorchTensorValue &weight, const PyAnyTorchOptionalListOfTorchIntValue &bias_sizes, const PyAnyTorchListOfTorchIntValue &stride, const PyAnyTorchListOfTorchIntValue &padding, const PyAnyTorchListOfTorchIntValue &dilation, const PyTorch_BoolValue &transposed, const PyAnyTorchListOfTorchIntValue &output_padding, const PyTorch_IntValue &groups, const PyAnyTorchListOfTorchBoolValue &output_mask) -> std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue> { return convolution_backward(grad_output, input, weight, bias_sizes, stride, padding, dilation, transposed, output_padding, groups, output_mask); }, "grad_output"_a, "input"_a, "weight"_a, "bias_sizes"_a = py::none(), "stride"_a, "padding"_a, "dilation"_a, "transposed"_a, "output_padding"_a, "groups"_a, "output_mask"_a);
+
 // aten::convolution : (Tensor, Tensor, Tensor?, int[], int[], int[], bool, int[], int) -> (Tensor)
 m.def("convolution", [](const PyAnyTorchTensorValue &input, const PyAnyTorchTensorValue &weight, const PyAnyTorchOptionalTensorValue &bias, const PyAnyTorchListOfTorchIntValue &stride, const PyAnyTorchListOfTorchIntValue &padding, const PyAnyTorchListOfTorchIntValue &dilation, const PyTorch_BoolValue &transposed, const PyAnyTorchListOfTorchIntValue &output_padding, const PyTorch_IntValue &groups) -> PyAnyTorchTensorValue { return convolution(input, weight, bias, stride, padding, dilation, transposed, output_padding, groups); }, "input"_a, "weight"_a, "bias"_a = py::none(), "stride"_a, "padding"_a, "dilation"_a, "transposed"_a, "output_padding"_a, "groups"_a);
 
@@ -252,7 +255,7 @@ m.def("cross_entropy_loss", [](const PyAnyTorchTensorValue &self, const PyAnyTor
 m.def("cumsum", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyAnyTorchOptionalIntValue &dtype) -> PyAnyTorchTensorValue { return cumsum(self, dim, dtype); }, "self"_a, "dim"_a, "dtype"_a = py::none());
 
 // aten::Delete.Dict_str : (Dict(str, t), str) -> ()
-m.def("Delete", [](const PyTorch_DictValue &self, const PyTorch_StringValue &key) { return Delete(self, key); }, "self"_a, "key"_a);
+m.def("Delete", [](const PyTorch_DictValue &self, const PyTorch_StringValue &key) -> void { return Delete(self, key); }, "self"_a, "key"_a);
 
 // aten::detach_copy : (Tensor) -> (Tensor)
 m.def("detach_copy", [](const PyAnyTorchTensorValue &self) -> PyAnyTorchTensorValue { return detach_copy(self); }, "self"_a);
@@ -301,6 +304,9 @@ m.def("dropout", [](const PyAnyTorchTensorValue &input, const PyTorch_FloatValue
 
 // aten::dropout_ : (Tensor, float, bool) -> (Tensor)
 m.def("dropout_", [](const PyAnyTorchTensorValue &self, const PyTorch_FloatValue &p, const PyTorch_BoolValue &train) -> PyAnyTorchTensorValue { return dropout_(self, p, train); }, "self"_a, "p"_a, "train"_a);
+
+// aten::embedding_bag.padding_idx : (Tensor, Tensor, Tensor, bool, int, bool, Tensor?, bool, int?) -> (Tensor, Tensor, Tensor, Tensor)
+m.def("embedding_bag", [](const PyAnyTorchTensorValue &weight, const PyAnyTorchTensorValue &indices, const PyAnyTorchTensorValue &offsets, const PyTorch_BoolValue &scale_grad_by_freq, const PyTorch_IntValue &mode, const PyTorch_BoolValue &sparse, const PyAnyTorchOptionalTensorValue &per_sample_weights, const PyTorch_BoolValue &include_last_offset, const PyAnyTorchOptionalIntValue &padding_idx) -> std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue> { return embedding_bag(weight, indices, offsets, scale_grad_by_freq, mode, sparse, per_sample_weights, include_last_offset, padding_idx); }, "weight"_a, "indices"_a, "offsets"_a, "scale_grad_by_freq"_a, "mode"_a, "sparse"_a, "per_sample_weights"_a = py::none(), "include_last_offset"_a, "padding_idx"_a = py::none());
 
 // aten::embedding_dense_backward : (Tensor, Tensor, int, int, bool) -> (Tensor)
 m.def("embedding_dense_backward", [](const PyAnyTorchTensorValue &grad_output, const PyAnyTorchTensorValue &indices, const PyTorch_IntValue &num_weights, const PyTorch_IntValue &padding_idx, const PyTorch_BoolValue &scale_grad_by_freq) -> PyAnyTorchTensorValue { return embedding_dense_backward(grad_output, indices, num_weights, padding_idx, scale_grad_by_freq); }, "grad_output"_a, "indices"_a, "num_weights"_a, "padding_idx"_a, "scale_grad_by_freq"_a);
@@ -683,6 +689,9 @@ m.def("masked_select", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTen
 // aten::matmul : (Tensor, Tensor) -> (Tensor)
 m.def("matmul", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &other) -> PyAnyTorchTensorValue { return matmul(self, other); }, "self"_a, "other"_a);
 
+// aten::max.dim : (Tensor, int, bool) -> (Tensor, Tensor)
+m.def("max", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyTorch_BoolValue &keepdim) -> std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> { return max(self, dim, keepdim); }, "self"_a, "dim"_a, "keepdim"_a = false);
+
 // aten::max : (Tensor) -> (Tensor)
 m.def("max", [](const PyAnyTorchTensorValue &self) -> PyAnyTorchTensorValue { return max(self); }, "self"_a);
 
@@ -691,6 +700,9 @@ m.def("max_pool2d", [](const PyAnyTorchTensorValue &self, const PyAnyTorchListOf
 
 // aten::max_pool2d_with_indices_backward : (Tensor, Tensor, int[], int[], int[], int[], bool, Tensor) -> (Tensor)
 m.def("max_pool2d_with_indices_backward", [](const PyAnyTorchTensorValue &grad_output, const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTorchIntValue &kernel_size, const PyAnyTorchListOfTorchIntValue &stride, const PyAnyTorchListOfTorchIntValue &padding, const PyAnyTorchListOfTorchIntValue &dilation, const PyTorch_BoolValue &ceil_mode, const PyAnyTorchTensorValue &indices) -> PyAnyTorchTensorValue { return max_pool2d_with_indices_backward(grad_output, self, kernel_size, stride, padding, dilation, ceil_mode, indices); }, "grad_output"_a, "self"_a, "kernel_size"_a, "stride"_a, "padding"_a, "dilation"_a, "ceil_mode"_a, "indices"_a);
+
+// aten::max_pool2d_with_indices : (Tensor, int[], int[], int[], int[], bool) -> (Tensor, Tensor)
+m.def("max_pool2d_with_indices", [](const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTorchIntValue &kernel_size, const PyAnyTorchListOfTorchIntValue &stride, const PyAnyTorchListOfTorchIntValue &padding, const PyAnyTorchListOfTorchIntValue &dilation, const PyTorch_BoolValue &ceil_mode) -> std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> { return max_pool2d_with_indices(self, kernel_size, stride, padding, dilation, ceil_mode); }, "self"_a, "kernel_size"_a, "stride"_a = std::vector<int>{}, "padding"_a = std::vector<int>{0, 0}, "dilation"_a = std::vector<int>{1, 1}, "ceil_mode"_a = false);
 
 // aten::maximum : (Tensor, Tensor) -> (Tensor)
 m.def("maximum", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &other) -> PyAnyTorchTensorValue { return maximum(self, other); }, "self"_a, "other"_a);
@@ -743,8 +755,29 @@ m.def("mv", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &v
 // aten::narrow : (Tensor, int, int, int) -> (Tensor)
 m.def("narrow", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyTorch_IntValue &start, const PyTorch_IntValue &length) -> PyAnyTorchTensorValue { return narrow(self, dim, start, length); }, "self"_a, "dim"_a, "start"_a, "length"_a);
 
+// aten::native_batch_norm_backward : (Tensor, Tensor, Tensor?, Tensor?, Tensor?, Tensor?, Tensor?, bool, float, bool[]) -> (Tensor, Tensor, Tensor)
+m.def("native_batch_norm_backward", [](const PyAnyTorchTensorValue &grad_out, const PyAnyTorchTensorValue &input, const PyAnyTorchOptionalTensorValue &weight, const PyAnyTorchOptionalTensorValue &running_mean, const PyAnyTorchOptionalTensorValue &running_var, const PyAnyTorchOptionalTensorValue &save_mean, const PyAnyTorchOptionalTensorValue &save_invstd, const PyTorch_BoolValue &train, const PyTorch_FloatValue &eps, const PyAnyTorchListOfTorchBoolValue &output_mask) -> std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue> { return native_batch_norm_backward(grad_out, input, weight, running_mean, running_var, save_mean, save_invstd, train, eps, output_mask); }, "grad_out"_a, "input"_a, "weight"_a = py::none(), "running_mean"_a = py::none(), "running_var"_a = py::none(), "save_mean"_a = py::none(), "save_invstd"_a = py::none(), "train"_a, "eps"_a, "output_mask"_a);
+
+// aten::native_batch_norm : (Tensor, Tensor?, Tensor?, Tensor?, Tensor?, bool, float, float) -> (Tensor, Tensor, Tensor)
+m.def("native_batch_norm", [](const PyAnyTorchTensorValue &input, const PyAnyTorchOptionalTensorValue &weight, const PyAnyTorchOptionalTensorValue &bias, const PyAnyTorchOptionalTensorValue &running_mean, const PyAnyTorchOptionalTensorValue &running_var, const PyTorch_BoolValue &training, const PyTorch_FloatValue &momentum, const PyTorch_FloatValue &eps) -> std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue> { return native_batch_norm(input, weight, bias, running_mean, running_var, training, momentum, eps); }, "input"_a, "weight"_a = py::none(), "bias"_a = py::none(), "running_mean"_a = py::none(), "running_var"_a = py::none(), "training"_a, "momentum"_a, "eps"_a);
+
 // aten::native_dropout_backward : (Tensor, Tensor, float) -> (Tensor)
 m.def("native_dropout_backward", [](const PyAnyTorchTensorValue &grad_output, const PyAnyTorchTensorValue &mask, const PyTorch_FloatValue &scale) -> PyAnyTorchTensorValue { return native_dropout_backward(grad_output, mask, scale); }, "grad_output"_a, "mask"_a, "scale"_a);
+
+// aten::native_dropout : (Tensor, float, bool?) -> (Tensor, Tensor)
+m.def("native_dropout", [](const PyAnyTorchTensorValue &input, const PyTorch_FloatValue &p, const PyAnyTorchOptionalBoolValue &train) -> std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> { return native_dropout(input, p, train); }, "input"_a, "p"_a, "train"_a = py::none());
+
+// aten::native_group_norm_backward : (Tensor, Tensor, Tensor, Tensor, Tensor?, int, int, int, int, bool[]) -> (Tensor, Tensor, Tensor)
+m.def("native_group_norm_backward", [](const PyAnyTorchTensorValue &grad_out, const PyAnyTorchTensorValue &input, const PyAnyTorchTensorValue &mean, const PyAnyTorchTensorValue &rstd, const PyAnyTorchOptionalTensorValue &weight, const PyTorch_IntValue &N, const PyTorch_IntValue &C, const PyTorch_IntValue &HxW, const PyTorch_IntValue &group, const PyAnyTorchListOfTorchBoolValue &output_mask) -> std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue> { return native_group_norm_backward(grad_out, input, mean, rstd, weight, N, C, HxW, group, output_mask); }, "grad_out"_a, "input"_a, "mean"_a, "rstd"_a, "weight"_a = py::none(), "N"_a, "C"_a, "HxW"_a, "group"_a, "output_mask"_a);
+
+// aten::native_group_norm : (Tensor, Tensor?, Tensor?, int, int, int, int, float) -> (Tensor, Tensor, Tensor)
+m.def("native_group_norm", [](const PyAnyTorchTensorValue &input, const PyAnyTorchOptionalTensorValue &weight, const PyAnyTorchOptionalTensorValue &bias, const PyTorch_IntValue &N, const PyTorch_IntValue &C, const PyTorch_IntValue &HxW, const PyTorch_IntValue &group, const PyTorch_FloatValue &eps) -> std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue> { return native_group_norm(input, weight, bias, N, C, HxW, group, eps); }, "input"_a, "weight"_a = py::none(), "bias"_a = py::none(), "N"_a, "C"_a, "HxW"_a, "group"_a, "eps"_a);
+
+// aten::native_layer_norm_backward : (Tensor, Tensor, int[], Tensor, Tensor, Tensor?, Tensor?, bool[]) -> (Tensor, Tensor, Tensor)
+m.def("native_layer_norm_backward", [](const PyAnyTorchTensorValue &grad_out, const PyAnyTorchTensorValue &input, const PyAnyTorchListOfTorchIntValue &normalized_shape, const PyAnyTorchTensorValue &mean, const PyAnyTorchTensorValue &rstd, const PyAnyTorchOptionalTensorValue &weight, const PyAnyTorchOptionalTensorValue &bias, const PyAnyTorchListOfTorchBoolValue &output_mask) -> std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue> { return native_layer_norm_backward(grad_out, input, normalized_shape, mean, rstd, weight, bias, output_mask); }, "grad_out"_a, "input"_a, "normalized_shape"_a, "mean"_a, "rstd"_a, "weight"_a = py::none(), "bias"_a = py::none(), "output_mask"_a);
+
+// aten::native_layer_norm : (Tensor, int[], Tensor?, Tensor?, float) -> (Tensor, Tensor, Tensor)
+m.def("native_layer_norm", [](const PyAnyTorchTensorValue &input, const PyAnyTorchListOfTorchIntValue &normalized_shape, const PyAnyTorchOptionalTensorValue &weight, const PyAnyTorchOptionalTensorValue &bias, const PyTorch_FloatValue &eps) -> std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue> { return native_layer_norm(input, normalized_shape, weight, bias, eps); }, "input"_a, "normalized_shape"_a, "weight"_a = py::none(), "bias"_a = py::none(), "eps"_a);
 
 // aten::ne.bool : (bool, bool) -> (bool)
 m.def("ne", [](const PyTorch_BoolValue &a, const PyTorch_BoolValue &b) -> PyTorch_BoolValue { return ne(a, b); }, "a"_a, "b"_a);
@@ -797,8 +830,14 @@ m.def("new_zeros", [](const PyAnyTorchTensorValue &self, const PyAnyTorchListOfT
 // aten::nll_loss2d_backward : (Tensor, Tensor, Tensor, Tensor?, int, int, Tensor) -> (Tensor)
 m.def("nll_loss2d_backward", [](const PyAnyTorchTensorValue &grad_output, const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &target, const PyAnyTorchOptionalTensorValue &weight, const PyTorch_IntValue &reduction, const PyTorch_IntValue &ignore_index, const PyAnyTorchTensorValue &total_weight) -> PyAnyTorchTensorValue { return nll_loss2d_backward(grad_output, self, target, weight, reduction, ignore_index, total_weight); }, "grad_output"_a, "self"_a, "target"_a, "weight"_a = py::none(), "reduction"_a, "ignore_index"_a, "total_weight"_a);
 
+// aten::nll_loss2d_forward : (Tensor, Tensor, Tensor?, int, int) -> (Tensor, Tensor)
+m.def("nll_loss2d_forward", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &target, const PyAnyTorchOptionalTensorValue &weight, const PyTorch_IntValue &reduction, const PyTorch_IntValue &ignore_index) -> std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> { return nll_loss2d_forward(self, target, weight, reduction, ignore_index); }, "self"_a, "target"_a, "weight"_a = py::none(), "reduction"_a, "ignore_index"_a);
+
 // aten::nll_loss_backward : (Tensor, Tensor, Tensor, Tensor?, int, int, Tensor) -> (Tensor)
 m.def("nll_loss_backward", [](const PyAnyTorchTensorValue &grad_output, const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &target, const PyAnyTorchOptionalTensorValue &weight, const PyTorch_IntValue &reduction, const PyTorch_IntValue &ignore_index, const PyAnyTorchTensorValue &total_weight) -> PyAnyTorchTensorValue { return nll_loss_backward(grad_output, self, target, weight, reduction, ignore_index, total_weight); }, "grad_output"_a, "self"_a, "target"_a, "weight"_a = py::none(), "reduction"_a, "ignore_index"_a, "total_weight"_a);
+
+// aten::nll_loss_forward : (Tensor, Tensor, Tensor?, int, int) -> (Tensor, Tensor)
+m.def("nll_loss_forward", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &target, const PyAnyTorchOptionalTensorValue &weight, const PyTorch_IntValue &reduction, const PyTorch_IntValue &ignore_index) -> std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> { return nll_loss_forward(self, target, weight, reduction, ignore_index); }, "self"_a, "target"_a, "weight"_a = py::none(), "reduction"_a, "ignore_index"_a);
 
 // aten::norm.ScalarOpt_dim : (Tensor, Scalar?, int[], bool) -> (Tensor)
 m.def("norm", [](const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalScalarValue &p, const PyAnyTorchListOfTorchIntValue &dim, const PyTorch_BoolValue &keepdim) -> PyAnyTorchTensorValue { return norm(self, p, dim, keepdim); }, "self"_a, "p"_a = py::none(), "dim"_a, "keepdim"_a = false);
@@ -984,7 +1023,10 @@ m.def("softmax", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &d
 m.def("softplus", [](const PyAnyTorchTensorValue &self, const PyAnyTorchScalarValue &beta, const PyAnyTorchScalarValue &threshold__) -> PyAnyTorchTensorValue { return softplus(self, beta, threshold__); }, "self"_a, "beta"_a = 1, "threshold__"_a);
 
 // aten::sort.int : (int[], bool) -> ()
-m.def("sort", [](const PyAnyTorchListOfTorchIntValue &self, const PyTorch_BoolValue &reverse) { return sort(self, reverse); }, "self"_a, "reverse"_a = false);
+m.def("sort", [](const PyAnyTorchListOfTorchIntValue &self, const PyTorch_BoolValue &reverse) -> void { return sort(self, reverse); }, "self"_a, "reverse"_a = false);
+
+// aten::sort : (Tensor, int, bool) -> (Tensor, Tensor)
+m.def("sort", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyTorch_BoolValue &descending) -> std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> { return sort(self, dim, descending); }, "self"_a, "dim"_a = -1, "descending"_a = false);
 
 // aten::sqrt.int : (int) -> (float)
 m.def("sqrt", [](const PyTorch_IntValue &a) -> PyTorch_FloatValue { return sqrt(a); }, "a"_a);
@@ -1100,6 +1142,9 @@ m.def("to", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &o
 // aten::to.prim_Device : (Tensor, Device?, int?, bool, bool) -> (Tensor)
 m.def("to", [](const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalDeviceValue &device, const PyAnyTorchOptionalIntValue &dtype, const PyTorch_BoolValue &non_blocking, const PyTorch_BoolValue &copy) -> PyAnyTorchTensorValue { return to(self, device, dtype, non_blocking, copy); }, "self"_a, "device"_a = py::none(), "dtype"_a = py::none(), "non_blocking"_a = false, "copy"_a = false);
 
+// aten::topk : (Tensor, int, int, bool, bool) -> (Tensor, Tensor)
+m.def("topk", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &k, const PyTorch_IntValue &dim, const PyTorch_BoolValue &largest, const PyTorch_BoolValue &sorted) -> std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> { return topk(self, k, dim, largest, sorted); }, "self"_a, "k"_a, "dim"_a = -1, "largest"_a = true, "sorted"_a = true);
+
 // aten::transpose_copy.int : (Tensor, int, int) -> (Tensor)
 m.def("transpose_copy", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim0, const PyTorch_IntValue &dim1) -> PyAnyTorchTensorValue { return transpose_copy(self, dim0, dim1); }, "self"_a, "dim0"_a, "dim1"_a);
 
@@ -1145,6 +1190,15 @@ m.def("var", [](const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalListO
 // aten::var.dim : (Tensor, int[]?, bool, bool) -> (Tensor)
 m.def("var", [](const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalListOfTorchIntValue &dim, const PyTorch_BoolValue &unbiased, const PyTorch_BoolValue &keepdim) -> PyAnyTorchTensorValue { return var(self, dim, unbiased, keepdim); }, "self"_a, "dim"_a = py::none(), "unbiased"_a = true, "keepdim"_a = false);
 
+// aten::var_mean.correction : (Tensor, int[]?, Scalar?, bool) -> (Tensor, Tensor)
+m.def("var_mean", [](const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalListOfTorchIntValue &dim, const PyAnyTorchOptionalScalarValue &correction, const PyTorch_BoolValue &keepdim) -> std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> { return var_mean(self, dim, correction, keepdim); }, "self"_a, "dim"_a = py::none(), "correction"_a = py::none(), "keepdim"_a = false);
+
+// aten::var_mean.dim : (Tensor, int[]?, bool, bool) -> (Tensor, Tensor)
+m.def("var_mean", [](const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalListOfTorchIntValue &dim, const PyTorch_BoolValue &unbiased, const PyTorch_BoolValue &keepdim) -> std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> { return var_mean(self, dim, unbiased, keepdim); }, "self"_a, "dim"_a = py::none(), "unbiased"_a = true, "keepdim"_a = false);
+
+// aten::var_mean : (Tensor, bool) -> (Tensor, Tensor)
+m.def("var_mean", [](const PyAnyTorchTensorValue &self, const PyTorch_BoolValue &unbiased) -> std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> { return var_mean(self, unbiased); }, "self"_a, "unbiased"_a = true);
+
 // aten::var : (Tensor, bool) -> (Tensor)
 m.def("var", [](const PyAnyTorchTensorValue &self, const PyTorch_BoolValue &unbiased) -> PyAnyTorchTensorValue { return var(self, unbiased); }, "self"_a, "unbiased"_a = true);
 
@@ -1189,6 +1243,9 @@ m.def("_convolution", [](const PyAnyTorchTensorValue &input, const PyAnyTorchTen
 
 // aten::_convolution : (Tensor, Tensor, Tensor?, int[], int[], int[], bool, int[], int, bool, bool, bool, bool) -> (Tensor)
 m.def("_convolution", [](const PyAnyTorchTensorValue &input, const PyAnyTorchTensorValue &weight, const PyAnyTorchOptionalTensorValue &bias, const PyAnyTorchListOfTorchIntValue &stride, const PyAnyTorchListOfTorchIntValue &padding, const PyAnyTorchListOfTorchIntValue &dilation, const PyTorch_BoolValue &transposed, const PyAnyTorchListOfTorchIntValue &output_padding, const PyTorch_IntValue &groups, const PyTorch_BoolValue &benchmark, const PyTorch_BoolValue &deterministic, const PyTorch_BoolValue &cudnn_enabled, const PyTorch_BoolValue &allow_tf32) -> PyAnyTorchTensorValue { return _convolution(input, weight, bias, stride, padding, dilation, transposed, output_padding, groups, benchmark, deterministic, cudnn_enabled, allow_tf32); }, "input"_a, "weight"_a, "bias"_a = py::none(), "stride"_a, "padding"_a, "dilation"_a, "transposed"_a, "output_padding"_a, "groups"_a, "benchmark"_a, "deterministic"_a, "cudnn_enabled"_a, "allow_tf32"_a);
+
+// aten::_embedding_bag : (Tensor, Tensor, Tensor, bool, int, bool, Tensor?, bool, int) -> (Tensor, Tensor, Tensor, Tensor)
+m.def("_embedding_bag", [](const PyAnyTorchTensorValue &weight, const PyAnyTorchTensorValue &indices, const PyAnyTorchTensorValue &offsets, const PyTorch_BoolValue &scale_grad_by_freq, const PyTorch_IntValue &mode, const PyTorch_BoolValue &sparse, const PyAnyTorchOptionalTensorValue &per_sample_weights, const PyTorch_BoolValue &include_last_offset, const PyTorch_IntValue &padding_idx) -> std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue> { return _embedding_bag(weight, indices, offsets, scale_grad_by_freq, mode, sparse, per_sample_weights, include_last_offset, padding_idx); }, "weight"_a, "indices"_a, "offsets"_a, "scale_grad_by_freq"_a = false, "mode"_a = 0, "sparse"_a = false, "per_sample_weights"_a = py::none(), "include_last_offset"_a = false, "padding_idx"_a = -1);
 
 // aten::_log_softmax_backward_data : (Tensor, Tensor, int, int) -> (Tensor)
 m.def("_log_softmax_backward_data", [](const PyAnyTorchTensorValue &grad_output, const PyAnyTorchTensorValue &output, const PyTorch_IntValue &dim, const PyTorch_IntValue &input_dtype) -> PyAnyTorchTensorValue { return _log_softmax_backward_data(grad_output, output, dim, input_dtype); }, "grad_output"_a, "output"_a, "dim"_a, "input_dtype"_a);
@@ -1263,7 +1320,7 @@ m.def("min", [](const PyAnyTorchListOfTorchIntValue &self) -> PyTorch_IntValue {
 m.def("NumToTensor", [](const PyAnyTorchScalarValue &a) -> PyAnyTorchTensorValue { return NumToTensor(a); }, "a"_a);
 
 // prim::RaiseException : (str, str?) -> ()
-m.def("RaiseException", [](const PyTorch_StringValue &msg, const PyAnyTorchOptionalStringValue &cls) { return RaiseException(msg, cls); }, "msg"_a, "cls"_a = py::none());
+m.def("RaiseException", [](const PyTorch_StringValue &msg, const PyAnyTorchOptionalStringValue &cls) -> void { return RaiseException(msg, cls); }, "msg"_a, "cls"_a = py::none());
 
 // prims::convert_element_type : (Tensor, int) -> (Tensor)
 m.def("convert_element_type", [](const PyAnyTorchTensorValue &a, const PyTorch_IntValue &dtype) -> PyAnyTorchTensorValue { return convert_element_type(a, dtype); }, "a"_a, "dtype"_a);

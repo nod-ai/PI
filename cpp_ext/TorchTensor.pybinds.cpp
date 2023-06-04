@@ -1551,6 +1551,10 @@ c.def("matrix_power", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs 
 // aten::max : (Tensor) -> (Tensor)
 c.def("max", [](const PyAnyTorchTensorValue &self) -> PyAnyTorchTensorValue { return max(self); });
 
+// @overload max(self, dim _int, keepdim _bool=False) -> torch.return_types.max
+// aten::max.dim : (Tensor, int, bool) -> (Tensor, Tensor)
+c.def("max", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyTorch_BoolValue &keepdim) -> std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> { return max(self, dim, keepdim); }, "dim"_a, "keepdim"_a = false);
+
 // maximum(self, other Tensor) -> Tensor
 // aten::maximum : (Tensor, Tensor) -> (Tensor)
 c.def("maximum", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &other) -> PyAnyTorchTensorValue { return maximum(self, other); }, "other"_a);
@@ -2078,6 +2082,10 @@ c.def("smm", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) {
 // aten::softmax.int : (Tensor, int, int?) -> (Tensor)
 c.def("softmax", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyAnyTorchOptionalIntValue &dtype) -> PyAnyTorchTensorValue { return softmax(self, dim, dtype); }, "dim"_a, "dtype"_a = py::none());
 
+// @overload sort(self, dim _int=-1, descending _bool=False) -> torch.return_types.sort
+// aten::sort : (Tensor, int, bool) -> (Tensor, Tensor)
+c.def("sort", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyTorch_BoolValue &descending) -> std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> { return sort(self, dim, descending); }, "dim"_a = -1, "descending"_a = false);
+
 // sparse_dim(self) -> _int
 c.def("sparse_dim", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("sparse_dim with signature sparse_dim(self) -> _int"); });
 
@@ -2294,7 +2302,8 @@ c.def("to_sparse_csr", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs
 c.def("tolist", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("tolist with signature tolist(self) -> List"); });
 
 // topk(self, k Union[_int, SymInt], dim _int=-1, largest _bool=True, sorted _bool=True) -> torch.return_types.topk
-c.def("topk", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("topk with signature topk(self, k Union[_int, SymInt], dim _int=-1, largest _bool=True, sorted _bool=True) -> torch.return_types.topk"); });
+// aten::topk : (Tensor, int, int, bool, bool) -> (Tensor, Tensor)
+c.def("topk", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &k, const PyTorch_IntValue &dim, const PyTorch_BoolValue &largest, const PyTorch_BoolValue &sorted) -> std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> { return topk(self, k, dim, largest, sorted); }, "k"_a, "dim"_a = -1, "largest"_a = true, "sorted"_a = true);
 
 // trace(self) -> Tensor
 c.def("trace", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("trace with signature trace(self) -> Tensor"); });

@@ -84,11 +84,45 @@ def get_params_from_ods_args(ods):
 
 def get_result_type_from_ods(ods):
     results = ods["results"]["args"]
-    if len(results) == 0:
-        return ""
-    if len(results) > 1:
-        return None
-    return results[0][0]["def"]
+
+    result_type_args = []
+    result_types = []
+    for result in results:
+        result_type = result[0]["def"]
+        result_types.append(result_type)
+        result_type_arg = None
+        if "Any" in result_type:
+            if result_type == "AnyTorchTensorType":
+                result_type_arg = "PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve())"
+            elif result_type in {
+                "AnyTorchListOfTorchStringType",
+                "AnyTorchListOfTorchIntType",
+            }:
+                result_type_arg = f"Py{result_type}(DefaultingPyMlirContext::resolve())"
+            else:
+                # warnings.warn(f"Unimplemented return type {result_type} for {schema=}")
+                return
+
+        if result_type_arg:
+            result_type_args.append(result_type_arg)
+
+    if len(result_type_args):
+        result_type_arg = f"{', '.join(result_type_args)}, "
+    else:
+        result_type_arg = ""
+
+    if len(result_types) == 0:
+        result_type = "void"
+        cast = ""
+    elif len(result_types) == 1:
+        result_type = f"Py{result_types[0].replace('Type', 'Value')}"
+        cast = f".cast<{result_type}>()"
+    else:
+        result_types = [f"Py{r.replace('Type', 'Value')}" for r in result_types]
+        result_type = f"std::tuple<{', '.join(result_types)}>"
+        cast = f".cast<{result_type}>()"
+
+    return result_type, result_type_arg, cast
 
 
 def get_defaults_from_jit_op(op):
@@ -141,10 +175,20 @@ def generate_torch_ops_impls(cpp_ext_dir, torch_mlir_ods_json):
             jit_op = registry.by_unique_key[schema]
             op_name, cpp_class_name = jit_op.get_mlir_names()
             params = get_params_from_ods_args(ods)
-            result_type = get_result_type_from_ods(ods)
-            if result_type is None:
-                warnings.warn(f"Skipping variadic return {schema=}")
+            result_type_result_type_arg_cast = get_result_type_from_ods(ods)
+            if result_type_result_type_arg_cast is None:
+                warnings.warn(f"Unimplemented return type {result_type} for {schema=}")
                 continue
+
+            (
+                result_type,
+                result_type_arg,
+                cast,
+            ) = result_type_result_type_arg_cast
+            if result_type != "void":
+                return_ = "return "
+            else:
+                return_ = ""
 
             has_unimplemented_type = UNIMPLEMENTED_TYPES.intersection(
                 {type for _name, type in params}
@@ -156,35 +200,6 @@ def generate_torch_ops_impls(cpp_ext_dir, torch_mlir_ods_json):
                 continue
 
             api_params = get_params_str_from_params(params)
-
-            result_type_arg = ""
-            if "Any" in result_type:
-                if result_type == "AnyTorchTensorType":
-                    result_type_arg = "PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve())"
-                elif result_type in {
-                    "AnyTorchListOfTorchStringType",
-                    "AnyTorchListOfTorchIntType",
-                }:
-                    result_type_arg = (
-                        f"Py{result_type}(DefaultingPyMlirContext::resolve())"
-                    )
-                else:
-                    warnings.warn(
-                        f"Unimplemented return type {result_type} for {schema=}"
-                    )
-                    continue
-
-            if result_type_arg:
-                result_type_arg = f"{result_type_arg}, "
-
-            if result_type:
-                result_type = f"Py{result_type.replace('Type', 'Value')}"
-                cast = f".cast<{result_type}>()"
-                return_ = "return "
-            else:
-                result_type = "void"
-                cast = ""
-                return_ = ""
 
             impl = dedent(
                 f"""
@@ -219,7 +234,6 @@ def generate_torch_ops_pybinds(jitops_odses, cpp_ext_dir):
             tramp_str = []
             schema = get_schema_from_ods(ods)
             params = get_params_from_ods_args(ods)
-            result_type = get_result_type_from_ods(ods)
             defaults = get_defaults_from_jit_op(jit_op)
 
             for name, type in params:
@@ -242,12 +256,11 @@ def generate_torch_ops_pybinds(jitops_odses, cpp_ext_dir):
             tramp_str = ", ".join(tramp_str)
             param_str = ", ".join(param_str)
 
-            if result_type:
-                result_type = f"-> Py{result_type.replace('Type', 'Value')} "
+            result_type, *_ = get_result_type_from_ods(ods)
             impl = dedent(
                 f"""
                     // {schema}
-                    m.def("{jit_op.unqualified_name}", []({param_str}) {result_type}{{ return {jit_op.unqualified_name}({tramp_str}); }}, {labels_str});
+                    m.def("{jit_op.unqualified_name}", []({param_str}) -> {result_type} {{ return {jit_op.unqualified_name}({tramp_str}); }}, {labels_str});
                 """
             )
 
@@ -358,17 +371,16 @@ class TensorMethodVisitor(ast.NodeVisitor):
             schema = get_schema_from_ods(ods)
             params = get_params_from_ods_args(ods)
             defaults = get_defaults_from_jit_op(jit_op)
-            result_type = get_result_type_from_ods(ods)
             if schema in self.visited:
                 return
+
+            result_type, *_ = get_result_type_from_ods(ods)
 
             self.visited.add(schema)
 
             if result_type:
-                result_type = f"Py{result_type.replace('Type', 'Value')}"
                 return_ = "return "
             else:
-                result_type = "void"
                 return_ = ""
 
             params_dict = dict(params)

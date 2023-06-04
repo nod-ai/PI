@@ -97,7 +97,7 @@ from ._mlir_libs._pi_mlir import Tensor
 Tensor = Tensor
 
 from .dialects import _ods_common
-from .dialects._ods_common import get_op_result_or_value
+from .dialects._ods_common import get_op_result_or_value, get_op_results_or_values
 from .ir import (
     Value,
     Type,
@@ -118,69 +118,74 @@ from .ir import (
 )
 
 
+def type_caster(results):
+    if len(results) == 1:
+        val = results[0]
+        # if TorchAnyType.isinstance(val.type):
+        #     return TorchAnyValue(val)
+        if Torch_BoolType.isinstance(val.type):
+            return Torch_BoolValue(val)
+        if Torch_DeviceType.isinstance(val.type):
+            return Torch_DeviceValue(val)
+        if Torch_DictType.isinstance(val.type):
+            return Torch_DictValue(val)
+        if Torch_FloatType.isinstance(val.type):
+            return Torch_FloatValue(val)
+        # if Torch_GeneratorType.isinstance(val.type):
+        #     return Torch_GeneratorValue(val)
+        if Torch_IntType.isinstance(val.type):
+            return Torch_IntValue(val)
+        if Torch_LinearParamsType.isinstance(val.type):
+            return Torch_LinearParamsValue(val)
+        if AnyTorchListType.isinstance(val.type):
+            return AnyTorchListValue(val)
+        if AnyTorchListOfTensorType.isinstance(val.type):
+            return AnyTorchListOfTensorValue(val)
+        if Torch_NnModuleType.isinstance(val.type):
+            return Torch_NnModuleValue(val)
+        if AnyTorchTensorType.isinstance(val.type):
+            return Tensor(val)
+        if AnyTorchScalarType.isinstance(val.type):
+            return AnyTorchScalarValue(val)
+        if Torch_NonValueTensorType.isinstance(val.type):
+            return Torch_NonValueTensorValue(val)
+        if Torch_NoneType.isinstance(val.type):
+            return Torch_NoneValue(val)
+        if Torch_NumberType.isinstance(val.type):
+            return Torch_NumberValue(val)
+        if AnyTorchOptionalType.isinstance(val.type):
+            return AnyTorchOptionalValue(val)
+        if AnyTorchOptionalIntType.isinstance(val.type):
+            return AnyTorchOptionalIntValue(val)
+        if AnyTorchOptionalBoolType.isinstance(val.type):
+            return AnyTorchOptionalBoolValue(val)
+        if AnyTorchOptionalDeviceType.isinstance(val.type):
+            return AnyTorchOptionalDeviceValue(val)
+        if AnyTorchOptionalFloatType.isinstance(val.type):
+            return AnyTorchOptionalFloatValue(val)
+        if AnyTorchOptionalTensorType.isinstance(val.type):
+            return AnyTorchOptionalTensorValue(val)
+        # if TorchQInt8Type.isinstance(val.type):
+        #     return TorchQInt8Value(val)
+        # if TorchQUInt8Type.isinstance(val.type):
+        #     return TorchQUInt8Value(val)
+        if Torch_StringType.isinstance(val.type):
+            return Torch_StringValue(val)
+        if Torch_TupleType.isinstance(val.type):
+            return Torch_TupleValue(val)
+        # if TorchUnionType.isinstance(val.type):
+        #     return TorchUnionValue(val)
+        if Torch_ValueTensorType.isinstance(val.type):
+            return Torch_ValueTensorValue(val)
+    else:
+        return tuple(type_caster((r,)) for r in results)
+
+
 class ValueMeta(type(Value)):
     def __call__(cls, *args, **kwargs):
         cls_obj = cls.__new__(cls, *args, **kwargs)
         cls.__init__(cls_obj, *args, **kwargs)
-        if len(cls_obj.results) == 1:
-            val = get_op_result_or_value(cls_obj)
-            # if TorchAnyType.isinstance(val.type):
-            #     return TorchAnyValue(val)
-            if Torch_BoolType.isinstance(val.type):
-                return Torch_BoolValue(val)
-            if Torch_DeviceType.isinstance(val.type):
-                return Torch_DeviceValue(val)
-            if Torch_DictType.isinstance(val.type):
-                return Torch_DictValue(val)
-            if Torch_FloatType.isinstance(val.type):
-                return Torch_FloatValue(val)
-            # if Torch_GeneratorType.isinstance(val.type):
-            #     return Torch_GeneratorValue(val)
-            if Torch_IntType.isinstance(val.type):
-                return Torch_IntValue(val)
-            if Torch_LinearParamsType.isinstance(val.type):
-                return Torch_LinearParamsValue(val)
-            if AnyTorchListType.isinstance(val.type):
-                return AnyTorchListValue(val)
-            if AnyTorchListOfTensorType.isinstance(val.type):
-                return AnyTorchListOfTensorValue(val)
-            if Torch_NnModuleType.isinstance(val.type):
-                return Torch_NnModuleValue(val)
-            if AnyTorchTensorType.isinstance(val.type):
-                return Tensor(val)
-            if AnyTorchScalarType.isinstance(val.type):
-                return AnyTorchScalarValue(val)
-            if Torch_NonValueTensorType.isinstance(val.type):
-                return Torch_NonValueTensorValue(val)
-            if Torch_NoneType.isinstance(val.type):
-                return Torch_NoneValue(val)
-            if Torch_NumberType.isinstance(val.type):
-                return Torch_NumberValue(val)
-            if AnyTorchOptionalType.isinstance(val.type):
-                return AnyTorchOptionalValue(val)
-            if AnyTorchOptionalIntType.isinstance(val.type):
-                return AnyTorchOptionalIntValue(val)
-            if AnyTorchOptionalBoolType.isinstance(val.type):
-                return AnyTorchOptionalBoolValue(val)
-            if AnyTorchOptionalDeviceType.isinstance(val.type):
-                return AnyTorchOptionalDeviceValue(val)
-            if AnyTorchOptionalFloatType.isinstance(val.type):
-                return AnyTorchOptionalFloatValue(val)
-            if AnyTorchOptionalTensorType.isinstance(val.type):
-                return AnyTorchOptionalTensorValue(val)
-            # if TorchQInt8Type.isinstance(val.type):
-            #     return TorchQInt8Value(val)
-            # if TorchQUInt8Type.isinstance(val.type):
-            #     return TorchQUInt8Value(val)
-            if Torch_StringType.isinstance(val.type):
-                return Torch_StringValue(val)
-            if Torch_TupleType.isinstance(val.type):
-                return Torch_TupleValue(val)
-            # if TorchUnionType.isinstance(val.type):
-            #     return TorchUnionValue(val)
-            if Torch_ValueTensorType.isinstance(val.type):
-                return Torch_ValueTensorValue(val)
-        return cls_obj
+        return type_caster(tuple(cls_obj.results))
 
 
 def rebuild_with_meta(parent_opview_cls, mixin=False):

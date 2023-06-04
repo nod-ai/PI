@@ -379,6 +379,11 @@ PyAnyTorchTensorValue conv_transpose3d(const PyAnyTorchTensorValue &input, const
   return PyGlobals::get().lookupOperationClass("torch.aten.conv_transpose3d.input").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), input, weight, bias, stride, padding, output_padding, groups, dilation).cast<PyAnyTorchTensorValue>();
 }
 
+// aten::convolution_backward : (Tensor, Tensor, Tensor, int[]?, int[], int[], int[], bool, int[], int, bool[]) -> (Tensor, Tensor, Tensor)
+std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue> convolution_backward(const PyAnyTorchTensorValue &grad_output, const PyAnyTorchTensorValue &input, const PyAnyTorchTensorValue &weight, const PyAnyTorchOptionalListOfTorchIntValue &bias_sizes, const PyAnyTorchListOfTorchIntValue &stride, const PyAnyTorchListOfTorchIntValue &padding, const PyAnyTorchListOfTorchIntValue &dilation, const PyTorch_BoolValue &transposed, const PyAnyTorchListOfTorchIntValue &output_padding, const PyTorch_IntValue &groups, const PyAnyTorchListOfTorchBoolValue &output_mask) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.convolution_backward").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), grad_output, input, weight, bias_sizes, stride, padding, dilation, transposed, output_padding, groups, output_mask).cast<std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue>>();
+}
+
 // aten::convolution : (Tensor, Tensor, Tensor?, int[], int[], int[], bool, int[], int) -> (Tensor)
 PyAnyTorchTensorValue convolution(const PyAnyTorchTensorValue &input, const PyAnyTorchTensorValue &weight, const PyAnyTorchOptionalTensorValue &bias, const PyAnyTorchListOfTorchIntValue &stride, const PyAnyTorchListOfTorchIntValue &padding, const PyAnyTorchListOfTorchIntValue &dilation, const PyTorch_BoolValue &transposed, const PyAnyTorchListOfTorchIntValue &output_padding, const PyTorch_IntValue &groups) {
   return PyGlobals::get().lookupOperationClass("torch.aten.convolution").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), input, weight, bias, stride, padding, dilation, transposed, output_padding, groups).cast<PyAnyTorchTensorValue>();
@@ -502,6 +507,11 @@ PyAnyTorchTensorValue dropout(const PyAnyTorchTensorValue &input, const PyTorch_
 // aten::dropout_ : (Tensor, float, bool) -> (Tensor)
 PyAnyTorchTensorValue dropout_(const PyAnyTorchTensorValue &self, const PyTorch_FloatValue &p, const PyTorch_BoolValue &train) {
   return PyGlobals::get().lookupOperationClass("torch.aten.dropout_").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, p, train).cast<PyAnyTorchTensorValue>();
+}
+
+// aten::embedding_bag.padding_idx : (Tensor, Tensor, Tensor, bool, int, bool, Tensor?, bool, int?) -> (Tensor, Tensor, Tensor, Tensor)
+std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue> embedding_bag(const PyAnyTorchTensorValue &weight, const PyAnyTorchTensorValue &indices, const PyAnyTorchTensorValue &offsets, const PyTorch_BoolValue &scale_grad_by_freq, const PyTorch_IntValue &mode, const PyTorch_BoolValue &sparse, const PyAnyTorchOptionalTensorValue &per_sample_weights, const PyTorch_BoolValue &include_last_offset, const PyAnyTorchOptionalIntValue &padding_idx) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.embedding_bag.padding_idx").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), weight, indices, offsets, scale_grad_by_freq, mode, sparse, per_sample_weights, include_last_offset, padding_idx).cast<std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue>>();
 }
 
 // aten::embedding_dense_backward : (Tensor, Tensor, int, int, bool) -> (Tensor)
@@ -1139,6 +1149,11 @@ PyAnyTorchTensorValue matmul(const PyAnyTorchTensorValue &self, const PyAnyTorch
   return PyGlobals::get().lookupOperationClass("torch.aten.matmul").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, other).cast<PyAnyTorchTensorValue>();
 }
 
+// aten::max.dim : (Tensor, int, bool) -> (Tensor, Tensor)
+std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> max(const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyTorch_BoolValue &keepdim) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.max.dim").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, dim, keepdim).cast<std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue>>();
+}
+
 // aten::max : (Tensor) -> (Tensor)
 PyAnyTorchTensorValue max(const PyAnyTorchTensorValue &self) {
   return PyGlobals::get().lookupOperationClass("torch.aten.max").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self).cast<PyAnyTorchTensorValue>();
@@ -1152,6 +1167,11 @@ PyAnyTorchTensorValue max_pool2d(const PyAnyTorchTensorValue &self, const PyAnyT
 // aten::max_pool2d_with_indices_backward : (Tensor, Tensor, int[], int[], int[], int[], bool, Tensor) -> (Tensor)
 PyAnyTorchTensorValue max_pool2d_with_indices_backward(const PyAnyTorchTensorValue &grad_output, const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTorchIntValue &kernel_size, const PyAnyTorchListOfTorchIntValue &stride, const PyAnyTorchListOfTorchIntValue &padding, const PyAnyTorchListOfTorchIntValue &dilation, const PyTorch_BoolValue &ceil_mode, const PyAnyTorchTensorValue &indices) {
   return PyGlobals::get().lookupOperationClass("torch.aten.max_pool2d_with_indices_backward").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), grad_output, self, kernel_size, stride, padding, dilation, ceil_mode, indices).cast<PyAnyTorchTensorValue>();
+}
+
+// aten::max_pool2d_with_indices : (Tensor, int[], int[], int[], int[], bool) -> (Tensor, Tensor)
+std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> max_pool2d_with_indices(const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTorchIntValue &kernel_size, const PyAnyTorchListOfTorchIntValue &stride, const PyAnyTorchListOfTorchIntValue &padding, const PyAnyTorchListOfTorchIntValue &dilation, const PyTorch_BoolValue &ceil_mode) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.max_pool2d_with_indices").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, kernel_size, stride, padding, dilation, ceil_mode).cast<std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue>>();
 }
 
 // aten::maximum : (Tensor, Tensor) -> (Tensor)
@@ -1239,9 +1259,44 @@ PyAnyTorchTensorValue narrow(const PyAnyTorchTensorValue &self, const PyTorch_In
   return PyGlobals::get().lookupOperationClass("torch.aten.narrow").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, dim, start, length).cast<PyAnyTorchTensorValue>();
 }
 
+// aten::native_batch_norm_backward : (Tensor, Tensor, Tensor?, Tensor?, Tensor?, Tensor?, Tensor?, bool, float, bool[]) -> (Tensor, Tensor, Tensor)
+std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue> native_batch_norm_backward(const PyAnyTorchTensorValue &grad_out, const PyAnyTorchTensorValue &input, const PyAnyTorchOptionalTensorValue &weight, const PyAnyTorchOptionalTensorValue &running_mean, const PyAnyTorchOptionalTensorValue &running_var, const PyAnyTorchOptionalTensorValue &save_mean, const PyAnyTorchOptionalTensorValue &save_invstd, const PyTorch_BoolValue &train, const PyTorch_FloatValue &eps, const PyAnyTorchListOfTorchBoolValue &output_mask) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.native_batch_norm_backward").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), grad_out, input, weight, running_mean, running_var, save_mean, save_invstd, train, eps, output_mask).cast<std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue>>();
+}
+
+// aten::native_batch_norm : (Tensor, Tensor?, Tensor?, Tensor?, Tensor?, bool, float, float) -> (Tensor, Tensor, Tensor)
+std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue> native_batch_norm(const PyAnyTorchTensorValue &input, const PyAnyTorchOptionalTensorValue &weight, const PyAnyTorchOptionalTensorValue &bias, const PyAnyTorchOptionalTensorValue &running_mean, const PyAnyTorchOptionalTensorValue &running_var, const PyTorch_BoolValue &training, const PyTorch_FloatValue &momentum, const PyTorch_FloatValue &eps) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.native_batch_norm").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), input, weight, bias, running_mean, running_var, training, momentum, eps).cast<std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue>>();
+}
+
 // aten::native_dropout_backward : (Tensor, Tensor, float) -> (Tensor)
 PyAnyTorchTensorValue native_dropout_backward(const PyAnyTorchTensorValue &grad_output, const PyAnyTorchTensorValue &mask, const PyTorch_FloatValue &scale) {
   return PyGlobals::get().lookupOperationClass("torch.aten.native_dropout_backward").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), grad_output, mask, scale).cast<PyAnyTorchTensorValue>();
+}
+
+// aten::native_dropout : (Tensor, float, bool?) -> (Tensor, Tensor)
+std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> native_dropout(const PyAnyTorchTensorValue &input, const PyTorch_FloatValue &p, const PyAnyTorchOptionalBoolValue &train) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.native_dropout").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), input, p, train).cast<std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue>>();
+}
+
+// aten::native_group_norm_backward : (Tensor, Tensor, Tensor, Tensor, Tensor?, int, int, int, int, bool[]) -> (Tensor, Tensor, Tensor)
+std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue> native_group_norm_backward(const PyAnyTorchTensorValue &grad_out, const PyAnyTorchTensorValue &input, const PyAnyTorchTensorValue &mean, const PyAnyTorchTensorValue &rstd, const PyAnyTorchOptionalTensorValue &weight, const PyTorch_IntValue &N, const PyTorch_IntValue &C, const PyTorch_IntValue &HxW, const PyTorch_IntValue &group, const PyAnyTorchListOfTorchBoolValue &output_mask) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.native_group_norm_backward").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), grad_out, input, mean, rstd, weight, N, C, HxW, group, output_mask).cast<std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue>>();
+}
+
+// aten::native_group_norm : (Tensor, Tensor?, Tensor?, int, int, int, int, float) -> (Tensor, Tensor, Tensor)
+std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue> native_group_norm(const PyAnyTorchTensorValue &input, const PyAnyTorchOptionalTensorValue &weight, const PyAnyTorchOptionalTensorValue &bias, const PyTorch_IntValue &N, const PyTorch_IntValue &C, const PyTorch_IntValue &HxW, const PyTorch_IntValue &group, const PyTorch_FloatValue &eps) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.native_group_norm").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), input, weight, bias, N, C, HxW, group, eps).cast<std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue>>();
+}
+
+// aten::native_layer_norm_backward : (Tensor, Tensor, int[], Tensor, Tensor, Tensor?, Tensor?, bool[]) -> (Tensor, Tensor, Tensor)
+std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue> native_layer_norm_backward(const PyAnyTorchTensorValue &grad_out, const PyAnyTorchTensorValue &input, const PyAnyTorchListOfTorchIntValue &normalized_shape, const PyAnyTorchTensorValue &mean, const PyAnyTorchTensorValue &rstd, const PyAnyTorchOptionalTensorValue &weight, const PyAnyTorchOptionalTensorValue &bias, const PyAnyTorchListOfTorchBoolValue &output_mask) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.native_layer_norm_backward").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), grad_out, input, normalized_shape, mean, rstd, weight, bias, output_mask).cast<std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue>>();
+}
+
+// aten::native_layer_norm : (Tensor, int[], Tensor?, Tensor?, float) -> (Tensor, Tensor, Tensor)
+std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue> native_layer_norm(const PyAnyTorchTensorValue &input, const PyAnyTorchListOfTorchIntValue &normalized_shape, const PyAnyTorchOptionalTensorValue &weight, const PyAnyTorchOptionalTensorValue &bias, const PyTorch_FloatValue &eps) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.native_layer_norm").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), input, normalized_shape, weight, bias, eps).cast<std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue>>();
 }
 
 // aten::ne.bool : (bool, bool) -> (bool)
@@ -1329,9 +1384,19 @@ PyAnyTorchTensorValue nll_loss2d_backward(const PyAnyTorchTensorValue &grad_outp
   return PyGlobals::get().lookupOperationClass("torch.aten.nll_loss2d_backward").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), grad_output, self, target, weight, reduction, ignore_index, total_weight).cast<PyAnyTorchTensorValue>();
 }
 
+// aten::nll_loss2d_forward : (Tensor, Tensor, Tensor?, int, int) -> (Tensor, Tensor)
+std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> nll_loss2d_forward(const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &target, const PyAnyTorchOptionalTensorValue &weight, const PyTorch_IntValue &reduction, const PyTorch_IntValue &ignore_index) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.nll_loss2d_forward").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, target, weight, reduction, ignore_index).cast<std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue>>();
+}
+
 // aten::nll_loss_backward : (Tensor, Tensor, Tensor, Tensor?, int, int, Tensor) -> (Tensor)
 PyAnyTorchTensorValue nll_loss_backward(const PyAnyTorchTensorValue &grad_output, const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &target, const PyAnyTorchOptionalTensorValue &weight, const PyTorch_IntValue &reduction, const PyTorch_IntValue &ignore_index, const PyAnyTorchTensorValue &total_weight) {
   return PyGlobals::get().lookupOperationClass("torch.aten.nll_loss_backward").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), grad_output, self, target, weight, reduction, ignore_index, total_weight).cast<PyAnyTorchTensorValue>();
+}
+
+// aten::nll_loss_forward : (Tensor, Tensor, Tensor?, int, int) -> (Tensor, Tensor)
+std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> nll_loss_forward(const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &target, const PyAnyTorchOptionalTensorValue &weight, const PyTorch_IntValue &reduction, const PyTorch_IntValue &ignore_index) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.nll_loss_forward").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, target, weight, reduction, ignore_index).cast<std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue>>();
 }
 
 // aten::norm.ScalarOpt_dim : (Tensor, Scalar?, int[], bool) -> (Tensor)
@@ -1644,6 +1709,11 @@ void sort(const PyAnyTorchListOfTorchIntValue &self, const PyTorch_BoolValue &re
   PyGlobals::get().lookupOperationClass("torch.aten.sort.int").value()(self, reverse);
 }
 
+// aten::sort : (Tensor, int, bool) -> (Tensor, Tensor)
+std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> sort(const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyTorch_BoolValue &descending) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.sort").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, dim, descending).cast<std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue>>();
+}
+
 // aten::sqrt.int : (int) -> (float)
 PyTorch_FloatValue sqrt(const PyTorch_IntValue &a) {
   return PyGlobals::get().lookupOperationClass("torch.aten.sqrt.int").value()(a).cast<PyTorch_FloatValue>();
@@ -1834,6 +1904,11 @@ PyAnyTorchTensorValue to(const PyAnyTorchTensorValue &self, const PyAnyTorchOpti
   return PyGlobals::get().lookupOperationClass("torch.aten.to.prim_Device").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, device, dtype, non_blocking, copy).cast<PyAnyTorchTensorValue>();
 }
 
+// aten::topk : (Tensor, int, int, bool, bool) -> (Tensor, Tensor)
+std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> topk(const PyAnyTorchTensorValue &self, const PyTorch_IntValue &k, const PyTorch_IntValue &dim, const PyTorch_BoolValue &largest, const PyTorch_BoolValue &sorted) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.topk").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, k, dim, largest, sorted).cast<std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue>>();
+}
+
 // aten::transpose_copy.int : (Tensor, int, int) -> (Tensor)
 PyAnyTorchTensorValue transpose_copy(const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim0, const PyTorch_IntValue &dim1) {
   return PyGlobals::get().lookupOperationClass("torch.aten.transpose_copy.int").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, dim0, dim1).cast<PyAnyTorchTensorValue>();
@@ -1909,6 +1984,21 @@ PyAnyTorchTensorValue var(const PyAnyTorchTensorValue &self, const PyAnyTorchOpt
   return PyGlobals::get().lookupOperationClass("torch.aten.var.dim").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, dim, unbiased, keepdim).cast<PyAnyTorchTensorValue>();
 }
 
+// aten::var_mean.correction : (Tensor, int[]?, Scalar?, bool) -> (Tensor, Tensor)
+std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> var_mean(const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalListOfTorchIntValue &dim, const PyAnyTorchOptionalScalarValue &correction, const PyTorch_BoolValue &keepdim) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.var_mean.correction").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, dim, correction, keepdim).cast<std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue>>();
+}
+
+// aten::var_mean.dim : (Tensor, int[]?, bool, bool) -> (Tensor, Tensor)
+std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> var_mean(const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalListOfTorchIntValue &dim, const PyTorch_BoolValue &unbiased, const PyTorch_BoolValue &keepdim) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.var_mean.dim").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, dim, unbiased, keepdim).cast<std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue>>();
+}
+
+// aten::var_mean : (Tensor, bool) -> (Tensor, Tensor)
+std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> var_mean(const PyAnyTorchTensorValue &self, const PyTorch_BoolValue &unbiased) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.var_mean").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, unbiased).cast<std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue>>();
+}
+
 // aten::var : (Tensor, bool) -> (Tensor)
 PyAnyTorchTensorValue var(const PyAnyTorchTensorValue &self, const PyTorch_BoolValue &unbiased) {
   return PyGlobals::get().lookupOperationClass("torch.aten.var").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, unbiased).cast<PyAnyTorchTensorValue>();
@@ -1982,6 +2072,11 @@ PyAnyTorchTensorValue _convolution(const PyAnyTorchTensorValue &input, const PyA
 // aten::_convolution : (Tensor, Tensor, Tensor?, int[], int[], int[], bool, int[], int, bool, bool, bool, bool) -> (Tensor)
 PyAnyTorchTensorValue _convolution(const PyAnyTorchTensorValue &input, const PyAnyTorchTensorValue &weight, const PyAnyTorchOptionalTensorValue &bias, const PyAnyTorchListOfTorchIntValue &stride, const PyAnyTorchListOfTorchIntValue &padding, const PyAnyTorchListOfTorchIntValue &dilation, const PyTorch_BoolValue &transposed, const PyAnyTorchListOfTorchIntValue &output_padding, const PyTorch_IntValue &groups, const PyTorch_BoolValue &benchmark, const PyTorch_BoolValue &deterministic, const PyTorch_BoolValue &cudnn_enabled, const PyTorch_BoolValue &allow_tf32) {
   return PyGlobals::get().lookupOperationClass("torch.aten._convolution").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), input, weight, bias, stride, padding, dilation, transposed, output_padding, groups, benchmark, deterministic, cudnn_enabled, allow_tf32).cast<PyAnyTorchTensorValue>();
+}
+
+// aten::_embedding_bag : (Tensor, Tensor, Tensor, bool, int, bool, Tensor?, bool, int) -> (Tensor, Tensor, Tensor, Tensor)
+std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue> _embedding_bag(const PyAnyTorchTensorValue &weight, const PyAnyTorchTensorValue &indices, const PyAnyTorchTensorValue &offsets, const PyTorch_BoolValue &scale_grad_by_freq, const PyTorch_IntValue &mode, const PyTorch_BoolValue &sparse, const PyAnyTorchOptionalTensorValue &per_sample_weights, const PyTorch_BoolValue &include_last_offset, const PyTorch_IntValue &padding_idx) {
+  return PyGlobals::get().lookupOperationClass("torch.aten._embedding_bag").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), weight, indices, offsets, scale_grad_by_freq, mode, sparse, per_sample_weights, include_last_offset, padding_idx).cast<std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue>>();
 }
 
 // aten::_log_softmax_backward_data : (Tensor, Tensor, int, int) -> (Tensor)
