@@ -90,9 +90,10 @@ bool isAAnyTorchValue(MlirValue value) {
 FORALL_UNDERSCORE_TYPES(DECLARE_ISA_UNDERSCORE_VALUE)
 #undef DECLARE_ISA_UNDERSCORE_VALUE
 
-// these are here (even though they're empty) as a reminder (because it might
-// be hard to miss in the macros...
-void PyAnyTorchListValue::bindDerived(ClassTy &c) {}
+void PyAnyTorchListValue::bindDerived(ClassTy &c) {
+  c.def(py::init<py::list>(), py::arg("value"));
+  py::implicitly_convertible<py::list, PyAnyTorchListValue>();
+}
 
 #define DEFINE_LIST_BASE_CONCRETE_VALUE(TORCHTYPE)                             \
   void PyAnyTorchListOf##TORCHTYPE##Value::bindDerived(ClassTy &c) {           \

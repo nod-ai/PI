@@ -97,8 +97,13 @@ def get_result_type_from_ods(ods):
                 "AnyTorchListOfTorchIntType",
             }:
                 result_type_arg = f"Py{result_type}(DefaultingPyMlirContext::resolve())"
+            elif result_type == "AnyTorchListType":
+                assert len(ods["arguments"]["args"])
+                first_arg_name = ods["arguments"]["args"][0][1]
+                contained_type_first_arg = f"torchMlirTorchListTypeGetContainedType(mlirValueGetType({first_arg_name}))"
+                result_type_arg = f"Py{result_type}({contained_type_first_arg}, DefaultingPyMlirContext::resolve())"
             else:
-                # warnings.warn(f"Unimplemented return type {result_type} for {schema=}")
+                warnings.warn(f"Unimplemented return type {result_type}")
                 return
 
         if result_type_arg:
@@ -175,7 +180,7 @@ def generate_torch_ops_impls(cpp_ext_dir, torch_mlir_ods_json):
             params = get_params_from_ods_args(ods)
             result_type_result_type_arg_cast = get_result_type_from_ods(ods)
             if result_type_result_type_arg_cast is None:
-                warnings.warn(f"Unimplemented return type {result_type} for {schema=}")
+                warnings.warn(f"Unimplemented return type for {schema=}")
                 continue
 
             (

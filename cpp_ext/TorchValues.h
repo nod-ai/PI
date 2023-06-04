@@ -138,6 +138,15 @@ public:
                 .value()(type, list)
                 .template cast<PyAnyTorchListValue>()){};
 
+  PyAnyTorchListValue(const py::list &list)
+      : PyAnyTorchListValue(
+            mlir::python::PyGlobals::get()
+                .lookupOperationClass("torch.prim.ListConstruct")
+                .value()(torchMlirTorchListTypeGet(
+                             mlirValueGetType(list[0].cast<PyValue>().get())),
+                         list)
+                .template cast<PyAnyTorchListValue>()){};
+
   template <class T>
   PyAnyTorchListValue(py::object type, const py::list &list, tag<T>)
       : PyAnyTorchListValue(type, [list]() {

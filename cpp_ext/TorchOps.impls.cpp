@@ -34,6 +34,11 @@ PyTorch_StringValue add(const PyTorch_StringValue &a, const PyTorch_StringValue 
   return PyGlobals::get().lookupOperationClass("torch.aten.add.str").value()(a, b).cast<PyTorch_StringValue>();
 }
 
+// aten::add.t : (t[], t[]) -> (t[])
+PyAnyTorchListValue add(const PyAnyTorchListValue &a, const PyAnyTorchListValue &b) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.add.t").value()(PyAnyTorchListType(torchMlirTorchListTypeGetContainedType(mlirValueGetType(a)), DefaultingPyMlirContext::resolve()), a, b).cast<PyAnyTorchListValue>();
+}
+
 // aten::add.Tensor : (Tensor, Tensor, Scalar) -> (Tensor)
 PyAnyTorchTensorValue add(const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &other, const PyAnyTorchScalarValue &alpha) {
   return PyGlobals::get().lookupOperationClass("torch.aten.add.Tensor").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, other, alpha).cast<PyAnyTorchTensorValue>();
@@ -1014,6 +1019,11 @@ PyAnyTorchTensorValue linear(const PyAnyTorchTensorValue &input, const PyAnyTorc
   return PyGlobals::get().lookupOperationClass("torch.aten.linear").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), input, weight, bias).cast<PyAnyTorchTensorValue>();
 }
 
+// aten::list.t : (t[]) -> (t[])
+PyAnyTorchListValue list(const PyAnyTorchListValue &l) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.list.t").value()(PyAnyTorchListType(torchMlirTorchListTypeGetContainedType(mlirValueGetType(l)), DefaultingPyMlirContext::resolve()), l).cast<PyAnyTorchListValue>();
+}
+
 // aten::log1p : (Tensor) -> (Tensor)
 PyAnyTorchTensorValue log1p(const PyAnyTorchTensorValue &self) {
   return PyGlobals::get().lookupOperationClass("torch.aten.log1p").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self).cast<PyAnyTorchTensorValue>();
@@ -1702,6 +1712,11 @@ PyAnyTorchTensorValue slice_copy(const PyAnyTorchTensorValue &self, const PyTorc
 // aten::slice_scatter : (Tensor, Tensor, int, int?, int?, int) -> (Tensor)
 PyAnyTorchTensorValue slice_scatter(const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &src, const PyTorch_IntValue &dim, const PyAnyTorchOptionalIntValue &start, const PyAnyTorchOptionalIntValue &end, const PyTorch_IntValue &step) {
   return PyGlobals::get().lookupOperationClass("torch.aten.slice_scatter").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, src, dim, start, end, step).cast<PyAnyTorchTensorValue>();
+}
+
+// aten::slice.t : (t[], int?, int?, int) -> (t[])
+PyAnyTorchListValue slice(const PyAnyTorchListValue &l, const PyAnyTorchOptionalIntValue &start, const PyAnyTorchOptionalIntValue &end, const PyTorch_IntValue &step) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.slice.t").value()(PyAnyTorchListType(torchMlirTorchListTypeGetContainedType(mlirValueGetType(l)), DefaultingPyMlirContext::resolve()), l, start, end, step).cast<PyAnyTorchListValue>();
 }
 
 // aten::slice.Tensor : (Tensor, int, int?, int?, int) -> (Tensor)

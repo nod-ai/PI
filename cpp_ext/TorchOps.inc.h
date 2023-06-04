@@ -20,6 +20,9 @@ PyAnyTorchTensorValue add(const PyAnyTorchTensorValue &self, const PyAnyTorchSca
 // aten::add.str : (str, str) -> (str)
 PyTorch_StringValue add(const PyTorch_StringValue &a, const PyTorch_StringValue &b);
 
+// aten::add.t : (t[], t[]) -> (t[])
+PyAnyTorchListValue add(const PyAnyTorchListValue &a, const PyAnyTorchListValue &b);
+
 // aten::add.Tensor : (Tensor, Tensor, Scalar) -> (Tensor)
 PyAnyTorchTensorValue add(const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &other, const PyAnyTorchScalarValue &alpha);
 
@@ -608,6 +611,9 @@ PyAnyTorchTensorValue linalg_vector_norm(const PyAnyTorchTensorValue &self, cons
 // aten::linear : (Tensor, Tensor, Tensor?) -> (Tensor)
 PyAnyTorchTensorValue linear(const PyAnyTorchTensorValue &input, const PyAnyTorchTensorValue &weight, const PyAnyTorchOptionalTensorValue &bias);
 
+// aten::list.t : (t[]) -> (t[])
+PyAnyTorchListValue list(const PyAnyTorchListValue &l);
+
 // aten::log1p : (Tensor) -> (Tensor)
 PyAnyTorchTensorValue log1p(const PyAnyTorchTensorValue &self);
 
@@ -1021,6 +1027,9 @@ PyAnyTorchTensorValue slice_copy(const PyAnyTorchTensorValue &self, const PyTorc
 
 // aten::slice_scatter : (Tensor, Tensor, int, int?, int?, int) -> (Tensor)
 PyAnyTorchTensorValue slice_scatter(const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &src, const PyTorch_IntValue &dim, const PyAnyTorchOptionalIntValue &start, const PyAnyTorchOptionalIntValue &end, const PyTorch_IntValue &step);
+
+// aten::slice.t : (t[], int?, int?, int) -> (t[])
+PyAnyTorchListValue slice(const PyAnyTorchListValue &l, const PyAnyTorchOptionalIntValue &start, const PyAnyTorchOptionalIntValue &end, const PyTorch_IntValue &step);
 
 // aten::slice.Tensor : (Tensor, int, int?, int?, int) -> (Tensor)
 PyAnyTorchTensorValue slice(const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyAnyTorchOptionalIntValue &start, const PyAnyTorchOptionalIntValue &end, const PyTorch_IntValue &step);

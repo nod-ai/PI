@@ -20,6 +20,9 @@ m.def("add", [](const PyAnyTorchTensorValue &self, const PyAnyTorchScalarValue &
 // aten::add.str : (str, str) -> (str)
 m.def("add", [](const PyTorch_StringValue &a, const PyTorch_StringValue &b) -> PyTorch_StringValue { return add(a, b); }, "a"_a, "b"_a);
 
+// aten::add.t : (t[], t[]) -> (t[])
+m.def("add", [](const PyAnyTorchListValue &a, const PyAnyTorchListValue &b) -> PyAnyTorchListValue { return add(a, b); }, "a"_a, "b"_a);
+
 // aten::add.Tensor : (Tensor, Tensor, Scalar) -> (Tensor)
 m.def("add", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &other, const PyAnyTorchScalarValue &alpha) -> PyAnyTorchTensorValue { return add(self, other, alpha); }, "self"_a, "other"_a, "alpha"_a = 1);
 
@@ -608,6 +611,9 @@ m.def("linalg_vector_norm", [](const PyAnyTorchTensorValue &self, const PyAnyTor
 // aten::linear : (Tensor, Tensor, Tensor?) -> (Tensor)
 m.def("linear", [](const PyAnyTorchTensorValue &input, const PyAnyTorchTensorValue &weight, const PyAnyTorchOptionalTensorValue &bias) -> PyAnyTorchTensorValue { return linear(input, weight, bias); }, "input"_a, "weight"_a, "bias"_a = py::none());
 
+// aten::list.t : (t[]) -> (t[])
+m.def("list", [](const PyAnyTorchListValue &l) -> PyAnyTorchListValue { return list(l); }, "l"_a);
+
 // aten::log1p : (Tensor) -> (Tensor)
 m.def("log1p", [](const PyAnyTorchTensorValue &self) -> PyAnyTorchTensorValue { return log1p(self); }, "self"_a);
 
@@ -1021,6 +1027,9 @@ m.def("slice_copy", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue
 
 // aten::slice_scatter : (Tensor, Tensor, int, int?, int?, int) -> (Tensor)
 m.def("slice_scatter", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &src, const PyTorch_IntValue &dim, const PyAnyTorchOptionalIntValue &start, const PyAnyTorchOptionalIntValue &end, const PyTorch_IntValue &step) -> PyAnyTorchTensorValue { return slice_scatter(self, src, dim, start, end, step); }, "self"_a, "src"_a, "dim"_a = 0, "start"_a = py::none(), "end"_a = py::none(), "step"_a = 1);
+
+// aten::slice.t : (t[], int?, int?, int) -> (t[])
+m.def("slice", [](const PyAnyTorchListValue &l, const PyAnyTorchOptionalIntValue &start, const PyAnyTorchOptionalIntValue &end, const PyTorch_IntValue &step) -> PyAnyTorchListValue { return slice(l, start, end, step); }, "l"_a, "start"_a = py::none(), "end"_a = py::none(), "step"_a = 1);
 
 // aten::slice.Tensor : (Tensor, int, int?, int?, int) -> (Tensor)
 m.def("slice", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyAnyTorchOptionalIntValue &start, const PyAnyTorchOptionalIntValue &end, const PyTorch_IntValue &step) -> PyAnyTorchTensorValue { return slice(self, dim, start, end, step); }, "self"_a, "dim"_a = 0, "start"_a = py::none(), "end"_a = py::none(), "step"_a = 1);

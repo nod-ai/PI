@@ -373,10 +373,10 @@ class TestTorchValues:
                             2. (a: pi.mlir._mlir_libs._pi_mlir.Torch_IntValue, b: pi.mlir._mlir_libs._pi_mlir.Torch_IntValue) -> pi.mlir._mlir_libs._pi_mlir.Torch_IntValue
                             3. (self: pi.mlir._mlir_libs._pi_mlir.Tensor, other: pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue, alpha: pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue = 1) -> pi.mlir._mlir_libs._pi_mlir.Tensor
                             4. (a: pi.mlir._mlir_libs._pi_mlir.Torch_StringValue, b: pi.mlir._mlir_libs._pi_mlir.Torch_StringValue) -> pi.mlir._mlir_libs._pi_mlir.Torch_StringValue
-                            5. (self: pi.mlir._mlir_libs._pi_mlir.Tensor, other: pi.mlir._mlir_libs._pi_mlir.Tensor, alpha: pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue = 1) -> pi.mlir._mlir_libs._pi_mlir.Tensor
-                            6. (arg0: pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue, arg1: pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue) -> object
-                            
-                        Invoked with: <pi.mlir._mlir_libs._pi_mlir.Torch_FloatValue object at 0x10c1699b0>, <pi.mlir._mlir_libs._pi_mlir.Torch_FloatValue object at 0x10c1699b0>, <pi.mlir._mlir_libs._pi_mlir.Torch_FloatValue object at 0x10c1699b0>
+                            5. (a: pi.mlir._mlir_libs._pi_mlir.AnyTorchListValue, b: pi.mlir._mlir_libs._pi_mlir.AnyTorchListValue) -> pi.mlir._mlir_libs._pi_mlir.AnyTorchListValue
+                            6. (self: pi.mlir._mlir_libs._pi_mlir.Tensor, other: pi.mlir._mlir_libs._pi_mlir.Tensor, alpha: pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue = 1) -> pi.mlir._mlir_libs._pi_mlir.Tensor
+                            7. (arg0: pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue, arg1: pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue) -> object
+                        Invoked with: <pi.mlir._mlir_libs._pi_mlir.Torch_FloatValue object at 0x111f7e870>, <pi.mlir._mlir_libs._pi_mlir.Torch_FloatValue object at 0x111f7e870>, <pi.mlir._mlir_libs._pi_mlir.Torch_FloatValue object at 0x111f7e870>
                         """
                             ).splitlines(keepends=False)
                         )
@@ -468,5 +468,15 @@ class TestTorchValues:
             r = ops.index(t, [None, None])
             check_correct(
                 "%7 = torch.aten.index.Tensor %0, %6 : !torch.tensor<[2,2],f64>, !torch.list<none> -> !torch.tensor",
+                r.owner,
+            )
+
+    def test_AnyTorchListType(self):
+        with mlir_mod_ctx():
+            t = torch.NonValueTensorLiteralOp(_elementsAttr(np.ones((2, 2))))
+
+            r = ops.add([t, t], [t, t])
+            check_correct(
+                "%3 = torch.aten.add.t %1, %2 : !torch.list<tensor<[2,2],f64>>, !torch.list<tensor<[2,2],f64>> -> !torch.list<tensor<[2,2],f64>>",
                 r.owner,
             )
