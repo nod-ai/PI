@@ -9,6 +9,12 @@ requires = ["setuptools>=42",
     "ninja"]
 build-backend = "setuptools.build_meta"
 
+[tool.pytest.ini_options]
+log_cli = false
+log_cli_level = "DEBUG"
+log_cli_format = "[%(filename)s:%(funcName)s:%(lineno)d] %(message)s"
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+
 [tool.cibuildwheel]
 before-build = "pip install -r build-requirements.txt -r requirements.txt -v"
 # HOLY FUCK

@@ -1,5 +1,5 @@
 from typing import TypeVar, Union, Tuple, Optional
-from .. import Tensor
+from pi import Tensor
 
 # Create some useful type aliases
 

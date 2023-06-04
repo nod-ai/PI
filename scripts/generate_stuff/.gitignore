@@ -1,3 +1,9 @@
 *.pyi*
 *.yaml
 JitOperatorRegistry.txt
+TorchOps.impls.cpp
+TorchOps.pybinds.cpp
+aten
+tools
+torch
+gen_pyi.py

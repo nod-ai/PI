@@ -1,57 +1,67 @@
-# this must be before all of other subpackage imports (the noinspection is so that pycharm doesn't reorder)
+from .mlir import Tensor as Tensor
+
 # noinspection PyUnresolvedReferences
-from . import mlir
+from .mlir._mlir_libs._pi_mlir import ops
 
-from .types_ import *
-from . import torch_wrappers
-from .torch_wrappers import *
+ops = ops
+ops.aten = ops
 
-from ._tensor import *
+# noinspection PyUnresolvedReferences
+from .mlir._mlir_libs._pi_mlir.ops import *
 
-from .tensor_helpers import *
-from . import tensor_helpers
+# noinspection PyUnresolvedReferences
+from .mlir._mlir_libs._pi_mlir import ops as _VF
 
-import types
+# noinspection PyUnresolvedReferences
+from .mlir._mlir_libs._pi_mlir import ops as _C
 
+_C._nn = _C
+# noinspection PyUnresolvedReferences
+from .mlir._mlir_libs._pi_mlir import ops as linalg
 
-class TorchWrappers:
-    def __getattr__(self, attr):
-        # prefer the rand, empty, etc in tensors over the one in wrappers
-        if hasattr(tensor_helpers, attr):
-            return getattr(tensor_helpers, attr)
-        if hasattr(torch_wrappers, attr):
-            return getattr(torch_wrappers, attr)
-        else:
-            raise NotImplementedError(f"_torch_wrappers.{attr}")
+linalg = linalg
 
+from .mlir.utils import (
+    dtype,
+    empty,
+    zeros,
+    ones,
+    rand,
+    randn,
+    tensor,
+    zeros_like,
+    empty_like,
+    TensorPlaceholder,
+    memory_format,
+    layout,
+)
 
-t = TorchWrappers()
+bfloat16 = dtype.bfloat16
+bool = dtype.bool
+complex32 = dtype.complex32
+complex64 = dtype.complex64
+half = float16 = dtype.float16
+float = float32 = dtype.float32
+double = float64 = dtype.float64
+int8 = dtype.int8
+int16 = dtype.int16
+int32 = dtype.int32
+long = int64 = dtype.int64
+qint8 = dtype.qint8
+quint8 = dtype.quint8
+uint8 = dtype.uint8
 
+strided: layout = layout.strided
+sparse_coo: layout = layout.sparse_coo
+sparse_csr: layout = layout.sparse_csr
+sparse_csc: layout = layout.sparse_csc
+sparse_bsr: layout = layout.sparse_bsr
+sparse_bsc: layout = layout.sparse_bsc
+_mkldnn: layout = layout._mkldnn
 
-class FakeModule(types.ModuleType):
-    def __init__(self, name, inner_modules=None):
-        if inner_modules is not None:
-            self.inner_modules = inner_modules
-        else:
-            self.inner_modules = []
-        super(FakeModule, self).__init__(name)
+contiguous_format = memory_format.contiguous_format
+preserve_format = memory_format.preserve_format
+channels_last = memory_format.channels_last
+channels_last_3d = memory_format.channels_last_3d
 
-    def __getattr__(self, attr):
-        if attr in self.inner_modules:
-            return t
-        else:
-            return getattr(t, attr)
-
-
-ops = FakeModule("ops", ["aten", "prim", "prims"])
-_C = FakeModule("_C", ["_nn"])
-_VF = FakeModule("_VF")
-special = FakeModule("special")
-linalg = FakeModule("linalg")
-
-
-def manual_seed(*_, **__):
-    return
-
-
-from . import nn as nn
+from . import nn

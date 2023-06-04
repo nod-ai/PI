@@ -1,19 +1,24 @@
+import math
 import warnings
 from typing import List, Optional, Tuple, Union, Callable
 
-import math
-
-import pi
 from . import _reduction as _Reduction
 from .modules.utils import _list_with_default, _pair, _triple, _single
-from ..types_ import (
-    dtype,
+from .types import (
     BroadcastingList2,
     boolean_dispatch,
     BroadcastingList3,
     BroadcastingList1,
 )
-from .. import _VF
+
+import pi
+from pi import dtype
+
+from pi import _VF
+
+# from pi._C import _infer_size
+# TODO(max): find this in PyTorch
+# from pi import _infer_size
 
 Tensor = pi.Tensor
 
@@ -24,6 +29,7 @@ conv2d = pi.conv2d
 # conv3d = pi.conv3d
 
 conv_transpose1d = pi.conv_transpose1d
+
 
 # conv_transpose2d = pi.conv_transpose2d
 
@@ -433,6 +439,9 @@ def lp_pool2d(
     return (pi.sign(out) * relu(pi.abs(out))).mul(kw * kh).pow(1.0 / norm_type)
 
 
+avg_pool1d = pi.avg_pool1d
+
+
 def lp_pool1d(
     input: Tensor,
     norm_type: Union[int, float],
@@ -519,6 +528,7 @@ adaptive_max_pool3d = boolean_dispatch(
     module_name=__name__,
     func_name="adaptive_max_pool3d",
 )
+
 
 # adaptive_avg_pool1d = pi.adaptive_avg_pool1d
 
@@ -806,6 +816,7 @@ def rrelu(
 # logsigmoid = pi._C._nn.log_sigmoid
 
 gelu = pi._C._nn.gelu
+
 
 # hardshrink = pi.hardshrink
 
