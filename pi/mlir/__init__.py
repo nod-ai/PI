@@ -175,6 +175,7 @@ def type_caster(results):
         #     return TorchUnionValue(val)
         if Torch_ValueTensorType.isinstance(val.type):
             return Torch_ValueTensorValue(val)
+        return val
     else:
         return tuple(type_caster((r,)) for r in results)
 
@@ -183,7 +184,11 @@ class ValueMeta(type(Value)):
     def __call__(cls, *args, **kwargs):
         cls_obj = cls.__new__(cls, *args, **kwargs)
         cls.__init__(cls_obj, *args, **kwargs)
-        return type_caster(tuple(cls_obj.results))
+        results = tuple(cls_obj.results)
+        if results:
+            return type_caster(results)
+        else:
+            return cls_obj
 
 
 def rebuild_with_meta(parent_opview_cls, mixin=False):

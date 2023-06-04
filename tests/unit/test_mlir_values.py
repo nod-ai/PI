@@ -90,6 +90,7 @@ class TestTorchValues:
                 "Torch_FloatValue(%float1.000000e00 = torch.constant.float 1.000000e+00)",
                 tfloat,
             )
+            assert float(tfloat) == 1.0
 
             tint = torch.ConstantIntOp(1)
             check_correct(
@@ -101,6 +102,7 @@ class TestTorchValues:
                 "Torch_IntValue(%int1 = torch.constant.int 1)",
                 tint,
             )
+            assert int(tint) == 1
 
             tbool = torch.ConstantBoolOp(True)
             check_correct(
@@ -109,6 +111,7 @@ class TestTorchValues:
             )
             assert Torch_BoolValue.isinstance(tbool)
             check_correct("Torch_BoolValue(%true = torch.constant.bool true)", tbool)
+            assert bool(tbool) == True
 
             tdevice = torch.ConstantDeviceOp("cuda")
             check_correct(
@@ -174,9 +177,9 @@ class TestTorchValues:
                 t,
             )
 
-            t = AnyTorchListOfTorchFloatValue([0.0, 1.0])
+            t = AnyTorchListOfTorchFloatValue([6.0, 8.0])
             check_correct(
-                "AnyTorchListOfTorchFloatValue(%5 = torch.prim.ListConstruct %float0.000000e00, %float1.000000e00_2 : (!torch.float, !torch.float) -> !torch.list<float>)",
+                "AnyTorchListOfTorchFloatValue(%5 = torch.prim.ListConstruct %float0.000000e00, %float1.000000e00 : (!torch.float, !torch.float) -> !torch.list<float>)",
                 t,
             )
 
@@ -192,6 +195,12 @@ class TestTorchValues:
                 t.owner,
             )
 
+            t = AnyTorchOptionalListOfTorchIntValue((1, 2))
+            check_correct(
+                "%7 = torch.prim.ListConstruct %int1_4, %int2 : (!torch.int, !torch.int) -> !torch.list<int>",
+                t.owner,
+            )
+
             t = AnyTorchOptionalListOfTorchIntValue(None)
             check_correct(
                 "%7 = torch.constant.none",
@@ -200,21 +209,21 @@ class TestTorchValues:
 
             t1 = torch.NonValueTensorLiteralOp(_elementsAttr(np.ones((2, 2))))
             t = AnyTorchOptionalListOfTorchIntValue([1, 2])
-            st = ops.linalg_vector_norm(t1, 1.0, t, True, 1)
+            st = ops.linalg_vector_norm(t1, 2.0, t, True, 1)
             check_correct(
-                "%10 = torch.aten.linalg_vector_norm %8, %float1.000000e00_7, %9, %true_8, %int1_9 : !torch.tensor<[2,2],f64>, !torch.float, !torch.list<int>, !torch.bool, !torch.int -> !torch.tensor",
+                "%10 = torch.aten.linalg_vector_norm %8, %float1.000000e00, %9, %true_8, %int1_9 : !torch.tensor<[2,2],f64>, !torch.float, !torch.list<int>, !torch.bool, !torch.int -> !torch.tensor",
                 st.owner,
             )
 
-            st = ops.linalg_vector_norm(t1, 1.0, None, True, 1)
+            st = ops.linalg_vector_norm(t1, 3.0, None, True, 1)
             check_correct(
-                "%11 = torch.aten.linalg_vector_norm %8, %float1.000000e00_10, %none_11, %true_12, %int1_13 : !torch.tensor<[2,2],f64>, !torch.float, !torch.none, !torch.bool, !torch.int -> !torch.tensor",
+                "%11 = torch.aten.linalg_vector_norm %8, %float1.000000e00, %none_11, %true_12, %int1_13 : !torch.tensor<[2,2],f64>, !torch.float, !torch.none, !torch.bool, !torch.int -> !torch.tensor",
                 st.owner,
             )
 
-            st = ops.linalg_vector_norm(t1, 1.0, None, True)
+            st = ops.linalg_vector_norm(t1, 4.0, None, True)
             check_correct(
-                "%12 = torch.aten.linalg_vector_norm %8, %float1.000000e00_14, %none_15, %true_16, %none_17 : !torch.tensor<[2,2],f64>, !torch.float, !torch.none, !torch.bool, !torch.none -> !torch.tensor",
+                "%12 = torch.aten.linalg_vector_norm %8, %float1.000000e00, %none_15, %true_16, %none_17 : !torch.tensor<[2,2],f64>, !torch.float, !torch.none, !torch.bool, !torch.none -> !torch.tensor",
                 st.owner,
             )
 
@@ -446,22 +455,16 @@ class TestTorchValues:
                 l.owner,
             )
 
-            l = AnyTorchListOfOptionalTensorValue([])
-            check_correct(
-                "%2 = torch.prim.ListConstruct  : () -> !torch.list<none>",
-                l.owner,
-            )
-
             l = AnyTorchListOfOptionalTensorValue([None, None])
             check_correct(
                 "%3 = torch.prim.ListConstruct %none, %none_0 : (!torch.none, !torch.none) -> !torch.list<none>",
                 l.owner,
             )
 
-            # aten::index.Tensor : (Tensor, Tensor?[]) -> (Tensor)
+            # aten::index.Tensor_hacked_twin : (Tensor, Tensor[]) -> (Tensor)
             r = ops.index(t, [t, t])
             check_correct(
-                "%5 = torch.aten.index.Tensor %0, %4 : !torch.tensor<[2,2],f64>, !torch.list<tensor<[2,2],f64>> -> !torch.tensor",
+                "%5 = torch.aten.index.Tensor_hacked_twin %0, %4 : !torch.tensor<[2,2],f64>, !torch.list<tensor<[2,2],f64>> -> !torch.tensor",
                 r.owner,
             )
 
@@ -479,6 +482,18 @@ class TestTorchValues:
             check_correct(
                 "%3 = torch.aten.add.t %1, %2 : !torch.list<tensor<[2,2],f64>>, !torch.list<tensor<[2,2],f64>> -> !torch.list<tensor<[2,2],f64>>",
                 r.owner,
+            )
+
+            r = ops.mean(t, (0, 2))
+            check_correct(
+                "%5 = torch.aten.mean.dim %0, %4, %false, %none : !torch.tensor<[2,2],f64>, !torch.list<int>, !torch.bool, !torch.none -> !torch.tensor",
+                r.owner,
+            )
+
+            t = AnyTorchListValue([1, 2, 3])
+            check_correct(
+                "AnyTorchListValue(%1 = torch.prim.ListConstruct %int1, %int2, %int3 : (!torch.int, !torch.int, !torch.int) -> !torch.list<int>)",
+                t,
             )
 
     def test_AnyTorchListOfTensorType(self):

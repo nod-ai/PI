@@ -90,9 +90,44 @@ bool isAAnyTorchValue(MlirValue value) {
 FORALL_UNDERSCORE_TYPES(DECLARE_ISA_UNDERSCORE_VALUE)
 #undef DECLARE_ISA_UNDERSCORE_VALUE
 
+py::object mapListToPyTorchListValue(const py::list &list) {
+  if (list.empty())
+    throw std::runtime_error("Can't cast empty list");
+
+  MlirType containedType;
+  auto &ctx = DefaultingPyMlirContext::resolve();
+
+  if (py::isinstance<py::int_>(list[0])) {
+    containedType = torchMlirTorchIntTypeGet(ctx.get());
+    mapListElementsToPyType<PyTorch_IntValue>(list);
+  } else if (py::isinstance<py::float_>(list[0])) {
+    containedType = torchMlirTorchFloatTypeGet(ctx.get());
+    mapListElementsToPyType<PyTorch_FloatValue>(list);
+  } else if (py::isinstance<py::bool_>(list[0])) {
+    containedType = torchMlirTorchBoolTypeGet(ctx.get());
+    mapListElementsToPyType<PyTorch_BoolValue>(list);
+  } else if (py::isinstance<py::str>(list[0])) {
+    containedType = torchMlirTorchStringTypeGet(ctx.get());
+    mapListElementsToPyType<PyTorch_StringValue>(list);
+  } else if (list[0].is_none()) {
+    containedType = torchMlirTorchNoneTypeGet(ctx.get());
+    mapListElementsToPyType<PyTorch_NoneValue>(list);
+  } else {
+    if (!py::isinstance<PyValue>(list[0]))
+      throw std::runtime_error("Can't infer list element type.");
+    containedType = mlirValueGetType(list[0].cast<PyValue>().get());
+  }
+
+  auto pyType =
+      py::cast(PyType(ctx.getRef(), torchMlirTorchListTypeGet(containedType)));
+  return pyType;
+}
+
 void PyAnyTorchListValue::bindDerived(ClassTy &c) {
   c.def(py::init<py::list>(), py::arg("value"));
+  c.def(py::init<py::tuple>(), py::arg("value"));
   py::implicitly_convertible<py::list, PyAnyTorchListValue>();
+  py::implicitly_convertible<py::tuple, PyAnyTorchListValue>();
 }
 
 #define DEFINE_LIST_BASE_CONCRETE_VALUE(TORCHTYPE)                             \
@@ -145,6 +180,7 @@ void PyAnyTorchOptionalScalarValue::bindDerived(ClassTy &c) {
 void PyAnyTorchOptionalListOfTorchIntValue::bindDerived(ClassTy &c) {
   c.def(py::init<py::none>(), py::arg("value"));
   c.def(py::init<py::list>(), py::arg("value"));
+  c.def(py::init<py::tuple>(), py::arg("value"));
   py::implicitly_convertible<py::none, PyAnyTorchOptionalListOfTorchIntValue>();
   py::implicitly_convertible<py::list, PyAnyTorchOptionalListOfTorchIntValue>();
   py::implicitly_convertible<py::tuple,
@@ -159,16 +195,25 @@ DEFINE_BIND_SCALAR_VALUE(None)
 DEFINE_BIND_SCALAR_VALUE(Number)
 #undef DEFINE_BIND_SCALAR_VALUE
 
-#define DEFINE_BIND_SCALAR_VALUE(TORCHTYPE, CPPTYPE)                           \
+#define DEFINE_BIND_SCALAR_VALUE(TORCHTYPE, CPPTYPE, DUNDER, ATTR)             \
   void PyTorch_##TORCHTYPE##Value::bindDerived(ClassTy &c) {                   \
     c.def(py::init<CPPTYPE>(), py::arg("value"));                              \
+    c.def("__" #DUNDER "__", [](py::object &self) {                            \
+      return py::module::import(MAKE_MLIR_PYTHON_QUALNAME("ir"))               \
+          .attr(#ATTR "Attr")(self.attr("owner")                               \
+                                  .attr("attributes")                          \
+                                  .attr("__getitem__")("value"))               \
+          .attr("value")                                                       \
+          .cast<CPPTYPE>();                                                    \
+    });                                                                        \
+                                                                               \
     py::implicitly_convertible<CPPTYPE, PyTorch_##TORCHTYPE##Value>();         \
   }
-DEFINE_BIND_SCALAR_VALUE(Bool, bool)
-DEFINE_BIND_SCALAR_VALUE(Device, int)
-DEFINE_BIND_SCALAR_VALUE(Int, int)
-DEFINE_BIND_SCALAR_VALUE(Float, float)
-DEFINE_BIND_SCALAR_VALUE(String, std::string)
+DEFINE_BIND_SCALAR_VALUE(Bool, bool, bool, Bool)
+DEFINE_BIND_SCALAR_VALUE(Device, int, int, Integer)
+DEFINE_BIND_SCALAR_VALUE(Int, int, int, Integer)
+DEFINE_BIND_SCALAR_VALUE(Float, float, float, Float)
+DEFINE_BIND_SCALAR_VALUE(String, std::string, str, String)
 #undef DEFINE_BIND_SCALAR_VALUE
 
 void PyTorch_DictValue::bindDerived(ClassTy &c) {}

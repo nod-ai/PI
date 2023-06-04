@@ -130,12 +130,19 @@ bool isAAnyTorchListOfTensorValue(MlirValue value);
 bool isAAnyTorchOptionalTensorValue(MlirValue value);
 bool isAAnyTorchTensorValue(MlirValue value);
 
+class PyAnyTorchListOfTensorValue;
+PyAnyTorchListOfTensorValue mapListToTorchListOfTensorValue(const py::list &l);
+
 class PyAnyTorchListOfTensorValue
     : public PyConcreteValue<PyAnyTorchListOfTensorValue, PyAnyTorchListValue> {
 public:
   static constexpr IsAFunctionTy isaFunction = isAAnyTorchListOfTensorValue;
   static constexpr const char *pyClassName = "AnyTorchListOfTensorValue";
   using PyConcreteValue::PyConcreteValue;
+  PyAnyTorchListOfTensorValue(const py::list &l)
+      : PyAnyTorchListOfTensorValue(mapListToTorchListOfTensorValue(l)){};
+  PyAnyTorchListOfTensorValue(const py::tuple &l)
+      : PyAnyTorchListOfTensorValue(mapListToTorchListOfTensorValue(l)){};
   static void bindDerived(ClassTy &c);
 };
 
@@ -180,6 +187,10 @@ public:
   static void bindDerived(ClassTy &c);
 };
 
+class PyAnyTorchListOfOptionalTensorValue;
+PyAnyTorchListOfOptionalTensorValue
+mapListToTorchListOfOptionalTensorValue(const py::list &l);
+
 class PyAnyTorchListOfOptionalTensorValue
     : public PyConcreteValue<PyAnyTorchListOfOptionalTensorValue,
                              PyAnyTorchListValue> {
@@ -191,24 +202,10 @@ public:
   using PyConcreteValue::PyConcreteValue;
   PyAnyTorchListOfOptionalTensorValue(const py::list &l)
       : PyAnyTorchListOfOptionalTensorValue(
-            (l.empty() || std::all_of(l.begin(), l.end(),
-                                      [](auto o) { return o.is_none(); }))
-                ? py::cast(
-                      PyAnyTorchListValue(
-                          py::cast(PyAnyTorchListOfOptionalTensorType(
-                              torchMlirTorchNoneTypeGet(
-                                  DefaultingPyMlirContext::resolve().get()),
-                              DefaultingPyMlirContext::resolve())),
-                          l, tag<PyTorch_NoneValue>{}))
-                      .cast<PyAnyTorchListOfOptionalTensorValue>()
-                : py::cast(PyAnyTorchListValue(
-                               py::cast(PyAnyTorchListOfOptionalTensorType(
-                                   mlirValueGetType(l[0].cast<PyValue>().get()),
-                                   DefaultingPyMlirContext::resolve())),
-                               l, tag<PyAnyTorchTensorValue>{}))
-                      .cast<PyAnyTorchListOfOptionalTensorValue>()
-
-        ){};
+            mapListToTorchListOfOptionalTensorValue(l)){};
+  PyAnyTorchListOfOptionalTensorValue(const py::tuple &l)
+      : PyAnyTorchListOfOptionalTensorValue(
+            mapListToTorchListOfOptionalTensorValue(l)){};
   static void bindDerived(ClassTy &c);
 };
 

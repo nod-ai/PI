@@ -1,25 +1,26 @@
+import inspect
 import re
 import warnings
 from itertools import chain
-from typing import Any, OrderedDict
+from typing import Any, Callable, List, NamedTuple, Optional, OrderedDict, Tuple, Union
 
 import numpy as np
-import torch
-from torch_mlir import ir, OutputType
-from torch_mlir.dialects import torch as torch_dialect, func as func_dialect
 
-from .framework import Test, TestUtils
-from ..mlir.utils import run_pipeline_with_repro_report, cm
-from .._tensor import Tensor
+from pi import Tensor, TensorPlaceholder, dtype, float32, int64, nn
+from pi.mlir import ir
+from pi.mlir.compile import run_pipeline_with_repro_report
+from pi.mlir.dialects import func as func_dialect, torch as torch_dialect
+from pi.mlir.utils import mlir_mod_ctx
 
 FIXED = np.linspace(0, 0.1, 101)
 
 
-def set_weights(
-    mod, typ=torch.float32, val=1, requires_grad=False, fixed=False, random=False
-):
+def set_weights(mod, typ=None, val=1, requires_grad=False, fixed=False, random=False):
     import torch
     from torch import nn
+
+    if typ is None:
+        typ = torch.float32
 
     for m in mod.modules():
         if hasattr(m, "weight"):
@@ -69,15 +70,13 @@ def set_weights(
 
 
 class TorchDialectConfig:
-    import torch
-
     """Base class for TestConfig's that are implemented with linalg-on-tensors.
 
     This class handles all the common lowering that torch-mlir does before
     reaching the linalg-on-tensors abstraction level.
     """
 
-    def compile(self, program: torch.nn.Module, output_type=OutputType.TORCH) -> Any:
+    def compile(self, program, output_type="torch") -> Any:
         from torch_mlir_e2e_test.utils import convert_annotations_to_placeholders
         import torch_mlir
 
@@ -91,9 +90,9 @@ SMOKE_TEST = False
 
 
 class PIConfig:
-    def compile(self, test_case: Test) -> Any:
+    def compile(self, test_case) -> Any:
         tu = TestUtils()
-        with cm() as module:
+        with mlir_mod_ctx() as module:
             test_module = test_case.program_factory()
             module_name = "torch.debug_module_name"
             module.operation.attributes[module_name] = ir.StringAttr.get(
@@ -168,12 +167,8 @@ class PIConfig:
                         el_type = el_type_reg.findall(str(r.type))
                         assert len(el_type) == 1
                         el_types.append(el_type[0])
-                    res_type = ir.Type.parse(
-                        f"!torch.tuple<{', '.join(el_types)}>"
-                    )
-                    results = [
-                        torch_dialect.PrimTupleConstructOp(res_type, results).result
-                    ]
+                    res_type = ir.Type.parse(f"!torch.tuple<{', '.join(el_types)}>")
+                    results = [torch_dialect.PrimTupleConstructOp(res_type, results)]
 
                 canonical_func_type = ir.FunctionType.get(
                     inputs=[b.type for b in block_args],
@@ -204,3 +199,53 @@ def lower_torch_mlir_to_linalg(module):
         "Lowering Torch Backend IR to Linalg",
     )
     return module
+
+
+PI_EXPORT_ATTR_NAME = "_PI_EXPORT"
+PI_ARG_ANNOTATIONS_ATTR_NAME = "_PI_ARG_ANNOTATIONS"
+
+
+class TestUtils:
+    def __init__(self):
+        np.random.seed(0)
+
+    def rand(self, *sizes, low=0.0, high=1.0):
+        return TensorPlaceholder(sizes, dtype_=float32)
+
+    def randn(self, *sizes):
+        return TensorPlaceholder(sizes, dtype_=float32)
+
+    def randint(self, *sizes, low=0, high=10, dtype=int64):
+        return TensorPlaceholder(sizes, dtype_=dtype)
+
+
+TestResult = Union[ir.OpView, ir.Operation, ir.Value, ir.OpResultList]
+
+
+class Test(NamedTuple):
+    unique_name: str
+    program_factory: Callable[[], nn.Module]
+    program_invoker: Callable[[Any, TestUtils], None]
+
+
+# The global registry of tests.
+GLOBAL_TEST_REGISTRY = {}
+
+
+def register_test_case(module_factory):
+    def decorator(f):
+        # Ensure that there are no duplicate names in the global test registry.
+        if f.__name__ in GLOBAL_TEST_REGISTRY:
+            raise Exception(
+                f"Duplicate test name: '{f.__name__}'. Please make sure that the function wrapped by `register_test_case` has a unique name."
+            )
+
+        # Store the test in the registry.
+        GLOBAL_TEST_REGISTRY[f.__name__] = Test(
+            unique_name=f.__name__,
+            program_factory=module_factory,
+            program_invoker=f,
+        )
+        return f
+
+    return decorator

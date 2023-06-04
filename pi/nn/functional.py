@@ -5,7 +5,6 @@ from typing import List, Optional, Tuple, Union, Callable
 from . import _reduction as _Reduction
 from .modules.utils import _list_with_default, _pair, _triple, _single
 from .types import (
-    dtype,
     BroadcastingList2,
     boolean_dispatch,
     BroadcastingList3,
@@ -13,6 +12,7 @@ from .types import (
 )
 
 import pi
+from pi import dtype
 
 from pi import _VF
 

@@ -4,35 +4,48 @@
 # Also available under a BSD-style license. See LICENSE.
 import contextlib
 import functools
+import inspect
+import warnings
 from enum import Enum
-from typing import Optional, Union, Tuple, List
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
 
-from pi.mlir import Torch_BoolType, Torch_FloatType, Torch_IntType
-from .dialects import _torch_ops_gen as torch_dialect
-from .dialects import torch as torch_dialect
+from . import Torch_BoolType, Torch_FloatType, Torch_IntType
+from .dialects import _torch_ops_gen as torch_dialect, torch as torch_dialect
 from .ir import (
-    Context,
-    Location,
     BF16Type,
     ComplexType,
-    register_attribute_builder,
-    FloatAttr,
-    IntegerAttr,
+    Context,
     DenseElementsAttr,
-    Module,
-    InsertionPoint,
-    IntegerType,
+    DictAttr,
     F16Type,
     F32Type,
     F64Type,
+    FloatAttr,
     IndexType,
+    InsertionPoint,
+    IntegerAttr,
+    IntegerType,
+    Location,
+    Module,
     RankedTensorType,
     Type,
-    DictAttr,
     TypeAttr,
+    register_attribute_builder,
 )
+
+
+@contextlib.contextmanager
+def disable_multithreading(context=None):
+    from . import DefaultContext
+
+    if context is None:
+        context = DefaultContext
+
+    context.enable_multithreading(False)
+    yield
+    context.enable_multithreading(True)
 
 
 @contextlib.contextmanager
@@ -307,6 +320,26 @@ ones = functools.partial(_np_wrapper, factory=np.ones)
 zeros = functools.partial(_np_wrapper, factory=np.zeros)
 rand = functools.partial(_np_wrapper, factory=np.random.rand)
 randn = functools.partial(_np_wrapper, factory=np.random.randn)
+tensor = functools.partial(_np_wrapper, factory=np.array)
+zeros_like = functools.partial(_np_wrapper, factory=np.zeros_like)
+empty_like = functools.partial(_np_wrapper, factory=np.empty_like)
+
+
+class layout(Enum):
+    strided = 1
+    sparse_coo = 2
+    sparse_csr = 3
+    sparse_csc = 4
+    sparse_bsr = 5
+    sparse_bsc = 6
+    _mkldnn = 7
+
+
+class memory_format(Enum):
+    contiguous_format = 0
+    preserve_format = 1
+    channels_last = 2
+    channels_last_3d = 3
 
 
 class TensorPlaceholder:
@@ -350,3 +383,40 @@ class TensorPlaceholder:
     def long(self):
         self.dtype = dtype.int64
         return self
+
+
+ArgAnnotation = Union[type, Tuple[List[int], dtype]]
+
+
+def annotations_to_placeholders(
+    args: List[str], annotations: List[Optional[ArgAnnotation]]
+):
+    from collections import OrderedDict
+
+    placeholders = OrderedDict()
+    for annotation, arg in zip(annotations, args):
+        # Skip the "self" annotation.
+        if annotation is None:
+            assert arg == "self"
+            continue
+        shape, dtype, value_tensor = annotation
+        assert value_tensor, f"non-value tensors not supported {arg}"
+        if not shape:
+            warnings.warn(f"empty shape annotation: {shape}")
+        placeholders[arg] = TensorPlaceholder(annotation[0], annotation[1])
+
+    return placeholders
+
+
+def annotate_args(annotations: List[Optional[ArgAnnotation]]):
+    def decorator(fn):
+        arg_spec = inspect.getfullargspec(fn)
+        placeholders = annotations_to_placeholders(arg_spec.args, annotations)
+        setattr(fn, "__placeholders__", placeholders)
+        return fn
+
+    return decorator
+
+
+def export(fn):
+    return fn

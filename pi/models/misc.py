@@ -3,8 +3,8 @@ from typing import Callable, List, Optional, Sequence, Tuple, Union
 
 from torchvision.utils import _make_ntuple
 
-from .. import nn, Tensor
-from .. import pi
+import pi
+from pi import nn, Tensor
 
 interpolate = pi.nn.functional.interpolate
 

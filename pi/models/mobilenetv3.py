@@ -2,8 +2,8 @@ from functools import partial
 from typing import Any, Callable, List, Optional, Sequence
 
 from ._utils import _make_divisible, _ovewrite_named_param
-from .. import nn, Tensor
-from .. import pi
+import pi
+from pi import nn, Tensor
 
 from ._meta import _IMAGENET_CATEGORIES
 from .misc import Conv2dNormActivation, SqueezeExcitation as SElayer

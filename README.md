@@ -16,7 +16,7 @@ Just
 
 ```shell
 pip install - requirements.txt 
-pip install . --no-build-isolation
+pip install . -v
 ```
 
 and you're good to go.

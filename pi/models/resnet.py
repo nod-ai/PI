@@ -1,9 +1,8 @@
-from functools import partial
 from typing import Any, Callable, List, Optional, Type, Union
 
 
-from .. import nn, Tensor
-from .. import pi
+import pi
+from pi import nn, Tensor
 from ._utils import _ovewrite_named_param
 from ._meta import _IMAGENET_CATEGORIES
 

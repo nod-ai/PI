@@ -30,6 +30,12 @@ class TestOverloadCast:
                 tt,
             )
 
+            tt = t + t
+            check_correct(
+                "%3 = torch.aten.add.Tensor %1, %1, %float1.000000e00 : !torch.tensor, !torch.tensor, !torch.float -> !torch.tensor",
+                tt.owner,
+            )
+
             zero_int = torch.ConstantIntOp(0)
             one_int = torch.ConstantIntOp(1)
             tt = t.transpose(zero_int, one_int)

@@ -1,7 +1,7 @@
 import pi
 from pi import nn
-from pi.mlir.utils import pipile, lower_pi_to_linalg
-from pi.utils.annotations import annotate_args, TensorPlaceholder
+from pi.mlir.compile import pipile
+from pi.mlir.utils import annotate_args, TensorPlaceholder
 
 
 class MyConv2d(nn.Module):
@@ -25,6 +25,4 @@ class MyConv2d(nn.Module):
 test_module = MyConv2d()
 x = TensorPlaceholder((1, 3, 32, 32), pi.float32)
 mlir_module = pipile(test_module, example_args=(x,))
-print(mlir_module)
-mlir_module = lower_pi_to_linalg(mlir_module)
 print(mlir_module)

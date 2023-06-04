@@ -12,6 +12,7 @@
 
 #include "TorchOps.h"
 #include "TorchTensor.h"
+#include "TorchValues.h"
 
 namespace py = pybind11;
 using namespace py::literals;
@@ -184,8 +185,6 @@ void PyAnyTorchTensorType::bindDerived(ClassTy &c) {
 
 // value binders
 
-void PyAnyTorchListOfTensorValue::bindDerived(ClassTy &c) {}
-
 void PyAnyTorchOptionalTensorValue::bindDerived(ClassTy &c) {
   c.def(py::init<py::none>(), py::arg("value"));
   py::implicitly_convertible<py::none, PyAnyTorchOptionalTensorValue>();
@@ -196,11 +195,57 @@ void PyTorch_NonValueTensorValue::bindDerived(ClassTy &c) {}
 void PyTorch_ValueTensorValue::bindDerived(ClassTy &c) {}
 
 void PyAnyTorchTensorValue::bindDerived(ClassTy &c) {
+
+  // @overload __add__(self, other Tensor) -> Tensor
+  // aten::__add__.Tensor : (Tensor, Tensor) -> (Tensor)
+  c.def(
+      "__add__",
+      [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &other)
+          -> PyAnyTorchTensorValue { return add(self, other, 1.0f); },
+      "other"_a);
+
+  c.def(
+      "__iadd__",
+      [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &other)
+          -> PyAnyTorchTensorValue { return add(self, other, 1.0f); },
+      "other"_a);
+
 #include "TorchTensor.pybinds.cpp"
+}
+
+PyAnyTorchListOfTensorValue mapListToTorchListOfTensorValue(const py::list &l) {
+  return py::cast(PyAnyTorchListValue(
+                      py::cast(PyAnyTorchListOfTensorType(
+                          mlirValueGetType(l[0].cast<PyValue>().get()),
+                          DefaultingPyMlirContext::resolve())),
+                      l, tag<PyAnyTorchTensorValue>{}))
+      .cast<PyAnyTorchListOfTensorValue>();
+}
+
+void PyAnyTorchListOfTensorValue::bindDerived(ClassTy &c) {
+  c.def(py::init<py::list>(), py::arg("value"));
+  c.def(py::init<py::tuple>(), py::arg("value"));
+  py::implicitly_convertible<py::list, PyAnyTorchListOfTensorValue>();
+  py::implicitly_convertible<py::tuple, PyAnyTorchListOfTensorValue>();
+}
+
+PyAnyTorchListOfOptionalTensorValue
+mapListToTorchListOfOptionalTensorValue(const py::list &l) {
+  return (l.empty() ||
+          std::all_of(l.begin(), l.end(), [](auto o) { return o.is_none(); }))
+             ? py::cast(PyAnyTorchListValue(l))
+                   .cast<PyAnyTorchListOfOptionalTensorValue>()
+             : py::cast(PyAnyTorchListValue(
+                            py::cast(PyAnyTorchListOfOptionalTensorType(
+                                mlirValueGetType(l[0].cast<PyValue>().get()),
+                                DefaultingPyMlirContext::resolve())),
+                            l, tag<PyAnyTorchTensorValue>{}))
+                   .cast<PyAnyTorchListOfOptionalTensorValue>();
 }
 
 void PyAnyTorchListOfOptionalTensorValue::bindDerived(ClassTy &c) {
   c.def(py::init<py::list>(), py::arg("value"));
+  c.def(py::init<py::tuple>(), py::arg("value"));
   py::implicitly_convertible<py::list, PyAnyTorchListOfOptionalTensorValue>();
   py::implicitly_convertible<py::tuple, PyAnyTorchListOfOptionalTensorValue>();
 }

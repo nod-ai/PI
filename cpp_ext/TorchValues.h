@@ -117,65 +117,6 @@ public:
   static void bindDerived(ClassTy &c);
 };
 
-template <class T> struct tag {
-  using type = T;
-};
-// the above helper let you work with types as values.
-// the tag<T> type is a variable with no state besides the type it caries.
-// https://stackoverflow.com/a/31616949
-// the sole use case here is templatizing the constructor of PyAnyTorchListValue
-
-class PyAnyTorchListValue : public PyConcreteValue<PyAnyTorchListValue> {
-public:
-  static constexpr IsAFunctionTy isaFunction = isAAnyTorchListValue;
-  static constexpr const char *pyClassName = "AnyTorchListValue";
-  using PyConcreteValue::PyConcreteValue;
-
-  PyAnyTorchListValue(const py::object &type, const py::list &list)
-      : PyAnyTorchListValue(
-            mlir::python::PyGlobals::get()
-                .lookupOperationClass("torch.prim.ListConstruct")
-                .value()(type, list)
-                .template cast<PyAnyTorchListValue>()){};
-
-  PyAnyTorchListValue(const py::list &list)
-      : PyAnyTorchListValue(
-            mlir::python::PyGlobals::get()
-                .lookupOperationClass("torch.prim.ListConstruct")
-                .value()(torchMlirTorchListTypeGet(
-                             mlirValueGetType(list[0].cast<PyValue>().get())),
-                         list)
-                .template cast<PyAnyTorchListValue>()){};
-
-  template <class T>
-  PyAnyTorchListValue(py::object type, const py::list &list, tag<T>)
-      : PyAnyTorchListValue(type, [list]() {
-          for (unsigned long i = 0; i < list.size(); ++i) {
-            if (list[i].is_none())
-              list[i] = PyTorch_NoneValue(list[i]);
-            else
-              list[i] = py::cast<T>(list[i]);
-          }
-          return list;
-        }()){};
-  static void bindDerived(ClassTy &c);
-};
-
-#define DECLARE_SCALAR_VALUE(TORCHTYPE)                                        \
-  class PyTorch_##TORCHTYPE##Value                                             \
-      : public PyConcreteValue<PyTorch_##TORCHTYPE##Value> {                   \
-  public:                                                                      \
-    static constexpr IsAFunctionTy isaFunction = isATorch_##TORCHTYPE##Value;  \
-    static constexpr const char *pyClassName = "Torch_" #TORCHTYPE "Value";    \
-    using PyConcreteValue::PyConcreteValue;                                    \
-    static void bindDerived(ClassTy &c);                                       \
-  };
-
-DECLARE_SCALAR_VALUE(Any)
-DECLARE_SCALAR_VALUE(LinearParams)
-DECLARE_SCALAR_VALUE(Number)
-#undef DECLARE_SCALAR_VALUE
-
 #define DECLARE_SCALAR_VALUE(TORCHTYPE, CPPTYPE, CONSTANTSTR)                  \
   class PyTorch_##TORCHTYPE##Value                                             \
       : public PyConcreteValue<PyTorch_##TORCHTYPE##Value> {                   \
@@ -199,6 +140,68 @@ DECLARE_SCALAR_VALUE(Float, float, float)
 DECLARE_SCALAR_VALUE(String, std::string, str)
 #undef DECLARE_SCALAR_VALUE
 
+template <class T> struct tag {
+  using type = T;
+};
+// the above helper let you work with types as values.
+// the tag<T> type is a variable with no state besides the type it caries.
+// https://stackoverflow.com/a/31616949
+// the sole use case here is templatizing the constructor of PyAnyTorchListValue
+
+template <class T>
+static inline py::list mapListElementsToPyType(py::list list) {
+  for (unsigned long i = 0; i < list.size(); ++i) {
+    if (list[i].is_none())
+      list[i] = PyTorch_NoneValue(list[i]);
+    else
+      list[i] = py::cast<T>(list[i]);
+  }
+  return list;
+}
+
+py::object mapListToPyTorchListValue(const py::list &list);
+
+class PyAnyTorchListValue : public PyConcreteValue<PyAnyTorchListValue> {
+public:
+  static constexpr IsAFunctionTy isaFunction = isAAnyTorchListValue;
+  static constexpr const char *pyClassName = "AnyTorchListValue";
+  using PyConcreteValue::PyConcreteValue;
+
+  PyAnyTorchListValue(const py::object &type, const py::list &list)
+      : PyAnyTorchListValue(
+            mlir::python::PyGlobals::get()
+                .lookupOperationClass("torch.prim.ListConstruct")
+                .value()(type, list)
+                .template cast<PyAnyTorchListValue>()){};
+
+  template <class T>
+  PyAnyTorchListValue(py::object type, const py::list &list, tag<T>)
+      : PyAnyTorchListValue(type, mapListElementsToPyType<T>(list)){};
+
+  PyAnyTorchListValue(const py::list &list)
+      : PyAnyTorchListValue(mapListToPyTorchListValue(list), list){};
+
+  PyAnyTorchListValue(const py::tuple &list)
+      : PyAnyTorchListValue(mapListToPyTorchListValue(list), list){};
+
+  static void bindDerived(ClassTy &c);
+};
+
+#define DECLARE_SCALAR_VALUE(TORCHTYPE)                                        \
+  class PyTorch_##TORCHTYPE##Value                                             \
+      : public PyConcreteValue<PyTorch_##TORCHTYPE##Value> {                   \
+  public:                                                                      \
+    static constexpr IsAFunctionTy isaFunction = isATorch_##TORCHTYPE##Value;  \
+    static constexpr const char *pyClassName = "Torch_" #TORCHTYPE "Value";    \
+    using PyConcreteValue::PyConcreteValue;                                    \
+    static void bindDerived(ClassTy &c);                                       \
+  };
+
+DECLARE_SCALAR_VALUE(Any)
+DECLARE_SCALAR_VALUE(LinearParams)
+DECLARE_SCALAR_VALUE(Number)
+#undef DECLARE_SCALAR_VALUE
+
 #define DECLARE_LIST_BASE_CONCRETE_VALUE(TORCHTYPE)                            \
   class PyAnyTorchListOfTorch##TORCHTYPE##Value                                \
       : public PyConcreteValue<PyAnyTorchListOfTorch##TORCHTYPE##Value,        \
@@ -209,7 +212,8 @@ DECLARE_SCALAR_VALUE(String, std::string, str)
     static constexpr const char *pyClassName =                                 \
         "AnyTorchListOfTorch" #TORCHTYPE "Value";                              \
     using PyConcreteValue::PyConcreteValue;                                    \
-                                                                               \
+    /* you should be able to simplify this to just be PyAnyTorchListValue(l)   \
+     * but for some reason it doesn't work for Bool*/                          \
     PyAnyTorchListOfTorch##TORCHTYPE##Value(const py::list &l)                 \
         : PyAnyTorchListOfTorch##TORCHTYPE##Value(                             \
               py::cast(PyAnyTorchListValue(                                    \
@@ -320,6 +324,10 @@ public:
             py::cast(PyTorch_NoneValue(n))
                 .cast<PyAnyTorchOptionalListOfTorchIntValue>()) {}
   PyAnyTorchOptionalListOfTorchIntValue(const py::list &l)
+      : PyAnyTorchOptionalListOfTorchIntValue(
+            py::cast(PyAnyTorchListOfTorchIntValue(l))
+                .cast<PyAnyTorchOptionalListOfTorchIntValue>()) {}
+  PyAnyTorchOptionalListOfTorchIntValue(const py::tuple &l)
       : PyAnyTorchOptionalListOfTorchIntValue(
             py::cast(PyAnyTorchListOfTorchIntValue(l))
                 .cast<PyAnyTorchOptionalListOfTorchIntValue>()) {}

@@ -4,22 +4,6 @@ from enum import Enum
 from typing import Tuple
 from typing import Union, List
 
-from pi import dtype
-
-bfloat16 = dtype.bfloat16
-bool = dtype.bool
-complex32 = dtype.complex32
-complex64 = dtype.complex64
-half = float16 = dtype.float16
-float = float32 = dtype.float32
-double = float64 = dtype.float64
-int8 = dtype.int8
-int16 = dtype.int16
-int32 = dtype.int32
-long = int64 = dtype.int64
-qint8 = dtype.qint8
-quint8 = dtype.quint8
-uint8 = dtype.uint8
 
 Size = size = Union[List[builtins.int], Tuple[builtins.int, ...]]
 
@@ -68,33 +52,3 @@ def boolean_dispatch(
     return fn
 
 
-class layout(Enum):
-    strided = 1
-    sparse_coo = 2
-    sparse_csr = 3
-    sparse_csc = 4
-    sparse_bsr = 5
-    sparse_bsc = 6
-    _mkldnn = 7
-
-
-strided: layout = layout.strided
-sparse_coo: layout = layout.sparse_coo
-sparse_csr: layout = layout.sparse_csr
-sparse_csc: layout = layout.sparse_csc
-sparse_bsr: layout = layout.sparse_bsr
-sparse_bsc: layout = layout.sparse_bsc
-_mkldnn: layout = layout._mkldnn
-
-
-class memory_format(Enum):
-    contiguous_format = 0
-    preserve_format = 1
-    channels_last = 2
-    channels_last_3d = 3
-
-
-contiguous_format = memory_format.contiguous_format
-preserve_format = memory_format.preserve_format
-channels_last = memory_format.channels_last
-channels_last_3d = memory_format.channels_last_3d
