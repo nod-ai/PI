@@ -515,14 +515,23 @@ m.def("imag", [](const PyAnyTorchTensorValue &self) -> PyAnyTorchTensorValue { r
 // aten::index_put.hacked_twin : (Tensor, Tensor[], Tensor, bool) -> (Tensor)
 m.def("index_put", [](const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTensorValue &indices, const PyAnyTorchTensorValue &values, const PyTorch_BoolValue &accumulate) -> PyAnyTorchTensorValue { return index_put(self, indices, values, accumulate); }, "self"_a, "indices"_a, "values"_a, "accumulate"_a = false);
 
+// aten::index_put : (Tensor, Tensor?[], Tensor, bool) -> (Tensor)
+m.def("index_put", [](const PyAnyTorchTensorValue &self, const PyAnyTorchListOfOptionalTensorValue &indices, const PyAnyTorchTensorValue &values, const PyTorch_BoolValue &accumulate) -> PyAnyTorchTensorValue { return index_put(self, indices, values, accumulate); }, "self"_a, "indices"_a, "values"_a, "accumulate"_a = false);
+
 // aten::index_put_.hacked_twin : (Tensor, Tensor[], Tensor, bool) -> (Tensor)
 m.def("index_put_", [](const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTensorValue &indices, const PyAnyTorchTensorValue &values, const PyTorch_BoolValue &accumulate) -> PyAnyTorchTensorValue { return index_put_(self, indices, values, accumulate); }, "self"_a, "indices"_a, "values"_a, "accumulate"_a = false);
+
+// aten::index_put_ : (Tensor, Tensor?[], Tensor, bool) -> (Tensor)
+m.def("index_put_", [](const PyAnyTorchTensorValue &self, const PyAnyTorchListOfOptionalTensorValue &indices, const PyAnyTorchTensorValue &values, const PyTorch_BoolValue &accumulate) -> PyAnyTorchTensorValue { return index_put_(self, indices, values, accumulate); }, "self"_a, "indices"_a, "values"_a, "accumulate"_a = false);
 
 // aten::index_select : (Tensor, int, Tensor) -> (Tensor)
 m.def("index_select", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyAnyTorchTensorValue &index) -> PyAnyTorchTensorValue { return index_select(self, dim, index); }, "self"_a, "dim"_a, "index"_a);
 
 // aten::index.Tensor_hacked_twin : (Tensor, Tensor[]) -> (Tensor)
 m.def("index", [](const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTensorValue &indices) -> PyAnyTorchTensorValue { return index(self, indices); }, "self"_a, "indices"_a);
+
+// aten::index.Tensor : (Tensor, Tensor?[]) -> (Tensor)
+m.def("index", [](const PyAnyTorchTensorValue &self, const PyAnyTorchListOfOptionalTensorValue &indices) -> PyAnyTorchTensorValue { return index(self, indices); }, "self"_a, "indices"_a);
 
 // aten::Int.bool : (bool) -> (int)
 m.def("Int", [](const PyTorch_BoolValue &a) -> PyTorch_IntValue { return Int(a); }, "a"_a);
@@ -1246,6 +1255,12 @@ m.def("_convolution", [](const PyAnyTorchTensorValue &input, const PyAnyTorchTen
 
 // aten::_embedding_bag : (Tensor, Tensor, Tensor, bool, int, bool, Tensor?, bool, int) -> (Tensor, Tensor, Tensor, Tensor)
 m.def("_embedding_bag", [](const PyAnyTorchTensorValue &weight, const PyAnyTorchTensorValue &indices, const PyAnyTorchTensorValue &offsets, const PyTorch_BoolValue &scale_grad_by_freq, const PyTorch_IntValue &mode, const PyTorch_BoolValue &sparse, const PyAnyTorchOptionalTensorValue &per_sample_weights, const PyTorch_BoolValue &include_last_offset, const PyTorch_IntValue &padding_idx) -> std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue> { return _embedding_bag(weight, indices, offsets, scale_grad_by_freq, mode, sparse, per_sample_weights, include_last_offset, padding_idx); }, "weight"_a, "indices"_a, "offsets"_a, "scale_grad_by_freq"_a = false, "mode"_a = 0, "sparse"_a = false, "per_sample_weights"_a = py::none(), "include_last_offset"_a = false, "padding_idx"_a = -1);
+
+// aten::_index_put_impl : (Tensor, Tensor?[], Tensor, bool, bool) -> (Tensor)
+m.def("_index_put_impl", [](const PyAnyTorchTensorValue &self, const PyAnyTorchListOfOptionalTensorValue &indices, const PyAnyTorchTensorValue &values, const PyTorch_BoolValue &accumulate, const PyTorch_BoolValue &unsafe) -> PyAnyTorchTensorValue { return _index_put_impl(self, indices, values, accumulate, unsafe); }, "self"_a, "indices"_a, "values"_a, "accumulate"_a = false, "unsafe"_a = false);
+
+// aten::_index_put_impl_ : (Tensor, Tensor?[], Tensor, bool, bool) -> (Tensor)
+m.def("_index_put_impl_", [](const PyAnyTorchTensorValue &self, const PyAnyTorchListOfOptionalTensorValue &indices, const PyAnyTorchTensorValue &values, const PyTorch_BoolValue &accumulate, const PyTorch_BoolValue &unsafe) -> PyAnyTorchTensorValue { return _index_put_impl_(self, indices, values, accumulate, unsafe); }, "self"_a, "indices"_a, "values"_a, "accumulate"_a = false, "unsafe"_a = false);
 
 // aten::_log_softmax_backward_data : (Tensor, Tensor, int, int) -> (Tensor)
 m.def("_log_softmax_backward_data", [](const PyAnyTorchTensorValue &grad_output, const PyAnyTorchTensorValue &output, const PyTorch_IntValue &dim, const PyTorch_IntValue &input_dtype) -> PyAnyTorchTensorValue { return _log_softmax_backward_data(grad_output, output, dim, input_dtype); }, "grad_output"_a, "output"_a, "dim"_a, "input_dtype"_a);

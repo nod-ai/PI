@@ -52,8 +52,6 @@ def get_clean_name(name):
 
 UNIMPLEMENTED_TYPES = {
     "AnyTorchType",
-    "AnyTorchListOfOptionalTensorType",
-    "Variadic",
     "anonymous_430",
 }
 SKIP_OPS = {"Torch_PrimsSqrtOp"}

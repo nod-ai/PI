@@ -134,12 +134,24 @@ class PyAnyTorchListOfTensorType
     : public PyConcreteType<PyAnyTorchListOfTensorType, PyAnyTorchListType> {
 public:
   static constexpr IsAFunctionTy isaFunction = isAAnyTorchListOfTensorType;
-  static constexpr const char *pyClassName = "AnyTorchListOf"
-                                             "Tensor"
-                                             "Type";
+  static constexpr const char *pyClassName = "AnyTorchListOfTensorType";
   using PyConcreteType::PyConcreteType;
   PyAnyTorchListOfTensorType(MlirType containedType,
                              DefaultingPyMlirContext context)
+      : PyConcreteType(context->getRef(),
+                       torchMlirTorchListTypeGet(containedType)) {}
+};
+
+class PyAnyTorchListOfOptionalTensorType
+    : public PyConcreteType<PyAnyTorchListOfOptionalTensorType,
+                            PyAnyTorchListType> {
+public:
+  static constexpr IsAFunctionTy isaFunction =
+      isAAnyTorchListOfOptionalTensorType;
+  static constexpr const char *pyClassName = "AnyTorchListOfOptionalTensorType";
+  using PyConcreteType::PyConcreteType;
+  PyAnyTorchListOfOptionalTensorType(MlirType containedType,
+                                     DefaultingPyMlirContext context)
       : PyConcreteType(context->getRef(),
                        torchMlirTorchListTypeGet(containedType)) {}
 };

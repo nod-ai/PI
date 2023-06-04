@@ -1238,9 +1238,17 @@ c.def("index_fill_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs k
 // aten::index_put.hacked_twin : (Tensor, Tensor[], Tensor, bool) -> (Tensor)
 c.def("index_put", [](const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTensorValue &indices, const PyAnyTorchTensorValue &values, const PyTorch_BoolValue &accumulate) -> PyAnyTorchTensorValue { return index_put(self, indices, values, accumulate); }, "indices"_a, "values"_a, "accumulate"_a = false);
 
+// index_put(self, indices Optional[Union[Tuple[Tensor, ], List[Tensor]]], values Tensor, accumulate _bool=False) -> Tensor
+// aten::index_put : (Tensor, Tensor?[], Tensor, bool) -> (Tensor)
+c.def("index_put", [](const PyAnyTorchTensorValue &self, const PyAnyTorchListOfOptionalTensorValue &indices, const PyAnyTorchTensorValue &values, const PyTorch_BoolValue &accumulate) -> PyAnyTorchTensorValue { return index_put(self, indices, values, accumulate); }, "indices"_a, "values"_a, "accumulate"_a = false);
+
 // index_put_(self, indices Optional[Union[Tuple[Tensor, ], List[Tensor]]], values Tensor, accumulate _bool=False) -> Tensor
 // aten::index_put_.hacked_twin : (Tensor, Tensor[], Tensor, bool) -> (Tensor)
 c.def("index_put_", [](const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTensorValue &indices, const PyAnyTorchTensorValue &values, const PyTorch_BoolValue &accumulate) -> PyAnyTorchTensorValue { return index_put_(self, indices, values, accumulate); }, "indices"_a, "values"_a, "accumulate"_a = false);
+
+// index_put_(self, indices Optional[Union[Tuple[Tensor, ], List[Tensor]]], values Tensor, accumulate _bool=False) -> Tensor
+// aten::index_put_ : (Tensor, Tensor?[], Tensor, bool) -> (Tensor)
+c.def("index_put_", [](const PyAnyTorchTensorValue &self, const PyAnyTorchListOfOptionalTensorValue &indices, const PyAnyTorchTensorValue &values, const PyTorch_BoolValue &accumulate) -> PyAnyTorchTensorValue { return index_put_(self, indices, values, accumulate); }, "indices"_a, "values"_a, "accumulate"_a = false);
 
 // index_reduce(self, dim _int, index Tensor, source Tensor, reduce str, *, include_self _bool=True) -> Tensor
 c.def("index_reduce", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("index_reduce with signature index_reduce(self, dim _int, index Tensor, source Tensor, reduce str, *, include_self _bool=True) -> Tensor"); });

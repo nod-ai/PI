@@ -4,7 +4,7 @@ from textwrap import dedent
 from pi.mlir.utils import mlir_mod_ctx, _elementsAttr
 from pi.mlir import (
     # AnyTorchDictKeyValue,
-    # AnyTorchListOfOptionalTensorValue,
+    AnyTorchListOfOptionalTensorValue,
     AnyTorchOptionalListOfTorchIntValue,
     # AnyTorchTensorValue,
     AnyTorchListOfTensorType,
@@ -435,3 +435,38 @@ class TestTorchValues:
             )
             assert r[1].owner.results[1].result_number == 1
             assert r[1].owner.results[1] == r[1]
+
+    def test_AnyTorchListOfOptionalTensorValue(self):
+        with mlir_mod_ctx():
+
+            t = torch.NonValueTensorLiteralOp(_elementsAttr(np.ones((2, 2))))
+            l = AnyTorchListOfOptionalTensorValue([t, t])
+            check_correct(
+                "%1 = torch.prim.ListConstruct %0, %0 : (!torch.tensor<[2,2],f64>, !torch.tensor<[2,2],f64>) -> !torch.list<tensor<[2,2],f64>>",
+                l.owner,
+            )
+
+            l = AnyTorchListOfOptionalTensorValue([])
+            check_correct(
+                "%2 = torch.prim.ListConstruct  : () -> !torch.list<none>",
+                l.owner,
+            )
+
+            l = AnyTorchListOfOptionalTensorValue([None, None])
+            check_correct(
+                "%3 = torch.prim.ListConstruct %none, %none_0 : (!torch.none, !torch.none) -> !torch.list<none>",
+                l.owner,
+            )
+
+            # aten::index.Tensor : (Tensor, Tensor?[]) -> (Tensor)
+            r = ops.index(t, [t, t])
+            check_correct(
+                "%5 = torch.aten.index.Tensor %0, %4 : !torch.tensor<[2,2],f64>, !torch.list<tensor<[2,2],f64>> -> !torch.tensor",
+                r.owner,
+            )
+
+            r = ops.index(t, [None, None])
+            check_correct(
+                "%7 = torch.aten.index.Tensor %0, %6 : !torch.tensor<[2,2],f64>, !torch.list<none> -> !torch.tensor",
+                r.owner,
+            )

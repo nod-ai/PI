@@ -859,9 +859,19 @@ PyAnyTorchTensorValue index_put(const PyAnyTorchTensorValue &self, const PyAnyTo
   return PyGlobals::get().lookupOperationClass("torch.aten.index_put.hacked_twin").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, indices, values, accumulate).cast<PyAnyTorchTensorValue>();
 }
 
+// aten::index_put : (Tensor, Tensor?[], Tensor, bool) -> (Tensor)
+PyAnyTorchTensorValue index_put(const PyAnyTorchTensorValue &self, const PyAnyTorchListOfOptionalTensorValue &indices, const PyAnyTorchTensorValue &values, const PyTorch_BoolValue &accumulate) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.index_put").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, indices, values, accumulate).cast<PyAnyTorchTensorValue>();
+}
+
 // aten::index_put_.hacked_twin : (Tensor, Tensor[], Tensor, bool) -> (Tensor)
 PyAnyTorchTensorValue index_put_(const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTensorValue &indices, const PyAnyTorchTensorValue &values, const PyTorch_BoolValue &accumulate) {
   return PyGlobals::get().lookupOperationClass("torch.aten.index_put_.hacked_twin").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, indices, values, accumulate).cast<PyAnyTorchTensorValue>();
+}
+
+// aten::index_put_ : (Tensor, Tensor?[], Tensor, bool) -> (Tensor)
+PyAnyTorchTensorValue index_put_(const PyAnyTorchTensorValue &self, const PyAnyTorchListOfOptionalTensorValue &indices, const PyAnyTorchTensorValue &values, const PyTorch_BoolValue &accumulate) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.index_put_").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, indices, values, accumulate).cast<PyAnyTorchTensorValue>();
 }
 
 // aten::index_select : (Tensor, int, Tensor) -> (Tensor)
@@ -872,6 +882,11 @@ PyAnyTorchTensorValue index_select(const PyAnyTorchTensorValue &self, const PyTo
 // aten::index.Tensor_hacked_twin : (Tensor, Tensor[]) -> (Tensor)
 PyAnyTorchTensorValue index(const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTensorValue &indices) {
   return PyGlobals::get().lookupOperationClass("torch.aten.index.Tensor_hacked_twin").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, indices).cast<PyAnyTorchTensorValue>();
+}
+
+// aten::index.Tensor : (Tensor, Tensor?[]) -> (Tensor)
+PyAnyTorchTensorValue index(const PyAnyTorchTensorValue &self, const PyAnyTorchListOfOptionalTensorValue &indices) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.index.Tensor").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, indices).cast<PyAnyTorchTensorValue>();
 }
 
 // aten::Int.bool : (bool) -> (int)
@@ -2077,6 +2092,16 @@ PyAnyTorchTensorValue _convolution(const PyAnyTorchTensorValue &input, const PyA
 // aten::_embedding_bag : (Tensor, Tensor, Tensor, bool, int, bool, Tensor?, bool, int) -> (Tensor, Tensor, Tensor, Tensor)
 std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue> _embedding_bag(const PyAnyTorchTensorValue &weight, const PyAnyTorchTensorValue &indices, const PyAnyTorchTensorValue &offsets, const PyTorch_BoolValue &scale_grad_by_freq, const PyTorch_IntValue &mode, const PyTorch_BoolValue &sparse, const PyAnyTorchOptionalTensorValue &per_sample_weights, const PyTorch_BoolValue &include_last_offset, const PyTorch_IntValue &padding_idx) {
   return PyGlobals::get().lookupOperationClass("torch.aten._embedding_bag").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), weight, indices, offsets, scale_grad_by_freq, mode, sparse, per_sample_weights, include_last_offset, padding_idx).cast<std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue>>();
+}
+
+// aten::_index_put_impl : (Tensor, Tensor?[], Tensor, bool, bool) -> (Tensor)
+PyAnyTorchTensorValue _index_put_impl(const PyAnyTorchTensorValue &self, const PyAnyTorchListOfOptionalTensorValue &indices, const PyAnyTorchTensorValue &values, const PyTorch_BoolValue &accumulate, const PyTorch_BoolValue &unsafe) {
+  return PyGlobals::get().lookupOperationClass("torch.aten._index_put_impl").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, indices, values, accumulate, unsafe).cast<PyAnyTorchTensorValue>();
+}
+
+// aten::_index_put_impl_ : (Tensor, Tensor?[], Tensor, bool, bool) -> (Tensor)
+PyAnyTorchTensorValue _index_put_impl_(const PyAnyTorchTensorValue &self, const PyAnyTorchListOfOptionalTensorValue &indices, const PyAnyTorchTensorValue &values, const PyTorch_BoolValue &accumulate, const PyTorch_BoolValue &unsafe) {
+  return PyGlobals::get().lookupOperationClass("torch.aten._index_put_impl_").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, indices, values, accumulate, unsafe).cast<PyAnyTorchTensorValue>();
 }
 
 // aten::_log_softmax_backward_data : (Tensor, Tensor, int, int) -> (Tensor)

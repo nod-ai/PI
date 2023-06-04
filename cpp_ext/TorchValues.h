@@ -102,6 +102,25 @@ public:
   static void bindDerived(ClassTy &m) {}
 };
 
+class PyTorch_NoneValue : public PyConcreteValue<PyTorch_NoneValue> {
+public:
+  static constexpr IsAFunctionTy isaFunction = isATorch_NoneValue;
+  static constexpr const char *pyClassName = "Torch_NoneValue";
+  PyTorch_NoneValue()
+      : PyTorch_NoneValue(mlir::python::PyGlobals::get()
+                              .lookupOperationClass("torch.constant.none")
+                              .value()()
+                              .cast<PyTorch_NoneValue>()){};
+  PyTorch_NoneValue(const py::none &n)
+      : PyTorch_NoneValue(mlir::python::PyGlobals::get()
+                              .lookupOperationClass("torch.constant.none")
+                              .value()()
+                              .cast<PyTorch_NoneValue>()){};
+  using PyConcreteValue::PyConcreteValue;
+
+  static void bindDerived(ClassTy &c);
+};
+
 template <class T> struct tag {
   using type = T;
 };
@@ -126,29 +145,14 @@ public:
   template <class T>
   PyAnyTorchListValue(py::object type, const py::list &list, tag<T>)
       : PyAnyTorchListValue(type, [list]() {
-          for (unsigned long i = 0; i < list.size(); ++i)
-            list[i] = py::cast<T>(list[i]);
+          for (unsigned long i = 0; i < list.size(); ++i) {
+            if (list[i].is_none())
+              list[i] = PyTorch_NoneValue(list[i]);
+            else
+              list[i] = py::cast<T>(list[i]);
+          }
           return list;
         }()){};
-  static void bindDerived(ClassTy &c);
-};
-
-class PyTorch_NoneValue : public PyConcreteValue<PyTorch_NoneValue> {
-public:
-  static constexpr IsAFunctionTy isaFunction = isATorch_NoneValue;
-  static constexpr const char *pyClassName = "Torch_NoneValue";
-  PyTorch_NoneValue()
-      : PyTorch_NoneValue(mlir::python::PyGlobals::get()
-                              .lookupOperationClass("torch.constant.none")
-                              .value()()
-                              .cast<PyTorch_NoneValue>()){};
-  PyTorch_NoneValue(const py::none &n)
-      : PyTorch_NoneValue(mlir::python::PyGlobals::get()
-                              .lookupOperationClass("torch.constant.none")
-                              .value()()
-                              .cast<PyTorch_NoneValue>()){};
-  using PyConcreteValue::PyConcreteValue;
-
   static void bindDerived(ClassTy &c);
 };
 
