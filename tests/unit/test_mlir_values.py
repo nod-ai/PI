@@ -193,7 +193,6 @@ class TestTorchValues:
             )
 
             t = AnyTorchOptionalListOfTorchIntValue(None)
-            print(t.owner)
             check_correct(
                 "%7 = torch.constant.none",
                 t.owner,
@@ -322,9 +321,16 @@ class TestTorchValues:
                 t = torch.NonValueTensorLiteralOp(_elementsAttr(np.ones((2, 2))))
                 t = ops.NumToTensor(t)
             except TypeError as e:
-                msg = " ".join(list(map(lambda x: x.strip(), e.args[0].splitlines())))
-                assert msg.strip().startswith(
-                    "NumToTensor(): incompatible function arguments. The following argument types are supported: 1. (a: pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue) -> object  Invoked with: <pi.mlir._mlir_libs._pi_mlir.Tensor"
+                check_correct(
+                    dedent(
+                        """
+                NumToTensor(): incompatible function arguments. The following argument types are supported:
+                    1. (a: pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue) -> pi.mlir._mlir_libs._pi_mlir.Tensor
+                    
+                Invoked with: <pi.mlir._mlir_libs._pi_mlir.Tensor object at 0x1153a9cf0>
+                """
+                    ),
+                    e,
                 )
 
             t = ops.Float(tintv)
@@ -355,21 +361,27 @@ class TestTorchValues:
                     t3,
                 )
             except TypeError as e:
+                # sort alpha to get a deterministic order for the overloads because
+                # they keep getting shuffled
                 check_correct(
-                    dedent(
-                        """
+                    "\n".join(
+                        sorted(
+                            dedent(
+                                """
                         add(): incompatible function arguments. The following argument types are supported:
-                            1. (self: pi.mlir._mlir_libs._pi_mlir.Tensor, other: pi.mlir._mlir_libs._pi_mlir.Tensor, alpha: pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue = 1) -> object
-                            2. (self: pi.mlir._mlir_libs._pi_mlir.Tensor, other: pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue, alpha: pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue = 1) -> object
-                            3. (a: pi.mlir._mlir_libs._pi_mlir.Torch_StringValue, b: pi.mlir._mlir_libs._pi_mlir.Torch_StringValue) -> object
-                            4. (a: pi.mlir._mlir_libs._pi_mlir.Torch_IntValue, b: pi.mlir._mlir_libs._pi_mlir.Torch_IntValue) -> object
-                            5. (a: pi.mlir._mlir_libs._pi_mlir.Torch_FloatValue, b: pi.mlir._mlir_libs._pi_mlir.Torch_IntValue) -> object
+                            1. (a: pi.mlir._mlir_libs._pi_mlir.Torch_FloatValue, b: pi.mlir._mlir_libs._pi_mlir.Torch_IntValue) -> pi.mlir._mlir_libs._pi_mlir.Torch_FloatValue
+                            2. (a: pi.mlir._mlir_libs._pi_mlir.Torch_IntValue, b: pi.mlir._mlir_libs._pi_mlir.Torch_IntValue) -> pi.mlir._mlir_libs._pi_mlir.Torch_IntValue
+                            3. (self: pi.mlir._mlir_libs._pi_mlir.Tensor, other: pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue, alpha: pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue = 1) -> pi.mlir._mlir_libs._pi_mlir.Tensor
+                            4. (a: pi.mlir._mlir_libs._pi_mlir.Torch_StringValue, b: pi.mlir._mlir_libs._pi_mlir.Torch_StringValue) -> pi.mlir._mlir_libs._pi_mlir.Torch_StringValue
+                            5. (self: pi.mlir._mlir_libs._pi_mlir.Tensor, other: pi.mlir._mlir_libs._pi_mlir.Tensor, alpha: pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue = 1) -> pi.mlir._mlir_libs._pi_mlir.Tensor
                             6. (arg0: pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue, arg1: pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue) -> object
                             
-                        Invoked with: <pi.mlir._mlir_libs._pi_mlir.Torch_FloatValue object at 0x107246930>, <pi.mlir._mlir_libs._pi_mlir.Torch_FloatValue object at 0x107246930>, <pi.mlir._mlir_libs._pi_mlir.Torch_FloatValue object at 0x107246930>
+                        Invoked with: <pi.mlir._mlir_libs._pi_mlir.Torch_FloatValue object at 0x10c1699b0>, <pi.mlir._mlir_libs._pi_mlir.Torch_FloatValue object at 0x10c1699b0>, <pi.mlir._mlir_libs._pi_mlir.Torch_FloatValue object at 0x10c1699b0>
                         """
-                    ),
-                    str(e),
+                            ).splitlines(keepends=False)
+                        )
+                    ).strip(),
+                    "\n".join(sorted(str(e).splitlines(keepends=False))).strip(),
                 )
 
             t = ops.abs(tintv)

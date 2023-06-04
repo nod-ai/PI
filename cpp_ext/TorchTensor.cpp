@@ -18,6 +18,7 @@ using namespace py::literals;
 using namespace mlir::python;
 
 namespace {
+using namespace mlir::torch;
 #include "TorchTensor.pybinds_tramps.cpp"
 }
 
