@@ -10,10 +10,10 @@ on:
     paths:
       - externals/**
       - .github/workflows/build_torch_mlir.yml
-  pull_request:
-    paths:
-      - externals/**
-      - .github/workflows/build_torch_mlir.yml
+#  pull_request:
+#    paths:
+#      - externals/**
+#      - .github/workflows/build_torch_mlir.yml
 
 jobs:
 
