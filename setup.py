@@ -89,9 +89,9 @@ class CMakeBuild(build_ext):
 
         mlir_libs_dir = Path(f"{ext_build_lib_dir}/{PACKAGE_NAME}/mlir/_mlir_libs")
         shlibs = [
-            "LTO",
-            "MLIR-C",
-            "Remarks",
+            # "LTO",
+            # "MLIR-C",
+            # "Remarks",
             "mlir_async_runtime",
             "mlir_c_runner_utils",
             "mlir_float16_utils",
