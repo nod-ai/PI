@@ -16,7 +16,7 @@ log_cli_format = "[%(filename)s:%(funcName)s:%(lineno)d] %(message)s"
 log_cli_date_format = "%Y-%m-%d %H:%M:%S"
 
 [tool.cibuildwheel]
-before-build = "pip install -r build-requirements.txt -r requirements.txt -v"
+before-build = "pip install -r requirements.txt -v"
 # HOLY FUCK
 # https://github.com/pypa/pip/issues/5229#issuecomment-387301397
 environment = { PIP_NO_BUILD_ISOLATION = "false" }
