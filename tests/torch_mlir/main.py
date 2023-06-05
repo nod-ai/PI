@@ -207,6 +207,14 @@ class TestMain:
         import torch_mlir_e2e_test
 
         overloads = [
+            # stupid thing in torch_mlir_e2e_test.test_suite.__init__.py that imports torch
+            RewriteOverload(
+                f"torch_mlir_e2e_test.test_suite",
+                {
+                    "from torch_mlir._version": "from pi._version",
+                },
+            )
+        ] + [
             RewriteOverload(
                 f"torch_mlir_e2e_test.test_suite.{k}",
                 {
@@ -222,15 +230,6 @@ class TestMain:
             )
             for k, v in torch_mlir_e2e_test.test_suite.__dict__.items()
             if inspect.ismodule(v)
-        ] + [
-            # stupid thing in torch_mlir_e2e_test.test_suite.__init__.py that imports torch
-            RewriteOverload(
-                f"torch_mlir_e2e_test.test_suite",
-                {
-                    "import torch": "import pi",
-                    "version.parse(torch.__version__)": 'version.parse("1.0.1+cpu")',
-                },
-            )
         ]
         remove_modules(lambda mod: mod.startswith("torch_mlir_e2e_test"))
         remove_modules(lambda mod: mod == "torch" or mod.startswith("torch."))
