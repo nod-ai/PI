@@ -9,9 +9,11 @@ on:
   push:
     paths:
       - externals/**
+      - .github/workflows/build_torch_mlir.yml
   pull_request:
     paths:
       - externals/**
+      - .github/workflows/build_torch_mlir.yml
 
 jobs:
 
@@ -51,7 +53,7 @@ jobs:
           echo "TORCH_MLIR_MAIN_SRC_DIR=${GITHUB_WORKSPACE}/sandbox" | tee -a $GITHUB_ENV
           echo "TORCH_MLIR_MAIN_BINARY_DIR=${GITHUB_WORKSPACE}/sandbox/build" | tee -a $GITHUB_ENV
           echo "TORCH_MLIR_INSTALL_DIR=${GITHUB_WORKSPACE}/torch_mlir_install" | tee -a $GITHUB_ENV
-          echo "TORCH_MLIR_HOST_MAIN_BINARY_DIR=${GITHUB_WORKSPACE}/sandbox/build_host" | tee -a $GITHUB_ENV
+          echo "TORCH_MLIR_HOST_MAIN_BUILD_DIR=${GITHUB_WORKSPACE}/sandbox/build_host" | tee -a $GITHUB_ENV
           echo "TORCH_MLIR_COMMIT=${{ needs.get_torch_mlir_commit.outputs.TORCH_MLIR_COMMIT }}" | tee -a $GITHUB_ENV
 
       - name: Set up Python
@@ -102,9 +104,9 @@ jobs:
             -DLLVM_ENABLE_ZSTD=OFF \
             -DLLVM_TARGETS_TO_BUILD=X86 \
             -S${TORCH_MLIR_MAIN_SRC_DIR}/externals/llvm-project/llvm \
-            -B${TORCH_MLIR_HOST_MAIN_BINARY_DIR}
+            -B${TORCH_MLIR_HOST_MAIN_BUILD_DIR}
           
-          cmake --build ${TORCH_MLIR_HOST_MAIN_BINARY_DIR} \
+          cmake --build ${TORCH_MLIR_HOST_MAIN_BUILD_DIR} \
             --target llvm-tblgen mlir-tblgen mlir-linalg-ods-yaml-gen mlir-pdll
 
       - name: Choose compiler and set env vars
@@ -141,6 +143,7 @@ jobs:
             -DLLVM_ENABLE_ASSERTIONS=ON \
             -DLLVM_ENABLE_PROJECTS=mlir \
             -DLLVM_ENABLE_TERMINFO=OFF \
+            -DLLVM_ENABLE_ZLIB=OFF \
             -DLLVM_ENABLE_ZSTD=OFF \
             -DLLVM_EXTERNAL_PROJECTS=torch-mlir;torch-mlir-dialects \
             -DLLVM_EXTERNAL_TORCH_MLIR_DIALECTS_SOURCE_DIR=${TORCH_MLIR_MAIN_SRC_DIR}/externals/llvm-external-projects/torch-mlir-dialects \
@@ -166,11 +169,11 @@ jobs:
               -DMACOSX_DEPLOYMENT_TARGET=12.0"
           elif [ x"${{ matrix.os }}" == x"ubuntu-latest" ] && [ x"${{ matrix.arch }}" == x"AArch64" ]; then
             CMAKE_CONFIGS="${CMAKE_CONFIGS} \
-              -DLLVM_TABLEGEN=$TORCH_MLIR_HOST_MAIN_BINARY_DIR/bin/llvm-tblgen \
-              -DMLIR_LINALG_ODS_YAML_GEN=$TORCH_MLIR_HOST_MAIN_BINARY_DIR/bin/mlir-linalg-ods-yaml-gen \
-              -DMLIR_LINALG_ODS_YAML_GEN_EXE=$TORCH_MLIR_HOST_MAIN_BINARY_DIR/bin/mlir-linalg-ods-yaml-gen \
-              -DMLIR_PDLL_TABLEGEN=$TORCH_MLIR_HOST_MAIN_BINARY_DIR/bin/mlir-pdll \
-              -DMLIR_TABLEGEN=$TORCH_MLIR_HOST_MAIN_BINARY_DIR/bin/mlir-tblgen"
+              -DLLVM_TABLEGEN=$TORCH_MLIR_HOST_MAIN_BUILD_DIR/bin/llvm-tblgen \
+              -DMLIR_LINALG_ODS_YAML_GEN=$TORCH_MLIR_HOST_MAIN_BUILD_DIR/bin/mlir-linalg-ods-yaml-gen \
+              -DMLIR_LINALG_ODS_YAML_GEN_EXE=$TORCH_MLIR_HOST_MAIN_BUILD_DIR/bin/mlir-linalg-ods-yaml-gen \
+              -DMLIR_PDLL_TABLEGEN=$TORCH_MLIR_HOST_MAIN_BUILD_DIR/bin/mlir-pdll \
+              -DMLIR_TABLEGEN=$TORCH_MLIR_HOST_MAIN_BUILD_DIR/bin/mlir-tblgen"
           fi
           
           echo $CMAKE_CONFIGS
