@@ -13,6 +13,10 @@ elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(aarch64|arm64)")
   set(ARCH AArch64)
 endif()
 
+if (CMAKE_OSX_ARCHITECTURES MATCHES "arm64")
+  set(ARCH AArch64)
+endif()
+
 message(STATUS "os: ${OS} arch: ${ARCH}")
 
 set(TORCH_MLIR_COMMIT
@@ -112,6 +116,7 @@ else()
       FATAL_ERROR "Python requirements install failed because ${RESVAR} ${LOG1}"
     )
   endif()
+
   execute_process(
     COMMAND
       ${CMAKE_COMMAND} -G ${CMAKE_GENERATOR}

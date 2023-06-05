@@ -9,6 +9,9 @@ on:
   workflow_dispatch:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
 
@@ -29,14 +32,32 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install cibuildwheel
-        run: pip install cibuildwheel
+      - name: Install Ninja
+        uses: llvm/actions/install-ninja@6a57890d0e3f9f35dfc72e7e48bc5e1e527cdd6c # Jan 17
+
+      - name: Ccache for C++ compilation
+        uses: hendrikmuhs/ccache-action@621a41397ed83711c72862638d9ff6e63fca3041 # v1.2.3
+        with:
+          key: ${{ matrix.os }}-${{ matrix.arch }}-torch-mlir
+          # LLVM needs serious cache size
+          max-size: 6G
+
+      - name: Install terminfo
+        if: contains(matrix.os, 'ubuntu')
+        run: |
+          sudo apt-get update
+          sudo apt -y install terminfo
 
       - name: Build wheels
         run: |
-          cibuildwheel --output-dir wheelhouse
+          if [ x"${{ matrix.os }}" == x"ubuntu-latest" ]; then
+            CMAKE_GENERATOR=Ninja pip wheel . -w wheelhouse -v
+          else
+            pip install -r requirements.txt
+            cibuildwheel --platform macos
+          fi
           mkdir -p ${{ github.sha }}
-          mv wheelhouse/PI*.whl ${{ github.sha }}/
+          mv wheelhouse/pi*.whl ${{ github.sha }}/
 
       - name: Upload an artifact
         uses: actions/upload-artifact@v3
@@ -72,8 +93,8 @@ jobs:
           tag_name="$PI_VERSION"
           release_title="PI $PI_VERSION"
           echo "PI $PI_VERSION created at $(date)" > body.md
-          echo "::set-output name=tag_name::${tag_name}"
-          echo "::set-output name=release_title::${release_title}"
+          echo "tag_name=${tag_name}" | tee -a $GITHUB_OUTPUT
+          echo "release_title=${release_title}" | tee -a $GITHUB_OUTPUT
 
       - name: Upload tarballs
         uses: ncipollo/release-action@v1
