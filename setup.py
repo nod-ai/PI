@@ -54,11 +54,12 @@ class CMakeBuild(build_ext):
             except ImportError:
                 pass
 
-        if sys.platform.lower().startswith("darwin"):
-            # Cross-compile support for macOS - respect ARCHFLAGS if set
-            archs = re.findall(r"-arch (\S+)", os.environ.get("ARCHFLAGS", ""))
-            if archs:
-                cmake_args += ["-DCMAKE_OSX_ARCHITECTURES={}".format(";".join(archs))]
+        if sys.platform.lower().startswith("darwin") and os.environ.get(
+            "CMAKE_OSX_ARCHITECTURES", False
+        ):
+            cmake_args += [
+                f"-DCMAKE_OSX_ARCHITECTURES={os.getenv('CMAKE_OSX_ARCHITECTURES')}"
+            ]
 
         if "CMAKE_BUILD_PARALLEL_LEVEL" not in os.environ:
             # self.parallel is a Python 3 only way to set parallel jobs by hand

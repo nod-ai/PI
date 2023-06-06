@@ -9,9 +9,6 @@ on:
   workflow_dispatch:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
 
@@ -22,6 +19,11 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, macos-latest ]
+        arch: [ AArch64, X86 ]
+        py_version: [ "3.11" ]
+        exclude:
+          - os: macos-latest
+            arch: X86
 
     steps:
       - name: Checkout
@@ -30,7 +32,7 @@ jobs:
       # Used to host cibuildwheel
       - uses: actions/setup-python@v3
         with:
-          python-version: "3.10"
+          python-version: ${{ matrix.py_version }}
 
       - name: Install Ninja
         uses: llvm/actions/install-ninja@6a57890d0e3f9f35dfc72e7e48bc5e1e527cdd6c # Jan 17
@@ -42,22 +44,92 @@ jobs:
           # LLVM needs serious cache size
           max-size: 6G
 
-      - name: Install terminfo
-        if: contains(matrix.os, 'ubuntu')
+      - name: Install cross-compilation toolchain if necessary
+        if: contains(matrix.os, 'ubuntu') && contains(matrix.arch, 'AArch64')
         run: |
           sudo apt-get update
-          sudo apt -y install terminfo
+          sudo apt-get install -y binutils-aarch64-linux-gnu \
+            g++-aarch64-linux-gnu gcc-aarch64-linux-gnu
+
+      - name: Get host llvmtblgen/mlirtblgen if necessary
+        if: contains(matrix.os, 'ubuntu') && contains(matrix.arch, 'AArch64')
+        run: |
+          TORCH_MLIR_COMMIT=$(git ls-tree HEAD externals/torch-mlir --object-only --abbrev=8)
+          wget "https://github.com/nod-ai/PI/releases/download/torch-mlir-${TORCH_MLIR_COMMIT}/torch-mlir-${TORCH_MLIR_COMMIT}-${{ matrix.os }}-X86.tar.xz" -O host-torch-mlir-install.tar.xz
+          mkdir host-torch-mlir-install && tar -xvf host-torch-mlir-install.tar.xz -C host-torch-mlir-install
+          echo "TORCH_MLIR_HOST_MAIN_INSTALL_DIR=${PWD}/host-torch-mlir-install/torch_mlir_install" | tee -a $GITHUB_ENV
+
+      - name: Choose compiler and set env vars
+        run: |
+          
+          PY_VERSION=$(echo ${{ matrix.py_version }} | sed 's/\.//g')
+          
+          if [ x"${{ matrix.os }}" == x"macos-latest" ]; then
+            echo "CXX_COMPILER=clang++" | tee -a $GITHUB_ENV
+            echo "C_COMPILER=clang" | tee -a $GITHUB_ENV
+            echo "LLVM_DEFAULT_TARGET_TRIPLE=arm64-apple-darwin21.6.0" | tee -a $GITHUB_ENV
+            echo "LLVM_HOST_TRIPLE=arm64-apple-darwin21.6.0" | tee -a $GITHUB_ENV
+            echo "ARCH=AArch64" | tee -a $GITHUB_ENV
+            echo "PY_BUILD_EXT_SUFFIX=.cpython-${PY_VERSION}-darwin.so" | tee -a $GITHUB_ENV
+            echo "PLAT_NAME=macosx_12_0_arm64" | tee -a $GITHUB_ENV
+          elif [ x"${{ matrix.os }}" == x"ubuntu-latest" ] && [ x"${{ matrix.arch }}" == x"AArch64" ]; then
+            echo "CXX_COMPILER=aarch64-linux-gnu-g++" | tee -a $GITHUB_ENV
+            echo "C_COMPILER=aarch64-linux-gnu-gcc" | tee -a $GITHUB_ENV
+            echo "LLVM_DEFAULT_TARGET_TRIPLE=aarch64-linux-gnu" | tee -a $GITHUB_ENV
+            echo "LLVM_HOST_TRIPLE=aarch64-linux-gnu" | tee -a $GITHUB_ENV
+            echo "ARCH=AArch64" | tee -a $GITHUB_ENV
+            echo "PY_BUILD_EXT_SUFFIX=.cpython-${PY_VERSION}-aarch64-linux-gnu.so" | tee -a $GITHUB_ENV
+            echo "PLAT_NAME=linux_aarch64" | tee -a $GITHUB_ENV
+          else
+            echo "CXX_COMPILER=g++" | tee -a $GITHUB_ENV
+            echo "C_COMPILER=gcc" | tee -a $GITHUB_ENV
+            echo "LLVM_DEFAULT_TARGET_TRIPLE=x86_64-unknown-linux-gnu" | tee -a $GITHUB_ENV
+            echo "LLVM_HOST_TRIPLE=x86_64-unknown-linux-gnu" | tee -a $GITHUB_ENV
+            echo "ARCH=X86" | tee -a $GITHUB_ENV
+            echo "PY_BUILD_EXT_SUFFIX=.cpython-${PY_VERSION}-x86_64-linux-gnu.so" | tee -a $GITHUB_ENV
+            echo "PLAT_NAME=linux_x86_64" | tee -a $GITHUB_ENV
+          fi
 
       - name: Build wheels
         run: |
-          if [ x"${{ matrix.os }}" == x"ubuntu-latest" ]; then
-            CMAKE_GENERATOR=Ninja pip wheel . -w wheelhouse -v
-          else
-            pip install -r requirements.txt
-            cibuildwheel --platform macos
+          CMAKE_ARGS="\
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_COMPILER=$CXX_COMPILER \
+            -DCMAKE_C_COMPILER=$C_COMPILER \
+            -DLLVM_CCACHE_BUILD=ON \
+            -DLLVM_DEFAULT_TARGET_TRIPLE=$LLVM_DEFAULT_TARGET_TRIPLE \
+            -DLLVM_ENABLE_ZLIB=OFF \
+            -DLLVM_ENABLE_ZSTD=OFF \
+            -DLLVM_HOST_TRIPLE=$LLVM_HOST_TRIPLE \
+            -DLLVM_TARGETS_TO_BUILD=$ARCH \
+            -DLLVM_TARGET_ARCH=$ARCH \
+            -DLLVM_USE_HOST_TOOLS=ON \
+            -DPY_BUILD_EXT_SUFFIX=$PY_BUILD_EXT_SUFFIX"
+          
+          if [ x"${{ matrix.os }}" == x"macos-latest" ]; then
+            CMAKE_ARGS="${CMAKE_ARGS} \
+              -DCMAKE_OSX_ARCHITECTURES=arm64 \
+              -DMACOSX_DEPLOYMENT_TARGET=12.0"
+          elif [ x"${{ matrix.os }}" == x"ubuntu-latest" ] && [ x"${{ matrix.arch }}" == x"AArch64" ]; then
+            CMAKE_ARGS="${CMAKE_ARGS} \
+              -DLLVM_TABLEGEN=$TORCH_MLIR_HOST_MAIN_INSTALL_DIR/bin/llvm-tblgen \
+              -DMLIR_LINALG_ODS_YAML_GEN=$TORCH_MLIR_HOST_MAIN_INSTALL_DIR/bin/mlir-linalg-ods-yaml-gen \
+              -DMLIR_LINALG_ODS_YAML_GEN_EXE=$TORCH_MLIR_HOST_MAIN_INSTALL_DIR/bin/mlir-linalg-ods-yaml-gen \
+              -DMLIR_PDLL_TABLEGEN=$TORCH_MLIR_HOST_MAIN_INSTALL_DIR/bin/mlir-pdll \
+              -DMLIR_TABLEGEN=$TORCH_MLIR_HOST_MAIN_INSTALL_DIR/bin/mlir-tblgen"
           fi
+          
+          echo $CMAKE_ARGS
+          
+          export CMAKE_GENERATOR=Ninja
+          export CMAKE_ARGS=$CMAKE_ARGS
+          export TORCH_MLIR_DISTRO_ARCHITECTURE=$ARCH
+          pip install -r requirements.txt
+          python3 setup.py bdist_wheel --plat-name=$PLAT_NAME --dist-dir wheelhouse
+          
+          PIVERSION="$(python setup.py --version)"
           mkdir -p ${{ github.sha }}
-          mv wheelhouse/pi*.whl ${{ github.sha }}/
+          mv wheelhouse/pi-$PIVERSION-*.whl ${{ github.sha }}/
 
       - name: Upload an artifact
         uses: actions/upload-artifact@v3

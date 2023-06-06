@@ -1,7 +1,14 @@
 include(MLIRDetectPythonEnv)
 include(AddMLIRPython)
-mlir_configure_python_dev_packages()
 mlir_detect_pybind11_install()
+mlir_configure_python_dev_packages()
+
+# for cross-compiling
+message(STATUS "PY_BUILD_EXT_SUFFIX ${PY_BUILD_EXT_SUFFIX}")
+set(PYTHON_MODULE_EXTENSION
+    ${PY_BUILD_EXT_SUFFIX}
+    CACHE INTERNAL ".so" FORCE)
+message(STATUS "PYTHON_MODULE_EXTENSION ${PYTHON_MODULE_EXTENSION}")
 
 set(PI_MLIR_PYTHON_PACKAGES_DIR "${CMAKE_CURRENT_BINARY_DIR}/python_packages")
 
