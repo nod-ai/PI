@@ -26,9 +26,9 @@ def get_module_name_for_debug_dump(module):
 
     The name is not guaranteed to be unique.
     """
-    if not "torch.debug_module_name" in module.operation.attributes:
+    if not "pi.debug_module_name" in module.operation.attributes:
         return "UnnammedModule"
-    return ir.StringAttr(module.operation.attributes["torch.debug_module_name"]).value
+    return ir.StringAttr(module.operation.attributes["pi.debug_module_name"]).value
 
 
 class PIMlirCompilerError(Exception):
@@ -138,88 +138,85 @@ def pipile(pi_module: nn.Module, example_args=None, module_name="pi.module_name"
     mlir_module.operation.attributes[module_name] = ir.StringAttr.get(
         pi_module.__class__.__name__
     )
-    top_ip = ir.InsertionPoint(mlir_module.body)
-    top_ip.__enter__()
+    with ir.InsertionPoint(mlir_module.body):
 
-    placeholders = pi_module.forward.__dict__["__placeholders__"]
-    if placeholders:
-        assert isinstance(placeholders, OrderedDict)
-    func_op = func_dialect.FuncOp(
-        name="forward",
-        type=(
-            [p.to_value_tensor_type() for p in placeholders.values()]
-            if not example_args
-            else [e.to_value_tensor_type() for e in example_args],
-            [],
-        ),
-        # visibility="private",
-    )
-
-    if not example_args:
-        arg_attrs = [p.to_value_tensor_type_bound() for p in placeholders.values()]
-        func_op.arg_attrs = ir.ArrayAttr.get(arg_attrs)
-
-    func_op_entry_block = func_op.add_entry_block()
-    block_args = list(map(Tensor, func_op.arguments))
-
-    def replace_block_args(self_, *args, **kwargs):
-        assert not kwargs, f"kwargs not supported {kwargs}"
-        assert len(args) == len(block_args)
-        return block_args, kwargs
-
-    pi_module.register_forward_pre_hook(replace_block_args, prepend=True)
-
-    def move_buffers_params_into_func(self_, *args, **kwargs):
-        for child in self_.all_children():
-            for thing in chain(child._buffers.values(), child._parameters.values()):
-                if isinstance(thing, Tensor):
-                    mlir_val = ir.Value._CAPICreate(thing._CAPIPtr)
-                    ir.InsertionPoint.at_block_begin(func_op_entry_block).insert(
-                        mlir_val.owner.detach_from_parent()
-                    )
-
-    pi_module.register_forward_pre_hook(move_buffers_params_into_func, prepend=True)
-
-    results = []
-
-    def collect_results(_self, result, *_args, **_kwargs):
-        if len(results):
-            warnings.warn(
-                f"results already collected {results} (new result {result}); overwriting"
-            )
-            results[0] = result
-        else:
-            results.append(result)
-        return result
-
-    pi_module.register_forward_post_hook(collect_results, prepend=True)
-
-    with ir.InsertionPoint.at_block_begin(func_op_entry_block):
-        pi_module(*example_args)
-        if isinstance(results[0], (tuple, list)):
-            results = results[0]
-
-        assert all(isinstance(r, (Tensor, ir.Value)) for r in results), results
-        # functions created from python can't return multiple results
-        if len(results) > 1:
-            el_type_reg = re.compile(r"!torch\.(.*)")
-            el_types = []
-            for r in results:
-                el_type = el_type_reg.findall(str(r.type))
-                assert len(el_type) == 1
-                el_types.append(el_type[0])
-            res_type = ir.Type.parse(f"!torch.tuple<{', '.join(el_types)}>")
-            results = [torch_dialect.PrimTupleConstructOp(res_type, results).result]
-
-        canonical_func_type = ir.FunctionType.get(
-            inputs=[b.type for b in block_args],
-            results=[r.type for r in results],
+        placeholders = pi_module.forward.__dict__.get("__placeholders__")
+        if placeholders:
+            assert isinstance(placeholders, OrderedDict)
+        func_op = func_dialect.FuncOp(
+            name="forward",
+            type=(
+                [p.to_value_tensor_type() for p in placeholders.values()]
+                if not example_args
+                else [e.to_value_tensor_type() for e in example_args],
+                [],
+            ),
+            # visibility="private",
         )
-        func_op.attributes["function_type"] = ir.TypeAttr.get(canonical_func_type)
 
-        func_dialect.ReturnOp(results)
+        if not example_args:
+            arg_attrs = [p.to_value_tensor_type_bound() for p in placeholders.values()]
+            func_op.arg_attrs = ir.ArrayAttr.get(arg_attrs)
 
-    top_ip.__exit__(None, None, None)
+        func_op_entry_block = func_op.add_entry_block()
+        block_args = list(map(Tensor, func_op.arguments))
+
+        def replace_block_args(self_, *args, **kwargs):
+            assert not kwargs, f"kwargs not supported {kwargs}"
+            assert len(args) == len(block_args)
+            return block_args, kwargs
+
+        pi_module.register_forward_pre_hook(replace_block_args, prepend=True)
+
+        def move_buffers_params_into_func(self_, *args, **kwargs):
+            for child in self_.all_children():
+                for thing in chain(child._buffers.values(), child._parameters.values()):
+                    if isinstance(thing, Tensor):
+                        mlir_val = ir.Value._CAPICreate(thing._CAPIPtr)
+                        ir.InsertionPoint.at_block_begin(func_op_entry_block).insert(
+                            mlir_val.owner.detach_from_parent()
+                        )
+
+        pi_module.register_forward_pre_hook(move_buffers_params_into_func, prepend=True)
+
+        results = []
+
+        def collect_results(_self, result, *_args, **_kwargs):
+            if len(results):
+                warnings.warn(
+                    f"results already collected {results} (new result {result}); overwriting"
+                )
+                results[0] = result
+            else:
+                results.append(result)
+            return result
+
+        pi_module.register_forward_post_hook(collect_results, prepend=True)
+
+        with ir.InsertionPoint.at_block_begin(func_op_entry_block):
+            pi_module(*example_args)
+            if isinstance(results[0], (tuple, list)):
+                results = results[0]
+
+            assert all(isinstance(r, (Tensor, ir.Value)) for r in results), results
+            # functions created from python can't return multiple results
+            if len(results) > 1:
+                el_type_reg = re.compile(r"!torch\.(.*)")
+                el_types = []
+                for r in results:
+                    el_type = el_type_reg.findall(str(r.type))
+                    assert len(el_type) == 1
+                    el_types.append(el_type[0])
+                res_type = ir.Type.parse(f"!torch.tuple<{', '.join(el_types)}>")
+                results = [torch_dialect.PrimTupleConstructOp(res_type, results).result]
+
+            canonical_func_type = ir.FunctionType.get(
+                inputs=[b.type for b in block_args],
+                results=[r.type for r in results],
+            )
+            func_op.attributes["function_type"] = ir.TypeAttr.get(canonical_func_type)
+
+            func_dialect.ReturnOp(results)
 
     mlir_module = lower_pi_to_torch_backend(mlir_module)
 
