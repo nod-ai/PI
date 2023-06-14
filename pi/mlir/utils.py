@@ -241,11 +241,6 @@ class dtype(Enum):
         return self in {dtype.bool}
 
 
-@register_attribute_builder("F64Attr")
-def _f64Attr(x, context):
-    return FloatAttr.get(F64Type.get(context=context), x)
-
-
 @register_attribute_builder("AnyI64Attr")
 def _anyI64Attr(x, context):
     return IntegerAttr.get(IntegerType.get_signless(64, context=context), x)

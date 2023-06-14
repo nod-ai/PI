@@ -13,6 +13,7 @@
 #include "mlir/IR/TypeSupport.h"
 
 #include <functional>
+#include <pybind11/detail/common.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
 
@@ -68,9 +69,9 @@ public:
   static MlirValue castFrom(PyValue &orig) {
     if (!DerivedTy::isaFunction(orig.get())) {
       auto origRepr = py::repr(py::cast(orig)).cast<std::string>();
-      throw SetPyError(PyExc_ValueError, Twine("Cannot cast value to ") +
-                                             DerivedTy::pyClassName +
-                                             " (from " + origRepr + ")");
+      auto errMsg = Twine("Cannot cast value to ") + DerivedTy::pyClassName +
+                    " (from " + origRepr + ")";
+      throw py::value_error(errMsg.str());
     }
     return orig.get();
   }
