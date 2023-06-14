@@ -87,6 +87,11 @@ py::object sub(const PyAnyTorchScalarValue &a, const PyAnyTorchScalarValue &b) {
       .value()(returnType, a, b);
 }
 
+PyAnyTorchTensorValue view(PyAnyTorchTensorValue &self, const py::args &args) {
+  auto size = PyAnyTorchListOfTorchIntValue(args);
+  return view(self, size);
+}
+
 void populateTorchMLIROps(py::module &m) {
 
   py::register_exception_translator([](std::exception_ptr p) {
@@ -125,6 +130,13 @@ void populateTorchMLIROps(py::module &m) {
           throw NotImplementedError("aten::avg_pool1d : (Tensor, int[], int[], "
                                     "int[], bool, bool) -> (Tensor)");
         });
+
+  // aten::view : (Tensor, int[]) -> (Tensor)
+  m.def(
+      "view",
+      [](PyAnyTorchTensorValue &self, const py::args &args)
+          -> PyAnyTorchTensorValue { return view(self, args); },
+      "size"_a);
 }
 
 } // namespace mlir::torch

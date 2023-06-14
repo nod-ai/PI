@@ -210,6 +210,26 @@ void PyAnyTorchTensorValue::bindDerived(ClassTy &c) {
           -> PyAnyTorchTensorValue { return add(self, other, 1.0f); },
       "other"_a);
 
+  // @overload view(self, dtype _dtype) -> Tensor
+  c.def("view",
+        [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dtype) {
+          return view_copy(self, dtype);
+        });
+
+  // @overload view(self, size Sequence[Union[_int, SymInt]]) -> Tensor
+  c.def(
+      "view",
+      [](PyAnyTorchTensorValue &self,
+         const PyAnyTorchListOfTorchIntValue &size) {
+        return view(self, size);
+      },
+      "size"_a);
+
+  // @overload view(self, *size _int) -> Tensor
+  c.def("view", [](PyAnyTorchTensorValue &self, const py::args &args) {
+    return view(self, args);
+  });
+
 #include "TorchTensor.pybinds.cpp"
 }
 
