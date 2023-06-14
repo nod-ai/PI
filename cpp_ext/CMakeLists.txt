@@ -39,9 +39,6 @@ declare_mlir_python_extension(
 set(PYBINDINGS_SRC "${MLIR_INSTALL_PREFIX}/src/python/MLIRPythonExtension.Core")
 target_include_directories(PiPythonSources.Extension
                            INTERFACE "${PYBINDINGS_SRC}")
-# for SetPyError which somehow magically get's linked somewhere...
-target_sources(PiPythonSources.Extension
-               INTERFACE "${PYBINDINGS_SRC}/PybindUtils.cpp")
 
 set(FILES_TO_PATCH IRModule.h;Globals.h;IRCore.cpp;IRAffine.cpp)
 
