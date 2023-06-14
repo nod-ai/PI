@@ -2404,10 +2404,6 @@ c.def("var", [](const PyAnyTorchTensorValue &self, const PyTorch_BoolValue &unbi
 // vdot(self, other Tensor) -> Tensor
 c.def("vdot", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("NotImplementedError: vdot with signature vdot(self, other Tensor) -> Tensor"); });
 
-// @overload view(self, size Sequence[Union[_int, SymInt]]) -> Tensor
-// aten::view : (Tensor, int[]) -> (Tensor)
-c.def("view", [](const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTorchIntValue &size) -> PyAnyTorchTensorValue { return view(self, size); }, "size"_a);
-
 // view_as(self, other Tensor) -> Tensor
 c.def("view_as", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("NotImplementedError: view_as with signature view_as(self, other Tensor) -> Tensor"); });
 

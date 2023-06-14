@@ -53,6 +53,9 @@ py::object item(const PyAnyTorchTensorValue &self);
 // py::object sub(const PyAnyTorchScalarValue &a, const PyAnyTorchScalarValue
 // &b);
 
+// aten::view : (Tensor, int[]) -> (Tensor)
+PyAnyTorchTensorValue view(PyAnyTorchTensorValue &self, const py::args &args);
+
 void populateTorchMLIROps(py::module &m);
 
 } // namespace mlir::torch

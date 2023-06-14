@@ -55,6 +55,11 @@ UNIMPLEMENTED_TYPES = {
     "anonymous_430",
 }
 SKIP_OPS = {"Torch_PrimsSqrtOp"}
+SKIP_TENSOR_BINDS = {
+    "@overload view(self, dtype _dtype) -> Tensor",
+    "@overload view(self, size Sequence[Union[_int, SymInt]]) -> Tensor",
+    "@overload view(self, *size _int) -> Tensor",
+}
 
 TORCH_OPS_IMPL_CPP = "TorchOps.impls.cpp"
 TORCH_OPS_INC_H = "TorchOps.inc.h"
@@ -320,6 +325,9 @@ class TensorMethodVisitor(ast.NodeVisitor):
             .strip()
         )
 
+        if method_sig in SKIP_TENSOR_BINDS:
+            return
+
         op_name = node.name
         if op_name in self.skip:
             if method_sig not in self.visited:
@@ -370,7 +378,9 @@ class TensorMethodVisitor(ast.NodeVisitor):
             matching_jitop_ods = try_to_find_op(overload_op_name)
 
         if len(matching_jitop_ods) == 0:
-            warnings.warn(f"found no matching overload for {op_name=} with {method_sig=}")
+            warnings.warn(
+                f"found no matching overload for {op_name=} with {method_sig=}"
+            )
             return
 
         for jit_op, ods in matching_jitop_ods:
