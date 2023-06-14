@@ -78,9 +78,47 @@ In general, PI is very alpha; to get a rough idea of the current status check th
 
 Currently, we're passing ~650 out of 786 of Torch-MLIR's test-suite (`torch-mlir==20230127.731`).
 
-# Build Wheel
+# Development
+
+Spin up a venv (or conda environment) with `pip install -r requirements.txt ` and configure CMake with
 
 ```shell
-pip install -r requirements.txt 
-pip wheel . --no-build-isolation -w wheelhouse --no-deps
+cmake \
+    -DCMAKE_INSTALL_PREFIX=$PI_SRC_DIR/pi \
+    -DPython3_EXECUTABLE=$(which python) \
+    -S $PI_SRC_DIR \
+    -B $PI_BUILD_DIR
+```
+
+where `$PI_SRC_DIR` is the path to the checkout of this repo and `$PI_BUILD_DIR` is where you want to build into. Then
+
+```shell
+cmake --build $PI_BUILD_DIR --target install
+```
+
+which will install `_mlir_libs`, `dialects`, and `runtime` underneath `$PI_SRC_DIR/mlir`.
+Then add `$PI_SRC_DIR` to your `PYTHONPATH` and you're good to go. E.g.,
+
+```shell
+PYTHONPATH=$PI_SRC_DIR pytest ../tests/unit/*
+```
+
+**Why build the `install` target?** Because you can't do a `pip install . -e` (editable install) because of the pybind/C-extension so this is the next best thing.
+
+Note, if you're using CLion and you're getting something like
+
+```shell
+Process finished with exit code 127
+```
+
+you need to disable `Add content roots to PYTHONPATH` and `Add source roots to PYTHONPATH` [in Run/Debug Configurations](https://stackoverflow.com/a/48471173).
+
+If you're fancy you can add these CMake flags:
+
+```shell
+-DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld"
+-DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld"
+-DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld"
+-DCMAKE_C_COMPILER_LAUNCHER=ccache
+-DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 ```
