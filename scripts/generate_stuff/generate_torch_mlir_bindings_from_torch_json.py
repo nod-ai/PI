@@ -305,7 +305,7 @@ class TensorMethodVisitor(ast.NodeVisitor):
         impl = dedent(
             f"""
                 // {method_sig}
-                c.def("{op_name}", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) {{ throw NotImplementedError("{op_name} with signature {method_sig}"); }});
+                c.def("{op_name}", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) {{ throw NotImplementedError("NotImplementedError: {op_name} with signature {method_sig}"); }});
             """
         )
         self.binds_td(impl)
