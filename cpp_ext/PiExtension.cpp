@@ -5,6 +5,7 @@
 #include <pybind11/pytypes.h>
 #include <vector>
 
+#include "TorchDType.h"
 #include "TorchOps.h"
 #include "TorchTensor.h"
 #include "TorchTypes.h"
@@ -18,6 +19,7 @@ PYBIND11_MODULE(_pi_mlir, m) {
   populateTorchMLIRTypes(m);
   populateTorchMLIRValues(m);
   populateTorchTensorOps(m);
+  populateTorchDType(m);
   auto ops = m.def_submodule("ops");
   populateTorchMLIROps(ops);
 }
