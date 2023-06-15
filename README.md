@@ -96,7 +96,7 @@ where `$PI_SRC_DIR` is the path to the checkout of this repo and `$PI_BUILD_DIR`
 cmake --build $PI_BUILD_DIR --target install
 ```
 
-which will install `_mlir_libs`, `dialects`, and `runtime` underneath `$PI_SRC_DIR/mlir`.
+which will install `_mlir_libs`, `dialects`, and `runtime` underneath `$PI_SRC_DIR/pi/mlir`.
 Then add `$PI_SRC_DIR` to your `PYTHONPATH` and you're good to go. E.g.,
 
 ```shell
