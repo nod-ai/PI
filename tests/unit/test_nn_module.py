@@ -74,7 +74,7 @@ class TestNnModule:
                 t.owner,
             )
 
-            t = activation.LogSoftmax()(t)
+            t = activation.LogSoftmax(dim=1)(t)
             check_correct(
                 "%5 = torch.aten.log_softmax.int %3, %int1, %none : !torch.tensor, !torch.int, !torch.none -> !torch.tensor",
                 t.owner,
