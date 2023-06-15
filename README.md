@@ -15,7 +15,7 @@ Early days of a lightweight MLIR Python frontend with support for PyTorch (throu
 Just 
 
 ```shell
-pip install - requirements.txt 
+pip install -r requirements.txt
 pip install . -v
 ```
 
@@ -100,7 +100,7 @@ which will install `_mlir_libs`, `dialects`, and `runtime` underneath `$PI_SRC_D
 Then add `$PI_SRC_DIR` to your `PYTHONPATH` and you're good to go. E.g.,
 
 ```shell
-PYTHONPATH=$PI_SRC_DIR pytest ../tests/unit/*
+PYTHONPATH=$PI_SRC_DIR pytest $PI_SRC_DIR/tests/unit/*
 ```
 
 **Why build the `install` target?** Because you can't do a `pip install . -e` (editable install) because of the pybind/C-extension so this is the next best thing.
