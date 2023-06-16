@@ -3,7 +3,6 @@
 //
 
 #include "TorchValues.h"
-#include "TorchDType.h"
 #include "TorchTypes.h"
 
 #include <pybind11/pybind11.h>
@@ -164,18 +163,10 @@ void PyAnyTorchOptionalValue::bindDerived(ClassTy &c) {
   }
 DEFINE_OPTIONAL_BASE_CONCRETE_VALUE(Bool, bool)
 DEFINE_OPTIONAL_BASE_CONCRETE_VALUE(Device, int)
+DEFINE_OPTIONAL_BASE_CONCRETE_VALUE(Int, int)
 DEFINE_OPTIONAL_BASE_CONCRETE_VALUE(Float, float)
 DEFINE_OPTIONAL_BASE_CONCRETE_VALUE(String, std::string)
 #undef DEFINE_OPTIONAL_BASE_CONCRETE_VALUE
-
-void PyAnyTorchOptionalIntValue::bindDerived(ClassTy &c) {
-  c.def(py::init<py::none>(), py::arg("value"));
-  c.def(py::init<int>(), py::arg("value"));
-  c.def(py::init<DType>(), py::arg("value"));
-  py::implicitly_convertible<py::none, PyAnyTorchOptionalIntValue>();
-  py::implicitly_convertible<int, PyAnyTorchOptionalIntValue>();
-  py::implicitly_convertible<DType, PyAnyTorchOptionalIntValue>();
-}
 
 void PyAnyTorchOptionalScalarValue::bindDerived(ClassTy &c) {
   c.def(py::init<py::none>(), py::arg("value"));
@@ -220,23 +211,10 @@ DEFINE_BIND_SCALAR_VALUE(Number)
   }
 DEFINE_BIND_SCALAR_VALUE(Bool, bool, bool, Bool)
 DEFINE_BIND_SCALAR_VALUE(Device, int, int, Integer)
+DEFINE_BIND_SCALAR_VALUE(Int, int, int, Integer)
 DEFINE_BIND_SCALAR_VALUE(Float, float, float, Float)
 DEFINE_BIND_SCALAR_VALUE(String, std::string, str, String)
 #undef DEFINE_BIND_SCALAR_VALUE
-
-void PyTorch_IntValue::bindDerived(ClassTy &c) {
-  c.def(py::init<int>(), py::arg("value"));
-  c.def(py::init<DType>(), py::arg("value"));
-  c.def("__int__", [](py::object &self) {
-    return py::module::import(MAKE_MLIR_PYTHON_QUALNAME("ir"))
-        .attr("IntegerAttr")(
-            self.attr("owner").attr("attributes").attr("__getitem__")("value"))
-        .attr("value")
-        .cast<int>();
-  });
-  py::implicitly_convertible<int, PyTorch_IntValue>();
-  py::implicitly_convertible<DType, PyTorch_IntValue>();
-}
 
 void PyTorch_DictValue::bindDerived(ClassTy &c) {}
 void PyTorch_TupleValue::bindDerived(ClassTy &c) {}

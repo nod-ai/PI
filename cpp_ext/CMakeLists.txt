@@ -24,14 +24,12 @@ declare_mlir_python_extension(
   ADD_TO_PARENT
   PiPythonSources
   SOURCES
-  TorchDType.cpp
   TorchTypes.cpp
   TorchValues.cpp
   TorchOps.cpp
   TorchTensor.cpp
   PiExtension.cpp
   # Headers must be included explicitly so they are installed.
-  TorchDType.h
   TorchOps.h
   TorchOps.inc.h
   TorchTensor.h

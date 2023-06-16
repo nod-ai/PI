@@ -11,15 +11,18 @@ from typing import List, Optional, Tuple, Union
 
 import numpy as np
 
-from . import Torch_BoolType, Torch_FloatType, Torch_IntType, dtype
+from . import Torch_BoolType, Torch_FloatType, Torch_IntType
 from .dialects import _torch_ops_gen as torch_dialect, torch as torch_dialect
 from .ir import (
+    BF16Type,
+    ComplexType,
     Context,
     DenseElementsAttr,
     DictAttr,
     F16Type,
     F32Type,
     F64Type,
+    FloatAttr,
     IndexType,
     InsertionPoint,
     IntegerAttr,
@@ -63,6 +66,181 @@ def mlir_mod_ctx(
                 yield module
 
 
+class dtype(Enum):
+    """
+    |-------------------|--------------------|
+    | Torch Type        | MLIR Type          |
+    |-------------------|--------------------|
+    | torch.bfloat16    | bf16               |
+    | torch.bool        | i1                 |
+    | torch.complex*    | complex<*>         |
+    | torch.float16     | f16                |
+    | torch.float32     | f32                |
+    | torch.float64     | f64                |
+    | torch.int16       | si16               |
+    | torch.int32       | si32               |
+    | torch.int64       | si64               |
+    | torch.int8        | si8                |
+    | torch.qint8       | !torch.qint8       |
+    | torch.quint8      | !torch.quint8      |
+    | torch.uint8       | ui8                |
+    |-------------------|--------------------|
+    """
+
+    uint8 = 0
+    int8 = 1
+    int16 = 2
+    int32 = 3
+    int64 = 4
+    float16 = 5
+    float32 = 6
+    float64 = 7
+    # complex_half 8
+    complex32 = 9
+    complex64 = 10
+    bool = 11
+    qint8 = 12
+    quint8 = 13
+    # qint32 14
+    bfloat16 = 15
+
+    # qint4x2 16
+    # qint2x4 17
+
+    def to_mlir_type(self):
+        match self:
+            case dtype.bfloat16:
+                return BF16Type.get()
+            case dtype.bool:
+                return IntegerType.get_signless(1)
+            case dtype.complex32:
+                return ComplexType.get(F32Type.get())
+            case dtype.complex64:
+                return ComplexType.get(F64Type.get())
+            case dtype.float16:
+                return F16Type.get()
+            case dtype.float32:
+                return F32Type.get()
+            case dtype.float64:
+                return F64Type.get()
+            case dtype.int8:
+                return IntegerType.get_signed(8)
+            case dtype.int16:
+                return IntegerType.get_signed(16)
+            case dtype.int32:
+                return IntegerType.get_signed(32)
+            case dtype.int64:
+                return IntegerType.get_signed(64)
+            case dtype.uint8:
+                return IntegerType.get_unsigned(8)
+            case _:
+                raise NotImplementedError(f"unimplemented to mlir_type from {self}")
+
+    def to_torch_value_type(self):
+        match self:
+            case dtype.bool:
+                return Torch_BoolType()
+            case dtype.float16 | dtype.float32 | dtype.float64:
+                return Torch_FloatType()
+            case dtype.int8 | dtype.int16 | dtype.int32 | dtype.int64 | dtype.uint8:
+                return Torch_IntType()
+            case _:
+                raise NotImplementedError(
+                    f"unimplemented to torch value type from {self}"
+                )
+
+    @staticmethod
+    def from_np_type(self):
+        match self:
+            case np.half:
+                return dtype.float16
+            case np.bool_:
+                return dtype.bool
+            case np.singlecomplex:
+                return dtype.complex32
+            case np.complex_:
+                return dtype.complex64
+            case np.float32:
+                return dtype.float32
+            case np.float64:
+                return dtype.float64
+            case np.int8:
+                return dtype.int8
+            case np.int16:
+                return dtype.int16
+            case np.int32:
+                return dtype.int32
+            case np.int64:
+                return dtype.int64
+            case np.uint8:
+                return dtype.uint8
+            case _:
+                raise NotImplementedError(f"unrecognized dtype: {self}")
+
+    def to_np_type(self):
+        match self:
+            case dtype.bfloat16 | dtype.float16:
+                return np.half
+            case dtype.bool:
+                return np.bool_
+            case dtype.complex32:
+                return np.singlecomplex
+            case dtype.complex64:
+                return np.complex_
+            case dtype.float32:
+                return np.float32
+            case dtype.float64:
+                return np.float64
+            case dtype.int8:
+                return np.int8
+            case dtype.int16:
+                return np.int16
+            case dtype.int32:
+                return np.int32
+            case dtype.int64:
+                return np.int64
+            case dtype.uint8:
+                return np.uint8
+            case _:
+                raise NotImplementedError(f"unrecognized dtype: {self}")
+
+    @staticmethod
+    def from_mlir_type(t: str):
+        match t:
+            case "bf16":
+                return dtype.bfloat16
+            case "i1":
+                return dtype.bool
+            case "complex32":
+                return dtype.complex32
+            case "complex64":
+                return dtype.complex64
+            case "f16":
+                return dtype.float16
+            case "f32":
+                return dtype.float32
+            case "f64":
+                return dtype.float64
+            case "si8":
+                return dtype.int8
+            case "si16":
+                return dtype.int16
+            case "si32":
+                return dtype.int32
+            case "si64":
+                return dtype.int64
+            case "ui8":
+                return dtype.uint8
+            case _:
+                raise NotImplementedError(f"Something's wrong with the internet {t}")
+
+    # IntegerType.get_signless(32) -> i32
+    # IntegerType.get_signed(32) -> si32
+    # IntegerType.get_unsigned(32) -> ui32
+    def is_signless(self):
+        return self in {dtype.bool}
+
+
 @register_attribute_builder("AnyI64Attr")
 def _anyI64Attr(x, context):
     return IntegerAttr.get(IntegerType.get_signless(64, context=context), x)
@@ -83,7 +261,7 @@ def infer_mlir_type(
     elif isinstance(py_val, float):
         return F64Type.get()
     elif isinstance(py_val, np.ndarray):
-        dtype_ = {
+        dtype = {
             np.int8: IntegerType.get_signless(8),
             np.int16: IntegerType.get_signless(16),
             np.int32: IntegerType.get_signless(32),
@@ -94,7 +272,7 @@ def infer_mlir_type(
             np.float32: F32Type.get(),
             np.float64: F64Type.get(),
         }[py_val.dtype.type]
-        return RankedTensorType.get(py_val.shape, dtype_)
+        return RankedTensorType.get(py_val.shape, dtype)
     else:
         raise NotImplementedError(
             f"Unsupported Python value {py_val=} with type {type(py_val)}"
@@ -108,10 +286,7 @@ def attr_from_numpy(arr: np.ndarray, dtype_: dtype = None):
     if dtype_ == dtype.bool:
         arr = np.packbits(arr, axis=None, bitorder="little")
     return DenseElementsAttr.get(
-        arr,
-        signless=dtype_.is_signless(),
-        type=dtype_.to_mlir_type(),
-        shape=shape,
+        arr, signless=dtype_.is_signless(), type=dtype_.to_mlir_type(), shape=shape
     )
 
 
@@ -168,11 +343,9 @@ class TensorPlaceholder:
         self.dtype = dtype_
 
     def to_value_tensor_type(self):
-        dtype_ = self.dtype.to_mlir_type()
+        dtype = self.dtype.to_mlir_type()
         # TODO(max): "modernize"
-        type = Type.parse(
-            f"!torch.vtensor<[{','.join(map(str, self.shape))}],{dtype_}>"
-        )
+        type = Type.parse(f"!torch.vtensor<[{','.join(map(str, self.shape))}],{dtype}>")
         return type
 
     def to_nonvalue_tensor_type(self):
@@ -184,12 +357,12 @@ class TensorPlaceholder:
         type_attr = TypeAttr.get(self.to_value_tensor_type())
         return DictAttr.get({"torch.type_bound": type_attr})
 
-    def to(self, dtype_: dtype):
-        self.dtype = dtype_
+    def to(self, dtype: dtype):
+        self.dtype = dtype
         return self
 
-    def type(self, dtype_):
-        return self.to(dtype_)
+    def type(self, dtype):
+        return self.to(dtype)
 
     def bool(self):
         return self.to(dtype.bool)

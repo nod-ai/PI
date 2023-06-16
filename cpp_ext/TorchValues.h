@@ -17,7 +17,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
 
-#include "TorchDType.h"
 #include "TorchTypes.h"
 
 using llvm::Twine;
@@ -137,27 +136,10 @@ public:
   };
 DECLARE_SCALAR_VALUE(Bool, bool, bool)
 DECLARE_SCALAR_VALUE(Device, int, device)
+DECLARE_SCALAR_VALUE(Int, int, int)
 DECLARE_SCALAR_VALUE(Float, float, float)
 DECLARE_SCALAR_VALUE(String, std::string, str)
 #undef DECLARE_SCALAR_VALUE
-
-class PyTorch_IntValue : public PyConcreteValue<PyTorch_IntValue> {
-public:
-  static constexpr IsAFunctionTy isaFunction = isATorch_IntValue;
-  static constexpr const char *pyClassName = "Torch_IntValue";
-  using PyConcreteValue::PyConcreteValue;
-  static void bindDerived(ClassTy &c);
-  PyTorch_IntValue(int b)
-      : PyTorch_IntValue(mlir::python::PyGlobals::get()
-                             .lookupOperationClass("torch.constant.int")
-                             .value()(b)
-                             .cast<PyTorch_IntValue>()) {}
-  PyTorch_IntValue(DType b)
-      : PyTorch_IntValue(mlir::python::PyGlobals::get()
-                             .lookupOperationClass("torch.constant.int")
-                             .value()(to_underlying(b))
-                             .cast<PyTorch_IntValue>()) {}
-};
 
 template <class T> struct tag {
   using type = T;
@@ -301,6 +283,7 @@ public:
 
 DECLARE_OPTIONAL_BASE_CONCRETE_VALUE(Bool, bool)
 DECLARE_OPTIONAL_BASE_CONCRETE_VALUE(Device, int)
+DECLARE_OPTIONAL_BASE_CONCRETE_VALUE(Int, int)
 DECLARE_OPTIONAL_BASE_CONCRETE_VALUE(Float, float)
 DECLARE_OPTIONAL_BASE_CONCRETE_VALUE(String, std::string)
 #undef DECLARE_OPTIONAL_BASE_CONCRETE_VALUE
@@ -310,7 +293,9 @@ class PyAnyTorchOptionalScalarValue
                              PyAnyTorchOptionalValue> {
 public:
   static constexpr IsAFunctionTy isaFunction = isAAnyTorchOptionalScalarValue;
-  static constexpr const char *pyClassName = "AnyTorchOptionalScalarValue";
+  static constexpr const char *pyClassName = "AnyTorchOptional"
+                                             "Scalar"
+                                             "Value";
   PyAnyTorchOptionalScalarValue(const py::none &n)
       : PyAnyTorchOptionalScalarValue(
             py::cast(PyTorch_NoneValue(n))
@@ -323,26 +308,6 @@ public:
       : PyAnyTorchOptionalScalarValue(
             py::cast(PyTorch_FloatValue(n))
                 .cast<PyAnyTorchOptionalScalarValue>()) {}
-  using PyConcreteValue::PyConcreteValue;
-  static void bindDerived(ClassTy &c);
-};
-
-class PyAnyTorchOptionalIntValue
-    : public PyConcreteValue<PyAnyTorchOptionalIntValue,
-                             PyAnyTorchOptionalValue> {
-public:
-  static constexpr IsAFunctionTy isaFunction = isAAnyTorchOptionalIntValue;
-  static constexpr const char *pyClassName = "AnyTorchOptionalIntValue";
-  PyAnyTorchOptionalIntValue(const py::none &n)
-      : PyAnyTorchOptionalIntValue(
-            py::cast(PyTorch_NoneValue(n)).cast<PyAnyTorchOptionalIntValue>()) {
-  }
-  PyAnyTorchOptionalIntValue(int n)
-      : PyAnyTorchOptionalIntValue(
-            py::cast(PyTorch_IntValue(n)).cast<PyAnyTorchOptionalIntValue>()) {}
-  PyAnyTorchOptionalIntValue(DType n)
-      : PyAnyTorchOptionalIntValue(
-            py::cast(PyTorch_IntValue(n)).cast<PyAnyTorchOptionalIntValue>()) {}
   using PyConcreteValue::PyConcreteValue;
   static void bindDerived(ClassTy &c);
 };
