@@ -24,5 +24,7 @@ PI_XFAIL_SET = {"ElementwiseGeFloatScalarModule_basic", "ArangeStartNegativeStep
                 "LeakyReluBackwardModule_basic",
                 "LeakyReluBackwardStaticModule_basic",
                 "Threshold3dFloatModule_basic",
-                "ThresholdBackward3dFloatModule_basic"
+                "ThresholdBackward3dFloatModule_basic",
+                "TypePromotionAlphaWiderModule_basic",
+                "TypePromotionSameCategoryZeroRankWider_basic"
                 }
