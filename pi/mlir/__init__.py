@@ -90,7 +90,7 @@ from ._mlir_libs._pi_mlir import (
 )
 
 # noinspection PyUnresolvedReferences
-from ._mlir_libs._pi_mlir import Tensor
+from ._mlir_libs._pi_mlir import Tensor, dtype
 
 Tensor = Tensor
 
