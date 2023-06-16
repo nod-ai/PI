@@ -15,6 +15,7 @@
 
 namespace py = pybind11;
 using namespace mlir::python;
+using namespace py::literals;
 
 namespace mlir::torch {
 
