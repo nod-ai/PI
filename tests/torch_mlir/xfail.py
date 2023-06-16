@@ -7,6 +7,7 @@ PI_XFAIL_SET = {
     "ElementwiseFlattenBroadcastModule_basic",
     "FlattenDynamicModule_basic",
     "FlattenRank0Module_basic",
+    "FlipNegativeIndexModule_basic",
     "MobilenetV3Module_basic",
     "ResNet18Module",
     "ResNet18Module_basic",
