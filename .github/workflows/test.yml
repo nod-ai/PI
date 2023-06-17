@@ -19,7 +19,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ ubuntu-latest ]
+        os: [ ubuntu-20.04 ]
         arch: [ x86_64 ]
         python_version: [ "3.11" ]
 
@@ -42,16 +42,14 @@ jobs:
       - name: Install linker
         run: |
           sudo apt-get update
-          sudo apt-get install -y mold
+          sudo apt-get install -y lld
 
       - name: Install
         env:
-          CMAKE_CXX_COMPILER_LAUNCHER: ccache
-          CMAKE_C_COMPILER_LAUNCHER: ccache
-          CMAKE_EXE_LINKER_FLAGS_INIT: "-fuse-ld=mold"
-          CMAKE_STATIC_LINKER_FLAGS_INIT: "-fuse-ld=mold"
-          CMAKE_SHARED_LINKER_FLAGS_INIT: "-fuse-ld=mold"
-          CMAKE_MODULE_LINKER_FLAGS_INIT: "-fuse-ld=mold"
+          CMAKE_EXE_LINKER_FLAGS_INIT: "-fuse-ld=ld.lld"
+          CMAKE_STATIC_LINKER_FLAGS_INIT: "-fuse-ld=ld.lld"
+          CMAKE_SHARED_LINKER_FLAGS_INIT: "-fuse-ld=ld.lld"
+          CMAKE_MODULE_LINKER_FLAGS_INIT: "-fuse-ld=ld.lld"
 
         run: |
           pip install -r requirements.txt

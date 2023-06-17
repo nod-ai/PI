@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eu -o pipefail
 
-OS=ubuntu-latest
+OS=ubuntu-20.04
 ARCH=AArch64
 GITHUB_WORKSPACE=$PWD/..
 
@@ -11,7 +11,7 @@ TORCH_MLIR_INSTALL_DIR=$PWD/torch_mlir_install/torch_mlir_install
 TORCH_MLIR_HOST_MAIN_BUILD_DIR=$PWD/build_host
 TORCH_MLIR_COMMIT=$(git ls-tree HEAD $TORCH_MLIR_MAIN_SRC_DIR --object-only --abbrev=8)
 
-if [ x"$OS" == x"ubuntu-latest" ] && [ x"$ARCH" == x"AArch64" ]; then
+if [ x"$OS" == x"ubuntu-20.04" ] && [ x"$ARCH" == x"AArch64" ]; then
   cmake \
     -G Ninja \
     -DBUILD_SHARED_LIBS=OFF \
@@ -37,7 +37,7 @@ if [ x"$OS" == x"macos-latest" ]; then
   export LLVM_DEFAULT_TARGET_TRIPLE=arm64-apple-darwin21.6.0
   export LLVM_HOST_TRIPLE=arm64-apple-darwin21.6.0
   export ARCH=AArch64
-elif [ x"$OS" == x"ubuntu-latest" ] && [ x"$ARCH" == x"AArch64" ]; then
+elif [ x"$OS" == x"ubuntu-20.04" ] && [ x"$ARCH" == x"AArch64" ]; then
   export CXX_COMPILER=aarch64-linux-gnu-g++
   export C_COMPILER=aarch64-linux-gnu-gcc
   export LLVM_DEFAULT_TARGET_TRIPLE=aarch64-linux-gnu
@@ -85,7 +85,7 @@ if [ x"$OS" == x"macos-latest" ]; then
   CMAKE_CONFIGS="${CMAKE_CONFIGS} \
     -DCMAKE_OSX_ARCHITECTURES=arm64 \
     -DMACOSX_DEPLOYMENT_TARGET=12.0"
-elif [ x"$OS" == x"ubuntu-latest" ] && [ x"$ARCH" == x"AArch64" ]; then
+elif [ x"$OS" == x"ubuntu-20.04" ] && [ x"$ARCH" == x"AArch64" ]; then
   CMAKE_CONFIGS="${CMAKE_CONFIGS} \
     -DLLVM_TABLEGEN=$TORCH_MLIR_HOST_MAIN_BUILD_DIR/bin/llvm-tblgen \
     -DMLIR_LINALG_ODS_YAML_GEN=$TORCH_MLIR_HOST_MAIN_BUILD_DIR/bin/mlir-linalg-ods-yaml-gen \
@@ -96,7 +96,7 @@ fi
 
 echo $CMAKE_CONFIGS
 
-if [ x"$OS" == x"ubuntu-latest" ] && [ x"$ARCH" == x"AArch64" ]; then
+if [ x"$OS" == x"ubuntu-20.04" ] && [ x"$ARCH" == x"AArch64" ]; then
   cmake -G Ninja \
       $CMAKE_CONFIGS \
       -DCMAKE_CXX_FLAGS="-O2 -static-libgcc -static-libstdc++" \

@@ -18,7 +18,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ ubuntu-latest, macos-latest ]
+        os: [ ubuntu-20.04, macos-latest ]
         arch: [ AArch64, X86 ]
         py_version: [ "3.11" ]
         exclude:
@@ -72,7 +72,7 @@ jobs:
             echo "ARCH=AArch64" | tee -a $GITHUB_ENV
             echo "PY_BUILD_EXT_SUFFIX=.cpython-${PY_VERSION}-darwin.so" | tee -a $GITHUB_ENV
             echo "PLAT_NAME=macosx_12_0_arm64" | tee -a $GITHUB_ENV
-          elif [ x"${{ matrix.os }}" == x"ubuntu-latest" ] && [ x"${{ matrix.arch }}" == x"AArch64" ]; then
+          elif [ x"${{ matrix.os }}" == x"ubuntu-20.04" ] && [ x"${{ matrix.arch }}" == x"AArch64" ]; then
             echo "CXX_COMPILER=aarch64-linux-gnu-g++" | tee -a $GITHUB_ENV
             echo "C_COMPILER=aarch64-linux-gnu-gcc" | tee -a $GITHUB_ENV
             echo "LLVM_DEFAULT_TARGET_TRIPLE=aarch64-linux-gnu" | tee -a $GITHUB_ENV
@@ -110,7 +110,7 @@ jobs:
             CMAKE_ARGS="${CMAKE_ARGS} \
               -DCMAKE_OSX_ARCHITECTURES=arm64 \
               -DMACOSX_DEPLOYMENT_TARGET=12.0"
-          elif [ x"${{ matrix.os }}" == x"ubuntu-latest" ] && [ x"${{ matrix.arch }}" == x"AArch64" ]; then
+          elif [ x"${{ matrix.os }}" == x"ubuntu-20.04" ] && [ x"${{ matrix.arch }}" == x"AArch64" ]; then
             CMAKE_ARGS="${CMAKE_ARGS} \
               -DLLVM_TABLEGEN=$TORCH_MLIR_HOST_MAIN_INSTALL_DIR/bin/llvm-tblgen \
               -DMLIR_LINALG_ODS_YAML_GEN=$TORCH_MLIR_HOST_MAIN_INSTALL_DIR/bin/mlir-linalg-ods-yaml-gen \
@@ -141,7 +141,7 @@ jobs:
 
   upload-tarballs:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     permissions:
       contents: write
 

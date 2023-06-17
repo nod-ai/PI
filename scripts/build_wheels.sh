@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eu -o pipefail
 
-OS=ubuntu-latest
+OS=ubuntu-20.04
 ARCH=AArch64
 GITHUB_WORKSPACE=$PWD/..
 
@@ -29,7 +29,7 @@ if [ x"$OS" == x"macos-latest" ]; then
   export ARCH=AArch64
   export PYTHON_MODULE_EXTENSION=".cpython-${PY_VERSION}-darwin.dylib"
   export PLAT_NAME="macosx_12_0_arm64"
-elif [ x"$OS" == x"ubuntu-latest" ] && [ x"$ARCH" == x"AArch64" ]; then
+elif [ x"$OS" == x"ubuntu-20.04" ] && [ x"$ARCH" == x"AArch64" ]; then
   export CXX_COMPILER=aarch64-linux-gnu-g++
   export C_COMPILER=aarch64-linux-gnu-gcc
   export LLVM_DEFAULT_TARGET_TRIPLE=aarch64-linux-gnu
@@ -65,7 +65,7 @@ if [ x"$OS" == x"macos-latest" ]; then
   CMAKE_ARGS="${CMAKE_ARGS} \
     -DCMAKE_OSX_ARCHITECTURES=arm64 \
     -DMACOSX_DEPLOYMENT_TARGET=12.0"
-elif [ x"$OS" == x"ubuntu-latest" ] && [ x"$ARCH" == x"AArch64" ]; then
+elif [ x"$OS" == x"ubuntu-20.04" ] && [ x"$ARCH" == x"AArch64" ]; then
   CMAKE_ARGS="${CMAKE_ARGS} \
     -DLLVM_TABLEGEN=$TORCH_MLIR_HOST_MAIN_INSTALL_DIR/bin/llvm-tblgen \
     -DMLIR_LINALG_ODS_YAML_GEN=$TORCH_MLIR_HOST_MAIN_INSTALL_DIR/bin/mlir-linalg-ods-yaml-gen \
