@@ -56,6 +56,9 @@ py::object item(const PyAnyTorchTensorValue &self);
 // aten::view : (Tensor, int[]) -> (Tensor)
 PyAnyTorchTensorValue view(PyAnyTorchTensorValue &self, const py::args &args);
 
+// aten::zeros : (int[], int?, int?, Device?, bool?) -> (Tensor)
+PyAnyTorchTensorValue zeros(const py::args &args, const PyAnyTorchOptionalIntValue &dtype, const PyAnyTorchOptionalIntValue &layout, const PyAnyTorchOptionalDeviceValue &device, const PyAnyTorchOptionalBoolValue &pin_memory);
+
 void populateTorchMLIROps(py::module &m);
 
 } // namespace mlir::torch
