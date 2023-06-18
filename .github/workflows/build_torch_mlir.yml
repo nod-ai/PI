@@ -246,6 +246,7 @@ jobs:
           name: "${{ steps.setup_release.outputs.release_title }}"
           removeArtifacts: false
           allowUpdates: true
+          prerelease: true
           replacesArtifacts: true
           
       - name: Update latest release
@@ -258,4 +259,5 @@ jobs:
           name: "torch-mlir-latest"
           removeArtifacts: true
           allowUpdates: true
+          prerelease: true
           replacesArtifacts: true
