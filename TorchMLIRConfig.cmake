@@ -47,7 +47,7 @@ message(STATUS "Using torch-mlir commit ${TORCH_MLIR_COMMIT}")
 # Try to download torch-mlir distro
 if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/torch-mlir-install.tar.xz)
   set(TORCH_MLIR_INSTALL_URL
-      "https://github.com/nod-ai/PI/releases/download/torch-mlir-${TORCH_MLIR_COMMIT}/torch-mlir-${TORCH_MLIR_COMMIT}-${OS}-latest-${ARCH}.tar.xz"
+      "https://github.com/nod-ai/PI/releases/download/torch-mlir-${TORCH_MLIR_COMMIT}/torch-mlir-${TORCH_MLIR_COMMIT}-${OS}-20.04-${ARCH}.tar.xz"
   )
   message(STATUS "Downloading torch-mlir distro from ${TORCH_MLIR_INSTALL_URL}")
   file(

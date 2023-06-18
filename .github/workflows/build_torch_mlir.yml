@@ -2,9 +2,9 @@ name: Build torch-mlir
 
 on:
 # uncomment these when iterating on this file
-#  pull_request:
-#    branches:
-#      - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
   push:
     paths:
@@ -19,7 +19,7 @@ jobs:
 
   get_torch_mlir_commit:
     name: Get latest torch-mlir commit
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     outputs:
       TORCH_MLIR_COMMIT: ${{ steps.get_torch_mlir_commit.outputs.TORCH_MLIR_COMMIT }}
     steps:
@@ -38,7 +38,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, macos-latest ]
+        os: [ ubuntu-20.04, macos-latest ]
         arch: [ AArch64, X86 ]
         py_version: [ "3.11" ]
         exclude:
@@ -117,7 +117,7 @@ jobs:
             echo "LLVM_DEFAULT_TARGET_TRIPLE=arm64-apple-darwin21.6.0" | tee -a $GITHUB_ENV
             echo "LLVM_HOST_TRIPLE=arm64-apple-darwin21.6.0" | tee -a $GITHUB_ENV
             echo "ARCH=AArch64" | tee -a $GITHUB_ENV
-          elif [ x"${{ matrix.os }}" == x"ubuntu-latest" ] && [ x"${{ matrix.arch }}" == x"AArch64" ]; then
+          elif [ x"${{ matrix.os }}" == x"ubuntu-20.04" ] && [ x"${{ matrix.arch }}" == x"AArch64" ]; then
             echo "CXX_COMPILER=aarch64-linux-gnu-g++" | tee -a $GITHUB_ENV
             echo "C_COMPILER=aarch64-linux-gnu-gcc" | tee -a $GITHUB_ENV
             echo "LLVM_DEFAULT_TARGET_TRIPLE=aarch64-linux-gnu" | tee -a $GITHUB_ENV
@@ -167,7 +167,7 @@ jobs:
             CMAKE_CONFIGS="${CMAKE_CONFIGS} \
               -DCMAKE_OSX_ARCHITECTURES=arm64 \
               -DMACOSX_DEPLOYMENT_TARGET=12.0"
-          elif [ x"${{ matrix.os }}" == x"ubuntu-latest" ] && [ x"${{ matrix.arch }}" == x"AArch64" ]; then
+          elif [ x"${{ matrix.os }}" == x"ubuntu-20.04" ] && [ x"${{ matrix.arch }}" == x"AArch64" ]; then
             CMAKE_CONFIGS="${CMAKE_CONFIGS} \
               -DLLVM_TABLEGEN=$TORCH_MLIR_HOST_MAIN_BUILD_DIR/bin/llvm-tblgen \
               -DMLIR_LINALG_ODS_YAML_GEN=$TORCH_MLIR_HOST_MAIN_BUILD_DIR/bin/mlir-linalg-ods-yaml-gen \
@@ -178,7 +178,7 @@ jobs:
           
           echo $CMAKE_CONFIGS
           
-          if [ x"${{ matrix.os }}" == x"ubuntu-latest" ] && [ x"${{ matrix.arch }}" == x"AArch64" ]; then
+          if [ x"${{ matrix.os }}" == x"ubuntu-20.04" ] && [ x"${{ matrix.arch }}" == x"AArch64" ]; then
             cmake -G Ninja \
                 $CMAKE_CONFIGS \
                 -DCMAKE_CXX_FLAGS="-O2 -static-libgcc -static-libstdc++" \
@@ -214,7 +214,7 @@ jobs:
 
   upload-tarballs:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     needs: build
 
