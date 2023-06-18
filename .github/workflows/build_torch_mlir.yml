@@ -2,9 +2,9 @@ name: Build torch-mlir
 
 on:
 # uncomment these when iterating on this file
-  pull_request:
-    branches:
-      - main
+#  pull_request:
+#    branches:
+#      - main
   workflow_dispatch:
   push:
     paths:
