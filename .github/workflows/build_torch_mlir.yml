@@ -1,15 +1,12 @@
 name: Build torch-mlir
 
 on:
-# uncomment these when iterating on this file
-#  pull_request:
-#    branches:
-#      - main
   workflow_dispatch:
   push:
     paths:
       - externals/**
       - .github/workflows/build_torch_mlir.yml
+# uncomment these when iterating on this file
 #  pull_request:
 #    paths:
 #      - externals/**
