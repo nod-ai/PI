@@ -3,8 +3,10 @@ find_package(Git REQUIRED)
 # figure out which tar might be downloaded
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
   set(OS ubuntu)
+  set(VER "20.04")
 else()
   set(OS macos)
+  set(VER latest)
 endif()
 
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "(AMD64|x86_64)")
@@ -47,7 +49,7 @@ message(STATUS "Using torch-mlir commit ${TORCH_MLIR_COMMIT}")
 # Try to download torch-mlir distro
 if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/torch-mlir-install.tar.xz)
   set(TORCH_MLIR_INSTALL_URL
-      "https://github.com/nod-ai/PI/releases/download/torch-mlir-${TORCH_MLIR_COMMIT}/torch-mlir-${TORCH_MLIR_COMMIT}-${OS}-20.04-${ARCH}.tar.xz"
+      "https://github.com/nod-ai/PI/releases/download/torch-mlir-${TORCH_MLIR_COMMIT}/torch-mlir-${TORCH_MLIR_COMMIT}-${OS}-${VER}-${ARCH}.tar.xz"
   )
   message(STATUS "Downloading torch-mlir distro from ${TORCH_MLIR_INSTALL_URL}")
   file(
