@@ -137,6 +137,7 @@ void populateTorchMLIROps(py::module &m) {
       [](PyAnyTorchTensorValue &self, const py::args &args)
           -> PyAnyTorchTensorValue { return view(self, args); },
       "size"_a);
+
 }
 
 } // namespace mlir::torch
