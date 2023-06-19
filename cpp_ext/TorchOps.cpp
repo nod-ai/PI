@@ -92,11 +92,6 @@ PyAnyTorchTensorValue view(PyAnyTorchTensorValue &self, const py::args &args) {
   return view(self, size);
 }
 
-PyAnyTorchTensorValue zeros(const py::args &args, const PyAnyTorchOptionalIntValue &dtype, const PyAnyTorchOptionalIntValue &layout, const PyAnyTorchOptionalDeviceValue &device, const PyAnyTorchOptionalBoolValue &pin_memory) {
-  auto size = PyAnyTorchListOfTorchIntValue(args);
-  return zeros(size, dtype, layout, device, pin_memory);
-}
-
 void populateTorchMLIROps(py::module &m) {
 
   py::register_exception_translator([](std::exception_ptr p) {
@@ -143,19 +138,6 @@ void populateTorchMLIROps(py::module &m) {
           -> PyAnyTorchTensorValue { return view(self, args); },
       "size"_a);
 
-  // aten::zeros : (int[], int?, int?, Device?, bool?) -> (Tensor)
-  m.def(
-      "zeros",
-      [](const py::args &args, PyAnyTorchOptionalIntValue &dtype,
-         const PyAnyTorchOptionalIntValue &layout,
-         const PyAnyTorchOptionalDeviceValue &device,
-         const PyAnyTorchOptionalBoolValue &pin_memory)
-          -> PyAnyTorchTensorValue {
-        return zeros(args, dtype, layout, device, pin_memory);
-      },
-      py::kw_only(), "dtype"_a = py::none(), "layout"_a = py::none(),
-      "device"_a = py::none(), "pin_memory"_a = py::none());
 }
-
 
 } // namespace mlir::torch
