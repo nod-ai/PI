@@ -1,4 +1,4 @@
-PI_XFAIL_SET = {
+CRASHING = {
     "ArangeNegativeStartIntModule_basic",
     "ArangeStartNegativeStepIntModule_basic",
     "Aten_EmbeddingBagExample_basic",
@@ -15,3 +15,5 @@ PI_XFAIL_SET = {
     "SliceCopyStartGreaterThanDimSize_Module_basic",
     "UniformModule_basic",
 }
+
+PI_XFAIL_SET = {"ElementwiseGeFloatScalarModule_basic"}

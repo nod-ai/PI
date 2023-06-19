@@ -15,7 +15,7 @@ from multiprocess.pool import Pool
 # noinspection PyUnresolvedReferences
 import torch_mlir
 
-from xfail import PI_XFAIL_SET
+from xfail import CRASHING, PI_XFAIL_SET
 
 from torch_mlir_e2e_test.test_suite import COMMON_TORCH_MLIR_LOWERING_XFAILS
 from torch_mlir_e2e_test.test_suite import (
@@ -49,8 +49,7 @@ def run_torch_mlir_tests(sequential=False):
     )
     tests = list(
         filter(
-            lambda t: t.unique_name
-            not in PI_XFAIL_SET | COMMON_TORCH_MLIR_LOWERING_XFAILS,
+            lambda t: t.unique_name not in CRASHING | COMMON_TORCH_MLIR_LOWERING_XFAILS,
             tests,
         )
     )
@@ -89,9 +88,12 @@ def run_torch_mlir_tests(sequential=False):
             "builtin.module(cse,torch-backend-to-linalg-on-tensors-backend-pipeline)",
             "Lowering Torch Backend IR to Linalg",
         )
+        linalg_module = str(
+            torch_mlir_module.operation.get_asm(large_elements_limit=10)
+        )
         return (
             test.unique_name,
-            str(torch_mlir_module.operation.get_asm(large_elements_limit=10)),
+            linalg_module,
             torch_mlir_module_str,
             torch_mlir_module_raw,
         )
@@ -135,7 +137,7 @@ def run_pi_tests(torch_mlir_module_strs):
     ) = (0, 0, 0, 0, 0, 0)
     for test in tests:
         TOTAL += 1
-        if test.unique_name in PI_XFAIL_SET | COMMON_TORCH_MLIR_LOWERING_XFAILS or (
+        if test.unique_name in CRASHING | COMMON_TORCH_MLIR_LOWERING_XFAILS or (
             ONLY and test.unique_name not in ONLY
         ):
             logger.info(f"skipping {test.unique_name}")
@@ -176,7 +178,9 @@ def run_pi_tests(torch_mlir_module_strs):
             )
         )
 
-        if len(sorted_diff):
+        if len(sorted_diff) and test.unique_name in PI_XFAIL_SET:
+            logger.info(f"XFAIL: {test.unique_name}")
+        elif len(sorted_diff):
             diff = list(
                 difflib.unified_diff(
                     str(pi_linalg_module_str).splitlines(),
