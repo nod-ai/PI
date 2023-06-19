@@ -134,10 +134,18 @@ def _np_wrapper(*args, factory=None, **kwargs):
         kwargs["dtype"] = kwargs["dtype"].to_np_type()
     return torch_dialect.NonValueTensorLiteralOp(factory(*args, **kwargs))
 
+def create_zeros(*args, **kwargs):
+    if len(args) == 1 and isinstance(args[0], (list, tuple)):
+        # Input is a list or tuple
+        return np.zeros(args[0], **kwargs)
+    else:
+        # Input is a sequence of ints along with kwargs
+        return np.zeros(args, **kwargs)
 
 empty = functools.partial(_np_wrapper, factory=np.empty)
 ones = functools.partial(_np_wrapper, factory=np.ones)
-zeros = functools.partial(_np_wrapper, factory=np.zeros)
+#zeros = functools.partial(_np_wrapper, factory=np.zeros)
+zeros = functools.partial(_np_wrapper, factory=create_zeros)
 rand = functools.partial(_np_wrapper, factory=np.random.rand)
 randn = functools.partial(_np_wrapper, factory=np.random.randn)
 tensor = functools.partial(_np_wrapper, factory=np.array)
