@@ -136,7 +136,7 @@ public:
                       .cast<PyTorch_##TORCHTYPE##Value>()) {}                  \
   };
 DECLARE_SCALAR_VALUE(Bool, bool, bool)
-DECLARE_SCALAR_VALUE(Device, int, device)
+DECLARE_SCALAR_VALUE(Device, std::string, device)
 DECLARE_SCALAR_VALUE(Float, float, float)
 DECLARE_SCALAR_VALUE(String, std::string, str)
 #undef DECLARE_SCALAR_VALUE
@@ -300,7 +300,7 @@ public:
   };
 
 DECLARE_OPTIONAL_BASE_CONCRETE_VALUE(Bool, bool)
-DECLARE_OPTIONAL_BASE_CONCRETE_VALUE(Device, int)
+DECLARE_OPTIONAL_BASE_CONCRETE_VALUE(Device, std::string)
 DECLARE_OPTIONAL_BASE_CONCRETE_VALUE(Float, float)
 DECLARE_OPTIONAL_BASE_CONCRETE_VALUE(String, std::string)
 #undef DECLARE_OPTIONAL_BASE_CONCRETE_VALUE
