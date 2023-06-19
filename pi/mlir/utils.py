@@ -144,7 +144,6 @@ def create_zeros(*args, **kwargs):
 
 empty = functools.partial(_np_wrapper, factory=np.empty)
 ones = functools.partial(_np_wrapper, factory=np.ones)
-#zeros = functools.partial(_np_wrapper, factory=np.zeros)
 zeros = functools.partial(_np_wrapper, factory=create_zeros)
 rand = functools.partial(_np_wrapper, factory=np.random.rand)
 randn = functools.partial(_np_wrapper, factory=np.random.randn)
