@@ -163,7 +163,7 @@ void PyAnyTorchOptionalValue::bindDerived(ClassTy &c) {
                                PyAnyTorchOptional##TORCHTYPE##Value>();        \
   }
 DEFINE_OPTIONAL_BASE_CONCRETE_VALUE(Bool, bool)
-DEFINE_OPTIONAL_BASE_CONCRETE_VALUE(Device, int)
+DEFINE_OPTIONAL_BASE_CONCRETE_VALUE(Device, std::string)
 DEFINE_OPTIONAL_BASE_CONCRETE_VALUE(Float, float)
 DEFINE_OPTIONAL_BASE_CONCRETE_VALUE(String, std::string)
 #undef DEFINE_OPTIONAL_BASE_CONCRETE_VALUE
@@ -219,7 +219,7 @@ DEFINE_BIND_SCALAR_VALUE(Number)
     py::implicitly_convertible<CPPTYPE, PyTorch_##TORCHTYPE##Value>();         \
   }
 DEFINE_BIND_SCALAR_VALUE(Bool, bool, bool, Bool)
-DEFINE_BIND_SCALAR_VALUE(Device, int, int, Integer)
+DEFINE_BIND_SCALAR_VALUE(Device, std::string, str, String)
 DEFINE_BIND_SCALAR_VALUE(Float, float, float, Float)
 DEFINE_BIND_SCALAR_VALUE(String, std::string, str, String)
 #undef DEFINE_BIND_SCALAR_VALUE

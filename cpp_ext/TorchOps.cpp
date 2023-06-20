@@ -92,6 +92,11 @@ PyAnyTorchTensorValue view(PyAnyTorchTensorValue &self, const py::args &args) {
   return view(self, size);
 }
 
+// prim::device : (str) -> (Device)
+PyTorch_DeviceValue device(std::string &type) {
+  return PyGlobals::get().lookupOperationClass("torch.constant.device").value()(type).cast<PyTorch_DeviceValue>();
+}
+
 void populateTorchMLIROps(py::module &m) {
 
   py::register_exception_translator([](std::exception_ptr p) {
@@ -137,6 +142,13 @@ void populateTorchMLIROps(py::module &m) {
       [](PyAnyTorchTensorValue &self, const py::args &args)
           -> PyAnyTorchTensorValue { return view(self, args); },
       "size"_a);
+
+  // prim::device : (str) -> (Device)
+  m.def(
+      "device",
+      [](std::string type)
+          -> PyTorch_DeviceValue { return device(type); },
+      "type"_a);
 
 }
 

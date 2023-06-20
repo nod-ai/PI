@@ -230,6 +230,18 @@ void PyAnyTorchTensorValue::bindDerived(ClassTy &c) {
     return view(self, args);
   });
 
+  // aten::to.dtype : (Tensor, int, bool, bool, int?) -> (Tensor)
+  c.def(
+      "to",
+      [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dtype,
+         const PyTorch_BoolValue &non_blocking, const PyTorch_BoolValue &copy,
+         const PyAnyTorchOptionalIntValue &memory_format)
+          -> PyAnyTorchTensorValue {
+        return to(self, dtype, non_blocking, copy, memory_format);
+      },
+      "dtype"_a = py::none(), "non_blocking"_a = false, "copy"_a = false,
+      "memory_format"_a = py::none());
+
 #include "TorchTensor.pybinds.cpp"
 }
 
