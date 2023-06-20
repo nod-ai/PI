@@ -5,6 +5,7 @@
 #include "TorchValues.h"
 #include "TorchDType.h"
 #include "TorchTypes.h"
+#include "TorchOps.h"
 
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
@@ -131,16 +132,27 @@ void PyAnyTorchListValue::bindDerived(ClassTy &c) {
   py::implicitly_convertible<py::tuple, PyAnyTorchListValue>();
 }
 
-#define DEFINE_LIST_BASE_CONCRETE_VALUE(TORCHTYPE)                             \
+#define DEFINE_LIST_BASE_CONCRETE_VALUE(TORCHTYPE, SCALARTYPE)                 \
   void PyAnyTorchListOf##TORCHTYPE##Value::bindDerived(ClassTy &c) {           \
     c.def(py::init<py::list>(), py::arg("value"));                             \
     c.def(py::init<py::tuple>(), py::arg("value"));                            \
+    c.def(                                                                     \
+        "__getitem__",                                                         \
+        [](PyAnyTorchListOf##TORCHTYPE##Value & self,                          \
+           const PyTorch_IntValue &idx) -> PyTorch_##SCALARTYPE##Value {       \
+          MlirType containedType = torchMlirTorchListTypeGetContainedType(     \
+              mlirValueGetType(self.get()));                                   \
+          return PyGlobals::get()                                              \
+              .lookupOperationClass("torch.aten.__getitem__.t")                \
+              .value()(py::cast(containedType), self, idx)                     \
+              .cast<PyTorch_##SCALARTYPE##Value>();                            \
+        });                                                                    \
     py::implicitly_convertible<py::list,                                       \
                                PyAnyTorchListOf##TORCHTYPE##Value>();          \
     py::implicitly_convertible<py::tuple,                                      \
                                PyAnyTorchListOf##TORCHTYPE##Value>();          \
   }
-FORALL_LIST_BASE_CONCRETE_TYPES(DEFINE_LIST_BASE_CONCRETE_VALUE)
+FORALL_LIST_BASE_CONCRETE_TYPES_WITH_TYPE(DEFINE_LIST_BASE_CONCRETE_VALUE)
 #undef DEFINE_LIST_BASE_CONCRETE_VALUE
 
 void PyAnyTorchOptionalGeneratorValue::bindDerived(ClassTy &c) {
@@ -220,7 +232,6 @@ DEFINE_BIND_SCALAR_VALUE(Number)
   }
 DEFINE_BIND_SCALAR_VALUE(Bool, bool, bool, Bool)
 DEFINE_BIND_SCALAR_VALUE(Device, std::string, str, String)
-DEFINE_BIND_SCALAR_VALUE(Float, float, float, Float)
 DEFINE_BIND_SCALAR_VALUE(String, std::string, str, String)
 #undef DEFINE_BIND_SCALAR_VALUE
 
@@ -234,8 +245,66 @@ void PyTorch_IntValue::bindDerived(ClassTy &c) {
         .attr("value")
         .cast<int>();
   });
+  c.def(
+      "__add__",
+      [](const PyTorch_IntValue &self, const PyTorch_IntValue &other)
+          -> PyTorch_IntValue { return add(self, other); },
+      "other"_a);
+  c.def(
+      "__sub__",
+      [](const PyTorch_IntValue &self, const PyTorch_IntValue &other)
+          -> PyTorch_IntValue { return sub(self, other); },
+      "other"_a);
+  c.def(
+      "__mul__",
+      [](const PyTorch_IntValue &self, const PyTorch_IntValue &other)
+          -> PyTorch_IntValue { return mul(self, other); },
+      "other"_a);
+  c.def(
+      "__truediv__",
+      [](const PyTorch_IntValue &self, const PyTorch_IntValue &other)
+          -> PyTorch_FloatValue { return div(self, other); },
+      "other"_a);
+  c.def(
+      "__floordiv__",
+      [](const PyTorch_IntValue &self, const PyTorch_IntValue &other)
+          -> PyTorch_IntValue { return floordiv(self, other); },
+      "other"_a);
   py::implicitly_convertible<int, PyTorch_IntValue>();
   py::implicitly_convertible<DType, PyTorch_IntValue>();
+}
+
+void PyTorch_FloatValue::bindDerived(ClassTy &c) {
+  c.def(py::init<float>(), py::arg("value"));
+  c.def("__"
+        "float"
+        "__",
+        [](py::object &self) {
+          return py::module::import("pi.mlir."
+                                    "ir")
+              .attr("Float"
+                    "Attr")(self.attr("owner")
+                                .attr("attributes")
+                                .attr("__getitem__")("value"))
+              .attr("value")
+              .cast<float>();
+        });
+  c.def(
+      "__sub__",
+      [](const PyTorch_FloatValue &self, const PyTorch_FloatValue &other)
+          -> PyTorch_FloatValue { return sub(self, other); },
+      "other"_a);
+  c.def(
+      "__mul__",
+      [](const PyTorch_FloatValue &self, const PyTorch_FloatValue &other)
+          -> PyTorch_FloatValue { return mul(self, other); },
+      "other"_a);
+  c.def(
+      "__truediv__",
+      [](const PyTorch_FloatValue &self, const PyTorch_FloatValue &other)
+          -> PyTorch_FloatValue { return div(self, other); },
+      "other"_a);
+  py::implicitly_convertible<float, PyTorch_FloatValue>();
 }
 
 void PyTorch_DictValue::bindDerived(ClassTy &c) {}

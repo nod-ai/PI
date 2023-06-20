@@ -97,6 +97,11 @@ PyTorch_DeviceValue device(std::string &type) {
   return PyGlobals::get().lookupOperationClass("torch.constant.device").value()(type).cast<PyTorch_DeviceValue>();
 }
 
+// aten::mean.dim : (Tensor, int?, bool, int?) -> (Tensor)
+PyAnyTorchTensorValue mean(const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalIntValue &dim, const PyTorch_BoolValue &keepdim, const PyAnyTorchOptionalIntValue &dtype) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.mean.dim").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, dim, keepdim, dtype).cast<PyAnyTorchTensorValue>();
+}
+
 void populateTorchMLIROps(py::module &m) {
 
   py::register_exception_translator([](std::exception_ptr p) {
@@ -150,6 +155,17 @@ void populateTorchMLIROps(py::module &m) {
           -> PyTorch_DeviceValue { return device(type); },
       "type"_a);
 
+  // aten::mean.dim : (Tensor, int?, bool, int?) -> (Tensor)
+  m.def(
+      "mean",
+      [](const PyAnyTorchTensorValue &self,
+         const PyAnyTorchOptionalIntValue &dim,
+         const PyTorch_BoolValue &keepdim,
+         const PyAnyTorchOptionalIntValue &dtype) -> PyAnyTorchTensorValue {
+        return mean(self, dim, keepdim, dtype);
+      },
+      "self"_a, "dim"_a = py::none(), "keepdim"_a = false,
+      "dtype"_a = py::none());
 }
 
 } // namespace mlir::torch

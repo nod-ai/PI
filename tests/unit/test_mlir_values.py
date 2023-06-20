@@ -135,6 +135,64 @@ class TestTorchValues:
                 tnone,
             )
 
+    def test_int_value_arithmetic(self):
+        with mlir_mod_ctx():
+            x = torch.ConstantIntOp(2)
+            y = torch.ConstantIntOp(3)
+
+            v = x + y
+            check_correct(
+                "Torch_IntValue(%0 = torch.aten.add.int %int2, %int3 : !torch.int, !torch.int -> !torch.int)",
+                v,
+            )
+
+            v = x - y
+            check_correct(
+                "Torch_IntValue(%1 = torch.aten.sub.int %int2, %int3 : !torch.int, !torch.int -> !torch.int)",
+                v,
+            )
+
+            v = x * y
+            check_correct(
+                "Torch_IntValue(%2 = torch.aten.mul.int %int2, %int3 : !torch.int, !torch.int -> !torch.int)",
+                v,
+            )
+
+            v = x / y
+            check_correct(
+                "Torch_FloatValue(%3 = torch.aten.div.int %int2, %int3 : !torch.int, !torch.int -> !torch.float)",
+                v,
+            )
+
+            v = x // y
+            check_correct(
+                "Torch_IntValue(%4 = torch.aten.floordiv.int %int2, %int3 : !torch.int, !torch.int -> !torch.int)",
+                v,
+            )
+
+    def test_float_value_arithmetic(self):
+        with mlir_mod_ctx():
+            x = torch.ConstantFloatOp(2)
+            y = torch.ConstantFloatOp(3)
+
+            v = x - y
+            check_correct(
+                "Torch_FloatValue(%0 = torch.aten.sub.float %float2.000000e00, %float3.000000e00 : !torch.float, !torch.float -> !torch.float)",
+                v,
+            )
+
+            v = x * y
+            check_correct(
+                "Torch_FloatValue(%1 = torch.aten.mul.float %float2.000000e00, %float3.000000e00 : !torch.float, !torch.float -> !torch.float)",
+                v,
+            )
+
+            v = x / y
+            check_correct(
+                "Torch_FloatValue(%2 = torch.aten.div.float %float2.000000e00, %float3.000000e00 : !torch.float, !torch.float -> !torch.float)",
+                v,
+            )
+
     def test_agg_values(self):
         with mlir_mod_ctx():
             tint = Torch_IntType.get()
@@ -504,4 +562,34 @@ class TestTorchValues:
             check_correct(
                 "%1 = torch.aten.unbind.int %0, %int1 : !torch.tensor<[2,2],f64>, !torch.int -> !torch.list<tensor>",
                 r.owner,
+            )
+
+    def test_ListIndexing(self):
+        with mlir_mod_ctx():
+            l = AnyTorchListOfTorchIntValue([1,2,3])
+            t = l[0]
+            check_correct(
+                "Torch_IntValue(%1 = torch.aten.__getitem__.t %0, %int0 : !torch.list<int>, !torch.int -> !torch.int)",
+                t,
+            )
+
+            l = AnyTorchListOfTorchFloatValue([1.0, 2.0, 3.0])
+            t = l[0]
+            check_correct(
+                "Torch_FloatValue(%3 = torch.aten.__getitem__.t %2, %int0 : !torch.list<float>, !torch.int -> !torch.float)",
+                t,
+            )
+
+            l = AnyTorchListOfTorchBoolValue([True, False, True])
+            t = l[0]
+            check_correct(
+                "Torch_BoolValue(%5 = torch.aten.__getitem__.t %4, %int0 : !torch.list<bool>, !torch.int -> !torch.bool)",
+                t,
+            )
+
+            l = AnyTorchListOfTorchStringValue(["1.0", "2.0", "3"])
+            t = l[0]
+            check_correct(
+                "Torch_StringValue(%7 = torch.aten.__getitem__.t %6, %int0 : !torch.list<str>, !torch.int -> !torch.str)",
+                t,
             )

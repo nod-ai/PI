@@ -192,8 +192,8 @@ class TensorPlaceholder:
         type_attr = TypeAttr.get(self.to_value_tensor_type())
         return DictAttr.get({"torch.type_bound": type_attr})
 
-    def to(self, dtype_: dtype):
-        self.dtype = dtype_
+    def to(self, dtype: dtype):
+        self.dtype = dtype
         return self
 
     def type(self, dtype_):
