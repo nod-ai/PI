@@ -151,7 +151,6 @@ zeros = functools.partial(_np_wrapper, factory=create_zeros)
 rand = functools.partial(_np_wrapper, factory=np.random.rand)
 randn = functools.partial(_np_wrapper, factory=np.random.randn)
 tensor = functools.partial(_np_wrapper, factory=np.array)
-zeros_like = functools.partial(_np_wrapper, factory=np.zeros_like)
 empty_like = functools.partial(_np_wrapper, factory=np.empty_like)
 
 class layout(Enum):
