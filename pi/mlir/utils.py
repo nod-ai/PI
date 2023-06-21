@@ -132,6 +132,9 @@ def _np_wrapper(*args, factory=None, **kwargs):
         kwargs.pop("device")
     if "dtype" in kwargs and isinstance(kwargs["dtype"], dtype):
         kwargs["dtype"] = kwargs["dtype"].to_np_type()
+    if "pin_memory" in kwargs:
+        kwargs.pop("pin_memory")
+
     return torch_dialect.NonValueTensorLiteralOp(factory(*args, **kwargs))
 
 def create_zeros(*args, **kwargs):
@@ -148,9 +151,7 @@ zeros = functools.partial(_np_wrapper, factory=create_zeros)
 rand = functools.partial(_np_wrapper, factory=np.random.rand)
 randn = functools.partial(_np_wrapper, factory=np.random.randn)
 tensor = functools.partial(_np_wrapper, factory=np.array)
-zeros_like = functools.partial(_np_wrapper, factory=np.zeros_like)
 empty_like = functools.partial(_np_wrapper, factory=np.empty_like)
-
 
 class layout(Enum):
     strided = 1
