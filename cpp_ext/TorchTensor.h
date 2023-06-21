@@ -76,6 +76,8 @@ class PyTorch_NonValueTensorType
     : public PyConcreteType<PyTorch_NonValueTensorType> {
 public:
   static constexpr IsAFunctionTy isaFunction = isATorch_NonValueTensorType;
+  static constexpr GetTypeIDFunctionTy getTypeIdFunction =
+      torchMlirTorchNonValueTensorTypeGetTypeID;
   static constexpr const char *pyClassName = "Torch_NonValueTensorType";
   using PyConcreteType::PyConcreteType;
   PyTorch_NonValueTensorType(std::vector<int64_t> sizes, MlirType dtype,
@@ -93,6 +95,8 @@ public:
 class PyTorch_ValueTensorType : public PyConcreteType<PyTorch_ValueTensorType> {
 public:
   static constexpr IsAFunctionTy isaFunction = isATorch_ValueTensorType;
+  static constexpr GetTypeIDFunctionTy getTypeIdFunction =
+      torchMlirTorchValueTensorTypeGetTypeID;
   static constexpr const char *pyClassName = "Torch_ValueTensorType";
   using PyConcreteType::PyConcreteType;
   PyTorch_ValueTensorType(std::vector<int64_t> sizes, MlirType dtype,

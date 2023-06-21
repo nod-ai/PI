@@ -7,6 +7,7 @@
 #include <utility>
 
 #include "mlir/Bindings/Python/PybindAdaptors.h"
+#include "torch-mlir-c/TorchTypes.h"
 
 namespace pybind11::detail {
 /// Casts string -> MlirStringRef.
@@ -176,6 +177,26 @@ void PyAnyTorchListType::bindDerived(ClassTy &c) {
         return torchMlirTorchListTypeGetContainedType(self.get());
       },
       "Get list element type.");
+
+  PyGlobals::get().registerTypeCaster(
+      torchMlirTorchListTypeGetTypeID(),
+      pybind11::cpp_function([](PyType &pyType) {
+        if (PyAnyTorchListOfTorchBoolType::isaFunction(pyType))
+          return py::cast(PyAnyTorchListOfTorchBoolType(pyType));
+        if (PyAnyTorchListOfTorchFloatType::isaFunction(pyType))
+          return py::cast(PyAnyTorchListOfTorchFloatType(pyType));
+        if (PyAnyTorchListOfTorchIntType::isaFunction(pyType))
+          return py::cast(PyAnyTorchListOfTorchIntType(pyType));
+        if (PyAnyTorchListOfTorchStringType::isaFunction(pyType))
+          return py::cast(PyAnyTorchListOfTorchStringType(pyType));
+        // last resort
+        if (PyAnyTorchListType::isaFunction(pyType))
+          return py::cast(PyAnyTorchListType(pyType));
+        // shouldn't ever happen
+        std::string msg = std::string("Can't cast unknown list type (") +
+                          std::string(py::repr(py::cast(pyType))) + ")";
+        throw py::cast_error(msg);
+      }));
 }
 
 void PyAnyTorchOptionalType::bindDerived(ClassTy &c) {

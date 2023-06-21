@@ -505,3 +505,13 @@ class TestTorchValues:
                 "%1 = torch.aten.unbind.int %0, %int1 : !torch.tensor<[2,2],f64>, !torch.int -> !torch.list<tensor>",
                 r.owner,
             )
+
+    def test_type_id_casting(self):
+        with mlir_mod_ctx():
+            t = torch.NonValueTensorLiteralOp(_elementsAttr(np.ones((2, 2))))
+            check_correct(
+                "Torch_NonValueTensorType(!torch.tensor<[2,2],f64>)", repr(t.type)
+            )
+
+            t = AnyTorchListValue([1, 2, 3])
+            check_correct("AnyTorchListOfTorchIntType(!torch.list<int>)", repr(t.type))

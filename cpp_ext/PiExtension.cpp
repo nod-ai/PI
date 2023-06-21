@@ -1,4 +1,5 @@
 #include "mlir-c/Bindings/Python/Interop.h"
+#include "mlir/Bindings/Python/PybindAdaptors.h"
 
 #include <pybind11/cast.h>
 #include <pybind11/pybind11.h>
