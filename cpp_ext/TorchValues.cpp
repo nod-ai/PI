@@ -460,6 +460,24 @@ makeListIter<PyAnyTorchTensorValue, PyAnyTorchListOfTensorValue const>(
 void PyAnyTorchListValue::bindDerived(ClassTy &c) {
   c.def(py::init<py::list>(), "value"_a);
   c.def(py::init<py::tuple>(), "value"_a);
+  c.def(
+      "__add__",
+      [](const PyAnyTorchListValue &self,
+         const PyAnyTorchListValue &other) -> PyAnyTorchListValue {
+        auto loc = getValueLocation(self);
+        return add(self, other, &loc, &DefaultingPyInsertionPoint::resolve());
+      },
+      "other"_a);
+
+  c.def(
+      "__radd__",
+      [](const PyAnyTorchListValue &self,
+         const PyAnyTorchListValue &other) -> PyAnyTorchListValue {
+        auto loc = getValueLocation(self);
+        return add(self, other, &loc, &DefaultingPyInsertionPoint::resolve());
+      },
+      "other"_a);
+
   py::implicitly_convertible<py::list, PyAnyTorchListValue>();
   py::implicitly_convertible<py::tuple, PyAnyTorchListValue>();
   c.def("__len__", [](const PyAnyTorchListValue &self) { return self.length; });

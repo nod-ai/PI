@@ -5,7 +5,7 @@ from functools import partial
 from typing import Union, List, Tuple
 
 
-from pi import Tensor, dtype, empty
+from pi import Tensor, dtype, empty_placeholder
 import pi
 
 
@@ -27,7 +27,7 @@ class Uninitialized(partial):
             if inspect.isfunction(func) or isinstance(func, functools.partial):
                 args = args[1:]
             else:
-                func = empty
+                func = empty_placeholder
 
             if isinstance(args[0], (tuple, list)):
                 assert len(args) == 1, f"unknown len args {args}"

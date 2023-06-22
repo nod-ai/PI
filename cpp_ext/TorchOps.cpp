@@ -203,7 +203,8 @@ void populateTorchMLIROps(py::module &m) {
          const PyTorch_BoolValue &keepdim,
          const PyAnyTorchOptionalIntValue &dtype, DefaultingPyLocation &loc,
          const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue {
-        return mean(self, dim, keepdim, dtype, loc.get(), ip.get());
+        auto dims = PyAnyTorchOptionalListOfTorchIntValue(py::make_tuple(dim));
+        return mean(self, dims, keepdim, dtype, loc.get(), ip.get());
       },
       "self"_a, "dim"_a = py::none(), "keepdim"_a = false,
       "dtype"_a = py::none(), py::kw_only(), "loc"_a = py::none(),

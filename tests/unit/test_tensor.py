@@ -2,6 +2,7 @@ from textwrap import dedent
 
 import numpy as np
 
+import pi
 from pi import ops
 from pi.mlir.utils import mlir_mod_ctx, int_op, non_value_tensor_op, bool_op, tensor_op
 from util import check_correct
@@ -105,4 +106,57 @@ class TestOverloadCast:
             check_correct(
                 "Tensor(%2 = torch.aten.gather %0, %int0, %0, %false_3 : !torch.tensor<[10,10],si64>, !torch.int, !torch.tensor<[10,10],si64>, !torch.bool -> !torch.tensor)",
                 r,
+            )
+
+    def test_tensor_div_overload(self):
+        with mlir_mod_ctx():
+            x = pi.ones(3)
+            y = pi.ones(3)
+            z = 2
+
+            d = x / z
+            check_correct(
+                "Tensor(%2 = torch.aten.div.Scalar %0, %int2 : !torch.tensor<[3],f64>, !torch.int -> !torch.tensor)",
+                d,
+            )
+
+            d = x / y
+            check_correct(
+                "Tensor(%3 = torch.aten.div.Tensor %0, %1 : !torch.tensor<[3],f64>, !torch.tensor<[3],f64> -> !torch.tensor)",
+                d,
+            )
+
+            # __rtruediv__ is computed via a reciprocal(tensor) and a scalar multiplication operator
+            d = z / x
+            check_correct(
+                "Tensor(%5 = torch.aten.mul.Scalar %4, %int2 : !torch.tensor, !torch.int -> !torch.tensor)",
+                d,
+            )
+
+    def test_tensor_indexing(self):
+        with mlir_mod_ctx():
+            x = pi.ones((4, 4))
+
+            v = x[0]
+            check_correct(
+                "Tensor(%1 = torch.aten.select.int %0, %int0_0, %int0 : !torch.tensor<[4,4],f64>, !torch.int, !torch.int -> !torch.tensor)",
+                v,
+            )
+
+            v = x[None]
+            check_correct(
+                "Tensor(%3 = torch.aten.unsqueeze %0, %int0_1 : !torch.tensor<[4,4],f64>, !torch.int -> !torch.tensor)",
+                v,
+            )
+
+            v = x[1:3:2]
+            check_correct(
+                "Tensor(%4 = torch.aten.slice.Tensor %0, %int0_4, %int1_2, %int3, %int2_3 : !torch.tensor<[4,4],f64>, !torch.int, !torch.int, !torch.int, !torch.int -> !torch.tensor)",
+                v,
+            )
+
+            v = x[:]
+            check_correct(
+                "Tensor(%5 = torch.aten.slice.Tensor %0, %int0_7, %none, %none_5, %int1_6 : !torch.tensor<[4,4],f64>, !torch.int, !torch.none, !torch.none, !torch.int -> !torch.tensor)",
+                v,
             )
