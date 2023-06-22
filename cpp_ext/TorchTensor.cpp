@@ -210,6 +210,12 @@ void PyAnyTorchTensorValue::bindDerived(ClassTy &c) {
           -> PyAnyTorchTensorValue { return add(self, other, 1.0f); },
       "other"_a);
 
+  c.def(
+      "__sub__",
+      [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &other)
+          -> PyAnyTorchTensorValue { return sub(self, other, 1.0f); },
+      "other"_a);
+
   // @overload view(self, dtype _dtype) -> Tensor
   c.def("view",
         [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dtype) {
