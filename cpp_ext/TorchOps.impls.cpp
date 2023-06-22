@@ -309,6 +309,11 @@ PyAnyTorchTensorValue ceil_(const PyAnyTorchTensorValue &self) {
   return PyGlobals::get().lookupOperationClass("torch.aten.ceil_").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self).cast<PyAnyTorchTensorValue>();
 }
 
+// aten::chunk : (Tensor, int, int) -> (Tensor[])
+PyAnyTorchListOfTensorValue chunk(const PyAnyTorchTensorValue &self, const PyTorch_IntValue &chunks, const PyTorch_IntValue &dim) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.chunk").value()(PyAnyTorchListOfTensorType(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), DefaultingPyMlirContext::resolve()), self, chunks, dim).cast<PyAnyTorchListOfTensorValue>();
+}
+
 // aten::clamp_max : (Tensor, Scalar) -> (Tensor)
 PyAnyTorchTensorValue clamp_max(const PyAnyTorchTensorValue &self, const PyAnyTorchScalarValue &max) {
   return PyGlobals::get().lookupOperationClass("torch.aten.clamp_max").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, max).cast<PyAnyTorchTensorValue>();
@@ -422,6 +427,11 @@ PyAnyTorchTensorValue cpu(const PyAnyTorchTensorValue &self) {
 // aten::cross_entropy_loss : (Tensor, Tensor, Tensor?, int, int, float) -> (Tensor)
 PyAnyTorchTensorValue cross_entropy_loss(const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &target, const PyAnyTorchOptionalTensorValue &weight, const PyTorch_IntValue &reduction, const PyTorch_IntValue &ignore_index, const PyTorch_FloatValue &label_smoothing) {
   return PyGlobals::get().lookupOperationClass("torch.aten.cross_entropy_loss").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, target, weight, reduction, ignore_index, label_smoothing).cast<PyAnyTorchTensorValue>();
+}
+
+// aten::cuda : (Tensor) -> (Tensor)
+PyAnyTorchTensorValue cuda(const PyAnyTorchTensorValue &self) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.cuda").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self).cast<PyAnyTorchTensorValue>();
 }
 
 // aten::cumsum : (Tensor, int, int?) -> (Tensor)
@@ -922,6 +932,11 @@ PyTorch_IntValue Int(const PyAnyTorchTensorValue &a) {
 // aten::is_floating_point : (Tensor) -> (bool)
 PyTorch_BoolValue is_floating_point(const PyAnyTorchTensorValue &self) {
   return PyGlobals::get().lookupOperationClass("torch.aten.is_floating_point").value()(self).cast<PyTorch_BoolValue>();
+}
+
+// aten::isnan : (Tensor) -> (Tensor)
+PyAnyTorchTensorValue isnan(const PyAnyTorchTensorValue &self) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.isnan").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self).cast<PyAnyTorchTensorValue>();
 }
 
 // aten::join : (str, str[]) -> (str)
@@ -1614,6 +1629,11 @@ PyAnyTorchTensorValue rsub(const PyAnyTorchTensorValue &self, const PyAnyTorchSc
   return PyGlobals::get().lookupOperationClass("torch.aten.rsub.Scalar").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, other, alpha).cast<PyAnyTorchTensorValue>();
 }
 
+// aten::scalar_tensor : (Scalar, int?, int?, Device?, bool?) -> (Tensor)
+PyAnyTorchTensorValue scalar_tensor(const PyAnyTorchScalarValue &s, const PyAnyTorchOptionalIntValue &dtype, const PyAnyTorchOptionalIntValue &layout, const PyAnyTorchOptionalDeviceValue &device, const PyAnyTorchOptionalBoolValue &pin_memory) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.scalar_tensor").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), s, dtype, layout, device, pin_memory).cast<PyAnyTorchTensorValue>();
+}
+
 // aten::scaled_dot_product_attention : (Tensor, Tensor, Tensor, Tensor?, float, bool, float?) -> (Tensor)
 PyAnyTorchTensorValue scaled_dot_product_attention(const PyAnyTorchTensorValue &query, const PyAnyTorchTensorValue &key, const PyAnyTorchTensorValue &value, const PyAnyTorchOptionalTensorValue &attn_mask, const PyTorch_FloatValue &dropout_p, const PyTorch_BoolValue &is_causal, const PyAnyTorchOptionalFloatValue &scale) {
   return PyGlobals::get().lookupOperationClass("torch.aten.scaled_dot_product_attention").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), query, key, value, attn_mask, dropout_p, is_causal, scale).cast<PyAnyTorchTensorValue>();
@@ -1649,6 +1669,16 @@ PyAnyTorchTensorValue scatter(const PyAnyTorchTensorValue &self, const PyTorch_I
   return PyGlobals::get().lookupOperationClass("torch.aten.scatter.value").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, dim, index, value).cast<PyAnyTorchTensorValue>();
 }
 
+// aten::scatter_.src : (Tensor, int, Tensor, Tensor) -> (Tensor)
+PyAnyTorchTensorValue scatter_(const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyAnyTorchTensorValue &index, const PyAnyTorchTensorValue &src) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.scatter_.src").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, dim, index, src).cast<PyAnyTorchTensorValue>();
+}
+
+// aten::scatter_.value : (Tensor, int, Tensor, Scalar) -> (Tensor)
+PyAnyTorchTensorValue scatter_(const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyAnyTorchTensorValue &index, const PyAnyTorchScalarValue &value) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.scatter_.value").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, dim, index, value).cast<PyAnyTorchTensorValue>();
+}
+
 // aten::select_copy.int : (Tensor, int, int) -> (Tensor)
 PyAnyTorchTensorValue select_copy(const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyTorch_IntValue &index) {
   return PyGlobals::get().lookupOperationClass("torch.aten.select_copy.int").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, dim, index).cast<PyAnyTorchTensorValue>();
@@ -1672,6 +1702,16 @@ PyAnyTorchTensorValue sigmoid(const PyAnyTorchTensorValue &self) {
 // aten::sigmoid_ : (Tensor) -> (Tensor)
 PyAnyTorchTensorValue sigmoid_(const PyAnyTorchTensorValue &self) {
   return PyGlobals::get().lookupOperationClass("torch.aten.sigmoid_").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self).cast<PyAnyTorchTensorValue>();
+}
+
+// aten::sign : (Tensor) -> (Tensor)
+PyAnyTorchTensorValue sign(const PyAnyTorchTensorValue &self) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.sign").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self).cast<PyAnyTorchTensorValue>();
+}
+
+// aten::sign_ : (Tensor) -> (Tensor)
+PyAnyTorchTensorValue sign_(const PyAnyTorchTensorValue &self) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.sign_").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self).cast<PyAnyTorchTensorValue>();
 }
 
 // aten::silu : (Tensor) -> (Tensor)
@@ -1742,6 +1782,11 @@ void sort(const PyAnyTorchListOfTorchIntValue &self, const PyTorch_BoolValue &re
 // aten::sort : (Tensor, int, bool) -> (Tensor, Tensor)
 std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> sort(const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyTorch_BoolValue &descending) {
   return PyGlobals::get().lookupOperationClass("torch.aten.sort").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, dim, descending).cast<std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue>>();
+}
+
+// aten::split.Tensor : (Tensor, int, int) -> (Tensor[])
+PyAnyTorchListOfTensorValue split(const PyAnyTorchTensorValue &self, const PyTorch_IntValue &split_size, const PyTorch_IntValue &dim) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.split.Tensor").value()(PyAnyTorchListOfTensorType(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), DefaultingPyMlirContext::resolve()), self, split_size, dim).cast<PyAnyTorchListOfTensorValue>();
 }
 
 // aten::sqrt.int : (int) -> (float)
@@ -1947,6 +1992,16 @@ PyAnyTorchTensorValue transpose_copy(const PyAnyTorchTensorValue &self, const Py
 // aten::transpose.int : (Tensor, int, int) -> (Tensor)
 PyAnyTorchTensorValue transpose(const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim0, const PyTorch_IntValue &dim1) {
   return PyGlobals::get().lookupOperationClass("torch.aten.transpose.int").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, dim0, dim1).cast<PyAnyTorchTensorValue>();
+}
+
+// aten::tril : (Tensor, int) -> (Tensor)
+PyAnyTorchTensorValue tril(const PyAnyTorchTensorValue &self, const PyTorch_IntValue &diagonal) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.tril").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, diagonal).cast<PyAnyTorchTensorValue>();
+}
+
+// aten::tril_ : (Tensor, int) -> (Tensor)
+PyAnyTorchTensorValue tril_(const PyAnyTorchTensorValue &self, const PyTorch_IntValue &diagonal) {
+  return PyGlobals::get().lookupOperationClass("torch.aten.tril_").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, diagonal).cast<PyAnyTorchTensorValue>();
 }
 
 // aten::triu : (Tensor, int) -> (Tensor)

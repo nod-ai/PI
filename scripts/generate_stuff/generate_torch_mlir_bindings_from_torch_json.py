@@ -56,9 +56,11 @@ UNIMPLEMENTED_TYPES = {
 }
 SKIP_OPS = {"Torch_PrimsSqrtOp"}
 SKIP_TENSOR_BINDS = {
-    "@overload view(self, dtype _dtype) -> Tensor",
-    "@overload view(self, size Sequence[Union[_int, SymInt]]) -> Tensor",
-    "@overload view(self, *size _int) -> Tensor",
+    "@overload view(self, dtype: _dtype) -> Tensor",
+    "@overload view(self, size: Sequence[Union[_int, SymInt]]) -> Tensor",
+    "@overload view(self, *size: _int) -> Tensor",
+    "__truediv__(self, other: Any) -> Tensor",
+    "__rtruediv__(self, other: Any) -> Tensor",
 }
 
 TORCH_OPS_IMPL_CPP = "TorchOps.impls.cpp"
@@ -321,12 +323,16 @@ class TensorMethodVisitor(ast.NodeVisitor):
             .replace("def", "")
             .replace("\n", "")
             .replace("...", "")
-            .replace(":", "")
             .strip()
         )
+        if method_sig[-1] == ":":
+            method_sig = method_sig[:-1]
 
         if method_sig in SKIP_TENSOR_BINDS:
             return
+
+        if "truediv" in method_sig:
+            print(method_sig)
 
         op_name = node.name
         if op_name in self.skip:
@@ -483,7 +489,7 @@ class FindTensorClass(ast.NodeVisitor):
 
 
 def generate_tensor_bindings(ops, cpp_ext_dir):
-    with open("torch/_C/__init__.pyi") as f:
+    with open("__init__.pyi") as f:
         tree = ast.parse(f.read())
 
     ops_dict = defaultdict(list)

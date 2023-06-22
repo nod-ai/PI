@@ -55,7 +55,7 @@ class TestOverloadCast:
             except NotImplementedError as e:
                 assert (
                     str(e)
-                    == "NotImplementedError: __mod__ with signature __mod__(self, other Any) -> Tensor"
+                    == "NotImplementedError: __mod__ with signature __mod__(self, other: Any) -> Tensor"
                 )
 
     def test_optional_args(self):
