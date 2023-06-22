@@ -185,6 +185,9 @@ m.def("ceil", [](const PyAnyTorchTensorValue &self) -> PyAnyTorchTensorValue { r
 // aten::ceil_ : (Tensor) -> (Tensor)
 m.def("ceil_", [](const PyAnyTorchTensorValue &self) -> PyAnyTorchTensorValue { return ceil_(self); }, "self"_a);
 
+// aten::chunk : (Tensor, int, int) -> (Tensor[])
+m.def("chunk", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &chunks, const PyTorch_IntValue &dim) -> PyAnyTorchListOfTensorValue { return chunk(self, chunks, dim); }, "self"_a, "chunks"_a, "dim"_a = 0);
+
 // aten::clamp_max : (Tensor, Scalar) -> (Tensor)
 m.def("clamp_max", [](const PyAnyTorchTensorValue &self, const PyAnyTorchScalarValue &max) -> PyAnyTorchTensorValue { return clamp_max(self, max); }, "self"_a, "max"_a);
 
@@ -253,6 +256,9 @@ m.def("cpu", [](const PyAnyTorchTensorValue &self) -> PyAnyTorchTensorValue { re
 
 // aten::cross_entropy_loss : (Tensor, Tensor, Tensor?, int, int, float) -> (Tensor)
 m.def("cross_entropy_loss", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &target, const PyAnyTorchOptionalTensorValue &weight, const PyTorch_IntValue &reduction, const PyTorch_IntValue &ignore_index, const PyTorch_FloatValue &label_smoothing) -> PyAnyTorchTensorValue { return cross_entropy_loss(self, target, weight, reduction, ignore_index, label_smoothing); }, "self"_a, "target"_a, "weight"_a = py::none(), "reduction"_a = 1, "ignore_index"_a = -100, "label_smoothing"_a = 0.);
+
+// aten::cuda : (Tensor) -> (Tensor)
+m.def("cuda", [](const PyAnyTorchTensorValue &self) -> PyAnyTorchTensorValue { return cuda(self); }, "self"_a);
 
 // aten::cumsum : (Tensor, int, int?) -> (Tensor)
 m.def("cumsum", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyAnyTorchOptionalIntValue &dtype) -> PyAnyTorchTensorValue { return cumsum(self, dim, dtype); }, "self"_a, "dim"_a, "dtype"_a = py::none());
@@ -553,6 +559,9 @@ m.def("Int", [](const PyAnyTorchTensorValue &a) -> PyTorch_IntValue { return Int
 
 // aten::is_floating_point : (Tensor) -> (bool)
 m.def("is_floating_point", [](const PyAnyTorchTensorValue &self) -> PyTorch_BoolValue { return is_floating_point(self); }, "self"_a);
+
+// aten::isnan : (Tensor) -> (Tensor)
+m.def("isnan", [](const PyAnyTorchTensorValue &self) -> PyAnyTorchTensorValue { return isnan(self); }, "self"_a);
 
 // aten::join : (str, str[]) -> (str)
 m.def("join", [](const PyTorch_StringValue &self, const PyAnyTorchListOfTorchStringValue &values) -> PyTorch_StringValue { return join(self, values); }, "self"_a, "values"_a);
@@ -968,6 +977,9 @@ m.def("rsqrt_", [](const PyAnyTorchTensorValue &self) -> PyAnyTorchTensorValue {
 // aten::rsub.Scalar : (Tensor, Scalar, Scalar) -> (Tensor)
 m.def("rsub", [](const PyAnyTorchTensorValue &self, const PyAnyTorchScalarValue &other, const PyAnyTorchScalarValue &alpha) -> PyAnyTorchTensorValue { return rsub(self, other, alpha); }, "self"_a, "other"_a, "alpha"_a = 1);
 
+// aten::scalar_tensor : (Scalar, int?, int?, Device?, bool?) -> (Tensor)
+m.def("scalar_tensor", [](const PyAnyTorchScalarValue &s, const PyAnyTorchOptionalIntValue &dtype, const PyAnyTorchOptionalIntValue &layout, const PyAnyTorchOptionalDeviceValue &device, const PyAnyTorchOptionalBoolValue &pin_memory) -> PyAnyTorchTensorValue { return scalar_tensor(s, dtype, layout, device, pin_memory); }, "s"_a, "dtype"_a = py::none(), "layout"_a = py::none(), "device"_a = py::none(), "pin_memory"_a = py::none());
+
 // aten::scaled_dot_product_attention : (Tensor, Tensor, Tensor, Tensor?, float, bool, float?) -> (Tensor)
 m.def("scaled_dot_product_attention", [](const PyAnyTorchTensorValue &query, const PyAnyTorchTensorValue &key, const PyAnyTorchTensorValue &value, const PyAnyTorchOptionalTensorValue &attn_mask, const PyTorch_FloatValue &dropout_p, const PyTorch_BoolValue &is_causal, const PyAnyTorchOptionalFloatValue &scale) -> PyAnyTorchTensorValue { return scaled_dot_product_attention(query, key, value, attn_mask, dropout_p, is_causal, scale); }, "query"_a, "key"_a, "value"_a, "attn_mask"_a = py::none(), "dropout_p"_a = 0., "is_causal"_a = false, "scale"_a = py::none());
 
@@ -989,6 +1001,12 @@ m.def("scatter", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &d
 // aten::scatter.value : (Tensor, int, Tensor, Scalar) -> (Tensor)
 m.def("scatter", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyAnyTorchTensorValue &index, const PyAnyTorchScalarValue &value) -> PyAnyTorchTensorValue { return scatter(self, dim, index, value); }, "self"_a, "dim"_a, "index"_a, "value"_a);
 
+// aten::scatter_.src : (Tensor, int, Tensor, Tensor) -> (Tensor)
+m.def("scatter_", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyAnyTorchTensorValue &index, const PyAnyTorchTensorValue &src) -> PyAnyTorchTensorValue { return scatter_(self, dim, index, src); }, "self"_a, "dim"_a, "index"_a, "src"_a);
+
+// aten::scatter_.value : (Tensor, int, Tensor, Scalar) -> (Tensor)
+m.def("scatter_", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyAnyTorchTensorValue &index, const PyAnyTorchScalarValue &value) -> PyAnyTorchTensorValue { return scatter_(self, dim, index, value); }, "self"_a, "dim"_a, "index"_a, "value"_a);
+
 // aten::select_copy.int : (Tensor, int, int) -> (Tensor)
 m.def("select_copy", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyTorch_IntValue &index) -> PyAnyTorchTensorValue { return select_copy(self, dim, index); }, "self"_a, "dim"_a, "index"_a);
 
@@ -1003,6 +1021,12 @@ m.def("sigmoid", [](const PyAnyTorchTensorValue &self) -> PyAnyTorchTensorValue 
 
 // aten::sigmoid_ : (Tensor) -> (Tensor)
 m.def("sigmoid_", [](const PyAnyTorchTensorValue &self) -> PyAnyTorchTensorValue { return sigmoid_(self); }, "self"_a);
+
+// aten::sign : (Tensor) -> (Tensor)
+m.def("sign", [](const PyAnyTorchTensorValue &self) -> PyAnyTorchTensorValue { return sign(self); }, "self"_a);
+
+// aten::sign_ : (Tensor) -> (Tensor)
+m.def("sign_", [](const PyAnyTorchTensorValue &self) -> PyAnyTorchTensorValue { return sign_(self); }, "self"_a);
 
 // aten::silu : (Tensor) -> (Tensor)
 m.def("silu", [](const PyAnyTorchTensorValue &self) -> PyAnyTorchTensorValue { return silu(self); }, "self"_a);
@@ -1045,6 +1069,9 @@ m.def("sort", [](const PyAnyTorchListOfTorchIntValue &self, const PyTorch_BoolVa
 
 // aten::sort : (Tensor, int, bool) -> (Tensor, Tensor)
 m.def("sort", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyTorch_BoolValue &descending) -> std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> { return sort(self, dim, descending); }, "self"_a, "dim"_a = -1, "descending"_a = false);
+
+// aten::split.Tensor : (Tensor, int, int) -> (Tensor[])
+m.def("split", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &split_size, const PyTorch_IntValue &dim) -> PyAnyTorchListOfTensorValue { return split(self, split_size, dim); }, "self"_a, "split_size"_a, "dim"_a = 0);
 
 // aten::sqrt.int : (int) -> (float)
 m.def("sqrt", [](const PyTorch_IntValue &a) -> PyTorch_FloatValue { return sqrt(a); }, "a"_a);
@@ -1168,6 +1195,12 @@ m.def("transpose_copy", [](const PyAnyTorchTensorValue &self, const PyTorch_IntV
 
 // aten::transpose.int : (Tensor, int, int) -> (Tensor)
 m.def("transpose", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim0, const PyTorch_IntValue &dim1) -> PyAnyTorchTensorValue { return transpose(self, dim0, dim1); }, "self"_a, "dim0"_a, "dim1"_a);
+
+// aten::tril : (Tensor, int) -> (Tensor)
+m.def("tril", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &diagonal) -> PyAnyTorchTensorValue { return tril(self, diagonal); }, "self"_a, "diagonal"_a = 0);
+
+// aten::tril_ : (Tensor, int) -> (Tensor)
+m.def("tril_", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &diagonal) -> PyAnyTorchTensorValue { return tril_(self, diagonal); }, "self"_a, "diagonal"_a = 0);
 
 // aten::triu : (Tensor, int) -> (Tensor)
 m.def("triu", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &diagonal) -> PyAnyTorchTensorValue { return triu(self, diagonal); }, "self"_a, "diagonal"_a = 0);
