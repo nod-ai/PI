@@ -36,7 +36,9 @@ declare_mlir_python_extension(
   TorchOps.inc.h
   TorchTensor.h
   TorchTypes.h
-  TorchValues.h)
+  TorchValues.h
+  PRIVATE_LINK_LIBS
+  LLVMSupport)
 
 set(PYBINDINGS_SRC "${MLIR_INSTALL_PREFIX}/src/python/MLIRPythonExtension.Core")
 target_include_directories(PiPythonSources.Extension

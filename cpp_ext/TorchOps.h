@@ -38,23 +38,31 @@ namespace mlir::torch {
 // py::object ScalarImplicit(const PyAnyTorchTensorValue &a);
 
 // prim::abs.Scalar : (Scalar) -> (Scalar)
-py::object abs(const PyAnyTorchScalarValue &a);
+PyAnyTorchScalarValue abs(const PyAnyTorchScalarValue &a, PyLocation *loc,
+                          PyInsertionPoint *ip);
 
 // aten::add : (Scalar, Scalar) -> (Scalar)
-py::object add(const PyAnyTorchScalarValue &a, const PyAnyTorchScalarValue &b);
+PyAnyTorchScalarValue add(const PyAnyTorchScalarValue &a,
+                          const PyAnyTorchScalarValue &b, PyLocation *loc,
+                          PyInsertionPoint *ip);
 
 // aten::ceil.Scalar : (Scalar) -> (Scalar)
-py::object ceil(const PyAnyTorchScalarValue &a);
+PyAnyTorchScalarValue ceil(const PyAnyTorchScalarValue &a, PyLocation *loc,
+                           PyInsertionPoint *ip);
 
 // aten::item : (Tensor) -> (Scalar)
-py::object item(const PyAnyTorchTensorValue &self);
+PyAnyTorchScalarValue item(const PyAnyTorchTensorValue &self, PyLocation *loc,
+                           PyInsertionPoint *ip);
 
 // aten::sub : (Scalar, Scalar) -> (Scalar)
-// py::object sub(const PyAnyTorchScalarValue &a, const PyAnyTorchScalarValue
-// &b);
+PyAnyTorchScalarValue sub(const PyAnyTorchScalarValue &a,
+                          const PyAnyTorchScalarValue &b, PyLocation *loc,
+                          PyInsertionPoint *ip);
 
 // aten::view : (Tensor, int[]) -> (Tensor)
-PyAnyTorchTensorValue view(PyAnyTorchTensorValue &self, const py::args &args);
+// PyAnyTorchTensorValue view(const PyAnyTorchTensorValue &self,
+//                           const PyAnyTorchListOfTorchIntValue &size,
+//                           PyLocation *loc, PyInsertionPoint *ip);
 
 void populateTorchMLIROps(py::module &m);
 
