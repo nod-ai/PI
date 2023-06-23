@@ -94,12 +94,23 @@ PyAnyTorchTensorValue view(PyAnyTorchTensorValue &self, const py::args &args) {
 
 // prim::device : (str) -> (Device)
 PyTorch_DeviceValue device(std::string &type) {
-  return PyGlobals::get().lookupOperationClass("torch.constant.device").value()(type).cast<PyTorch_DeviceValue>();
+  return PyGlobals::get()
+      .lookupOperationClass("torch.constant.device")
+      .value()(type)
+      .cast<PyTorch_DeviceValue>();
 }
 
 // aten::mean.dim : (Tensor, int?, bool, int?) -> (Tensor)
-PyAnyTorchTensorValue mean(const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalIntValue &dim, const PyTorch_BoolValue &keepdim, const PyAnyTorchOptionalIntValue &dtype) {
-  return PyGlobals::get().lookupOperationClass("torch.aten.mean.dim").value()(PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve()), self, dim, keepdim, dtype).cast<PyAnyTorchTensorValue>();
+PyAnyTorchTensorValue mean(const PyAnyTorchTensorValue &self,
+                           const PyAnyTorchOptionalIntValue &dim,
+                           const PyTorch_BoolValue &keepdim,
+                           const PyAnyTorchOptionalIntValue &dtype) {
+  return PyGlobals::get()
+      .lookupOperationClass("torch.aten.mean.dim")
+      .value()(PyAnyTorchTensorType::getWithLeastStaticInformation(
+                   DefaultingPyMlirContext::resolve()),
+               self, dim, keepdim, dtype)
+      .cast<PyAnyTorchTensorValue>();
 }
 
 void populateTorchMLIROps(py::module &m) {
@@ -151,8 +162,7 @@ void populateTorchMLIROps(py::module &m) {
   // prim::device : (str) -> (Device)
   m.def(
       "device",
-      [](std::string type)
-          -> PyTorch_DeviceValue { return device(type); },
+      [](std::string type) -> PyTorch_DeviceValue { return device(type); },
       "type"_a);
 
   // aten::mean.dim : (Tensor, int?, bool, int?) -> (Tensor)

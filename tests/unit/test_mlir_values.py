@@ -505,7 +505,6 @@ class TestTorchValues:
 
     def test_AnyTorchListOfOptionalTensorValue(self):
         with mlir_mod_ctx():
-
             t = torch.NonValueTensorLiteralOp(_elementsAttr(np.ones((2, 2))))
             l = AnyTorchListOfOptionalTensorValue([t, t])
             check_correct(
@@ -566,7 +565,7 @@ class TestTorchValues:
 
     def test_ListIndexing(self):
         with mlir_mod_ctx():
-            l = AnyTorchListOfTorchIntValue([1,2,3])
+            l = AnyTorchListOfTorchIntValue([1, 2, 3])
             t = l[0]
             check_correct(
                 "Torch_IntValue(%1 = torch.aten.__getitem__.t %0, %int0 : !torch.list<int>, !torch.int -> !torch.int)",
