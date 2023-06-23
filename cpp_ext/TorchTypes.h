@@ -103,7 +103,7 @@ public:
   _(TorchInt)                                                                  \
   _(TorchString)
 
-#define FORALL_LIST_BASE_CONCRETE_TYPES_WITH_TYPE(_)                                                      \
+#define FORALL_LIST_BASE_CONCRETE_TYPES_WITH_TYPE(_)                           \
   _(TorchBool, Bool)                                                           \
   _(TorchFloat, Float)                                                         \
   _(TorchInt, Int)                                                             \

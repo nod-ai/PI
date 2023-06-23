@@ -32,5 +32,5 @@ PI_XFAIL_SET = {
     "Threshold3dFloatModule_basic",
     "ThresholdBackward3dFloatModule_basic",
     "TypePromotionAlphaWiderModule_basic",
-    "TypePromotionSameCategoryZeroRankWider_basic"
+    "TypePromotionSameCategoryZeroRankWider_basic",
 }

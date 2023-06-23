@@ -4,8 +4,8 @@
 
 #include "TorchValues.h"
 #include "TorchDType.h"
-#include "TorchTypes.h"
 #include "TorchOps.h"
+#include "TorchTypes.h"
 
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>

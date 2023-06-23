@@ -2,23 +2,20 @@
 # See https://llvm.org/LICENSE.txt for license information.
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 # Also available under a BSD-style license. See LICENSE.
-import contextlib
+import os
 import re
+import sys
+import tempfile
 import warnings
 from collections import OrderedDict
 from io import StringIO
-import os
-import sys
-import tempfile
 from itertools import chain
 
-from .dialects import _torch_ops_gen as torch_dialect
-from .dialects import torch as torch_dialect, func as func_dialect
 from . import ir
+from .dialects import func as func_dialect, torch as torch_dialect
 from .passmanager import PassManager
 from .utils import disable_multithreading
-
-from .. import nn, Tensor
+from .. import Tensor, nn
 
 
 def get_module_name_for_debug_dump(module):
@@ -139,7 +136,6 @@ def pipile(pi_module: nn.Module, example_args=None, module_name="pi.module_name"
         pi_module.__class__.__name__
     )
     with ir.InsertionPoint(mlir_module.body):
-
         placeholders = pi_module.forward.__dict__.get("__placeholders__")
         if placeholders:
             assert isinstance(placeholders, OrderedDict)

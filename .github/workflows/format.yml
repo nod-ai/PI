@@ -1,0 +1,29 @@
+name: Format Code
+
+on: [push, pull_request]
+
+jobs:
+  python-black:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: psf/black@stable
+        with:
+          options: "-t py311 --check --diff --color"
+          src: "./pi/mlir"
+
+      - uses: psf/black@stable
+        with:
+          options: "-t py311 --check --diff --color"
+          src: "./tests/unit"
+
+  cpp-clang-format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run clang-format style check for C/C++/Protobuf programs.
+        uses: jidicula/clang-format-action@v4.11.0
+        with:
+          clang-format-version: '16'
+          check-path: 'cpp_ext'
+          exclude-regex: '(inc|impls|pybinds)'
