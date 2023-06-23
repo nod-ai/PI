@@ -11,6 +11,8 @@
 #include <pybind11/pytypes.h>
 #include <pybind11/stl.h>
 
+using namespace py::literals;
+
 namespace mlir::torch {
 
 bool isAAnyTorchDictKeyValue(MlirValue value) {
