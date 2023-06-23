@@ -2,119 +2,95 @@
 // Created by maksim on 5/14/23.
 //
 
-#include "TorchOps.h"
+#include "Globals.h"
 #include "IRModule.h"
-#include "TorchTensor.h"
 
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
 #include <string>
 
-#include "Globals.h"
+#include "TorchOps.h"
+#include "TorchTensor.h"
 #include "TorchTypes.h"
 #include "TorchValues.h"
-#include "mlir-c/IR.h"
 
 namespace py = pybind11;
 using namespace py::literals;
 using namespace mlir::python;
 
+using llvm::StringRef;
+using llvm::Twine;
+
 namespace mlir::torch {
 
 #include "TorchOps.impls.cpp"
 
-// aten::ScalarImplicit : (Tensor) -> (Scalar)
-py::object ScalarImplicit(const PyAnyTorchTensorValue &a) {
-  throw NotImplementedError("ScalarImplicit with signature "
-                            "aten::ScalarImplicit : (Tensor) -> (Scalar)");
-}
-
 // prim::abs.Scalar : (Scalar) -> (Scalar)
-py::object abs(const PyAnyTorchScalarValue &a) {
-  auto mlirType = mlirValueGetType(a);
-  auto returnType =
-      PyType(PyMlirContext::forContext(mlirTypeGetContext(mlirType)), mlirType);
-  return PyGlobals::get()
-      .lookupOperationClass("torch.prim.abs.Scalar")
-      .value()(returnType, a);
+PyAnyTorchScalarValue abs(const PyAnyTorchScalarValue &a, PyLocation *loc,
+                          PyInsertionPoint *ip) {
+  auto resultType = py::cast(mlirValueGetType(a)).cast<PyType>();
+  PyOperationRef opRef =
+      createOperation("torch.prim.abs.Scalar", {resultType}, {a},
+                      /*attributes=*/{}, loc, ip);
+  return {opRef, mlirOperationGetResult(opRef->get(), 0)};
 }
 
 // aten::add : (Scalar, Scalar) -> (Scalar)
-py::object add(const PyAnyTorchScalarValue &a, const PyAnyTorchScalarValue &b) {
-  auto mlirTypeA = mlirValueGetType(a);
-  auto mlirTypeB = mlirValueGetType(b);
-  if (!mlirTypeEqual(mlirTypeA, mlirTypeB))
-    throw NotImplementedError(
-        "Arithmetic ops on Scalar values with like types supported; type a: " +
-        py::str(py::cast(a)).cast<std::string>() +
-        ", type b: " + py::str(py::cast(b)).cast<std::string>());
-  auto returnType = PyType(
-      PyMlirContext::forContext(mlirTypeGetContext(mlirTypeA)), mlirTypeA);
-  return PyGlobals::get()
-      .lookupOperationClass("torch.aten.add")
-      .value()(returnType, a, b);
+PyAnyTorchScalarValue add(const PyAnyTorchScalarValue &a,
+                          const PyAnyTorchScalarValue &b, PyLocation *loc,
+                          PyInsertionPoint *ip) {
+  auto resultType = py::cast(mlirValueGetType(a)).cast<PyType>();
+  PyOperationRef opRef = createOperation("torch.aten.add", {resultType}, {a, b},
+                                         /*attributes=*/{}, loc, ip);
+  return {opRef, mlirOperationGetResult(opRef->get(), 0)};
 }
 
 // aten::ceil.Scalar : (Scalar) -> (Scalar)
-py::object ceil(const PyAnyTorchScalarValue &a) {
-  auto mlirType = mlirValueGetType(a);
-  auto returnType =
-      PyType(PyMlirContext::forContext(mlirTypeGetContext(mlirType)), mlirType);
-  return PyGlobals::get()
-      .lookupOperationClass("torch.aten.ceil.Scalar")
-      .value()(returnType, a);
-}
-
-// aten::item : (Tensor) -> (Scalar)
-py::object item(const PyAnyTorchTensorValue &self) {
-  throw NotImplementedError("ScalarImplicit with signature "
-                            "aten::ScalarImplicit : (Tensor) -> (Scalar)");
+PyAnyTorchScalarValue ceil(const PyAnyTorchScalarValue &a, PyLocation *loc,
+                           PyInsertionPoint *ip) {
+  auto resultType = py::cast(mlirValueGetType(a)).cast<PyType>();
+  PyOperationRef opRef =
+      createOperation("torch.aten.ceil.Scalar", {resultType}, {a},
+                      /*attributes=*/{}, loc, ip);
+  return {opRef, mlirOperationGetResult(opRef->get(), 0)};
 }
 
 // aten::sub : (Scalar, Scalar) -> (Scalar)
-py::object sub(const PyAnyTorchScalarValue &a, const PyAnyTorchScalarValue &b) {
-  auto mlirTypeA = mlirValueGetType(a);
-  auto mlirTypeB = mlirValueGetType(b);
-  if (!mlirTypeEqual(mlirTypeA, mlirTypeB))
-    throw NotImplementedError(
-        "Arithmetic ops on Scalar values with like types supported; type a: " +
-        py::str(py::cast(a)).cast<std::string>() +
-        ", type b: " + py::str(py::cast(b)).cast<std::string>());
-  auto returnType = PyType(
-      PyMlirContext::forContext(mlirTypeGetContext(mlirTypeA)), mlirTypeA);
-  return PyGlobals::get()
-      .lookupOperationClass("torch.aten.sub")
-      .value()(returnType, a, b);
-}
-
-PyAnyTorchTensorValue view(PyAnyTorchTensorValue &self, const py::args &args) {
-  auto size = PyAnyTorchListOfTorchIntValue(args);
-  return view(self, size);
+PyAnyTorchScalarValue sub(const PyAnyTorchScalarValue &a,
+                          const PyAnyTorchScalarValue &b, PyLocation *loc,
+                          PyInsertionPoint *ip) {
+  auto resultType = py::cast(mlirValueGetType(a)).cast<PyType>();
+  PyOperationRef opRef = createOperation("torch.aten.sub", {resultType}, {a, b},
+                                         /*attributes=*/{}, loc, ip);
+  return {opRef, mlirOperationGetResult(opRef->get(), 0)};
 }
 
 // prim::device : (str) -> (Device)
-PyTorch_DeviceValue device(std::string &type) {
-  return PyGlobals::get()
-      .lookupOperationClass("torch.constant.device")
-      .value()(type)
-      .cast<PyTorch_DeviceValue>();
+PyTorch_DeviceValue device(const std::string &type, PyLocation *loc,
+                           PyInsertionPoint *ip) {
+  return makePyTorchDeviceValue(type, loc, ip);
 }
 
 // aten::mean.dim : (Tensor, int?, bool, int?) -> (Tensor)
 PyAnyTorchTensorValue mean(const PyAnyTorchTensorValue &self,
                            const PyAnyTorchOptionalIntValue &dim,
                            const PyTorch_BoolValue &keepdim,
-                           const PyAnyTorchOptionalIntValue &dtype) {
-  return PyGlobals::get()
-      .lookupOperationClass("torch.aten.mean.dim")
-      .value()(PyAnyTorchTensorType::getWithLeastStaticInformation(
-                   DefaultingPyMlirContext::resolve()),
-               self, dim, keepdim, dtype)
-      .cast<PyAnyTorchTensorValue>();
+                           const PyAnyTorchOptionalIntValue &dtype,
+                           PyLocation *loc, PyInsertionPoint *ip) {
+  auto resultType = PyAnyTorchTensorType::getWithLeastStaticInformation(
+      DefaultingPyMlirContext::resolve());
+  PyOperationRef opRef = createOperation("torch.aten.mean.dim", {resultType},
+                                         {
+                                             self,
+                                             dim,
+                                             keepdim,
+                                             dtype,
+                                         },
+                                         /*attributes=*/{}, loc, ip);
+  return {opRef, mlirOperationGetResult(opRef->get(), 0)};
 }
 
 void populateTorchMLIROps(py::module &m) {
-
   py::register_exception_translator([](std::exception_ptr p) {
     try {
       if (p)
@@ -127,21 +103,42 @@ void populateTorchMLIROps(py::module &m) {
 #include "TorchOps.pybinds.cpp"
 
   // prim::abs.Scalar : (Scalar) -> (Scalar)
-  m.def("abs", py::overload_cast<const PyAnyTorchScalarValue &>(&abs));
+  m.def(
+      "abs",
+      [](const PyAnyTorchScalarValue &x, DefaultingPyLocation &loc,
+         const py::object &ip) {
+        return abs(x, loc.get(), getInsertionPoint(ip));
+      },
+      "x"_a, py::kw_only(), "loc"_a = py::none(), "ip"_a = py::none());
 
   // aten::add : (Scalar, Scalar) -> (Scalar)
-  m.def("add", py::overload_cast<const PyAnyTorchScalarValue &,
-                                 const PyAnyTorchScalarValue &>(&add));
+  m.def(
+      "add",
+      [](const PyAnyTorchScalarValue &lhs, const PyAnyTorchScalarValue &rhs,
+         DefaultingPyLocation &loc, const py::object &ip) {
+        return add(lhs, rhs, loc.get(), getInsertionPoint(ip));
+      },
+      "lhs"_a, "rhs"_a, py::kw_only(), "loc"_a = py::none(),
+      "ip"_a = py::none());
 
   // aten::ceil.Scalar : (Scalar) -> (Scalar)
-  m.def("ceil", py::overload_cast<const PyAnyTorchScalarValue &>(&ceil));
-
-  // aten::item : (Tensor) -> (Scalar)
-  //  m.def("item", py::overload_cast<const PyAnyTorchTensorValue &>(&item));
+  m.def(
+      "ceil",
+      [](const PyAnyTorchScalarValue &a, DefaultingPyLocation &loc,
+         const py::object &ip) {
+        return ceil(a, loc.get(), getInsertionPoint(ip));
+      },
+      "a"_a, py::kw_only(), "loc"_a = py::none(), "ip"_a = py::none());
 
   // aten::sub : (Scalar, Scalar) -> (Scalar)
-  m.def("sub", py::overload_cast<const PyAnyTorchScalarValue &,
-                                 const PyAnyTorchScalarValue &>(&sub));
+  m.def(
+      "sub",
+      [](const PyAnyTorchScalarValue &lhs, const PyAnyTorchScalarValue &rhs,
+         DefaultingPyLocation &loc, const py::object &ip) {
+        return sub(lhs, rhs, loc.get(), getInsertionPoint(ip));
+      },
+      "lhs"_a, "rhs"_a, py::kw_only(), "loc"_a = py::none(),
+      "ip"_a = py::none());
   m.def("avg_pool1d",
         [](PyAnyTorchTensorValue &self,
            PyAnyTorchListOfTorchIntType &kernel_size,
@@ -155,15 +152,22 @@ void populateTorchMLIROps(py::module &m) {
   // aten::view : (Tensor, int[]) -> (Tensor)
   m.def(
       "view",
-      [](PyAnyTorchTensorValue &self, const py::args &args)
-          -> PyAnyTorchTensorValue { return view(self, args); },
-      "size"_a);
+      [](const PyAnyTorchTensorValue &self,
+         const PyAnyTorchListOfTorchIntValue &size, DefaultingPyLocation &loc,
+         const py::object &ip) -> PyAnyTorchTensorValue {
+        return view(self, size, loc.get(), getInsertionPoint(ip));
+      },
+      "self"_a, "size"_a, py::kw_only(), "loc"_a = py::none(),
+      "ip"_a = py::none());
 
   // prim::device : (str) -> (Device)
   m.def(
       "device",
-      [](std::string type) -> PyTorch_DeviceValue { return device(type); },
-      "type"_a);
+      [](const std::string &type, DefaultingPyLocation &loc,
+         const py::object &ip) -> PyTorch_DeviceValue {
+        return device(type, loc.get(), getInsertionPoint(ip));
+      },
+      "type"_a, py::kw_only(), "loc"_a = py::none(), "ip"_a = py::none());
 
   // aten::mean.dim : (Tensor, int?, bool, int?) -> (Tensor)
   m.def(
@@ -171,11 +175,14 @@ void populateTorchMLIROps(py::module &m) {
       [](const PyAnyTorchTensorValue &self,
          const PyAnyTorchOptionalIntValue &dim,
          const PyTorch_BoolValue &keepdim,
-         const PyAnyTorchOptionalIntValue &dtype) -> PyAnyTorchTensorValue {
-        return mean(self, dim, keepdim, dtype);
+         const PyAnyTorchOptionalIntValue &dtype, DefaultingPyLocation &loc,
+         const py::object &ip) -> PyAnyTorchTensorValue {
+        return mean(self, dim, keepdim, dtype, loc.get(),
+                    getInsertionPoint(ip));
       },
       "self"_a, "dim"_a = py::none(), "keepdim"_a = false,
-      "dtype"_a = py::none());
+      "dtype"_a = py::none(), py::kw_only(), "loc"_a = py::none(),
+      "ip"_a = py::none());
 }
 
 } // namespace mlir::torch

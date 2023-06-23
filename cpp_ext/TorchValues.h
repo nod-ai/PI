@@ -8,9 +8,10 @@
 #include "Globals.h"
 #include "IRModule.h"
 
+#include "mlir-c/BuiltinAttributes.h"
 #include "mlir-c/IR.h"
 #include "mlir/Bindings/Python/PybindAdaptors.h"
-#include "mlir/IR/TypeSupport.h"
+#include "torch-mlir-c/TorchTypes.h"
 
 #include <functional>
 #include <pybind11/detail/common.h>
@@ -50,6 +51,24 @@ bool isAAnyTorchOptionalScalarValue(MlirValue value);
 bool isAAnyTorchScalarValue(MlirValue value);
 bool isAAnyTorchValue(MlirValue value);
 
+std::vector<PyType> inferReturnTypes(
+    const std::string &operationName,
+    const std::vector<std::reference_wrapper<const PyValue>> &operands,
+    PyMlirContext *pyContext, PyLocation *loc,
+    const std::optional<PyAttribute> &attributes = {},
+    void *properties = nullptr);
+
+PyInsertionPoint *getInsertionPoint(const py::object &maybeIp = py::none());
+
+PyOperationRef createOperation(
+    const std::string &name,
+    const std::vector<std::reference_wrapper<const PyType>> &results,
+    const std::vector<std::reference_wrapper<const PyValue>> &operands,
+    const std::map<std::string, MlirAttribute> &attributes, PyLocation *loc,
+    PyInsertionPoint *ip);
+
+PyLocation getValueLocation(const PyValue &value);
+
 #define DECLARE_ISA_UNDERSCORE_VALUE(UNDERSCOREVALUE)                          \
   bool isATorch_##UNDERSCOREVALUE##Value(MlirValue value);
 FORALL_UNDERSCORE_TYPES(DECLARE_ISA_UNDERSCORE_VALUE)
@@ -69,7 +88,7 @@ public:
 
   static MlirValue castFrom(PyValue &orig) {
     if (!DerivedTy::isaFunction(orig.get())) {
-      auto origRepr = py::repr(py::cast(orig)).cast<std::string>();
+      auto origRepr = py::str(py::cast(orig)).cast<std::string>();
       auto errMsg = Twine("Cannot cast value to ") + DerivedTy::pyClassName +
                     " (from " + origRepr + ")";
       throw py::value_error(errMsg.str());
@@ -98,28 +117,57 @@ public:
 
   /// Implemented by derived classes to add methods to the Python subclass.
   static void bindDerived(ClassTy &m) {}
+  //  // Keeps the parent operation alive
+  //  pybind11::object parentOperationKeepAlive;
 };
+
+class PyTorch_NoneValue;
+PyTorch_NoneValue makePyTorchNoneValue(PyLocation *loc, PyInsertionPoint *ip);
+
+class PyTorch_BoolValue;
+PyTorch_BoolValue makePyTorchBoolValue(bool b, PyLocation *loc,
+                                       PyInsertionPoint *ip);
+
+class PyTorch_DeviceValue;
+PyTorch_DeviceValue makePyTorchDeviceValue(const std::string &b,
+                                           PyLocation *loc,
+                                           PyInsertionPoint *ip);
+
+class PyTorch_FloatValue;
+PyTorch_FloatValue makePyTorchFloatValue(float b, PyLocation *loc,
+                                         PyInsertionPoint *ip);
+
+class PyTorch_StringValue;
+PyTorch_StringValue makePyTorchStringValue(const std::string &b,
+                                           PyLocation *loc,
+                                           PyInsertionPoint *ip);
+
+class PyTorch_IntValue;
+PyTorch_IntValue makePyTorchIntValue(int b, PyLocation *loc,
+                                     PyInsertionPoint *ip);
+
+class PyAnyTorchListValue;
+PyAnyTorchListValue makePyAnyTorchListValue(const py::object &type,
+                                            const py::list &operands,
+                                            PyLocation *loc,
+                                            PyInsertionPoint *ip);
 
 class PyTorch_NoneValue : public PyConcreteValue<PyTorch_NoneValue> {
 public:
   static constexpr IsAFunctionTy isaFunction = isATorch_NoneValue;
   static constexpr const char *pyClassName = "Torch_NoneValue";
   PyTorch_NoneValue()
-      : PyTorch_NoneValue(mlir::python::PyGlobals::get()
-                              .lookupOperationClass("torch.constant.none")
-                              .value()()
-                              .cast<PyTorch_NoneValue>()){};
+      : PyTorch_NoneValue(makePyTorchNoneValue(&DefaultingPyLocation::resolve(),
+                                               getInsertionPoint())){};
   PyTorch_NoneValue(const py::none &n)
-      : PyTorch_NoneValue(mlir::python::PyGlobals::get()
-                              .lookupOperationClass("torch.constant.none")
-                              .value()()
-                              .cast<PyTorch_NoneValue>()){};
+      : PyTorch_NoneValue(makePyTorchNoneValue(&DefaultingPyLocation::resolve(),
+                                               getInsertionPoint())){};
   using PyConcreteValue::PyConcreteValue;
 
   static void bindDerived(ClassTy &c);
 };
 
-#define DECLARE_SCALAR_VALUE(TORCHTYPE, CPPTYPE, CONSTANTSTR)                  \
+#define DECLARE_SCALAR_VALUE(TORCHTYPE, CPPTYPE)                               \
   class PyTorch_##TORCHTYPE##Value                                             \
       : public PyConcreteValue<PyTorch_##TORCHTYPE##Value> {                   \
   public:                                                                      \
@@ -129,16 +177,13 @@ public:
     static void bindDerived(ClassTy &c);                                       \
                                                                                \
     PyTorch_##TORCHTYPE##Value(CPPTYPE b)                                      \
-        : PyTorch_##TORCHTYPE                                                  \
-          ##Value(mlir::python::PyGlobals::get()                               \
-                      .lookupOperationClass("torch.constant." #CONSTANTSTR)    \
-                      .value()(b)                                              \
-                      .cast<PyTorch_##TORCHTYPE##Value>()) {}                  \
+        : PyTorch_##TORCHTYPE##Value(makePyTorch##TORCHTYPE##Value(            \
+              b, &DefaultingPyLocation::resolve(), getInsertionPoint())) {}    \
   };
-DECLARE_SCALAR_VALUE(Bool, bool, bool)
-DECLARE_SCALAR_VALUE(Device, std::string, device)
-DECLARE_SCALAR_VALUE(Float, float, float)
-DECLARE_SCALAR_VALUE(String, std::string, str)
+DECLARE_SCALAR_VALUE(Bool, bool)
+DECLARE_SCALAR_VALUE(Device, std::string)
+DECLARE_SCALAR_VALUE(Float, float)
+DECLARE_SCALAR_VALUE(String, std::string)
 #undef DECLARE_SCALAR_VALUE
 
 class PyTorch_IntValue : public PyConcreteValue<PyTorch_IntValue> {
@@ -148,15 +193,12 @@ public:
   using PyConcreteValue::PyConcreteValue;
   static void bindDerived(ClassTy &c);
   PyTorch_IntValue(int b)
-      : PyTorch_IntValue(mlir::python::PyGlobals::get()
-                             .lookupOperationClass("torch.constant.int")
-                             .value()(b)
-                             .cast<PyTorch_IntValue>()) {}
+      : PyTorch_IntValue(makePyTorchIntValue(
+            b, &DefaultingPyLocation::resolve(), getInsertionPoint())) {}
   PyTorch_IntValue(DType b)
-      : PyTorch_IntValue(mlir::python::PyGlobals::get()
-                             .lookupOperationClass("torch.constant.int")
-                             .value()(to_underlying(b))
-                             .cast<PyTorch_IntValue>()) {}
+      : PyTorch_IntValue(makePyTorchIntValue(to_underlying(b),
+                                             &DefaultingPyLocation::resolve(),
+                                             getInsertionPoint())) {}
 };
 
 template <class T> struct tag {
@@ -178,7 +220,7 @@ static inline py::list mapListElementsToPyType(py::list list) {
   return list;
 }
 
-py::object mapListToPyTorchListValue(const py::list &list);
+py::object mapListToPyTorchListValue(const py::list &list, PyMlirContext &ctx);
 
 class PyAnyTorchListValue : public PyConcreteValue<PyAnyTorchListValue> {
 public:
@@ -187,21 +229,23 @@ public:
   using PyConcreteValue::PyConcreteValue;
 
   PyAnyTorchListValue(const py::object &type, const py::list &list)
-      : PyAnyTorchListValue(
-            mlir::python::PyGlobals::get()
-                .lookupOperationClass("torch.prim.ListConstruct")
-                .value()(type, list)
-                .template cast<PyAnyTorchListValue>()){};
+      : PyAnyTorchListValue(makePyAnyTorchListValue(
+            type, list, &DefaultingPyLocation::resolve(),
+            getInsertionPoint())){};
 
   template <class T>
   PyAnyTorchListValue(py::object type, const py::list &list, tag<T>)
       : PyAnyTorchListValue(type, mapListElementsToPyType<T>(list)){};
 
   PyAnyTorchListValue(const py::list &list)
-      : PyAnyTorchListValue(mapListToPyTorchListValue(list), list){};
+      : PyAnyTorchListValue(
+            mapListToPyTorchListValue(list, DefaultingPyMlirContext::resolve()),
+            list){};
 
   PyAnyTorchListValue(const py::tuple &list)
-      : PyAnyTorchListValue(mapListToPyTorchListValue(list), list){};
+      : PyAnyTorchListValue(
+            mapListToPyTorchListValue(list, DefaultingPyMlirContext::resolve()),
+            list){};
 
   static void bindDerived(ClassTy &c);
 };

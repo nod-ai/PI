@@ -10,9 +10,32 @@ from enum import Enum
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
-
-from . import Torch_BoolType, Torch_FloatType, Torch_IntType, dtype
-from .dialects import _torch_ops_gen as torch_dialect, torch as torch_dialect
+from . import (
+    dtype,
+    AnyTorchListOfOptionalTensorValue,
+    AnyTorchListOfTensorType,
+    AnyTorchListOfTensorValue,
+    AnyTorchListOfTorchBoolType,
+    AnyTorchListOfTorchBoolValue,
+    AnyTorchListOfTorchFloatType,
+    AnyTorchListOfTorchFloatValue,
+    AnyTorchListOfTorchIntType,
+    AnyTorchListOfTorchIntValue,
+    AnyTorchListOfTorchStringType,
+    AnyTorchListOfTorchStringValue,
+    AnyTorchListType,
+    AnyTorchListValue,
+    Torch_BoolValue,
+    Torch_DeviceValue,
+    Torch_FloatValue,
+    Torch_IntValue,
+    Torch_NoneValue,
+    Torch_StringValue,
+    Torch_TupleValue,
+    Torch_NonValueTensorValue,
+    Torch_ValueTensorValue,
+    Tensor,
+)
 from .ir import (
     Context,
     DenseElementsAttr,
@@ -31,6 +54,7 @@ from .ir import (
     TypeAttr,
     register_attribute_builder,
 )
+from .dialects import torch as torch_dialect
 
 
 @contextlib.contextmanager
@@ -121,8 +145,8 @@ def _elementsAttr(x, context=None):
         t = attr_from_numpy(x)
     else:
         t = DenseElementsAttr.get(
-            np.array(x, dtype=np.float64),
-            type=F64Type.get(context=context),
+            np.array(x, dtype=np.float32),
+            type=F32Type.get(context=context),
         )
     return t
 
@@ -135,7 +159,7 @@ def _np_wrapper(*args, factory=None, **kwargs):
     if "pin_memory" in kwargs:
         kwargs.pop("pin_memory")
 
-    return torch_dialect.NonValueTensorLiteralOp(factory(*args, **kwargs))
+    return tensor_op(factory(*args, **kwargs))
 
 
 def create_zeros(*args, **kwargs):
@@ -253,3 +277,61 @@ def annotate_args(annotations: List[Optional[ArgAnnotation]]):
 
 def export(fn):
     return fn
+
+
+def float_op(f):
+    return Torch_FloatValue(torch_dialect.ConstantFloatOp(f).result)
+
+
+def int_op(f):
+    return Torch_IntValue(torch_dialect.ConstantIntOp(f).result)
+
+
+def bool_op(f):
+    return Torch_BoolValue(torch_dialect.ConstantBoolOp(f).result)
+
+
+def string_op(f):
+    return Torch_StringValue(torch_dialect.ConstantStrOp(f).result)
+
+
+def none_op():
+    return Torch_NoneValue(torch_dialect.ConstantNoneOp().result)
+
+
+def device_op(f):
+    return Torch_DeviceValue(torch_dialect.ConstantDeviceOp(f).result)
+
+
+def list_op(t, elements):
+    val = torch_dialect.PrimListConstructOp(t, elements).result
+    if AnyTorchListOfTensorType.isinstance(val.type):
+        return AnyTorchListOfTensorValue(val)
+    if AnyTorchListOfTorchBoolType.isinstance(val.type):
+        return AnyTorchListOfTorchBoolValue(val)
+    if AnyTorchListOfTorchIntType.isinstance(val.type):
+        return AnyTorchListOfTorchIntValue(val)
+    if AnyTorchListOfTorchFloatType.isinstance(val.type):
+        return AnyTorchListOfTorchFloatValue(val)
+    if AnyTorchListOfTorchStringType.isinstance(val.type):
+        return AnyTorchListOfTorchStringValue(val)
+
+    return AnyTorchListValue(val)
+
+
+def tuple_op(t, elements):
+    return Torch_TupleValue(torch_dialect.PrimTupleConstructOp(t, elements).result)
+
+
+def non_value_tensor_op(elem_attr):
+    return Torch_NonValueTensorValue(
+        torch_dialect.NonValueTensorLiteralOp(elem_attr).result
+    )
+
+
+def value_tensor_op(elem_attr):
+    return Torch_ValueTensorValue(torch_dialect.ValueTensorLiteralOp(elem_attr).result)
+
+
+def tensor_op(elem_attr):
+    return Tensor(non_value_tensor_op(elem_attr))

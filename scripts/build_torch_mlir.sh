@@ -2,7 +2,7 @@
 set -eu -o pipefail
 
 OS=ubuntu-20.04
-ARCH=AArch64
+ARCH=X86
 GITHUB_WORKSPACE=$PWD/..
 
 TORCH_MLIR_MAIN_SRC_DIR=${GITHUB_WORKSPACE}/externals/torch-mlir
@@ -109,7 +109,7 @@ else
         -B${TORCH_MLIR_MAIN_BINARY_DIR}
 fi
 
-CMAKE_BUILD_PARALLEL_LEVEL=20 cmake --build ${TORCH_MLIR_MAIN_BINARY_DIR} --target install
+CMAKE_BUILD_PARALLEL_LEVEL=10 cmake --build ${TORCH_MLIR_MAIN_BINARY_DIR} --target install
 
 OUTPUT="torch-mlir-${TORCH_MLIR_COMMIT}-$OS-$ARCH"
 cd "$TORCH_MLIR_INSTALL_DIR"/..

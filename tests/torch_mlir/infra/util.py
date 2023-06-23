@@ -1,12 +1,11 @@
-import inspect
 import re
 import warnings
 from itertools import chain
-from typing import Any, Callable, List, NamedTuple, Optional, OrderedDict, Tuple, Union
+from typing import Any, Callable, NamedTuple, OrderedDict, Union
 
 import numpy as np
 
-from pi import Tensor, TensorPlaceholder, dtype, float32, int64, nn
+from pi import Tensor, TensorPlaceholder, float32, int64, nn
 from pi.mlir import ir
 from pi.mlir.compile import run_pipeline_with_repro_report
 from pi.mlir.dialects import func as func_dialect, torch as torch_dialect
@@ -168,7 +167,9 @@ class PIConfig:
                         assert len(el_type) == 1
                         el_types.append(el_type[0])
                     res_type = ir.Type.parse(f"!torch.tuple<{', '.join(el_types)}>")
-                    results = [torch_dialect.PrimTupleConstructOp(res_type, results)]
+                    results = [
+                        torch_dialect.PrimTupleConstructOp(res_type, results).result
+                    ]
 
                 canonical_func_type = ir.FunctionType.get(
                     inputs=[b.type for b in block_args],

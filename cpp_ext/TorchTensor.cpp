@@ -8,7 +8,6 @@
 #include <pybind11/pytypes.h>
 
 #include <exception>
-#include <utility>
 
 #include "TorchOps.h"
 #include "TorchTensor.h"
@@ -115,14 +114,14 @@ void PyTorch_NonValueTensorType::bindDerived(ClassTy &c) {
          DefaultingPyMlirContext context) {
         return PyTorch_NonValueTensorType(std::move(sizes), dtype, context);
       },
-      py::arg("sizes"), py::arg("dtype"), py::arg("context") = py::none());
+      "sizes"_a, "dtype"_a, "context"_a = py::none());
   c.def_static(
       "get_with_least_static_information",
       [](DefaultingPyMlirContext context) {
         return PyTorch_NonValueTensorType::getWithLeastStaticInformation(
             context);
       },
-      py::arg("context") = py::none());
+      "context"_a = py::none());
   c.def("sizes", [](MlirType self) {
     std::vector<int64_t> sizes(torchMlirTorchNonValueTensorTypeGetRank(self));
     if (torchMlirTorchNonValueTensorTypeGetSizes(self, sizes.data()))
@@ -141,13 +140,13 @@ void PyTorch_ValueTensorType::bindDerived(ClassTy &c) {
          DefaultingPyMlirContext context) {
         return PyTorch_ValueTensorType(sizes, dtype, context);
       },
-      py::arg("sizes"), py::arg("dtype"), py::arg("context") = py::none());
+      "sizes"_a, "dtype"_a, "context"_a = py::none());
   c.def_static(
       "get_with_least_static_information",
       [](DefaultingPyMlirContext context) {
         return PyTorch_ValueTensorType::getWithLeastStaticInformation(context);
       },
-      py::arg("context") = py::none());
+      "context"_a = py::none());
   c.def("sizes", [](MlirType self) {
     std::vector<int64_t> sizes(torchMlirTorchValueTensorTypeGetRank(self));
     if (torchMlirTorchValueTensorTypeGetSizes(self, sizes.data()))
@@ -172,21 +171,21 @@ void PyAnyTorchTensorType::bindDerived(ClassTy &c) {
       "get",
       [](std::vector<int64_t> sizes, MlirType dtype,
          DefaultingPyMlirContext context) {
-        return PyAnyTorchTensorType(sizes, dtype, context);
+        return PyAnyTorchTensorType(std::move(sizes), dtype, context);
       },
-      py::arg("sizes"), py::arg("dtype"), py::arg("context") = py::none());
+      "sizes"_a, "dtype"_a, "context"_a = py::none());
   c.def_static(
       "get_with_least_static_information",
       [](DefaultingPyMlirContext context) {
         return PyAnyTorchTensorType::getWithLeastStaticInformation(context);
       },
-      py::arg("context") = py::none());
+      "context"_a = py::none());
 }
 
 // value binders
 
 void PyAnyTorchOptionalTensorValue::bindDerived(ClassTy &c) {
-  c.def(py::init<py::none>(), py::arg("value"));
+  c.def(py::init<py::none>(), "value"_a);
   py::implicitly_convertible<py::none, PyAnyTorchOptionalTensorValue>();
 }
 
@@ -200,53 +199,75 @@ void PyAnyTorchTensorValue::bindDerived(ClassTy &c) {
   // aten::__add__.Tensor : (Tensor, Tensor) -> (Tensor)
   c.def(
       "__add__",
-      [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &other)
-          -> PyAnyTorchTensorValue { return add(self, other, 1.0f); },
+      [](const PyAnyTorchTensorValue &self,
+         const PyAnyTorchTensorValue &other) -> PyAnyTorchTensorValue {
+        auto loc = getValueLocation(self);
+        return add(self, other, 1.0f, &loc, getInsertionPoint());
+      },
       "other"_a);
 
   c.def(
       "__iadd__",
-      [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &other)
-          -> PyAnyTorchTensorValue { return add(self, other, 1.0f); },
+      [](const PyAnyTorchTensorValue &self,
+         const PyAnyTorchTensorValue &other) -> PyAnyTorchTensorValue {
+        auto loc = getValueLocation(self);
+        return add(self, other, 1.0f, &loc, getInsertionPoint());
+      },
       "other"_a);
 
   c.def(
       "__sub__",
-      [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &other)
-          -> PyAnyTorchTensorValue { return sub(self, other, 1.0f); },
+      [](const PyAnyTorchTensorValue &self,
+         const PyAnyTorchTensorValue &other) -> PyAnyTorchTensorValue {
+        auto loc = getValueLocation(self);
+        return sub(self, other, 1.0f, &loc, getInsertionPoint());
+      },
       "other"_a);
 
   // @overload view(self, dtype _dtype) -> Tensor
-  c.def("view",
-        [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dtype) {
-          return view_copy(self, dtype);
-        });
+  c.def(
+      "view",
+      [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dtype,
+         DefaultingPyLocation &loc, const py::object &ip) {
+        return view_copy(self, dtype, loc.get(), getInsertionPoint(ip));
+      },
+      "dtype"_a, py::kw_only(), "loc"_a = py::none(), "ip"_a = py::none());
 
   // @overload view(self, size Sequence[Union[_int, SymInt]]) -> Tensor
   c.def(
       "view",
-      [](PyAnyTorchTensorValue &self,
-         const PyAnyTorchListOfTorchIntValue &size) {
-        return view(self, size);
+      [](PyAnyTorchTensorValue &self, const PyAnyTorchListOfTorchIntValue &size,
+         DefaultingPyLocation &loc, const py::object &ip) {
+        return view(self, size, loc.get(), getInsertionPoint(ip));
       },
-      "size"_a);
+      "size"_a, py::kw_only(), "loc"_a = py::none(), "ip"_a = py::none());
 
   // @overload view(self, *size _int) -> Tensor
-  c.def("view", [](PyAnyTorchTensorValue &self, const py::args &args) {
-    return view(self, args);
-  });
+  c.def(
+      "view",
+      [](PyAnyTorchTensorValue &self, const py::args &size,
+         DefaultingPyLocation &loc, const py::object &ip) {
+        return view(self, PyAnyTorchListOfTorchIntValue(size), loc.get(),
+                    getInsertionPoint(ip));
+      },
+      // When combining *args or **kwargs with Keyword arguments you should not
+      // include py::arg tags for the py::args and py::kwargs arguments.
+      py::kw_only(), "loc"_a = py::none(), "ip"_a = py::none());
 
   // aten::to.dtype : (Tensor, int, bool, bool, int?) -> (Tensor)
   c.def(
       "to",
       [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dtype,
          const PyTorch_BoolValue &non_blocking, const PyTorch_BoolValue &copy,
-         const PyAnyTorchOptionalIntValue &memory_format)
-          -> PyAnyTorchTensorValue {
-        return to(self, dtype, non_blocking, copy, memory_format);
+         const PyAnyTorchOptionalIntValue &memory_format,
+         DefaultingPyLocation &loc,
+         const py::object &ip) -> PyAnyTorchTensorValue {
+        return to(self, dtype, non_blocking, copy, memory_format, loc.get(),
+                  getInsertionPoint(ip));
       },
       "dtype"_a = py::none(), "non_blocking"_a = false, "copy"_a = false,
-      "memory_format"_a = py::none());
+      "memory_format"_a = py::none(), py::kw_only(), "loc"_a = py::none(),
+      "ip"_a = py::none());
 
 #include "TorchTensor.pybinds.cpp"
 }
@@ -261,8 +282,8 @@ PyAnyTorchListOfTensorValue mapListToTorchListOfTensorValue(const py::list &l) {
 }
 
 void PyAnyTorchListOfTensorValue::bindDerived(ClassTy &c) {
-  c.def(py::init<py::list>(), py::arg("value"));
-  c.def(py::init<py::tuple>(), py::arg("value"));
+  c.def(py::init<py::list>(), "value"_a);
+  c.def(py::init<py::tuple>(), "value"_a);
   py::implicitly_convertible<py::list, PyAnyTorchListOfTensorValue>();
   py::implicitly_convertible<py::tuple, PyAnyTorchListOfTensorValue>();
 }
@@ -282,8 +303,8 @@ mapListToTorchListOfOptionalTensorValue(const py::list &l) {
 }
 
 void PyAnyTorchListOfOptionalTensorValue::bindDerived(ClassTy &c) {
-  c.def(py::init<py::list>(), py::arg("value"));
-  c.def(py::init<py::tuple>(), py::arg("value"));
+  c.def(py::init<py::list>(), "value"_a);
+  c.def(py::init<py::tuple>(), "value"_a);
   py::implicitly_convertible<py::list, PyAnyTorchListOfOptionalTensorValue>();
   py::implicitly_convertible<py::tuple, PyAnyTorchListOfOptionalTensorValue>();
 }

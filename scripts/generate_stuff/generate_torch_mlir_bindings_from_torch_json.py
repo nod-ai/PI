@@ -3,7 +3,7 @@ import re
 import warnings
 from collections import defaultdict
 from pathlib import Path
-from textwrap import dedent
+from textwrap import dedent, indent
 
 import orjson
 from torch_mlir.dialects.torch.importer.jit_ir.build_tools.registry import (
@@ -44,7 +44,6 @@ RESERVED_NAMES = {
 
 
 def get_clean_name(name):
-
     if name in RESERVED_NAMES:
         return RESERVED_NAMES[name]
     return name
@@ -95,7 +94,6 @@ def get_result_type_from_ods(ods):
     for result in results:
         result_type = result[0]["def"]
         result_types.append(result_type)
-        result_type_arg = None
         if "Any" in result_type:
             if result_type == "AnyTorchTensorType":
                 result_type_arg = "PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve())"
@@ -115,12 +113,13 @@ def get_result_type_from_ods(ods):
             else:
                 warnings.warn(f"Unimplemented return type {result_type}")
                 return
-
-        if result_type_arg:
             result_type_args.append(result_type_arg)
+        else:
+            # is known since it's not an Any
+            continue
 
     if len(result_type_args):
-        result_type_arg = f"{', '.join(result_type_args)}, "
+        result_type_arg = f"{', '.join(result_type_args)}"
     else:
         result_type_arg = ""
 
@@ -143,13 +142,6 @@ def get_defaults_from_jit_op(op):
         a["name"]: a["default_debug"] for a in op.arguments if "default_debug" in a
     }
     return defaults
-
-
-def get_params_str_from_params(params):
-    param_str = ", ".join(
-        [f"const Py{type.replace('Type', 'Value')} &{name}" for name, type in params]
-    )
-    return param_str
 
 
 def generate_torch_ops_impls(cpp_ext_dir, torch_mlir_ods_json):
@@ -186,6 +178,7 @@ def generate_torch_ops_impls(cpp_ext_dir, torch_mlir_ods_json):
                 continue
 
             jit_op = registry.by_unique_key[schema]
+            n_returns = len(jit_op.returns)
             op_name, cpp_class_name = jit_op.get_mlir_names()
             params = get_params_from_ods_args(ods)
             result_type_result_type_arg_cast = get_result_type_from_ods(ods)
@@ -198,11 +191,6 @@ def generate_torch_ops_impls(cpp_ext_dir, torch_mlir_ods_json):
                 result_type_arg,
                 cast,
             ) = result_type_result_type_arg_cast
-            if result_type != "void":
-                return_ = "return "
-            else:
-                return_ = ""
-
             has_unimplemented_type = UNIMPLEMENTED_TYPES.intersection(
                 {type for _name, type in params}
             )
@@ -212,21 +200,86 @@ def generate_torch_ops_impls(cpp_ext_dir, torch_mlir_ods_json):
                 )
                 continue
 
-            api_params = get_params_str_from_params(params)
+            api_param_str = ", ".join(
+                [
+                    f"const Py{type.replace('Type', 'Value')} &{name}"
+                    for name, type in params
+                ]
+                + ["PyLocation *loc", "PyInsertionPoint *ip"]
+            )
+            joined_params = ", ".join([name for name, _type in params])
+
+            op_name = f"torch.{op_name}"
+            impls_td(
+                dedent(
+                    f"""\
+                    // {schema}
+                    {result_type} {jit_op.unqualified_name}({api_param_str}) {{
+                      std::string operationName = "{op_name}";
+                    """
+                )
+            )
+
+            if result_type_arg == "" and result_type != "void":
+                infer_return_types = dedent(
+                    f"""\
+                    auto _returnTypes = inferReturnTypes(operationName, {{{joined_params}}}, loc->getContext().get(), loc); 
+                    """
+                )
+            else:
+                infer_return_types = dedent(
+                    f"""\
+                    std::vector<PyType> _returnTypes = {{{result_type_arg}}}; 
+                    """
+                )
+            impls_td(indent(infer_return_types, "  "))
 
             impl = dedent(
-                f"""
-                    // {schema}
-                    {result_type} {jit_op.unqualified_name}({api_params}) {{
-                      {return_}PyGlobals::get().lookupOperationClass("torch.{op_name}").value()({result_type_arg}{', '.join([name for name, _type in params])}){cast};
-                    }}
+                f"""\
+                      std::vector<std::reference_wrapper<const PyType>> returnTypes; 
+                      for (const auto& returnType : _returnTypes) 
+                        returnTypes.emplace_back(returnType);
+                      PyOperationRef opRef = createOperation(operationName,
+                                returnTypes,
+                                {{{joined_params}}}, 
+                                /*attributes=*/{{}}, 
+                                loc, 
+                                ip);
+                      MlirOperation operation = opRef->get();
                 """
             )
-            impls_td(impl)
+            impls_td(indent(impl, "  "))
+
+            if n_returns == 0:
+                impls_td(indent("// no result", "  "))
+            elif n_returns == 1:
+                impls_td(
+                    indent(
+                        dedent(
+                            f"""\
+                            return {{opRef, mlirOperationGetResult(operation, 0)}};
+                            """
+                        ),
+                        "  ",
+                    )
+                )
+            else:
+                impls_td(
+                    indent(
+                        dedent(
+                            f"""\
+                            return {result_type}({', '.join(['{opRef, mlirOperationGetResult(operation, ' + str(i) + ')}' for i in range(n_returns)])});
+                            """
+                        ),
+                        "  ",
+                    )
+                )
+            impls_td("}\n")
+
             header = dedent(
                 f"""
                     // {schema}
-                    {result_type} {jit_op.unqualified_name}({api_params});
+                    {result_type} {jit_op.unqualified_name}({api_param_str});
                 """
             )
             impls_h_td(header)
@@ -264,6 +317,12 @@ def generate_torch_ops_pybinds(jitops_odses, cpp_ext_dir):
                     param_str.append(f"const Py{type} &{name}")
                     tramp_str.append(name)
                     labels.append(f'"{name}"_a')
+
+            param_str.extend(["DefaultingPyLocation &loc", "const py::object &ip"])
+            labels.extend(
+                ["py::kw_only()", '"loc"_a = py::none()', '"ip"_a = py::none()']
+            )
+            tramp_str.extend(["loc.get()", "getInsertionPoint(ip)"])
 
             labels_str = ", ".join(labels)
             tramp_str = ", ".join(tramp_str)
@@ -414,13 +473,14 @@ class TensorMethodVisitor(ast.NodeVisitor):
                         f"const Py{params_dict[name].replace('Type', 'Value')} &{name}"
                         for name in arg_names
                     ]
+                    + ["PyLocation *loc", "PyInsertionPoint *ip"]
                 )
                 impl = dedent(
                     f"""
                             // {method_sig}
                             // {schema}
                             {result_type} {op_name}({tramp_param_str}) {{
-                              {return_}{overload_op_name}({', '.join([p[0] for p in params])});
+                              {return_}{overload_op_name}({', '.join([p[0] for p in params] + ["loc", "ip"])});
                             }}
                         """
                 )
@@ -462,9 +522,12 @@ class TensorMethodVisitor(ast.NodeVisitor):
                     labels.append(f'"{name}"_a')
 
             # apparently you can't label the self arg for a class method???
+            param_str.extend(["DefaultingPyLocation &loc", "const py::object &ip"])
+            if "py::kw_only()" not in labels:
+                labels.append("py::kw_only()")
+            labels.extend(['"loc"_a = py::none()', '"ip"_a = py::none()'])
+            tramp_str.extend(["loc.get()", "getInsertionPoint(ip)"])
             labels_str = ", ".join(labels[1:])
-            if labels_str:
-                labels_str = f", {labels_str}"
             tramp_str = ", ".join(tramp_str)
             param_str = ", ".join(param_str)
 
@@ -472,7 +535,7 @@ class TensorMethodVisitor(ast.NodeVisitor):
                 f"""
                         // {method_sig}
                         // {schema}
-                        c.def("{op_name}", []({param_str}) -> {result_type} {{ return {op_name}({tramp_str}); }}{labels_str});
+                        c.def("{op_name}", []({param_str}) -> {result_type} {{ return {op_name}({tramp_str}); }}, {labels_str});
                     """
             )
 

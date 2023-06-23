@@ -1,0 +1,12 @@
+{
+  "image": "ubuntu:20.04",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "GitHub.vscode-github-actions",
+        "MS-vsliveshare.vsliveshare",
+        "vscodevim.vim"
+      ]
+    }
+  }
+}

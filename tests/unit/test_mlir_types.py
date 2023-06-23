@@ -1,6 +1,5 @@
 from textwrap import dedent
 
-from pi.mlir.utils import mlir_mod_ctx
 from pi.mlir import (
     # AnyTorchDictKeyType,
     # AnyTorchListOfOptionalIntType,
@@ -8,22 +7,13 @@ from pi.mlir import (
     # AnyTorchListOfTensorType,
     # AnyTorchOptionalListOfTorchIntType,
     # AnyTorchOptionalTensorType,
-    AnyTorchListOfTorchBoolType,
-    AnyTorchListOfTorchIntType,
     AnyTorchListOfTorchStringType,
     AnyTorchListType,
-    AnyTorchOptionalBoolType,
-    AnyTorchOptionalDeviceType,
-    AnyTorchOptionalFloatType,
-    AnyTorchOptionalGeneratorType,
-    AnyTorchOptionalIntType,
-    AnyTorchOptionalStringType,
     AnyTorchOptionalType,
     AnyTorchScalarType,
     AnyTorchTensorType,
     Torch_BoolType,
     Torch_DeviceType,
-    Torch_DictType,
     Torch_FloatType,
     Torch_IntType,
     Torch_LinearParamsType,
@@ -36,6 +26,7 @@ from pi.mlir import (
     Torch_ValueTensorType,
 )
 from pi.mlir import F32
+from pi.mlir.utils import mlir_mod_ctx
 from util import check_correct
 
 

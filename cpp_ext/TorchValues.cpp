@@ -1,17 +1,32 @@
 //
 // Created by maksim on 5/13/23.
 //
+#include "IRModule.h"
+#include "mlir-c/BuiltinAttributes.h"
+#include "mlir-c/BuiltinTypes.h"
+#include "mlir-c/IR.h"
+#include "mlir-c/Interfaces.h"
 
-#include "TorchValues.h"
 #include "TorchDType.h"
 #include "TorchOps.h"
 #include "TorchTypes.h"
+#include "TorchValues.h"
+#include "torch-mlir-c/TorchTypes.h"
 
+#include <functional>
+#include <map>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
-#include <pybind11/stl.h>
+#include <stdexcept>
+#include <string>
 
+namespace py = pybind11;
 using namespace py::literals;
+using namespace mlir::python;
+
+using llvm::StringRef;
+using llvm::Twine;
+using std::vector;
 
 namespace mlir::torch {
 
@@ -94,12 +109,11 @@ bool isAAnyTorchValue(MlirValue value) {
 FORALL_UNDERSCORE_TYPES(DECLARE_ISA_UNDERSCORE_VALUE)
 #undef DECLARE_ISA_UNDERSCORE_VALUE
 
-py::object mapListToPyTorchListValue(const py::list &list) {
+py::object mapListToPyTorchListValue(const py::list &list, PyMlirContext &ctx) {
   if (list.empty())
     throw std::runtime_error("Can't cast empty list");
 
   MlirType containedType;
-  auto &ctx = DefaultingPyMlirContext::resolve();
 
   if (py::isinstance<py::int_>(list[0])) {
     containedType = torchMlirTorchIntTypeGet(ctx.get());
@@ -127,28 +141,297 @@ py::object mapListToPyTorchListValue(const py::list &list) {
   return pyType;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+struct AppendResultsCallbackData {
+  std::vector<PyType> &inferredTypes;
+  PyMlirContext *pyMlirContext;
+};
+
+void appendResultsCallback(intptr_t nTypes, MlirType *types, void *userData) {
+  auto *data = static_cast<AppendResultsCallbackData *>(userData);
+  data->inferredTypes.reserve(data->inferredTypes.size() + nTypes);
+  for (intptr_t i = 0; i < nTypes; ++i) {
+    data->inferredTypes.emplace_back(data->pyMlirContext->getRef(), types[i]);
+  }
+}
+
+std::vector<PyType> inferReturnTypes(
+    const std::string &operationName,
+    const std::vector<std::reference_wrapper<const PyValue>> &operands,
+    PyMlirContext *pyContext, PyLocation *loc,
+    const std::optional<PyAttribute> &attributes, void *properties) {
+  std::vector<MlirValue> mlirOperands;
+  std::vector<MlirRegion> mlirRegions;
+
+  mlirOperands.reserve(operands.size());
+  for (PyValue operand : operands) {
+    mlirOperands.push_back(operand.get());
+  }
+
+  std::vector<PyType> inferredTypes;
+  AppendResultsCallbackData data{inferredTypes, pyContext};
+  MlirStringRef opNameRef =
+      mlirStringRefCreate(operationName.data(), operationName.length());
+  MlirAttribute attributeDict =
+      attributes ? attributes->get() : mlirAttributeGetNull();
+
+  MlirLogicalResult result = mlirInferTypeOpInterfaceInferReturnTypes(
+      opNameRef, pyContext->get(), loc->get(), mlirOperands.size(),
+      mlirOperands.data(), attributeDict, properties, mlirRegions.size(),
+      mlirRegions.data(), &appendResultsCallback, &data);
+
+  if (mlirLogicalResultIsFailure(result)) {
+    throw py::value_error("Failed to infer result types");
+  }
+
+  return inferredTypes;
+}
+
+MlirStringRef toMlirStringRef(const std::string &s) {
+  return mlirStringRefCreate(s.data(), s.size());
+}
+
+PyInsertionPoint *getInsertionPoint(const py::object &maybeIp) {
+  return maybeIp.is_none() ? PyThreadContextEntry::getDefaultInsertionPoint()
+                           : py::cast<PyInsertionPoint *>(maybeIp);
+}
+
+PyOperationRef createOperation(
+    const std::string &name,
+    const std::vector<std::reference_wrapper<const PyType>> &results,
+    const std::vector<std::reference_wrapper<const PyValue>> &operands,
+    const std::map<std::string, MlirAttribute> &attributes, PyLocation *loc,
+    PyInsertionPoint *ip) {
+  std::vector<MlirValue> mlirOperands;
+  std::vector<MlirType> mlirResults;
+  std::vector<std::pair<std::string, MlirAttribute>> mlirAttributes;
+
+  // Unpack/validate operands.
+  mlirOperands.reserve(operands.size());
+  for (PyValue operand : operands) {
+    mlirOperands.push_back(operand.get());
+  }
+
+  // Unpack/validate results.
+  mlirResults.reserve(results.size());
+  for (PyType result : results) {
+    mlirResults.push_back(result);
+  }
+  // Unpack/validate attributes.
+  mlirAttributes.reserve(attributes.size());
+  for (auto &it : attributes) {
+    std::string key;
+    try {
+      key = it.first;
+    } catch (py::cast_error &err) {
+      std::string msg = "Invalid attribute key (not a string) when "
+                        "attempting to create the operation \"" +
+                        name + "\" (" + err.what() + ")";
+      throw py::cast_error(msg);
+    }
+    try {
+      auto &attribute = it.second;
+      // TODO: Verify attribute originates from the same context.
+      mlirAttributes.emplace_back(std::move(key), attribute);
+    } catch (py::reference_cast_error &) {
+      // This exception seems thrown when the value is "None".
+      std::string msg =
+          "Found an invalid (`None`?) attribute value for the key \"" + key +
+          "\" when attempting to create the operation \"" + name + "\"";
+      throw py::cast_error(msg);
+    } catch (py::cast_error &err) {
+      std::string msg = "Invalid attribute value for the key \"" + key +
+                        "\" when attempting to create the operation \"" + name +
+                        "\" (" + err.what() + ")";
+      throw py::cast_error(msg);
+    }
+  }
+
+  // Apply unpacked/validated to the operation state. Beyond this
+  // point, exceptions cannot be thrown or else the state will leak.
+  MlirOperationState state =
+      mlirOperationStateGet(toMlirStringRef(name), loc->get());
+  if (!mlirOperands.empty())
+    mlirOperationStateAddOperands(&state, mlirOperands.size(),
+                                  mlirOperands.data());
+  if (!mlirResults.empty())
+    mlirOperationStateAddResults(&state, mlirResults.size(),
+                                 mlirResults.data());
+  if (!mlirAttributes.empty()) {
+    // Note that the attribute names directly reference bytes in
+    // mlirAttributes, so that vector must not be changed from here
+    // on.
+    std::vector<MlirNamedAttribute> mlirNamedAttributes;
+    mlirNamedAttributes.reserve(mlirAttributes.size());
+    for (auto &it : mlirAttributes)
+      mlirNamedAttributes.push_back(mlirNamedAttributeGet(
+          mlirIdentifierGet(mlirAttributeGetContext(it.second),
+                            toMlirStringRef(it.first)),
+          it.second));
+    mlirOperationStateAddAttributes(&state, mlirNamedAttributes.size(),
+                                    mlirNamedAttributes.data());
+  }
+
+  // Construct the operation.
+  MlirOperation operation = mlirOperationCreate(&state);
+  PyOperationRef created =
+      PyOperation::createDetached(loc->getContext(), operation);
+  if (ip)
+    ip->insert(*created.get());
+
+  return created;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+PyTorch_NoneValue makePyTorchNoneValue(PyLocation *loc, PyInsertionPoint *ip) {
+
+  auto resultType =
+      py::cast(torchMlirTorchNoneTypeGet(loc->getContext()->get()))
+          .cast<PyType>();
+  PyOperationRef opRef = createOperation("torch.constant.none", {resultType},
+                                         /*operands*/ {}, {}, loc, ip);
+  return {opRef, mlirOperationGetResult(opRef->get(), 0)};
+}
+
+PyTorch_BoolValue makePyTorchBoolValue(bool b, PyLocation *loc,
+                                       PyInsertionPoint *ip) {
+  auto resultType =
+      py::cast(torchMlirTorchBoolTypeGet(loc->getContext()->get()))
+          .cast<PyType>();
+  PyOperationRef opRef = createOperation(
+      "torch.constant.bool", {resultType},
+      /*operands*/ {},
+      {{"value", mlirBoolAttrGet(loc->getContext()->get(), b)}}, loc, ip);
+  return {opRef, mlirOperationGetResult(opRef->get(), 0)};
+}
+
+PyTorch_DeviceValue makePyTorchDeviceValue(const std::string &b,
+                                           PyLocation *loc,
+                                           PyInsertionPoint *ip) {
+  auto resultType =
+      py::cast(torchMlirTorchDeviceTypeGet(loc->getContext()->get()))
+          .cast<PyType>();
+  PyOperationRef opRef = createOperation(
+      "torch.constant.device", {resultType},
+      /*operands*/ {},
+      {{"value", mlirStringAttrGet(loc->getContext()->get(),
+                                   mlir::torch::toMlirStringRef(b))}},
+      loc, ip);
+  return {opRef, mlirOperationGetResult(opRef->get(), 0)};
+}
+
+PyTorch_FloatValue makePyTorchFloatValue(float b, PyLocation *loc,
+                                         PyInsertionPoint *ip) {
+  auto resultType =
+      py::cast(torchMlirTorchFloatTypeGet(loc->getContext()->get()))
+          .cast<PyType>();
+  PyOperationRef opRef = createOperation(
+      "torch.constant.float", {resultType},
+      /*operands*/ {},
+      {{"value",
+        mlirFloatAttrDoubleGet(loc->getContext()->get(),
+                               mlirF64TypeGet(loc->getContext()->get()), b)}},
+      loc, ip);
+  return {opRef, mlirOperationGetResult(opRef->get(), 0)};
+}
+
+PyTorch_StringValue makePyTorchStringValue(const std::string &b,
+                                           PyLocation *loc,
+                                           PyInsertionPoint *ip) {
+  auto resultType =
+      py::cast(torchMlirTorchStringTypeGet(loc->getContext()->get()))
+          .cast<PyType>();
+  PyOperationRef opRef = createOperation(
+      "torch.constant.str", {resultType},
+      /*operands*/ {},
+      {{"value", mlirStringAttrGet(loc->getContext()->get(),
+                                   mlir::torch::toMlirStringRef(b))}},
+      loc, ip);
+  return {opRef, mlirOperationGetResult(opRef->get(), 0)};
+}
+
+PyTorch_IntValue makePyTorchIntValue(int b, PyLocation *loc,
+                                     PyInsertionPoint *ip) {
+  auto resultType = py::cast(torchMlirTorchIntTypeGet(loc->getContext()->get()))
+                        .cast<PyType>();
+  PyOperationRef opRef = createOperation(
+      "torch.constant.int", {resultType},
+      /*operands*/ {},
+      {{"value", mlirIntegerAttrGet(
+                     mlirIntegerTypeGet(loc->getContext()->get(), 64), b)}},
+      loc, ip);
+  return {opRef, mlirOperationGetResult(opRef->get(), 0)};
+}
+
+PyAnyTorchListValue makePyAnyTorchListValue(const py::object &type,
+                                            const py::list &operands,
+                                            PyLocation *loc,
+                                            PyInsertionPoint *ip) {
+  std::vector<std::reference_wrapper<const PyValue>> operands_;
+  for (const auto &operand : operands)
+    operands_.emplace_back(operand.cast<PyValue &>());
+  auto resultType = type.cast<PyType>();
+  PyOperationRef opRef = createOperation("torch.prim.ListConstruct",
+                                         {resultType}, operands_, {}, loc, ip);
+  return {opRef, mlirOperationGetResult(opRef->get(), 0)};
+}
+
+template <typename T, typename U>
+T makeGetItem(U &self, const PyTorch_IntValue &idx, PyLocation *loc,
+              PyInsertionPoint *ip) {
+  MlirType t;
+  if (std::is_same<T, PyTorch_BoolValue>::value)
+    t = torchMlirTorchBoolTypeGet(loc->getContext()->get());
+  else if (std::is_same<T, PyTorch_FloatValue>::value)
+    t = torchMlirTorchFloatTypeGet(loc->getContext()->get());
+  else if (std::is_same<T, PyTorch_IntValue>::value)
+    t = torchMlirTorchIntTypeGet(loc->getContext()->get());
+  else if (std::is_same<T, PyTorch_StringValue>::value)
+    t = torchMlirTorchStringTypeGet(loc->getContext()->get());
+  else
+    throw std::runtime_error("unknown element type");
+  auto resultType = py::cast(t).cast<PyType>();
+  PyOperationRef opRef = createOperation(
+      "torch.aten.__getitem__.t", {resultType}, {self, idx}, {}, loc, ip);
+  return {opRef, mlirOperationGetResult(opRef->get(), 0)};
+}
+
+PyLocation getValueLocation(const PyValue &value) {
+  MlirOperation owner;
+  if (mlirValueIsAOpResult(value))
+    owner = mlirOpResultGetOwner(value);
+  else if (mlirValueIsABlockArgument(value))
+    owner = mlirBlockGetParentOperation(mlirBlockArgumentGetOwner(value));
+  else
+    throw py::value_error("unknown value owner");
+  auto location = mlirOperationGetLocation(owner);
+  auto context = mlirLocationGetContext(location);
+  auto ctx = PyMlirContext::forContext(context);
+  return {ctx, location};
+}
+
 void PyAnyTorchListValue::bindDerived(ClassTy &c) {
-  c.def(py::init<py::list>(), py::arg("value"));
-  c.def(py::init<py::tuple>(), py::arg("value"));
+  c.def(py::init<py::list>(), "value"_a);
+  c.def(py::init<py::tuple>(), "value"_a);
   py::implicitly_convertible<py::list, PyAnyTorchListValue>();
   py::implicitly_convertible<py::tuple, PyAnyTorchListValue>();
 }
 
 #define DEFINE_LIST_BASE_CONCRETE_VALUE(TORCHTYPE, SCALARTYPE)                 \
   void PyAnyTorchListOf##TORCHTYPE##Value::bindDerived(ClassTy &c) {           \
-    c.def(py::init<py::list>(), py::arg("value"));                             \
-    c.def(py::init<py::tuple>(), py::arg("value"));                            \
+    c.def(py::init<py::list>(), "value"_a);                                    \
+    c.def(py::init<py::tuple>(), "value"_a);                                   \
     c.def(                                                                     \
         "__getitem__",                                                         \
         [](PyAnyTorchListOf##TORCHTYPE##Value & self,                          \
            const PyTorch_IntValue &idx) -> PyTorch_##SCALARTYPE##Value {       \
-          MlirType containedType = torchMlirTorchListTypeGetContainedType(     \
-              mlirValueGetType(self.get()));                                   \
-          return PyGlobals::get()                                              \
-              .lookupOperationClass("torch.aten.__getitem__.t")                \
-              .value()(py::cast(containedType), self, idx)                     \
-              .cast<PyTorch_##SCALARTYPE##Value>();                            \
-        });                                                                    \
+          return makeGetItem<PyTorch_##SCALARTYPE##Value>(                     \
+              self, idx, &DefaultingPyLocation::resolve(),                     \
+              PyThreadContextEntry::getDefaultInsertionPoint());               \
+        },                                                                     \
+        "idx"_a);                                                              \
     py::implicitly_convertible<py::list,                                       \
                                PyAnyTorchListOf##TORCHTYPE##Value>();          \
     py::implicitly_convertible<py::tuple,                                      \
@@ -158,19 +441,19 @@ FORALL_LIST_BASE_CONCRETE_TYPES_WITH_TYPE(DEFINE_LIST_BASE_CONCRETE_VALUE)
 #undef DEFINE_LIST_BASE_CONCRETE_VALUE
 
 void PyAnyTorchOptionalGeneratorValue::bindDerived(ClassTy &c) {
-  c.def(py::init<py::none>(), py::arg("value"));
+  c.def(py::init<py::none>(), "value"_a);
   py::implicitly_convertible<py::none, PyAnyTorchOptionalGeneratorValue>();
 }
 
 void PyAnyTorchOptionalValue::bindDerived(ClassTy &c) {
-  c.def(py::init<py::none>(), py::arg("value"));
+  c.def(py::init<py::none>(), "value"_a);
   py::implicitly_convertible<py::none, PyAnyTorchOptionalValue>();
 }
 
 #define DEFINE_OPTIONAL_BASE_CONCRETE_VALUE(TORCHTYPE, CPPTYPE)                \
   void PyAnyTorchOptional##TORCHTYPE##Value::bindDerived(ClassTy &c) {         \
-    c.def(py::init<py::none>(), py::arg("value"));                             \
-    c.def(py::init<CPPTYPE>(), py::arg("value"));                              \
+    c.def(py::init<py::none>(), "value"_a);                                    \
+    c.def(py::init<CPPTYPE>(), "value"_a);                                     \
     py::implicitly_convertible<py::none,                                       \
                                PyAnyTorchOptional##TORCHTYPE##Value>();        \
     py::implicitly_convertible<CPPTYPE,                                        \
@@ -183,27 +466,27 @@ DEFINE_OPTIONAL_BASE_CONCRETE_VALUE(String, std::string)
 #undef DEFINE_OPTIONAL_BASE_CONCRETE_VALUE
 
 void PyAnyTorchOptionalIntValue::bindDerived(ClassTy &c) {
-  c.def(py::init<py::none>(), py::arg("value"));
-  c.def(py::init<int>(), py::arg("value"));
-  c.def(py::init<DType>(), py::arg("value"));
+  c.def(py::init<py::none>(), "value"_a);
+  c.def(py::init<int>(), "value"_a);
+  c.def(py::init<DType>(), "value"_a);
   py::implicitly_convertible<py::none, PyAnyTorchOptionalIntValue>();
   py::implicitly_convertible<int, PyAnyTorchOptionalIntValue>();
   py::implicitly_convertible<DType, PyAnyTorchOptionalIntValue>();
 }
 
 void PyAnyTorchOptionalScalarValue::bindDerived(ClassTy &c) {
-  c.def(py::init<py::none>(), py::arg("value"));
-  c.def(py::init<int>(), py::arg("value"));
-  c.def(py::init<float>(), py::arg("value"));
+  c.def(py::init<py::none>(), "value"_a);
+  c.def(py::init<int>(), "value"_a);
+  c.def(py::init<float>(), "value"_a);
   py::implicitly_convertible<py::none, PyAnyTorchOptionalScalarValue>();
   py::implicitly_convertible<int, PyAnyTorchOptionalScalarValue>();
   py::implicitly_convertible<float, PyAnyTorchOptionalScalarValue>();
 }
 
 void PyAnyTorchOptionalListOfTorchIntValue::bindDerived(ClassTy &c) {
-  c.def(py::init<py::none>(), py::arg("value"));
-  c.def(py::init<py::list>(), py::arg("value"));
-  c.def(py::init<py::tuple>(), py::arg("value"));
+  c.def(py::init<py::none>(), "value"_a);
+  c.def(py::init<py::list>(), "value"_a);
+  c.def(py::init<py::tuple>(), "value"_a);
   py::implicitly_convertible<py::none, PyAnyTorchOptionalListOfTorchIntValue>();
   py::implicitly_convertible<py::list, PyAnyTorchOptionalListOfTorchIntValue>();
   py::implicitly_convertible<py::tuple,
@@ -214,13 +497,17 @@ void PyAnyTorchOptionalListOfTorchIntValue::bindDerived(ClassTy &c) {
   void PyTorch_##TORCHTYPE##Value::bindDerived(ClassTy &c) {}
 DEFINE_BIND_SCALAR_VALUE(Any)
 DEFINE_BIND_SCALAR_VALUE(LinearParams)
-DEFINE_BIND_SCALAR_VALUE(None)
 DEFINE_BIND_SCALAR_VALUE(Number)
 #undef DEFINE_BIND_SCALAR_VALUE
 
+void PyTorch_NoneValue::bindDerived(ClassTy &c) {
+  c.def(py::init<>());
+  c.def(py::init<py::none>(), "none"_a);
+}
+
 #define DEFINE_BIND_SCALAR_VALUE(TORCHTYPE, CPPTYPE, DUNDER, ATTR)             \
   void PyTorch_##TORCHTYPE##Value::bindDerived(ClassTy &c) {                   \
-    c.def(py::init<CPPTYPE>(), py::arg("value"));                              \
+    c.def(py::init<CPPTYPE>(), "value"_a);                                     \
     c.def("__" #DUNDER "__", [](py::object &self) {                            \
       return py::module::import(MAKE_MLIR_PYTHON_QUALNAME("ir"))               \
           .attr(#ATTR "Attr")(self.attr("owner")                               \
@@ -238,8 +525,8 @@ DEFINE_BIND_SCALAR_VALUE(String, std::string, str, String)
 #undef DEFINE_BIND_SCALAR_VALUE
 
 void PyTorch_IntValue::bindDerived(ClassTy &c) {
-  c.def(py::init<int>(), py::arg("value"));
-  c.def(py::init<DType>(), py::arg("value"));
+  c.def(py::init<int>(), "value"_a);
+  c.def(py::init<DType>(), "value"_a);
   c.def("__int__", [](py::object &self) {
     return py::module::import(MAKE_MLIR_PYTHON_QUALNAME("ir"))
         .attr("IntegerAttr")(
@@ -249,35 +536,50 @@ void PyTorch_IntValue::bindDerived(ClassTy &c) {
   });
   c.def(
       "__add__",
-      [](const PyTorch_IntValue &self, const PyTorch_IntValue &other)
-          -> PyTorch_IntValue { return add(self, other); },
+      [](const PyTorch_IntValue &self,
+         const PyTorch_IntValue &other) -> PyTorch_IntValue {
+        auto loc = getValueLocation(self);
+        return add(self, other, &loc, getInsertionPoint());
+      },
       "other"_a);
   c.def(
       "__sub__",
-      [](const PyTorch_IntValue &self, const PyTorch_IntValue &other)
-          -> PyTorch_IntValue { return sub(self, other); },
+      [](const PyTorch_IntValue &self,
+         const PyTorch_IntValue &other) -> PyTorch_IntValue {
+        auto loc = getValueLocation(self);
+        return sub(self, other, &loc, getInsertionPoint());
+      },
       "other"_a);
   c.def(
       "__mul__",
-      [](const PyTorch_IntValue &self, const PyTorch_IntValue &other)
-          -> PyTorch_IntValue { return mul(self, other); },
+      [](const PyTorch_IntValue &self,
+         const PyTorch_IntValue &other) -> PyTorch_IntValue {
+        auto loc = getValueLocation(self);
+        return mul(self, other, &loc, getInsertionPoint());
+      },
       "other"_a);
   c.def(
       "__truediv__",
-      [](const PyTorch_IntValue &self, const PyTorch_IntValue &other)
-          -> PyTorch_FloatValue { return div(self, other); },
+      [](const PyTorch_IntValue &self,
+         const PyTorch_IntValue &other) -> PyTorch_FloatValue {
+        auto loc = getValueLocation(self);
+        return div(self, other, &loc, getInsertionPoint());
+      },
       "other"_a);
   c.def(
       "__floordiv__",
-      [](const PyTorch_IntValue &self, const PyTorch_IntValue &other)
-          -> PyTorch_IntValue { return floordiv(self, other); },
+      [](const PyTorch_IntValue &self,
+         const PyTorch_IntValue &other) -> PyTorch_IntValue {
+        auto loc = getValueLocation(self);
+        return floordiv(self, other, &loc, getInsertionPoint());
+      },
       "other"_a);
   py::implicitly_convertible<int, PyTorch_IntValue>();
   py::implicitly_convertible<DType, PyTorch_IntValue>();
 }
 
 void PyTorch_FloatValue::bindDerived(ClassTy &c) {
-  c.def(py::init<float>(), py::arg("value"));
+  c.def(py::init<float>(), "value"_a);
   c.def("__"
         "float"
         "__",
@@ -293,18 +595,27 @@ void PyTorch_FloatValue::bindDerived(ClassTy &c) {
         });
   c.def(
       "__sub__",
-      [](const PyTorch_FloatValue &self, const PyTorch_FloatValue &other)
-          -> PyTorch_FloatValue { return sub(self, other); },
+      [](const PyTorch_FloatValue &self,
+         const PyTorch_FloatValue &other) -> PyTorch_FloatValue {
+        auto loc = getValueLocation(self);
+        return sub(self, other, &loc, getInsertionPoint());
+      },
       "other"_a);
   c.def(
       "__mul__",
-      [](const PyTorch_FloatValue &self, const PyTorch_FloatValue &other)
-          -> PyTorch_FloatValue { return mul(self, other); },
+      [](const PyTorch_FloatValue &self,
+         const PyTorch_FloatValue &other) -> PyTorch_FloatValue {
+        auto loc = getValueLocation(self);
+        return mul(self, other, &loc, getInsertionPoint());
+      },
       "other"_a);
   c.def(
       "__truediv__",
-      [](const PyTorch_FloatValue &self, const PyTorch_FloatValue &other)
-          -> PyTorch_FloatValue { return div(self, other); },
+      [](const PyTorch_FloatValue &self,
+         const PyTorch_FloatValue &other) -> PyTorch_FloatValue {
+        auto loc = getValueLocation(self);
+        return div(self, other, &loc, getInsertionPoint());
+      },
       "other"_a);
   py::implicitly_convertible<float, PyTorch_FloatValue>();
 }
@@ -319,11 +630,11 @@ void PyAnyTorchScalarValue::bindDerived(ClassTy &c) {
     return std::regex_replace(origRepr, std::regex("Value"),
                               "AnyTorchScalarValue");
   });
-  c.def(py::init<int>(), py::arg("value"));
-  c.def(py::init<float>(), py::arg("value"));
+  c.def(py::init<int>(), "value"_a);
+  c.def(py::init<float>(), "value"_a);
   py::implicitly_convertible<int, PyAnyTorchScalarValue>();
   py::implicitly_convertible<float, PyAnyTorchScalarValue>();
-};
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
