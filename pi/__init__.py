@@ -1,38 +1,27 @@
-from .mlir import Tensor as Tensor
+import contextlib
+
+from .mlir import Tensor
 
 # noinspection PyUnresolvedReferences
 from .mlir._mlir_libs._pi_mlir import ops
 
-ops = ops
-ops.aten = ops
 
+# note this import needs to be above the one below it so that e.g. ops.zeros is replaced by util.zeros
 # noinspection PyUnresolvedReferences
 from .mlir._mlir_libs._pi_mlir.ops import *
 
-# noinspection PyUnresolvedReferences
-from .mlir._mlir_libs._pi_mlir import ops as _VF
-
-# noinspection PyUnresolvedReferences
-from .mlir._mlir_libs._pi_mlir import ops as _C
-
-_C._nn = _C
-# noinspection PyUnresolvedReferences
-from .mlir._mlir_libs._pi_mlir import ops as linalg
-
-linalg = linalg
-
 from .mlir.utils import (
+    LongTensor,
+    TensorPlaceholder,
     dtype,
     empty,
-    zeros,
+    layout,
+    memory_format,
     ones,
     rand,
     randn,
     tensor,
-    empty_like,
-    TensorPlaceholder,
-    memory_format,
-    layout,
+    zeros,
 )
 
 bfloat16 = dtype.bfloat16
@@ -44,7 +33,7 @@ float = float32 = dtype.float32
 double = float64 = dtype.float64
 int8 = dtype.int8
 int16 = dtype.int16
-int32 = dtype.int32
+int = int32 = dtype.int32
 long = int64 = dtype.int64
 qint8 = dtype.qint8
 quint8 = dtype.quint8
@@ -63,4 +52,39 @@ preserve_format = memory_format.preserve_format
 channels_last = memory_format.channels_last
 channels_last_3d = memory_format.channels_last_3d
 
+# hacks to comply with torch api
+
+
+ops.aten = ops
+ops.prim = ops
+ops.prims = ops
+
+# noinspection PyUnresolvedReferences
+from .mlir._mlir_libs._pi_mlir import ops as _VF
+
+# noinspection PyUnresolvedReferences
+from .mlir._mlir_libs._pi_mlir import ops as special
+
+# noinspection PyUnresolvedReferences
+from .mlir._mlir_libs._pi_mlir import ops as _C
+
+_C._nn = _C
+# noinspection PyUnresolvedReferences
+from .mlir._mlir_libs._pi_mlir import ops as linalg
+
 from . import nn
+
+
+def manual_seed(x):
+    pass
+
+
+class backends:
+    class mkldnn:
+        @contextlib.contextmanager
+        @staticmethod
+        def flags(*args, **kwargs):
+            yield
+
+
+FloatTensor = tensor

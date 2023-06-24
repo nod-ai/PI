@@ -2,6 +2,7 @@ import difflib
 import inspect
 import logging
 import sys
+from collections import defaultdict
 from pathlib import Path
 
 FORMAT = "[%(filename)s:%(funcName)s:%(lineno)d] %(message)s"
@@ -9,7 +10,7 @@ formatter = logging.Formatter(FORMAT)
 logging.basicConfig(level=logging.DEBUG, format=FORMAT)
 logger = logging.getLogger(__name__)
 
-from multiprocessing import cpu_count
+from multiprocessing import cpu_count, Manager, Value
 from multiprocess.pool import Pool
 
 # noinspection PyUnresolvedReferences
@@ -31,7 +32,7 @@ from pi.mlir.compile import lower_pi_to_linalg
 import pi
 
 ONLY = {
-    # "BoolTensorHandleSignless_basic"
+    # "Add_Module_basic"
 }
 
 
@@ -103,7 +104,6 @@ def run_torch_mlir_tests(sequential=False):
         handles = map(compile_and_run_test, tests)
     else:
         handles = pool.map_async(compile_and_run_test, tests).get()
-    i = 0
     for (
         name,
         linalg_module,
@@ -119,7 +119,7 @@ def run_torch_mlir_tests(sequential=False):
     return torch_mlir_module_strs
 
 
-def run_pi_tests(torch_mlir_module_strs):
+def run_pi_tests(torch_mlir_module_strs, sequential=False):
     from infra.util import PIConfig, GLOBAL_TEST_REGISTRY
 
     tests = sorted(GLOBAL_TEST_REGISTRY.values(), key=lambda t: t.unique_name)
@@ -127,22 +127,23 @@ def run_pi_tests(torch_mlir_module_strs):
 
     pi.nn.Module.train = lambda *args, **kwargs: None
     pi_config = PIConfig()
+    num_processes = min(int(cpu_count() * 1.1), len(tests))
+    pool = Pool(num_processes)
+    manager = Manager()
     (
-        PASS,
-        NotImplementedErrorFAIL,
-        lower_to_linalg_FAIL,
-        irFAIL,
-        TOTAL,
-        SKIP,
-    ) = (0, 0, 0, 0, 0, 0)
-    for test in tests:
-        TOTAL += 1
+        XFAILs,
+        Exception_FAILs,
+        lower_to_linalg_FAILs,
+        ir_FAILs,
+        SKIPs,
+    ) = map(manager.list, [[], [], [], [], []])
+
+    def compile_and_run_test(test):
         if test.unique_name in CRASHING | COMMON_TORCH_MLIR_LOWERING_XFAILS or (
             ONLY and test.unique_name not in ONLY
         ):
-            logger.info(f"skipping {test.unique_name}")
-            SKIP += 1
-            continue
+            SKIPs.append(test.unique_name)
+            return
         logger.info(f"running {test.unique_name}")
 
         (
@@ -154,9 +155,8 @@ def run_pi_tests(torch_mlir_module_strs):
         try:
             pi_mlir_module = pi_config.compile(test)
         except Exception as e:
-            print(e)
-            print()
-            continue
+            Exception_FAILs.append((test.unique_name, str(e)))
+            return
 
         pi_torch_dialect_module_str = str(
             pi_mlir_module.operation.get_asm(large_elements_limit=10)
@@ -168,7 +168,10 @@ def run_pi_tests(torch_mlir_module_strs):
                 ).operation.get_asm(large_elements_limit=10)
             )
         except Exception as e:
-            continue
+            lower_to_linalg_FAILs.append(
+                (test.unique_name, str(e), pi_torch_dialect_module_str)
+            )
+            return
 
         sorted_diff = list(
             difflib.unified_diff(
@@ -179,7 +182,7 @@ def run_pi_tests(torch_mlir_module_strs):
         )
 
         if len(sorted_diff) and test.unique_name in PI_XFAIL_SET:
-            logger.info(f"XFAIL: {test.unique_name}")
+            XFAILs.append(test.unique_name)
         elif len(sorted_diff):
             diff = list(
                 difflib.unified_diff(
@@ -188,25 +191,61 @@ def run_pi_tests(torch_mlir_module_strs):
                     lineterm="",
                 )
             )
-            logger.info(f"\n{''.join('*' * 10)}\ndiff\n{''.join('*' * 10)}\n")
-            logger.info("\n".join(diff))
-            logger.info(f"FAIL IR diff")
-            irFAIL += 1
+            ir_FAILs.append((test.unique_name, diff))
         else:
             logger.info("PASS")
-            PASS += 1
+            return 1
+
+    if sequential:
+        handles = map(compile_and_run_test, tests)
+    else:
+        handles = pool.map_async(compile_and_run_test, tests).get()
+
+    PASS = 0
+    for r in handles:
+        r = 0 if r is None else 1
+        PASS += r
+
+    print("\n", "".join("*" * 80), "\n", "SKIPs", "\n", "".join("*" * 80))
+    for test_name in SKIPs:
+        print(test_name)
+
+    print("\n", "".join("*" * 80), "\n", "XFAILs", "\n", "".join("*" * 80))
+    for test_name in XFAILs:
+        print(test_name)
 
     print(
-        f"\n{''.join('*' * 10)}\n\n{PASS=}\n{NotImplementedErrorFAIL=}\n{lower_to_linalg_FAIL=}\n{irFAIL=}\n{SKIP=}\nout of {TOTAL=}\n\n{''.join('*' * 10)}\n"
+        "\n", "".join("*" * 80), "\n", "lower_to_linalg_FAILs", "\n", "".join("*" * 80)
     )
-    assert (
-        NotImplementedErrorFAIL == 0
-    ), f"missing torch_wrappers impl; you probably need to run generate_torch_mlir_extensions.py: {NotImplementedErrorFAIL=}"
+    for test_name, e, pi_torch_dialect_module_str in lower_to_linalg_FAILs:
+        print(test_name, "\n", e, "\n", pi_torch_dialect_module_str, "\n")
+
+    print(
+        "\n", "".join("*" * 80), "\n", "lower_to_linalg_FAILs", "\n", "".join("*" * 80)
+    )
+    for test_name, diff in ir_FAILs:
+        print(test_name, "\n", "\n".join(diff), "\n")
+
+    print("\n", "".join("*" * 80), "\n", "Exception_FAILs", "\n", "".join("*" * 80))
+    fails = defaultdict(list)
+    for test_name, e in Exception_FAILs:
+        fails[e].append(test_name)
+    for e, test_names in sorted(fails.items(), key=lambda e_ts: len(e_ts[1])):
+        print(len(test_names), ":", ", ".join(test_names))
+        print(e, "\n")
+
+    print(f"total # of tests: {len(tests)}")
+    print(f"total # of skips: {len(SKIPs)}")
+    print(f"total # of passes: {PASS}")
+    print(f"total # of xfails: {len(XFAILs)}")
+    print(f"total # of exceptions: {len(Exception_FAILs)}")
+    print(f"total # of lower to linalg failures: {len(lower_to_linalg_FAILs)}")
+    print(f"total # of ir differences: {len(ir_FAILs)}")
 
 
 class TestMain:
-    def test_suite(self):
-        torch_mlir_linalg_module_strs = run_torch_mlir_tests(sequential=False)
+    def test_suite(self, sequential=False):
+        torch_mlir_linalg_module_strs = run_torch_mlir_tests(sequential=sequential)
 
         import torch_mlir_e2e_test
 
@@ -243,7 +282,7 @@ class TestMain:
         with patch_meta_path(overloads):
             torch_mlir_register_all_tests()
 
-        run_pi_tests(torch_mlir_linalg_module_strs)
+        run_pi_tests(torch_mlir_linalg_module_strs, sequential=sequential)
 
 
 if __name__ == "__main__":
