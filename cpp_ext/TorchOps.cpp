@@ -182,6 +182,20 @@ void populateTorchMLIROps(py::module &m) {
       "self"_a, "dim"_a = py::none(), "keepdim"_a = false,
       "dtype"_a = py::none(), py::kw_only(), "loc"_a = py::none(),
       "ip"_a = py::none());
+
+  m.def(
+      "vector_norm",
+      [](const PyAnyTorchTensorValue &self, const PyAnyTorchScalarValue &ord,
+         const PyAnyTorchOptionalListOfTorchIntValue &dim,
+         const PyTorch_BoolValue &keepdim,
+         const PyAnyTorchOptionalIntValue &dtype, DefaultingPyLocation &loc,
+         const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue {
+        return linalg_vector_norm(self, ord, dim, keepdim, dtype, loc.get(),
+                                  ip.get());
+      },
+      "self"_a, "ord"_a = 2, "dim"_a = py::none(), "keepdim"_a = false,
+      "dtype"_a = py::none(), py::kw_only(), "loc"_a = py::none(),
+      "ip"_a = py::none());
 }
 
 } // namespace mlir::torch

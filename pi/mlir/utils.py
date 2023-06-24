@@ -152,32 +152,35 @@ def _elementsAttr(x, context=None):
 
 
 def _np_wrapper(*args, factory=None, **kwargs):
-    if "device" in kwargs:
-        kwargs.pop("device")
+    for d in ["device", "pin_memory", "memory_format"]:
+        kwargs.pop(d, None)
     if "dtype" in kwargs and isinstance(kwargs["dtype"], dtype):
         kwargs["dtype"] = kwargs["dtype"].to_np_type()
-    if "pin_memory" in kwargs:
-        kwargs.pop("pin_memory")
 
     return tensor_op(factory(*args, **kwargs))
 
 
-def create_zeros(*args, **kwargs):
-    if len(args) == 1 and isinstance(args[0], (list, tuple)):
-        # Input is a list or tuple
-        return np.zeros(args[0], **kwargs)
-    else:
-        # Input is a sequence of ints along with kwargs
-        return np.zeros(args, **kwargs)
+def star_args_wrapper(factory):
+    @functools.wraps(factory)
+    def wrapper(*args, **kwargs):
+        if len(args) == 1 and isinstance(args[0], (list, tuple)):
+            # Input is a list or tuple
+            return factory(args[0], **kwargs)
+        else:
+            # Input is a sequence of ints along with kwargs
+            return factory(args, **kwargs)
+
+    return wrapper
 
 
 empty = functools.partial(_np_wrapper, factory=np.empty)
-ones = functools.partial(_np_wrapper, factory=np.ones)
-zeros = functools.partial(_np_wrapper, factory=create_zeros)
+ones = functools.partial(_np_wrapper, factory=star_args_wrapper(np.ones))
+zeros = functools.partial(_np_wrapper, factory=star_args_wrapper(np.zeros))
 rand = functools.partial(_np_wrapper, factory=np.random.rand)
 randn = functools.partial(_np_wrapper, factory=np.random.randn)
 tensor = functools.partial(_np_wrapper, factory=np.array)
-empty_like = functools.partial(_np_wrapper, factory=np.empty_like)
+
+LongTensor = functools.partial(_np_wrapper, factory=np.array, dtype=dtype.int64)
 
 
 class layout(Enum):

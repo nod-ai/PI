@@ -26,6 +26,27 @@ def ElementwiseAddModule_basic(module, tu: TestUtils):
     module.forward(tu.rand(4), tu.rand())
 
 
+class Add_Module(pi.nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.tensor = pi.ones(2, 3)
+
+    @export
+    @annotate_args(
+        [
+            None,
+            ([-1, -1], pi.float32, True),
+        ]
+    )
+    def forward(self, x):
+        return pi.ops.aten.add_(x, self.tensor)
+
+
+@register_test_case(module_factory=lambda: Add_Module())
+def Add_Module_basic(module, tu: TestUtils):
+    module.forward(tu.rand(2, 3))
+
+
 class Test:
     def test_place_holders(self):
         tu = TestUtils()
