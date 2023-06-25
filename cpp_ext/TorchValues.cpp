@@ -17,11 +17,13 @@
 #include "torch-mlir-c/TorchTypes.h"
 
 #include <functional>
+#include <iostream>
 #include <map>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
 #include <stdexcept>
 #include <string>
+#include <typeinfo>
 
 namespace py = pybind11;
 using namespace py::literals;
@@ -388,6 +390,26 @@ PyAnyTorchListValue makePyAnyTorchListValue(const py::object &type,
   return {opRef, mlirOperationGetResult(opRef->get(), 0)};
 }
 
+template <typename T> auto getAttributeValue(const T &value) {
+  auto owner = getOwner(value);
+  if (!unwrap(mlirIdentifierStr(mlirOperationGetName(owner)))
+           .starts_with("torch.constant"))
+    throw py::value_error("Torch Value not constant; can't get value.");
+  MlirAttribute attr =
+      mlirOperationGetAttributeByName(owner, toMlirStringRef("value"));
+  if constexpr (std::is_same<T, PyTorch_BoolValue>::value)
+    return mlirBoolAttrGetValue(attr);
+  else if constexpr (std::is_same<T, PyTorch_FloatValue>::value)
+    return mlirFloatAttrGetValueDouble(attr);
+  else if constexpr (std::is_same<T, PyTorch_IntValue>::value)
+    return mlirIntegerAttrGetValueInt(attr);
+  else if constexpr (std::is_same<T, PyTorch_StringValue>::value ||
+                     std::is_same<T, PyTorch_DeviceValue>::value)
+    return unwrap(mlirStringAttrGetValue(attr)).str();
+  else
+    throw std::runtime_error("unknown element type");
+}
+
 template <typename T, typename U>
 T makeGetItem(U &self, const PyTorch_IntValue &idx, PyLocation *loc,
               PyInsertionPoint *ip) {
@@ -408,7 +430,7 @@ T makeGetItem(U &self, const PyTorch_IntValue &idx, PyLocation *loc,
   return {opRef, mlirOperationGetResult(opRef->get(), 0)};
 }
 
-PyLocation getValueLocation(const PyValue &value) {
+MlirOperation getOwner(const PyValue &value) {
   MlirOperation owner;
   if (mlirValueIsAOpResult(value))
     owner = mlirOpResultGetOwner(value);
@@ -416,7 +438,11 @@ PyLocation getValueLocation(const PyValue &value) {
     owner = mlirBlockGetParentOperation(mlirBlockArgumentGetOwner(value));
   else
     throw py::value_error("unknown value owner");
-  auto location = mlirOperationGetLocation(owner);
+  return owner;
+}
+
+PyLocation getValueLocation(const PyValue &value) {
+  auto location = mlirOperationGetLocation(getOwner(value));
   auto context = mlirLocationGetContext(location);
   auto ctx = PyMlirContext::forContext(context);
   return {ctx, location};
@@ -515,35 +541,25 @@ void PyTorch_NoneValue::bindDerived(ClassTy &c) {
   c.def(py::init<py::none>(), "none"_a);
 }
 
-#define DEFINE_BIND_SCALAR_VALUE(TORCHTYPE, CPPTYPE, DUNDER, ATTR)             \
+#define DEFINE_BIND_SCALAR_VALUE(TORCHTYPE, CPPTYPE, DUNDER)                   \
   void PyTorch_##TORCHTYPE##Value::bindDerived(ClassTy &c) {                   \
     c.def(py::init<CPPTYPE>(), "value"_a);                                     \
-    c.def("__" #DUNDER "__", [](py::object &self) {                            \
-      return py::module::import(MAKE_MLIR_PYTHON_QUALNAME("ir"))               \
-          .attr(#ATTR "Attr")(self.attr("owner")                               \
-                                  .attr("attributes")                          \
-                                  .attr("__getitem__")("value"))               \
-          .attr("value")                                                       \
-          .cast<CPPTYPE>();                                                    \
-    });                                                                        \
+    c.def("__" #DUNDER "__",                                                   \
+          py::overload_cast<const PyTorch_##TORCHTYPE##Value &>(               \
+              &getAttributeValue<PyTorch_##TORCHTYPE##Value>));                \
                                                                                \
     py::implicitly_convertible<CPPTYPE, PyTorch_##TORCHTYPE##Value>();         \
   }
-DEFINE_BIND_SCALAR_VALUE(Bool, bool, bool, Bool)
-DEFINE_BIND_SCALAR_VALUE(Device, std::string, str, String)
-DEFINE_BIND_SCALAR_VALUE(String, std::string, str, String)
+DEFINE_BIND_SCALAR_VALUE(Bool, bool, bool)
+DEFINE_BIND_SCALAR_VALUE(Device, std::string, str)
+DEFINE_BIND_SCALAR_VALUE(String, std::string, str)
 #undef DEFINE_BIND_SCALAR_VALUE
 
 void PyTorch_IntValue::bindDerived(ClassTy &c) {
   c.def(py::init<int>(), "value"_a);
   c.def(py::init<DType>(), "value"_a);
-  c.def("__int__", [](py::object &self) {
-    return py::module::import(MAKE_MLIR_PYTHON_QUALNAME("ir"))
-        .attr("IntegerAttr")(
-            self.attr("owner").attr("attributes").attr("__getitem__")("value"))
-        .attr("value")
-        .cast<int>();
-  });
+  c.def("__int__", py::overload_cast<const PyTorch_IntValue &>(
+                       &getAttributeValue<PyTorch_IntValue>));
   c.def(
       "__add__",
       [](const PyTorch_IntValue &self,
@@ -591,19 +607,8 @@ void PyTorch_IntValue::bindDerived(ClassTy &c) {
 
 void PyTorch_FloatValue::bindDerived(ClassTy &c) {
   c.def(py::init<float>(), "value"_a);
-  c.def("__"
-        "float"
-        "__",
-        [](py::object &self) {
-          return py::module::import("pi.mlir."
-                                    "ir")
-              .attr("Float"
-                    "Attr")(self.attr("owner")
-                                .attr("attributes")
-                                .attr("__getitem__")("value"))
-              .attr("value")
-              .cast<float>();
-        });
+  c.def("__float__", py::overload_cast<const PyTorch_FloatValue &>(
+                         &getAttributeValue<PyTorch_FloatValue>));
   c.def(
       "__sub__",
       [](const PyTorch_FloatValue &self,

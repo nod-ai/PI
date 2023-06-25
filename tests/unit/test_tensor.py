@@ -57,7 +57,7 @@ class TestOverloadCast:
 
     def test_optional_args(self):
         with mlir_mod_ctx():
-            ttt = tensor_op(np.random.randint(0, 10, (10, 10)))
+            ttt = tensor_op(5 * np.ones((10, 10)).astype(int))
             r = ttt.argmax(keepdim=bool_op(False))
             check_correct(
                 "Tensor(%5 = torch.aten.argmax %4, %none, %false : !torch.tensor<[10,10],si64>, !torch.none, !torch.bool -> !torch.tensor)",
@@ -72,7 +72,7 @@ class TestOverloadCast:
                         argmax(): incompatible function arguments. The following argument types are supported:
                             1. (self: pi.mlir._mlir_libs._pi_mlir.Tensor, dim: pi.mlir._mlir_libs._pi_mlir.AnyTorchOptionalIntValue = None, keepdim: pi.mlir._mlir_libs._pi_mlir.Torch_BoolValue = False, *, loc: mlir.ir.Location = None, ip: mlir.ir.InsertionPoint = None) -> pi.mlir._mlir_libs._pi_mlir.Tensor
 
-                        Invoked with: <pi.mlir._mlir_libs._pi_mlir.Tensor object at %DONT_CARE>, <pi.mlir._mlir_libs._pi_mlir.Torch_BoolValue object at %DONT_CARE>
+                        Invoked with: Tensor(%0 = torch.tensor.literal(dense<5> : tensor<10x10xsi64>) : !torch.tensor<[10,10],si64>), Torch_BoolValue(%false_0 = torch.constant.bool false)
                         """
                     ),
                     str(e),
@@ -88,7 +88,7 @@ class TestOverloadCast:
                         argmax(): incompatible function arguments. The following argument types are supported:
                             1. (self: pi.mlir._mlir_libs._pi_mlir.Tensor, dim: pi.mlir._mlir_libs._pi_mlir.AnyTorchOptionalIntValue = None, *, keepdim: pi.mlir._mlir_libs._pi_mlir.Torch_BoolValue = False) -> object
 
-                        Invoked with: <pi.mlir._mlir_libs._pi_mlir.Tensor object at %DONT_CARE>, None, <pi.mlir._mlir_libs._pi_mlir.Torch_BoolValue object at %DONT_CARE>
+                        Invoked with: Tensor(%DONT_CARE = torch.tensor.literal(%DONT_CARE : tensor<1%DONT_CARE>) : !torch.tensor<[3,3],si64>), Torch_BoolValue(%DONT_CARE = torch.constant.bool false)
                         """
                     ),
                     str(e),
