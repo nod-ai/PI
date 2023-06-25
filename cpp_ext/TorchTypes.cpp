@@ -165,10 +165,10 @@ FORALL_UNDERSCORE_TYPES(DECLARE_ISA_UNDERSCORE_TYPE)
 void PyAnyTorchListType::bindDerived(ClassTy &c) {
   c.def_static(
       "get",
-      [](MlirType containedType, DefaultingPyMlirContext context) {
-        return PyAnyTorchListType(containedType, context);
+      [](MlirType containedType, DefaultingPyMlirContext &context) {
+        return PyAnyTorchListType(containedType, context.get());
       },
-      py::arg("contained_type"), py::arg("context") = py::none(),
+      py::arg("contained_type"), py::kw_only(), py::arg("context") = py::none(),
       "Create a list type.");
   c.def(
       "contained_type",
@@ -181,10 +181,10 @@ void PyAnyTorchListType::bindDerived(ClassTy &c) {
 void PyAnyTorchOptionalType::bindDerived(ClassTy &c) {
   c.def_static(
       "get",
-      [](MlirType containedType, DefaultingPyMlirContext context) {
-        return PyAnyTorchOptionalType(containedType, context);
+      [](MlirType containedType, DefaultingPyMlirContext &context) {
+        return PyAnyTorchOptionalType(containedType, context.get());
       },
-      py::arg("contained_type"), py::arg("context") = py::none(),
+      py::arg("contained_type"), py::kw_only(), py::arg("context") = py::none(),
       "Create a optional type.");
   c.def(
       "get_contained_type",
@@ -198,10 +198,11 @@ void PyAnyTorchOptionalType::bindDerived(ClassTy &c) {
   void PyAnyTorchListOf##CONCRETETYPE##Type::bindDerived(ClassTy &c) {         \
     c.def_static(                                                              \
         "get",                                                                 \
-        [](DefaultingPyMlirContext context) {                                  \
-          return PyAnyTorchListOf##CONCRETETYPE##Type(context);                \
+        [](DefaultingPyMlirContext &context) {                                 \
+          return PyAnyTorchListOf##CONCRETETYPE##Type(context.get());          \
         },                                                                     \
-        py::arg("context") = py::none(), "Create a " #CONCRETETYPE " type.");  \
+        py::kw_only(), py::arg("context") = py::none(),                        \
+        "Create a " #CONCRETETYPE " type.");                                   \
   }
 
 FORALL_LIST_BASE_CONCRETE_TYPES(DEFINE_LIST_BASE_CONCRETE_TYPE)
@@ -211,10 +212,11 @@ FORALL_LIST_BASE_CONCRETE_TYPES(DEFINE_LIST_BASE_CONCRETE_TYPE)
   void PyAnyTorchOptional##CONCRETETYPE##Type::bindDerived(ClassTy &c) {       \
     c.def_static(                                                              \
         "get",                                                                 \
-        [](DefaultingPyMlirContext context) {                                  \
-          return PyAnyTorchOptional##CONCRETETYPE##Type(context);              \
+        [](DefaultingPyMlirContext &context) {                                 \
+          return PyAnyTorchOptional##CONCRETETYPE##Type(context.get());        \
         },                                                                     \
-        py::arg("context") = py::none(), "Create a " #CONCRETETYPE " type.");  \
+        py::kw_only(), py::arg("context") = py::none(),                        \
+        "Create a " #CONCRETETYPE " type.");                                   \
   }
 
 FORALL_OPTIONAL_BASE_CONCRETE_TYPES(DEFINE_OPTIONAL_BASE_CONCRETE_TYPE)
@@ -224,10 +226,11 @@ FORALL_OPTIONAL_BASE_CONCRETE_TYPES(DEFINE_OPTIONAL_BASE_CONCRETE_TYPE)
   void PyTorch_##SCALARTYPE##Type::bindDerived(ClassTy &c) {                   \
     c.def_static(                                                              \
         "get",                                                                 \
-        [](DefaultingPyMlirContext context) {                                  \
-          return PyTorch_##SCALARTYPE##Type(context);                          \
+        [](DefaultingPyMlirContext &context) {                                 \
+          return PyTorch_##SCALARTYPE##Type(context.get());                    \
         },                                                                     \
-        py::arg("context") = py::none(), "Create a " #SCALARTYPE " type.");    \
+        py::kw_only(), py::arg("context") = py::none(),                        \
+        "Create a " #SCALARTYPE " type.");                                     \
   }
 FORALL_SCALAR_TYPES(DEFINE_SCALAR_TYPE)
 #undef DEFINE_SCALAR_TYPE
@@ -236,10 +239,10 @@ void PyTorch_DictType::bindDerived(ClassTy &c) {
   c.def_static(
       "get",
       [](MlirType keyType, MlirType valueType,
-         DefaultingPyMlirContext context) {
-        return PyTorch_DictType(keyType, valueType, context);
+         DefaultingPyMlirContext &context) {
+        return PyTorch_DictType(keyType, valueType, context.get());
       },
-      py::arg("key_type"), py::arg("value_type"),
+      py::arg("key_type"), py::arg("value_type"), py::kw_only(),
       py::arg("context") = py::none(), "Create a dict type.");
   c.def("get_key_type", torchMlirTorchDictTypeGetKeyType);
   c.def("get_value_type", torchMlirTorchDictTypeGetValueType);
@@ -248,11 +251,11 @@ void PyTorch_DictType::bindDerived(ClassTy &c) {
 void PyTorch_TupleType::bindDerived(ClassTy &c) {
   c.def_static(
       "get",
-      [](const py::tuple &elementTypes, DefaultingPyMlirContext context) {
+      [](const py::tuple &elementTypes, DefaultingPyMlirContext &context) {
         auto types = elementTypes.cast<std::vector<MlirType>>();
-        return PyTorch_TupleType(types, context);
+        return PyTorch_TupleType(types, context.get());
       },
-      py::arg("element_types"), py::arg("context") = py::none(),
+      py::arg("element_types"), py::kw_only(), py::arg("context") = py::none(),
       "Create a tuple type.");
   c.def("__len__",
         [](MlirType self) { return torchMlirTorchTupleTypeGetNumTypes(self); });
@@ -264,10 +267,10 @@ void PyTorch_TupleType::bindDerived(ClassTy &c) {
 void PyTorch_NnModuleType::bindDerived(ClassTy &c) {
   c.def_static(
       "get",
-      [](MlirStringRef name, DefaultingPyMlirContext context) {
-        return PyTorch_NnModuleType(name, context);
+      [](MlirStringRef name, DefaultingPyMlirContext &context) {
+        return PyTorch_NnModuleType(name, context.get());
       },
-      py::arg("element_types"), py::arg("context") = py::none(),
+      py::arg("element_types"), py::kw_only(), py::arg("context") = py::none(),
       "Create a tuple type.");
 }
 

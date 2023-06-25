@@ -1,12 +1,30 @@
 import pi
 from pi.mlir.utils import mlir_mod_ctx
+from pi import Tensor
+
+# noinspection PyUnresolvedReferences
 from pi.nn.modules import (
     activation,
+    adaptive,
     batchnorm,
+    channelshuffle,
+    container,
     conv,
+    distance,
+    dropout,
+    flatten,
+    fold,
+    hooks,
+    instancenorm,
     linear,
+    loss,
+    normalization,
     padding,
+    pixelshuffle,
     pooling,
+    sparse,
+    transformer,
+    upsampling,
 )
 from util import check_correct
 

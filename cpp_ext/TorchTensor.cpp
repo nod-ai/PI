@@ -4,6 +4,7 @@
 
 #include "mlir/Bindings/Python/PybindAdaptors.h"
 
+#include <pybind11/cast.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
 
@@ -90,15 +91,15 @@ bool isATorch_NonValueTensorValue(MlirValue value) {
 
 PyTorch_NonValueTensorType
 PyTorch_NonValueTensorType::getWithLeastStaticInformation(
-    DefaultingPyMlirContext context) {
+    PyMlirContext *context) {
   MlirType valueTensorType =
       torchMlirTorchNonValueTensorTypeGetWithLeastStaticInformation(
           context->get());
   return {context->getRef(), valueTensorType};
 }
 
-PyTorch_ValueTensorType PyTorch_ValueTensorType::getWithLeastStaticInformation(
-    DefaultingPyMlirContext context) {
+PyTorch_ValueTensorType
+PyTorch_ValueTensorType::getWithLeastStaticInformation(PyMlirContext *context) {
   MlirType valueTensorType =
       torchMlirTorchValueTensorTypeGetWithLeastStaticInformation(
           context->get());
@@ -111,17 +112,18 @@ void PyTorch_NonValueTensorType::bindDerived(ClassTy &c) {
   c.def_static(
       "get",
       [](std::vector<int64_t> sizes, MlirType dtype,
-         DefaultingPyMlirContext context) {
-        return PyTorch_NonValueTensorType(std::move(sizes), dtype, context);
+         DefaultingPyMlirContext &context) {
+        return PyTorch_NonValueTensorType(std::move(sizes), dtype,
+                                          context.get());
       },
-      "sizes"_a, "dtype"_a, "context"_a = py::none());
+      "sizes"_a, "dtype"_a, py::kw_only(), "context"_a = py::none());
   c.def_static(
       "get_with_least_static_information",
-      [](DefaultingPyMlirContext context) {
+      [](DefaultingPyMlirContext &context) {
         return PyTorch_NonValueTensorType::getWithLeastStaticInformation(
-            context);
+            context.get());
       },
-      "context"_a = py::none());
+      py::kw_only(), "context"_a = py::none());
   c.def("sizes", [](MlirType self) {
     std::vector<int64_t> sizes(torchMlirTorchNonValueTensorTypeGetRank(self));
     if (torchMlirTorchNonValueTensorTypeGetSizes(self, sizes.data()))
@@ -137,16 +139,17 @@ void PyTorch_ValueTensorType::bindDerived(ClassTy &c) {
   c.def_static(
       "get",
       [](std::vector<int64_t> sizes, MlirType dtype,
-         DefaultingPyMlirContext context) {
-        return PyTorch_ValueTensorType(sizes, dtype, context);
+         DefaultingPyMlirContext &context) {
+        return PyTorch_ValueTensorType(sizes, dtype, context.get());
       },
-      "sizes"_a, "dtype"_a, "context"_a = py::none());
+      "sizes"_a, "dtype"_a, py::kw_only(), "context"_a = py::none());
   c.def_static(
       "get_with_least_static_information",
-      [](DefaultingPyMlirContext context) {
-        return PyTorch_ValueTensorType::getWithLeastStaticInformation(context);
+      [](DefaultingPyMlirContext &context) {
+        return PyTorch_ValueTensorType::getWithLeastStaticInformation(
+            context.get());
       },
-      "context"_a = py::none());
+      py::kw_only(), "context"_a = py::none());
   c.def("sizes", [](MlirType self) {
     std::vector<int64_t> sizes(torchMlirTorchValueTensorTypeGetRank(self));
     if (torchMlirTorchValueTensorTypeGetSizes(self, sizes.data()))
@@ -158,8 +161,8 @@ void PyTorch_ValueTensorType::bindDerived(ClassTy &c) {
   });
 }
 
-PyAnyTorchTensorType PyAnyTorchTensorType::getWithLeastStaticInformation(
-    DefaultingPyMlirContext context) {
+PyAnyTorchTensorType
+PyAnyTorchTensorType::getWithLeastStaticInformation(PyMlirContext *context) {
   MlirType nonValueTensorType =
       torchMlirTorchNonValueTensorTypeGetWithLeastStaticInformation(
           context->get());
@@ -170,16 +173,17 @@ void PyAnyTorchTensorType::bindDerived(ClassTy &c) {
   c.def_static(
       "get",
       [](std::vector<int64_t> sizes, MlirType dtype,
-         DefaultingPyMlirContext context) {
-        return PyAnyTorchTensorType(std::move(sizes), dtype, context);
+         DefaultingPyMlirContext &context) {
+        return PyAnyTorchTensorType(std::move(sizes), dtype, context.get());
       },
-      "sizes"_a, "dtype"_a, "context"_a = py::none());
+      "sizes"_a, "dtype"_a, py::kw_only(), "context"_a = py::none());
   c.def_static(
       "get_with_least_static_information",
-      [](DefaultingPyMlirContext context) {
-        return PyAnyTorchTensorType::getWithLeastStaticInformation(context);
+      [](DefaultingPyMlirContext &context) {
+        return PyAnyTorchTensorType::getWithLeastStaticInformation(
+            context.get());
       },
-      "context"_a = py::none());
+      py::kw_only(), "context"_a = py::none());
 }
 
 // value binders
@@ -273,11 +277,14 @@ void PyAnyTorchTensorValue::bindDerived(ClassTy &c) {
 }
 
 PyAnyTorchListOfTensorValue mapListToTorchListOfTensorValue(const py::list &l) {
-  return py::cast(PyAnyTorchListValue(
-                      py::cast(PyAnyTorchListOfTensorType(
-                          mlirValueGetType(l[0].cast<PyValue>().get()),
-                          DefaultingPyMlirContext::resolve())),
-                      l, tag<PyAnyTorchTensorValue>{}))
+  if (l.empty())
+    throw py::value_error("can't map empty list of tensor values");
+  MlirValue element = l[0].cast<PyValue>().get();
+  MlirType elType = mlirValueGetType(element);
+  auto context = PyMlirContext::forContext(mlirTypeGetContext(elType));
+  auto t = PyAnyTorchListOfTensorType(elType, context.get());
+  return py::cast(
+             PyAnyTorchListValue(py::cast(t), l, tag<PyAnyTorchTensorValue>{}))
       .cast<PyAnyTorchListOfTensorValue>();
 }
 
@@ -290,14 +297,20 @@ void PyAnyTorchListOfTensorValue::bindDerived(ClassTy &c) {
 
 PyAnyTorchListOfOptionalTensorValue
 mapListToTorchListOfOptionalTensorValue(const py::list &l) {
+  MlirValue element;
+  if (l[0].is_none())
+    element = PyTorch_NoneValue().get();
+  else
+    element = l[0].cast<PyValue>().get();
+  MlirType elType = mlirValueGetType(element);
+  auto context = PyMlirContext::forContext(mlirTypeGetContext(elType));
   return (l.empty() ||
           std::all_of(l.begin(), l.end(), [](auto o) { return o.is_none(); }))
              ? py::cast(PyAnyTorchListValue(l))
                    .cast<PyAnyTorchListOfOptionalTensorValue>()
              : py::cast(PyAnyTorchListValue(
                             py::cast(PyAnyTorchListOfOptionalTensorType(
-                                mlirValueGetType(l[0].cast<PyValue>().get()),
-                                DefaultingPyMlirContext::resolve())),
+                                elType, context.get())),
                             l, tag<PyAnyTorchTensorValue>{}))
                    .cast<PyAnyTorchListOfOptionalTensorValue>();
 }

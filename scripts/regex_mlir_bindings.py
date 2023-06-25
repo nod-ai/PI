@@ -36,10 +36,6 @@ def patch_bindings_header(fp, debug=False):
             "class DefaultingPyLocation",
             "class PYBIND11_EXPORT DefaultingPyLocation",
         )
-        # res = res.replace(
-        #     "private:",
-        #     "// private:",
-        # )
         diff = list(
             unified_diff(
                 f.splitlines(keepends=True),
