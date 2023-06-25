@@ -67,7 +67,7 @@ void populateTorchDType(py::module &m) {
       .value("bfloat16", DType::bfloat16)
       .def(
           "to_mlir_type",
-          [](DType &self, DefaultingPyMlirContext context) {
+          [](DType &self, DefaultingPyMlirContext &context) {
             switch (self) {
             case bool_:
               // default is signless
@@ -99,23 +99,23 @@ void populateTorchDType(py::module &m) {
               throw py::value_error("qint8, quint8 unsupported");
             }
           },
-          "context"_a = py::none())
+          py::kw_only(), "context"_a = py::none())
       .def(
           "to_torch_value_type",
-          [](DType &self, DefaultingPyMlirContext context) -> py::object {
+          [](DType &self, DefaultingPyMlirContext &context) -> py::object {
             switch (self) {
             case bool_:
-              return py::cast(PyTorch_BoolType(context));
+              return py::cast(PyTorch_BoolType(context.get()));
             case uint8:
             case int8:
             case int16:
             case int32:
             case int64:
-              return py::cast(PyTorch_IntType(context));
+              return py::cast(PyTorch_IntType(context.get()));
             case float16:
             case float32:
             case float64:
-              return py::cast(PyTorch_FloatType(context));
+              return py::cast(PyTorch_FloatType(context.get()));
             case complex32:
             case complex64:
             case qint8:
@@ -126,7 +126,7 @@ void populateTorchDType(py::module &m) {
                   " unsupported");
             }
           },
-          "context"_a = py::none())
+          py::kw_only(), "context"_a = py::none())
       .def_static(
           "from_np_type",
           [](const py::type &npType) { return fromNpDType(py::dtype(npType)); })

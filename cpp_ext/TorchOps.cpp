@@ -78,7 +78,7 @@ PyAnyTorchTensorValue mean(const PyAnyTorchTensorValue &self,
                            const PyAnyTorchOptionalIntValue &dtype,
                            PyLocation *loc, PyInsertionPoint *ip) {
   auto resultType = PyAnyTorchTensorType::getWithLeastStaticInformation(
-      DefaultingPyMlirContext::resolve());
+      loc->getContext().get());
   PyOperationRef opRef = createOperation("torch.aten.mean.dim", {resultType},
                                          {
                                              self,

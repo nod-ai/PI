@@ -96,20 +96,20 @@ def get_result_type_from_ods(ods):
         result_types.append(result_type)
         if "Any" in result_type:
             if result_type == "AnyTorchTensorType":
-                result_type_arg = "PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve())"
+                result_type_arg = "PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())"
             elif result_type in {
                 "AnyTorchListOfTorchStringType",
                 "AnyTorchListOfTorchIntType",
             }:
-                result_type_arg = f"Py{result_type}(DefaultingPyMlirContext::resolve())"
+                result_type_arg = f"Py{result_type}(loc->getContext().get())"
             elif result_type == "AnyTorchListType":
                 assert len(ods["arguments"]["args"])
                 first_arg_name = ods["arguments"]["args"][0][1]
                 contained_type_first_arg = f"torchMlirTorchListTypeGetContainedType(mlirValueGetType({first_arg_name}))"
-                result_type_arg = f"Py{result_type}({contained_type_first_arg}, DefaultingPyMlirContext::resolve())"
+                result_type_arg = f"Py{result_type}({contained_type_first_arg}, loc->getContext().get())"
             elif result_type == "AnyTorchListOfTensorType":
-                contained_type_first_arg = "PyAnyTorchTensorType::getWithLeastStaticInformation(DefaultingPyMlirContext::resolve())"
-                result_type_arg = f"Py{result_type}({contained_type_first_arg}, DefaultingPyMlirContext::resolve())"
+                contained_type_first_arg = "PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())"
+                result_type_arg = f"Py{result_type}({contained_type_first_arg}, loc->getContext().get())"
             else:
                 warnings.warn(f"Unimplemented return type {result_type}")
                 return

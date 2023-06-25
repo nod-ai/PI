@@ -117,8 +117,6 @@ public:
 
   /// Implemented by derived classes to add methods to the Python subclass.
   static void bindDerived(ClassTy &m) {}
-  //  // Keeps the parent operation alive
-  //  pybind11::object parentOperationKeepAlive;
 };
 
 class PyTorch_NoneValue;
@@ -279,10 +277,11 @@ DECLARE_SCALAR_VALUE(Number)
      * but for some reason it doesn't work for Bool*/                          \
     PyAnyTorchListOfTorch##TORCHTYPE##Value(const py::list &l)                 \
         : PyAnyTorchListOfTorch##TORCHTYPE##Value(                             \
-              py::cast(PyAnyTorchListValue(                                    \
-                           py::cast(PyAnyTorchListOfTorch##TORCHTYPE##Type(    \
-                               DefaultingPyMlirContext::resolve())),           \
-                           l, tag<PyTorch_##TORCHTYPE##Value>{}))              \
+              py::cast(                                                        \
+                  PyAnyTorchListValue(                                         \
+                      py::cast(PyAnyTorchListOfTorch##TORCHTYPE##Type(         \
+                          DefaultingPyMlirContext::resolve().getRef().get())), \
+                      l, tag<PyTorch_##TORCHTYPE##Value>{}))                   \
                   .cast<PyAnyTorchListOfTorch##TORCHTYPE##Value>()){};         \
                                                                                \
     static void bindDerived(ClassTy &c);                                       \
