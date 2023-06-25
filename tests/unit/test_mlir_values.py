@@ -387,7 +387,7 @@ class TestTorchValues:
                 NumToTensor(): incompatible function arguments. The following argument types are supported:
                     1. (a: pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue, *, loc: mlir.ir.Location = None, ip: mlir.ir.InsertionPoint = None) -> pi.mlir._mlir_libs._pi_mlir.Tensor
                     
-                Invoked with: <pi.mlir._mlir_libs._pi_mlir.Torch_NonValueTensorValue object at 0x1153a9cf0>
+                Invoked with: Torch_NonValueTensorValue(%2 = torch.tensor.literal(dense<1.000000e+00> : tensor<2x2xf64>) : !torch.tensor<[2,2],f64>)
                 """
                     ),
                     e,
@@ -436,7 +436,7 @@ class TestTorchValues:
                             5. (a: pi.mlir._mlir_libs._pi_mlir.AnyTorchListValue, b: pi.mlir._mlir_libs._pi_mlir.AnyTorchListValue, *, loc: mlir.ir.Location = None, ip: mlir.ir.InsertionPoint = None) -> pi.mlir._mlir_libs._pi_mlir.AnyTorchListValue
                             6. (self: pi.mlir._mlir_libs._pi_mlir.Tensor, other: pi.mlir._mlir_libs._pi_mlir.Tensor, alpha: pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue = 1, *, loc: mlir.ir.Location = None, ip: mlir.ir.InsertionPoint = None) -> pi.mlir._mlir_libs._pi_mlir.Tensor
                             7. (lhs: pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue, rhs: pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue, *, loc: mlir.ir.Location = None, ip: mlir.ir.InsertionPoint = None) -> pi.mlir._mlir_libs._pi_mlir.AnyTorchScalarValue
-                        Invoked with: <pi.mlir._mlir_libs._pi_mlir.Torch_FloatValue object at 0x111f7e870>, <pi.mlir._mlir_libs._pi_mlir.Torch_FloatValue object at 0x111f7e870>, <pi.mlir._mlir_libs._pi_mlir.Torch_FloatValue object at 0x111f7e870>
+                        Invoked with: Torch_FloatValue(%6 = torch.aten.Float.Scalar %int1 : !torch.int -> !torch.float), Torch_FloatValue(%6 = torch.aten.Float.Scalar %int1 : !torch.int -> !torch.float), Torch_FloatValue(%6 = torch.aten.Float.Scalar %int1 : !torch.int -> !torch.float)
                         """
                             ).splitlines(keepends=False)
                         )
@@ -581,9 +581,7 @@ class TestTorchValues:
 
             l = AnyTorchListOfTorchStringValue(["1.0", "2.0", "3"])
             t = l[0]
-            # check_correct(
-            #     "Torch_StringValue(%7 = torch.aten.__getitem__.t %6, %int0 : !torch.list<str>, !torch.int -> !torch.str)",
-            #     t,
-            # )
-
-        print(module.operation.verify())
+            check_correct(
+                "Torch_StringValue(%7 = torch.aten.__getitem__.t %6, %int0 : !torch.list<str>, !torch.int -> !torch.str)",
+                t,
+            )

@@ -18,6 +18,7 @@
 #include <pybind11/detail/common.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
+#include <string>
 
 #include "TorchDType.h"
 #include "TorchTypes.h"
@@ -112,11 +113,21 @@ public:
           return DerivedTy::isaFunction(otherValue);
         },
         py::arg("other_value"));
-    cls.def("__str__", [](const py::object &self) {
-      auto Value =
-          py::module::import(MAKE_MLIR_PYTHON_QUALNAME("ir")).attr("Value");
-      return py::str(Value(self))
-          .attr("replace")("Value", DerivedTy::pyClassName);
+    cls.def("__str__", [](DerivedTy &self) {
+      PyPrintAccumulator printAccum;
+      printAccum.parts.append(std::string(DerivedTy::pyClassName) + "(");
+      mlirValuePrint(self.get(), printAccum.getCallback(),
+                     printAccum.getUserData());
+      printAccum.parts.append(")");
+      return printAccum.join();
+    });
+    cls.def("__repr__", [](DerivedTy &self) {
+      PyPrintAccumulator printAccum;
+      printAccum.parts.append(std::string(DerivedTy::pyClassName) + "(");
+      mlirValuePrint(self.get(), printAccum.getCallback(),
+                     printAccum.getUserData());
+      printAccum.parts.append(")");
+      return printAccum.join();
     });
     DerivedTy::bindDerived(cls);
     pybind11::implicitly_convertible<PyValue, DerivedTy>();
