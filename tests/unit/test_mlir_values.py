@@ -546,6 +546,18 @@ class TestTorchValues:
                 t,
             )
 
+            t = AnyTorchListValue((1, 2, 3))
+            check_correct(
+                "AnyTorchListValue(%1 = torch.prim.ListConstruct %int1, %int2, %int3 : (!torch.int, !torch.int, !torch.int) -> !torch.list<int>)",
+                t,
+            )
+
+            t = AnyTorchListValue((1.0, 2.0, 3.0))
+            check_correct(
+                "AnyTorchListValue(%8 = torch.prim.ListConstruct %float1.000000e00, %float2.000000e00, %float3.000000e00 : (!torch.float, !torch.float, !torch.float) -> !torch.list<float>)",
+                t,
+            )
+
     def test_AnyTorchListOfTensorType(self):
         with mlir_mod_ctx():
             t = non_value_tensor_op(_elementsAttr(np.ones((2, 2))))
