@@ -318,11 +318,13 @@ def generate_torch_ops_pybinds(jitops_odses, cpp_ext_dir):
                     tramp_str.append(name)
                     labels.append(f'"{name}"_a')
 
-            param_str.extend(["DefaultingPyLocation &loc", "const py::object &ip"])
+            param_str.extend(
+                ["DefaultingPyLocation &loc", "const DefaultingPyInsertionPoint &ip"]
+            )
             labels.extend(
                 ["py::kw_only()", '"loc"_a = py::none()', '"ip"_a = py::none()']
             )
-            tramp_str.extend(["loc.get()", "getInsertionPoint(ip)"])
+            tramp_str.extend(["loc.get()", "ip.get()"])
 
             labels_str = ", ".join(labels)
             tramp_str = ", ".join(tramp_str)
@@ -522,11 +524,13 @@ class TensorMethodVisitor(ast.NodeVisitor):
                     labels.append(f'"{name}"_a')
 
             # apparently you can't label the self arg for a class method???
-            param_str.extend(["DefaultingPyLocation &loc", "const py::object &ip"])
+            param_str.extend(
+                ["DefaultingPyLocation &loc", "const DefaultingPyInsertionPoint &ip"]
+            )
             if "py::kw_only()" not in labels:
                 labels.append("py::kw_only()")
             labels.extend(['"loc"_a = py::none()', '"ip"_a = py::none()'])
-            tramp_str.extend(["loc.get()", "getInsertionPoint(ip)"])
+            tramp_str.extend(["loc.get()", "ip.get()"])
             labels_str = ", ".join(labels[1:])
             tramp_str = ", ".join(tramp_str)
             param_str = ", ".join(param_str)

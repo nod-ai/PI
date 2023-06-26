@@ -7,6 +7,7 @@
 
 #include "Globals.h"
 #include "IRModule.h"
+#include "PybindUtils.h"
 
 #include "mlir-c/BuiltinAttributes.h"
 #include "mlir-c/IR.h"
@@ -58,7 +59,13 @@ std::vector<PyType> inferReturnTypes(
     const std::optional<PyAttribute> &attributes = {},
     void *properties = nullptr);
 
-PyInsertionPoint *getInsertionPoint(const py::object &maybeIp = py::none());
+class DefaultingPyInsertionPoint
+    : public Defaulting<DefaultingPyInsertionPoint, PyInsertionPoint> {
+public:
+  using Defaulting::Defaulting;
+  static constexpr const char kTypeDescription[] = "mlir.ir.InsertionPoint";
+  static PyInsertionPoint &resolve();
+};
 
 PyOperationRef createOperation(
     const std::string &name,
@@ -155,11 +162,13 @@ public:
   static constexpr IsAFunctionTy isaFunction = isATorch_NoneValue;
   static constexpr const char *pyClassName = "Torch_NoneValue";
   PyTorch_NoneValue()
-      : PyTorch_NoneValue(makePyTorchNoneValue(&DefaultingPyLocation::resolve(),
-                                               getInsertionPoint())){};
+      : PyTorch_NoneValue(
+            makePyTorchNoneValue(&DefaultingPyLocation::resolve(),
+                                 &DefaultingPyInsertionPoint::resolve())){};
   PyTorch_NoneValue(const py::none &n)
-      : PyTorch_NoneValue(makePyTorchNoneValue(&DefaultingPyLocation::resolve(),
-                                               getInsertionPoint())){};
+      : PyTorch_NoneValue(
+            makePyTorchNoneValue(&DefaultingPyLocation::resolve(),
+                                 &DefaultingPyInsertionPoint::resolve())){};
   using PyConcreteValue::PyConcreteValue;
 
   static void bindDerived(ClassTy &c);
@@ -176,7 +185,8 @@ public:
                                                                                \
     PyTorch_##TORCHTYPE##Value(CPPTYPE b)                                      \
         : PyTorch_##TORCHTYPE##Value(makePyTorch##TORCHTYPE##Value(            \
-              b, &DefaultingPyLocation::resolve(), getInsertionPoint())) {}    \
+              b, &DefaultingPyLocation::resolve(),                             \
+              &DefaultingPyInsertionPoint::resolve())) {}                      \
   };
 DECLARE_SCALAR_VALUE(Bool, bool)
 DECLARE_SCALAR_VALUE(Device, std::string)
@@ -191,12 +201,13 @@ public:
   using PyConcreteValue::PyConcreteValue;
   static void bindDerived(ClassTy &c);
   PyTorch_IntValue(int b)
-      : PyTorch_IntValue(makePyTorchIntValue(
-            b, &DefaultingPyLocation::resolve(), getInsertionPoint())) {}
+      : PyTorch_IntValue(
+            makePyTorchIntValue(b, &DefaultingPyLocation::resolve(),
+                                &DefaultingPyInsertionPoint::resolve())) {}
   PyTorch_IntValue(DType b)
-      : PyTorch_IntValue(makePyTorchIntValue(to_underlying(b),
-                                             &DefaultingPyLocation::resolve(),
-                                             getInsertionPoint())) {}
+      : PyTorch_IntValue(makePyTorchIntValue(
+            to_underlying(b), &DefaultingPyLocation::resolve(),
+            &DefaultingPyInsertionPoint::resolve())) {}
 };
 
 template <class T> struct tag {
@@ -229,7 +240,7 @@ public:
   PyAnyTorchListValue(const py::object &type, const py::list &list)
       : PyAnyTorchListValue(makePyAnyTorchListValue(
             type, list, &DefaultingPyLocation::resolve(),
-            getInsertionPoint())){};
+            &DefaultingPyInsertionPoint::resolve())){};
 
   template <class T>
   PyAnyTorchListValue(py::object type, const py::list &list, tag<T>)
@@ -455,5 +466,15 @@ public:
 void populateTorchMLIRValues(py::module &m);
 
 } // namespace mlir::torch
+
+namespace pybind11 {
+namespace detail {
+
+template <>
+struct type_caster<mlir::torch::DefaultingPyInsertionPoint>
+    : MlirDefaultingCaster<mlir::torch::DefaultingPyInsertionPoint> {};
+
+} // namespace detail
+} // namespace pybind11
 
 #endif // PI_TORCHVALUES_H

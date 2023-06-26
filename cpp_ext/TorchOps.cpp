@@ -105,9 +105,9 @@ void populateTorchMLIROps(py::module &m) {
   // prim::abs.Scalar : (Scalar) -> (Scalar)
   m.def(
       "abs",
-      [](const PyAnyTorchScalarValue &x, DefaultingPyLocation &loc,
-         const py::object &ip) {
-        return abs(x, loc.get(), getInsertionPoint(ip));
+      [](const PyAnyTorchScalarValue &x, const DefaultingPyLocation &loc,
+         const DefaultingPyInsertionPoint &ip) {
+        return abs(x, loc.get(), ip.get());
       },
       "x"_a, py::kw_only(), "loc"_a = py::none(), "ip"_a = py::none());
 
@@ -115,8 +115,8 @@ void populateTorchMLIROps(py::module &m) {
   m.def(
       "add",
       [](const PyAnyTorchScalarValue &lhs, const PyAnyTorchScalarValue &rhs,
-         DefaultingPyLocation &loc, const py::object &ip) {
-        return add(lhs, rhs, loc.get(), getInsertionPoint(ip));
+         DefaultingPyLocation &loc, const DefaultingPyInsertionPoint &ip) {
+        return add(lhs, rhs, loc.get(), ip.get());
       },
       "lhs"_a, "rhs"_a, py::kw_only(), "loc"_a = py::none(),
       "ip"_a = py::none());
@@ -125,8 +125,8 @@ void populateTorchMLIROps(py::module &m) {
   m.def(
       "ceil",
       [](const PyAnyTorchScalarValue &a, DefaultingPyLocation &loc,
-         const py::object &ip) {
-        return ceil(a, loc.get(), getInsertionPoint(ip));
+         const DefaultingPyInsertionPoint &ip) {
+        return ceil(a, loc.get(), ip.get());
       },
       "a"_a, py::kw_only(), "loc"_a = py::none(), "ip"_a = py::none());
 
@@ -134,8 +134,8 @@ void populateTorchMLIROps(py::module &m) {
   m.def(
       "sub",
       [](const PyAnyTorchScalarValue &lhs, const PyAnyTorchScalarValue &rhs,
-         DefaultingPyLocation &loc, const py::object &ip) {
-        return sub(lhs, rhs, loc.get(), getInsertionPoint(ip));
+         DefaultingPyLocation &loc, const DefaultingPyInsertionPoint &ip) {
+        return sub(lhs, rhs, loc.get(), ip.get());
       },
       "lhs"_a, "rhs"_a, py::kw_only(), "loc"_a = py::none(),
       "ip"_a = py::none());
@@ -154,8 +154,8 @@ void populateTorchMLIROps(py::module &m) {
       "view",
       [](const PyAnyTorchTensorValue &self,
          const PyAnyTorchListOfTorchIntValue &size, DefaultingPyLocation &loc,
-         const py::object &ip) -> PyAnyTorchTensorValue {
-        return view(self, size, loc.get(), getInsertionPoint(ip));
+         const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue {
+        return view(self, size, loc.get(), ip.get());
       },
       "self"_a, "size"_a, py::kw_only(), "loc"_a = py::none(),
       "ip"_a = py::none());
@@ -164,8 +164,8 @@ void populateTorchMLIROps(py::module &m) {
   m.def(
       "device",
       [](const std::string &type, DefaultingPyLocation &loc,
-         const py::object &ip) -> PyTorch_DeviceValue {
-        return device(type, loc.get(), getInsertionPoint(ip));
+         const DefaultingPyInsertionPoint &ip) -> PyTorch_DeviceValue {
+        return device(type, loc.get(), ip.get());
       },
       "type"_a, py::kw_only(), "loc"_a = py::none(), "ip"_a = py::none());
 
@@ -176,9 +176,8 @@ void populateTorchMLIROps(py::module &m) {
          const PyAnyTorchOptionalIntValue &dim,
          const PyTorch_BoolValue &keepdim,
          const PyAnyTorchOptionalIntValue &dtype, DefaultingPyLocation &loc,
-         const py::object &ip) -> PyAnyTorchTensorValue {
-        return mean(self, dim, keepdim, dtype, loc.get(),
-                    getInsertionPoint(ip));
+         const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue {
+        return mean(self, dim, keepdim, dtype, loc.get(), ip.get());
       },
       "self"_a, "dim"_a = py::none(), "keepdim"_a = false,
       "dtype"_a = py::none(), py::kw_only(), "loc"_a = py::none(),

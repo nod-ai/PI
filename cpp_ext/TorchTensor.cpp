@@ -206,7 +206,8 @@ void PyAnyTorchTensorValue::bindDerived(ClassTy &c) {
       [](const PyAnyTorchTensorValue &self,
          const PyAnyTorchTensorValue &other) -> PyAnyTorchTensorValue {
         auto loc = getValueLocation(self);
-        return add(self, other, 1.0f, &loc, getInsertionPoint());
+        return add(self, other, 1.0f, &loc,
+                   &DefaultingPyInsertionPoint::resolve());
       },
       "other"_a);
 
@@ -215,7 +216,8 @@ void PyAnyTorchTensorValue::bindDerived(ClassTy &c) {
       [](const PyAnyTorchTensorValue &self,
          const PyAnyTorchTensorValue &other) -> PyAnyTorchTensorValue {
         auto loc = getValueLocation(self);
-        return add(self, other, 1.0f, &loc, getInsertionPoint());
+        return add(self, other, 1.0f, &loc,
+                   &DefaultingPyInsertionPoint::resolve());
       },
       "other"_a);
 
@@ -224,7 +226,8 @@ void PyAnyTorchTensorValue::bindDerived(ClassTy &c) {
       [](const PyAnyTorchTensorValue &self,
          const PyAnyTorchTensorValue &other) -> PyAnyTorchTensorValue {
         auto loc = getValueLocation(self);
-        return sub(self, other, 1.0f, &loc, getInsertionPoint());
+        return sub(self, other, 1.0f, &loc,
+                   &DefaultingPyInsertionPoint::resolve());
       },
       "other"_a);
 
@@ -232,8 +235,8 @@ void PyAnyTorchTensorValue::bindDerived(ClassTy &c) {
   c.def(
       "view",
       [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dtype,
-         DefaultingPyLocation &loc, const py::object &ip) {
-        return view_copy(self, dtype, loc.get(), getInsertionPoint(ip));
+         DefaultingPyLocation &loc, const DefaultingPyInsertionPoint &ip) {
+        return view_copy(self, dtype, loc.get(), ip.get());
       },
       "dtype"_a, py::kw_only(), "loc"_a = py::none(), "ip"_a = py::none());
 
@@ -241,8 +244,8 @@ void PyAnyTorchTensorValue::bindDerived(ClassTy &c) {
   c.def(
       "view",
       [](PyAnyTorchTensorValue &self, const PyAnyTorchListOfTorchIntValue &size,
-         DefaultingPyLocation &loc, const py::object &ip) {
-        return view(self, size, loc.get(), getInsertionPoint(ip));
+         DefaultingPyLocation &loc, const DefaultingPyInsertionPoint &ip) {
+        return view(self, size, loc.get(), ip.get());
       },
       "size"_a, py::kw_only(), "loc"_a = py::none(), "ip"_a = py::none());
 
@@ -250,9 +253,9 @@ void PyAnyTorchTensorValue::bindDerived(ClassTy &c) {
   c.def(
       "view",
       [](PyAnyTorchTensorValue &self, const py::args &size,
-         DefaultingPyLocation &loc, const py::object &ip) {
+         DefaultingPyLocation &loc, const DefaultingPyInsertionPoint &ip) {
         return view(self, PyAnyTorchListOfTorchIntValue(size), loc.get(),
-                    getInsertionPoint(ip));
+                    ip.get());
       },
       // When combining *args or **kwargs with Keyword arguments you should not
       // include py::arg tags for the py::args and py::kwargs arguments.
@@ -265,9 +268,9 @@ void PyAnyTorchTensorValue::bindDerived(ClassTy &c) {
          const PyTorch_BoolValue &non_blocking, const PyTorch_BoolValue &copy,
          const PyAnyTorchOptionalIntValue &memory_format,
          DefaultingPyLocation &loc,
-         const py::object &ip) -> PyAnyTorchTensorValue {
+         const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue {
         return to(self, dtype, non_blocking, copy, memory_format, loc.get(),
-                  getInsertionPoint(ip));
+                  ip.get());
       },
       "dtype"_a = py::none(), "non_blocking"_a = false, "copy"_a = false,
       "memory_format"_a = py::none(), py::kw_only(), "loc"_a = py::none(),
