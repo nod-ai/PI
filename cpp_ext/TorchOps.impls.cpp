@@ -4,7 +4,7 @@ PyAnyTorchTensorValue abs(const PyAnyTorchTensorValue &self, PyLocation *loc, Py
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -20,7 +20,7 @@ PyAnyTorchTensorValue abs_(const PyAnyTorchTensorValue &self, PyLocation *loc, P
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -36,7 +36,7 @@ PyAnyTorchTensorValue adaptive_avg_pool2d(const PyAnyTorchTensorValue &self, con
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, output_size}, 
@@ -52,7 +52,7 @@ PyTorch_FloatValue add(const PyTorch_FloatValue &a, const PyTorch_IntValue &b, P
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -68,7 +68,7 @@ PyTorch_IntValue add(const PyTorch_IntValue &a, const PyTorch_IntValue &b, PyLoc
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -84,7 +84,7 @@ PyAnyTorchTensorValue add(const PyAnyTorchTensorValue &self, const PyAnyTorchSca
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other, alpha}, 
@@ -100,7 +100,7 @@ PyTorch_StringValue add(const PyTorch_StringValue &a, const PyTorch_StringValue 
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -116,7 +116,7 @@ PyAnyTorchListValue add(const PyAnyTorchListValue &a, const PyAnyTorchListValue 
   std::vector<PyType> _returnTypes = {PyAnyTorchListType(torchMlirTorchListTypeGetContainedType(mlirValueGetType(a)), loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -132,7 +132,7 @@ PyAnyTorchTensorValue add(const PyAnyTorchTensorValue &self, const PyAnyTorchTen
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other, alpha}, 
@@ -148,7 +148,7 @@ PyAnyTorchTensorValue add_(const PyAnyTorchTensorValue &self, const PyAnyTorchSc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other, alpha}, 
@@ -164,7 +164,7 @@ PyAnyTorchTensorValue add_(const PyAnyTorchTensorValue &self, const PyAnyTorchTe
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other, alpha}, 
@@ -180,7 +180,7 @@ PyAnyTorchTensorValue addcdiv(const PyAnyTorchTensorValue &self, const PyAnyTorc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, tensor1, tensor2, value}, 
@@ -196,7 +196,7 @@ PyAnyTorchTensorValue addcdiv_(const PyAnyTorchTensorValue &self, const PyAnyTor
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, tensor1, tensor2, value}, 
@@ -212,7 +212,7 @@ PyAnyTorchTensorValue addcmul(const PyAnyTorchTensorValue &self, const PyAnyTorc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, tensor1, tensor2, value}, 
@@ -228,7 +228,7 @@ PyAnyTorchTensorValue addcmul_(const PyAnyTorchTensorValue &self, const PyAnyTor
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, tensor1, tensor2, value}, 
@@ -244,7 +244,7 @@ PyAnyTorchTensorValue addmm(const PyAnyTorchTensorValue &self, const PyAnyTorchT
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, mat1, mat2, beta, alpha}, 
@@ -260,7 +260,7 @@ PyAnyTorchTensorValue alias_copy(const PyAnyTorchTensorValue &self, PyLocation *
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -276,7 +276,7 @@ PyTorch_BoolValue all(const PyAnyTorchListOfTorchBoolValue &self, PyLocation *lo
   auto _returnTypes = inferReturnTypes(operationName, {self}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -292,7 +292,7 @@ PyAnyTorchTensorValue all(const PyAnyTorchTensorValue &self, PyLocation *loc, Py
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -308,7 +308,7 @@ PyAnyTorchTensorValue amax(const PyAnyTorchTensorValue &self, const PyAnyTorchLi
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, keepdim}, 
@@ -324,7 +324,7 @@ PyTorch_BoolValue any(const PyAnyTorchListOfTorchBoolValue &self, PyLocation *lo
   auto _returnTypes = inferReturnTypes(operationName, {self}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -340,7 +340,7 @@ PyAnyTorchTensorValue any(const PyAnyTorchTensorValue &self, const PyTorch_IntVa
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, keepdim}, 
@@ -356,7 +356,7 @@ PyAnyTorchTensorValue any(const PyAnyTorchTensorValue &self, PyLocation *loc, Py
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -372,7 +372,7 @@ PyAnyTorchTensorValue arange(const PyAnyTorchScalarValue &end, const PyAnyTorchO
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {end, dtype, layout, device, pin_memory}, 
@@ -388,7 +388,7 @@ PyAnyTorchTensorValue arange(const PyAnyTorchScalarValue &start, const PyAnyTorc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {start, end, dtype, layout, device, pin_memory}, 
@@ -404,7 +404,7 @@ PyAnyTorchTensorValue arange(const PyAnyTorchScalarValue &start, const PyAnyTorc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {start, end, step, out}, 
@@ -420,7 +420,7 @@ PyAnyTorchTensorValue arange(const PyAnyTorchScalarValue &start, const PyAnyTorc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {start, end, step, dtype, layout, device, pin_memory}, 
@@ -436,7 +436,7 @@ PyAnyTorchTensorValue argmax(const PyAnyTorchTensorValue &self, const PyAnyTorch
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, keepdim}, 
@@ -452,7 +452,7 @@ PyAnyTorchTensorValue as_strided_copy(const PyAnyTorchTensorValue &self, const P
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, size, stride, storage_offset}, 
@@ -468,7 +468,7 @@ PyAnyTorchTensorValue as_strided_scatter(const PyAnyTorchTensorValue &self, cons
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, src, size, stride, storage_offset}, 
@@ -484,7 +484,7 @@ PyAnyTorchTensorValue atan2(const PyAnyTorchTensorValue &self, const PyAnyTorchT
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -500,7 +500,7 @@ PyAnyTorchTensorValue atan2_(const PyAnyTorchTensorValue &self, const PyAnyTorch
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -516,7 +516,7 @@ PyAnyTorchTensorValue atan(const PyAnyTorchTensorValue &self, PyLocation *loc, P
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -532,7 +532,7 @@ PyAnyTorchTensorValue atan_(const PyAnyTorchTensorValue &self, PyLocation *loc, 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -548,7 +548,7 @@ PyAnyTorchTensorValue avg_pool2d(const PyAnyTorchTensorValue &self, const PyAnyT
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, kernel_size, stride, padding, ceil_mode, count_include_pad, divisor_override}, 
@@ -564,7 +564,7 @@ PyAnyTorchTensorValue baddbmm(const PyAnyTorchTensorValue &self, const PyAnyTorc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, batch1, batch2, beta, alpha}, 
@@ -580,7 +580,7 @@ PyAnyTorchTensorValue baddbmm_(const PyAnyTorchTensorValue &self, const PyAnyTor
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, batch1, batch2, beta, alpha}, 
@@ -596,7 +596,7 @@ PyAnyTorchTensorValue batch_norm(const PyAnyTorchTensorValue &input, const PyAny
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {input, weight, bias, running_mean, running_var, training, momentum, eps, cudnn_enabled}, 
@@ -612,7 +612,7 @@ PyAnyTorchTensorValue bernoulli(const PyAnyTorchTensorValue &self, const PyAnyTo
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, generator}, 
@@ -628,7 +628,7 @@ PyAnyTorchTensorValue bernoulli(const PyAnyTorchTensorValue &self, const PyTorch
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, p, generator}, 
@@ -644,7 +644,7 @@ PyAnyTorchTensorValue bernoulli(const PyAnyTorchTensorValue &self, const PyAnyTo
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, p, generator}, 
@@ -660,7 +660,7 @@ PyAnyTorchTensorValue bernoulli_(const PyAnyTorchTensorValue &self, const PyTorc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, p, generator}, 
@@ -676,7 +676,7 @@ PyAnyTorchTensorValue bernoulli_(const PyAnyTorchTensorValue &self, const PyAnyT
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, p, generator}, 
@@ -692,7 +692,7 @@ PyAnyTorchTensorValue bincount(const PyAnyTorchTensorValue &self, const PyAnyTor
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, weights, minlength}, 
@@ -708,7 +708,7 @@ PyAnyTorchTensorValue bitwise_and(const PyAnyTorchTensorValue &self, const PyAny
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -724,7 +724,7 @@ PyAnyTorchTensorValue bitwise_and_(const PyAnyTorchTensorValue &self, const PyAn
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -740,7 +740,7 @@ PyAnyTorchTensorValue bitwise_not(const PyAnyTorchTensorValue &self, PyLocation 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -756,7 +756,7 @@ PyAnyTorchTensorValue bitwise_not_(const PyAnyTorchTensorValue &self, PyLocation
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -772,7 +772,7 @@ PyAnyTorchTensorValue bitwise_or(const PyAnyTorchTensorValue &self, const PyAnyT
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -788,7 +788,7 @@ PyAnyTorchTensorValue bitwise_or_(const PyAnyTorchTensorValue &self, const PyAny
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -804,7 +804,7 @@ PyAnyTorchTensorValue bitwise_xor(const PyAnyTorchTensorValue &self, const PyAny
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -820,7 +820,7 @@ PyAnyTorchTensorValue bitwise_xor_(const PyAnyTorchTensorValue &self, const PyAn
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -836,7 +836,7 @@ PyAnyTorchTensorValue bmm(const PyAnyTorchTensorValue &self, const PyAnyTorchTen
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, mat2}, 
@@ -852,7 +852,7 @@ PyTorch_BoolValue Bool(const PyTorch_FloatValue &a, PyLocation *loc, PyInsertion
   auto _returnTypes = inferReturnTypes(operationName, {a}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a}, 
@@ -868,7 +868,7 @@ PyTorch_BoolValue Bool(const PyTorch_IntValue &a, PyLocation *loc, PyInsertionPo
   auto _returnTypes = inferReturnTypes(operationName, {a}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a}, 
@@ -884,7 +884,7 @@ PyTorch_BoolValue Bool(const PyAnyTorchTensorValue &a, PyLocation *loc, PyInsert
   auto _returnTypes = inferReturnTypes(operationName, {a}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a}, 
@@ -900,7 +900,7 @@ PyAnyTorchTensorValue broadcast_to(const PyAnyTorchTensorValue &self, const PyAn
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, size}, 
@@ -916,7 +916,7 @@ PyAnyTorchTensorValue bucketize(const PyAnyTorchTensorValue &self, const PyAnyTo
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, boundaries, out_int32, right}, 
@@ -932,7 +932,7 @@ PyAnyTorchTensorValue cat(const PyAnyTorchListOfTensorValue &tensors, const PyTo
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {tensors, dim}, 
@@ -948,7 +948,7 @@ PyTorch_IntValue ceil(const PyTorch_FloatValue &a, PyLocation *loc, PyInsertionP
   auto _returnTypes = inferReturnTypes(operationName, {a}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a}, 
@@ -964,7 +964,7 @@ PyAnyTorchTensorValue ceil(const PyAnyTorchTensorValue &self, PyLocation *loc, P
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -980,7 +980,7 @@ PyAnyTorchTensorValue ceil_(const PyAnyTorchTensorValue &self, PyLocation *loc, 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -996,7 +996,7 @@ PyAnyTorchListOfTensorValue chunk(const PyAnyTorchTensorValue &self, const PyTor
   std::vector<PyType> _returnTypes = {PyAnyTorchListOfTensorType(PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, chunks, dim}, 
@@ -1012,7 +1012,7 @@ PyAnyTorchTensorValue clamp_max(const PyAnyTorchTensorValue &self, const PyAnyTo
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, max}, 
@@ -1028,7 +1028,7 @@ PyAnyTorchTensorValue clamp_max_(const PyAnyTorchTensorValue &self, const PyAnyT
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, max}, 
@@ -1044,7 +1044,7 @@ PyAnyTorchTensorValue clamp_min(const PyAnyTorchTensorValue &self, const PyAnyTo
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, min}, 
@@ -1060,7 +1060,7 @@ PyAnyTorchTensorValue clamp_min_(const PyAnyTorchTensorValue &self, const PyAnyT
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, min}, 
@@ -1076,7 +1076,7 @@ PyAnyTorchTensorValue clamp(const PyAnyTorchTensorValue &self, const PyAnyTorchO
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, min, max}, 
@@ -1092,7 +1092,7 @@ PyAnyTorchTensorValue clamp(const PyAnyTorchTensorValue &self, const PyAnyTorchO
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, min, max}, 
@@ -1108,7 +1108,7 @@ PyAnyTorchTensorValue clamp_(const PyAnyTorchTensorValue &self, const PyAnyTorch
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, min, max}, 
@@ -1124,7 +1124,7 @@ PyAnyTorchTensorValue clamp_(const PyAnyTorchTensorValue &self, const PyAnyTorch
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, min, max}, 
@@ -1140,7 +1140,7 @@ PyAnyTorchTensorValue clone(const PyAnyTorchTensorValue &self, const PyAnyTorchO
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, memory_format}, 
@@ -1156,7 +1156,7 @@ PyAnyTorchTensorValue constant_pad_nd(const PyAnyTorchTensorValue &self, const P
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, pad__, value}, 
@@ -1172,7 +1172,7 @@ PyAnyTorchTensorValue contiguous(const PyAnyTorchTensorValue &self, const PyTorc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, memory_format}, 
@@ -1188,7 +1188,7 @@ PyAnyTorchTensorValue conv2d(const PyAnyTorchTensorValue &input, const PyAnyTorc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {input, weight, bias, stride, padding, dilation, groups}, 
@@ -1204,7 +1204,7 @@ PyAnyTorchTensorValue conv_transpose1d(const PyAnyTorchTensorValue &input, const
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {input, weight, bias, stride, padding, output_padding, groups, dilation}, 
@@ -1220,7 +1220,7 @@ PyAnyTorchTensorValue conv_transpose2d(const PyAnyTorchTensorValue &input, const
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {input, weight, bias, stride, padding, output_padding, groups, dilation}, 
@@ -1236,7 +1236,7 @@ PyAnyTorchTensorValue conv_transpose3d(const PyAnyTorchTensorValue &input, const
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {input, weight, bias, stride, padding, output_padding, groups, dilation}, 
@@ -1252,7 +1252,7 @@ std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue> 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {grad_output, input, weight, bias_sizes, stride, padding, dilation, transposed, output_padding, groups, output_mask}, 
@@ -1268,7 +1268,7 @@ PyAnyTorchTensorValue convolution(const PyAnyTorchTensorValue &input, const PyAn
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {input, weight, bias, stride, padding, dilation, transposed, output_padding, groups}, 
@@ -1284,7 +1284,7 @@ PyAnyTorchTensorValue copy(const PyAnyTorchTensorValue &self, const PyAnyTorchTe
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, src, non_blocking}, 
@@ -1300,7 +1300,7 @@ PyAnyTorchTensorValue copy_(const PyAnyTorchTensorValue &self, const PyAnyTorchT
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, src, non_blocking}, 
@@ -1316,7 +1316,7 @@ PyAnyTorchTensorValue cos(const PyAnyTorchTensorValue &self, PyLocation *loc, Py
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -1332,7 +1332,7 @@ PyAnyTorchTensorValue cos_(const PyAnyTorchTensorValue &self, PyLocation *loc, P
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -1348,7 +1348,7 @@ PyAnyTorchTensorValue cpu(const PyAnyTorchTensorValue &self, PyLocation *loc, Py
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -1364,7 +1364,7 @@ PyAnyTorchTensorValue cross_entropy_loss(const PyAnyTorchTensorValue &self, cons
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, target, weight, reduction, ignore_index, label_smoothing}, 
@@ -1380,7 +1380,7 @@ PyAnyTorchTensorValue cuda(const PyAnyTorchTensorValue &self, PyLocation *loc, P
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -1396,7 +1396,7 @@ PyAnyTorchTensorValue cumsum(const PyAnyTorchTensorValue &self, const PyTorch_In
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, dtype}, 
@@ -1412,7 +1412,7 @@ void Delete(const PyTorch_DictValue &self, const PyTorch_StringValue &key, PyLoc
   std::vector<PyType> _returnTypes = {}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, key}, 
@@ -1428,7 +1428,7 @@ PyAnyTorchTensorValue detach_copy(const PyAnyTorchTensorValue &self, PyLocation 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -1444,7 +1444,7 @@ PyAnyTorchTensorValue detach(const PyAnyTorchTensorValue &self, PyLocation *loc,
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -1460,7 +1460,7 @@ PyAnyTorchTensorValue diagonal_copy(const PyAnyTorchTensorValue &self, const PyT
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, offset, dim1, dim2}, 
@@ -1476,7 +1476,7 @@ PyAnyTorchTensorValue diagonal_scatter(const PyAnyTorchTensorValue &self, const 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, src, offset, dim1, dim2}, 
@@ -1492,7 +1492,7 @@ PyTorch_IntValue dim(const PyAnyTorchTensorValue &self, PyLocation *loc, PyInser
   auto _returnTypes = inferReturnTypes(operationName, {self}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -1508,7 +1508,7 @@ PyTorch_FloatValue div(const PyTorch_FloatValue &a, const PyTorch_FloatValue &b,
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -1524,7 +1524,7 @@ PyTorch_FloatValue div(const PyTorch_IntValue &a, const PyTorch_IntValue &b, PyL
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -1540,7 +1540,7 @@ PyTorch_FloatValue div(const PyAnyTorchScalarValue &a, const PyAnyTorchScalarVal
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -1556,7 +1556,7 @@ PyAnyTorchTensorValue div(const PyAnyTorchTensorValue &self, const PyAnyTorchSca
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -1572,7 +1572,7 @@ PyAnyTorchTensorValue div(const PyAnyTorchTensorValue &self, const PyAnyTorchTen
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other, rounding_mode}, 
@@ -1588,7 +1588,7 @@ PyAnyTorchTensorValue div(const PyAnyTorchTensorValue &self, const PyAnyTorchTen
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -1604,7 +1604,7 @@ PyAnyTorchTensorValue div_(const PyAnyTorchTensorValue &self, const PyAnyTorchSc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -1620,7 +1620,7 @@ PyAnyTorchTensorValue div_(const PyAnyTorchTensorValue &self, const PyAnyTorchTe
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other, rounding_mode}, 
@@ -1636,7 +1636,7 @@ PyAnyTorchTensorValue div_(const PyAnyTorchTensorValue &self, const PyAnyTorchTe
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -1652,7 +1652,7 @@ PyAnyTorchTensorValue dropout(const PyAnyTorchTensorValue &input, const PyTorch_
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {input, p, train}, 
@@ -1668,7 +1668,7 @@ PyAnyTorchTensorValue dropout_(const PyAnyTorchTensorValue &self, const PyTorch_
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, p, train}, 
@@ -1684,7 +1684,7 @@ std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue, 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {weight, indices, offsets, scale_grad_by_freq, mode, sparse, per_sample_weights, include_last_offset, padding_idx}, 
@@ -1700,7 +1700,7 @@ PyAnyTorchTensorValue embedding_dense_backward(const PyAnyTorchTensorValue &grad
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {grad_output, indices, num_weights, padding_idx, scale_grad_by_freq}, 
@@ -1716,7 +1716,7 @@ PyAnyTorchTensorValue embedding(const PyAnyTorchTensorValue &weight, const PyAny
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {weight, indices, padding_idx, scale_grad_by_freq, sparse}, 
@@ -1732,7 +1732,7 @@ PyAnyTorchTensorValue empty_like(const PyAnyTorchTensorValue &self, const PyAnyT
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dtype, layout, device, pin_memory, memory_format}, 
@@ -1748,7 +1748,7 @@ PyAnyTorchTensorValue empty(const PyAnyTorchListOfTorchIntValue &size, const PyA
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {size, dtype, layout, device, pin_memory, memory_format}, 
@@ -1764,7 +1764,7 @@ PyTorch_BoolValue eq(const PyTorch_DeviceValue &a, const PyTorch_DeviceValue &b,
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -1780,7 +1780,7 @@ PyTorch_BoolValue eq(const PyTorch_FloatValue &a, const PyTorch_FloatValue &b, P
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -1796,7 +1796,7 @@ PyTorch_BoolValue eq(const PyAnyTorchListOfTorchIntValue &a, const PyAnyTorchLis
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -1812,7 +1812,7 @@ PyTorch_BoolValue eq(const PyTorch_IntValue &a, const PyTorch_IntValue &b, PyLoc
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -1828,7 +1828,7 @@ PyAnyTorchTensorValue eq(const PyAnyTorchTensorValue &self, const PyAnyTorchScal
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -1844,7 +1844,7 @@ PyTorch_BoolValue eq(const PyTorch_StringValue &a, const PyTorch_StringValue &b,
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -1860,7 +1860,7 @@ PyAnyTorchTensorValue eq(const PyAnyTorchTensorValue &self, const PyAnyTorchTens
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -1876,7 +1876,7 @@ PyAnyTorchTensorValue eq_(const PyAnyTorchTensorValue &self, const PyAnyTorchSca
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -1892,7 +1892,7 @@ PyAnyTorchTensorValue eq_(const PyAnyTorchTensorValue &self, const PyAnyTorchTen
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -1908,7 +1908,7 @@ PyAnyTorchTensorValue erf(const PyAnyTorchTensorValue &self, PyLocation *loc, Py
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -1924,7 +1924,7 @@ PyAnyTorchTensorValue erf_(const PyAnyTorchTensorValue &self, PyLocation *loc, P
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -1940,7 +1940,7 @@ PyAnyTorchTensorValue exp(const PyAnyTorchTensorValue &self, PyLocation *loc, Py
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -1956,7 +1956,7 @@ PyAnyTorchTensorValue exp_(const PyAnyTorchTensorValue &self, PyLocation *loc, P
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -1972,7 +1972,7 @@ PyAnyTorchTensorValue expand_as(const PyAnyTorchTensorValue &self, const PyAnyTo
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -1988,7 +1988,7 @@ PyAnyTorchTensorValue expand_copy(const PyAnyTorchTensorValue &self, const PyAny
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, size, implicit}, 
@@ -2004,7 +2004,7 @@ PyAnyTorchTensorValue expand(const PyAnyTorchTensorValue &self, const PyAnyTorch
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, size, implicit}, 
@@ -2020,7 +2020,7 @@ PyAnyTorchTensorValue expm1(const PyAnyTorchTensorValue &self, PyLocation *loc, 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -2036,7 +2036,7 @@ PyAnyTorchTensorValue expm1_(const PyAnyTorchTensorValue &self, PyLocation *loc,
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -2052,7 +2052,7 @@ PyAnyTorchTensorValue fft_fft(const PyAnyTorchTensorValue &self, const PyAnyTorc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, n, dim, norm}, 
@@ -2068,7 +2068,7 @@ PyAnyTorchTensorValue fill(const PyAnyTorchTensorValue &self, const PyAnyTorchSc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, value}, 
@@ -2084,7 +2084,7 @@ PyAnyTorchTensorValue fill(const PyAnyTorchTensorValue &self, const PyAnyTorchTe
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, value}, 
@@ -2100,7 +2100,7 @@ PyAnyTorchTensorValue fill_(const PyAnyTorchTensorValue &self, const PyAnyTorchS
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, value}, 
@@ -2116,7 +2116,7 @@ PyAnyTorchTensorValue fill_(const PyAnyTorchTensorValue &self, const PyAnyTorchT
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, value}, 
@@ -2132,7 +2132,7 @@ PyAnyTorchTensorValue flatten(const PyAnyTorchTensorValue &self, const PyTorch_I
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, start_dim, end_dim}, 
@@ -2148,7 +2148,7 @@ PyAnyTorchTensorValue flip(const PyAnyTorchTensorValue &self, const PyAnyTorchLi
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dims}, 
@@ -2164,7 +2164,7 @@ PyTorch_FloatValue FloatImplicit(const PyAnyTorchTensorValue &a, PyLocation *loc
   auto _returnTypes = inferReturnTypes(operationName, {a}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a}, 
@@ -2180,7 +2180,7 @@ PyTorch_FloatValue Float(const PyAnyTorchScalarValue &a, PyLocation *loc, PyInse
   auto _returnTypes = inferReturnTypes(operationName, {a}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a}, 
@@ -2196,7 +2196,7 @@ PyTorch_FloatValue Float(const PyTorch_StringValue &a, PyLocation *loc, PyInsert
   auto _returnTypes = inferReturnTypes(operationName, {a}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a}, 
@@ -2212,7 +2212,7 @@ PyTorch_FloatValue Float(const PyAnyTorchTensorValue &a, PyLocation *loc, PyInse
   auto _returnTypes = inferReturnTypes(operationName, {a}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a}, 
@@ -2228,7 +2228,7 @@ PyAnyTorchTensorValue floor_divide(const PyAnyTorchTensorValue &self, const PyAn
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -2244,7 +2244,7 @@ PyAnyTorchTensorValue floor_divide(const PyAnyTorchTensorValue &self, const PyAn
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -2260,7 +2260,7 @@ PyAnyTorchTensorValue floor(const PyAnyTorchTensorValue &self, PyLocation *loc, 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -2276,7 +2276,7 @@ PyAnyTorchTensorValue floor_(const PyAnyTorchTensorValue &self, PyLocation *loc,
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -2292,7 +2292,7 @@ PyTorch_IntValue floordiv(const PyTorch_IntValue &a, const PyTorch_IntValue &b, 
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -2308,7 +2308,7 @@ PyAnyTorchTensorValue fmod(const PyAnyTorchTensorValue &self, const PyAnyTorchSc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -2324,7 +2324,7 @@ PyAnyTorchTensorValue fmod_(const PyAnyTorchTensorValue &self, const PyAnyTorchS
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -2340,7 +2340,7 @@ PyAnyTorchTensorValue frobenius_norm(const PyAnyTorchTensorValue &self, const Py
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, keepdim}, 
@@ -2356,7 +2356,7 @@ PyAnyTorchTensorValue full_like(const PyAnyTorchTensorValue &self, const PyAnyTo
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, fill_value, dtype, layout, device, pin_memory, memory_format}, 
@@ -2372,7 +2372,7 @@ PyAnyTorchTensorValue full(const PyAnyTorchListOfTorchIntValue &size, const PyAn
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {size, fill_value, dtype, layout, device, pin_memory}, 
@@ -2388,7 +2388,7 @@ PyAnyTorchTensorValue gather(const PyAnyTorchTensorValue &self, const PyTorch_In
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, index, sparse_grad}, 
@@ -2404,7 +2404,7 @@ PyTorch_BoolValue ge(const PyTorch_FloatValue &a, const PyTorch_IntValue &b, PyL
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -2420,7 +2420,7 @@ PyTorch_BoolValue ge(const PyTorch_FloatValue &a, const PyTorch_FloatValue &b, P
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -2436,7 +2436,7 @@ PyTorch_BoolValue ge(const PyTorch_IntValue &a, const PyTorch_IntValue &b, PyLoc
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -2452,7 +2452,7 @@ PyAnyTorchTensorValue ge(const PyAnyTorchTensorValue &self, const PyAnyTorchScal
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -2468,7 +2468,7 @@ PyAnyTorchTensorValue ge(const PyAnyTorchTensorValue &self, const PyAnyTorchTens
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -2484,7 +2484,7 @@ PyAnyTorchTensorValue ge_(const PyAnyTorchTensorValue &self, const PyAnyTorchSca
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -2500,7 +2500,7 @@ PyAnyTorchTensorValue ge_(const PyAnyTorchTensorValue &self, const PyAnyTorchTen
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -2516,7 +2516,7 @@ PyAnyTorchTensorValue gelu_backward(const PyAnyTorchTensorValue &grad_output, co
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {grad_output, self, approximate}, 
@@ -2532,7 +2532,7 @@ PyAnyTorchTensorValue gelu(const PyAnyTorchTensorValue &self, const PyTorch_Stri
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, approximate}, 
@@ -2548,7 +2548,7 @@ PyTorch_BoolValue gt(const PyTorch_FloatValue &a, const PyTorch_IntValue &b, PyL
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -2564,7 +2564,7 @@ PyTorch_BoolValue gt(const PyTorch_FloatValue &a, const PyTorch_FloatValue &b, P
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -2580,7 +2580,7 @@ PyTorch_BoolValue gt(const PyTorch_IntValue &a, const PyTorch_IntValue &b, PyLoc
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -2596,7 +2596,7 @@ PyAnyTorchTensorValue gt(const PyAnyTorchTensorValue &self, const PyAnyTorchScal
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -2612,7 +2612,7 @@ PyAnyTorchTensorValue gt(const PyAnyTorchTensorValue &self, const PyAnyTorchTens
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -2628,7 +2628,7 @@ PyAnyTorchTensorValue gt_(const PyAnyTorchTensorValue &self, const PyAnyTorchSca
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -2644,7 +2644,7 @@ PyAnyTorchTensorValue gt_(const PyAnyTorchTensorValue &self, const PyAnyTorchTen
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -2660,7 +2660,7 @@ PyAnyTorchTensorValue hardsigmoid(const PyAnyTorchTensorValue &self, PyLocation 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -2676,7 +2676,7 @@ PyAnyTorchTensorValue hardsigmoid_(const PyAnyTorchTensorValue &self, PyLocation
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -2692,7 +2692,7 @@ PyAnyTorchTensorValue hardswish(const PyAnyTorchTensorValue &self, PyLocation *l
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -2708,7 +2708,7 @@ PyAnyTorchTensorValue hardswish_(const PyAnyTorchTensorValue &self, PyLocation *
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -2724,7 +2724,7 @@ PyAnyTorchTensorValue hardtanh_backward(const PyAnyTorchTensorValue &grad_output
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {grad_output, self, min_val, max_val}, 
@@ -2740,7 +2740,7 @@ PyAnyTorchTensorValue hardtanh(const PyAnyTorchTensorValue &self, const PyAnyTor
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, min_val, max_val}, 
@@ -2756,7 +2756,7 @@ PyAnyTorchTensorValue hardtanh_(const PyAnyTorchTensorValue &self, const PyAnyTo
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, min_val, max_val}, 
@@ -2772,7 +2772,7 @@ PyAnyTorchTensorValue imag(const PyAnyTorchTensorValue &self, PyLocation *loc, P
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -2788,7 +2788,7 @@ PyAnyTorchTensorValue index_put(const PyAnyTorchTensorValue &self, const PyAnyTo
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, indices, values, accumulate}, 
@@ -2804,7 +2804,7 @@ PyAnyTorchTensorValue index_put(const PyAnyTorchTensorValue &self, const PyAnyTo
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, indices, values, accumulate}, 
@@ -2820,7 +2820,7 @@ PyAnyTorchTensorValue index_put_(const PyAnyTorchTensorValue &self, const PyAnyT
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, indices, values, accumulate}, 
@@ -2836,7 +2836,7 @@ PyAnyTorchTensorValue index_put_(const PyAnyTorchTensorValue &self, const PyAnyT
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, indices, values, accumulate}, 
@@ -2852,7 +2852,7 @@ PyAnyTorchTensorValue index_select(const PyAnyTorchTensorValue &self, const PyTo
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, index}, 
@@ -2868,7 +2868,7 @@ PyAnyTorchTensorValue index(const PyAnyTorchTensorValue &self, const PyAnyTorchL
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, indices}, 
@@ -2884,7 +2884,7 @@ PyAnyTorchTensorValue index(const PyAnyTorchTensorValue &self, const PyAnyTorchL
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, indices}, 
@@ -2900,7 +2900,7 @@ PyTorch_IntValue Int(const PyTorch_BoolValue &a, PyLocation *loc, PyInsertionPoi
   auto _returnTypes = inferReturnTypes(operationName, {a}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a}, 
@@ -2916,7 +2916,7 @@ PyTorch_IntValue Int(const PyTorch_FloatValue &a, PyLocation *loc, PyInsertionPo
   auto _returnTypes = inferReturnTypes(operationName, {a}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a}, 
@@ -2932,7 +2932,7 @@ PyTorch_IntValue IntImplicit(const PyAnyTorchTensorValue &a, PyLocation *loc, Py
   auto _returnTypes = inferReturnTypes(operationName, {a}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a}, 
@@ -2948,7 +2948,7 @@ PyTorch_IntValue Int(const PyAnyTorchScalarValue &a, PyLocation *loc, PyInsertio
   auto _returnTypes = inferReturnTypes(operationName, {a}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a}, 
@@ -2964,7 +2964,7 @@ PyTorch_IntValue Int(const PyAnyTorchTensorValue &a, PyLocation *loc, PyInsertio
   auto _returnTypes = inferReturnTypes(operationName, {a}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a}, 
@@ -2980,7 +2980,7 @@ PyTorch_BoolValue is_floating_point(const PyAnyTorchTensorValue &self, PyLocatio
   auto _returnTypes = inferReturnTypes(operationName, {self}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -2996,7 +2996,7 @@ PyAnyTorchTensorValue isnan(const PyAnyTorchTensorValue &self, PyLocation *loc, 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -3012,7 +3012,7 @@ PyTorch_StringValue join(const PyTorch_StringValue &self, const PyAnyTorchListOf
   auto _returnTypes = inferReturnTypes(operationName, {self, values}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, values}, 
@@ -3028,7 +3028,7 @@ PyAnyTorchListOfTorchStringValue keys(const PyTorch_DictValue &self, PyLocation 
   std::vector<PyType> _returnTypes = {PyAnyTorchListOfTorchStringType(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -3044,7 +3044,7 @@ PyAnyTorchTensorValue layer_norm(const PyAnyTorchTensorValue &input, const PyAny
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {input, normalized_shape, weight, bias, eps, cudnn_enable}, 
@@ -3060,7 +3060,7 @@ PyTorch_BoolValue le(const PyTorch_IntValue &a, const PyTorch_IntValue &b, PyLoc
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -3076,7 +3076,7 @@ PyAnyTorchTensorValue le(const PyAnyTorchTensorValue &self, const PyAnyTorchScal
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -3092,7 +3092,7 @@ PyAnyTorchTensorValue le(const PyAnyTorchTensorValue &self, const PyAnyTorchTens
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -3108,7 +3108,7 @@ PyAnyTorchTensorValue le_(const PyAnyTorchTensorValue &self, const PyAnyTorchSca
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -3124,7 +3124,7 @@ PyAnyTorchTensorValue le_(const PyAnyTorchTensorValue &self, const PyAnyTorchTen
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -3140,7 +3140,7 @@ PyAnyTorchTensorValue leaky_relu_backward(const PyAnyTorchTensorValue &grad_outp
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {grad_output, self, negative_slope, self_is_result}, 
@@ -3156,7 +3156,7 @@ PyAnyTorchTensorValue leaky_relu(const PyAnyTorchTensorValue &self, const PyAnyT
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, negative_slope}, 
@@ -3172,7 +3172,7 @@ PyAnyTorchTensorValue leaky_relu_(const PyAnyTorchTensorValue &self, const PyAny
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, negative_slope}, 
@@ -3188,7 +3188,7 @@ PyTorch_IntValue len(const PyTorch_StringValue &s, PyLocation *loc, PyInsertionP
   auto _returnTypes = inferReturnTypes(operationName, {s}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {s}, 
@@ -3204,7 +3204,7 @@ PyTorch_IntValue len(const PyAnyTorchListValue &a, PyLocation *loc, PyInsertionP
   auto _returnTypes = inferReturnTypes(operationName, {a}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a}, 
@@ -3220,7 +3220,7 @@ PyTorch_IntValue len(const PyAnyTorchTensorValue &t, PyLocation *loc, PyInsertio
   auto _returnTypes = inferReturnTypes(operationName, {t}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {t}, 
@@ -3236,7 +3236,7 @@ PyAnyTorchTensorValue lerp(const PyAnyTorchTensorValue &self, const PyAnyTorchTe
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, end, weight}, 
@@ -3252,7 +3252,7 @@ PyAnyTorchTensorValue lerp_(const PyAnyTorchTensorValue &self, const PyAnyTorchT
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, end, weight}, 
@@ -3268,7 +3268,7 @@ PyAnyTorchTensorValue lift_fresh_copy(const PyAnyTorchTensorValue &self, PyLocat
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -3284,7 +3284,7 @@ PyAnyTorchTensorValue linalg_vector_norm(const PyAnyTorchTensorValue &self, cons
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, ord, dim, keepdim, dtype}, 
@@ -3300,7 +3300,7 @@ PyAnyTorchTensorValue linear(const PyAnyTorchTensorValue &input, const PyAnyTorc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {input, weight, bias}, 
@@ -3316,7 +3316,7 @@ PyAnyTorchListValue list(const PyAnyTorchListValue &l, PyLocation *loc, PyInsert
   std::vector<PyType> _returnTypes = {PyAnyTorchListType(torchMlirTorchListTypeGetContainedType(mlirValueGetType(l)), loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {l}, 
@@ -3332,7 +3332,7 @@ PyAnyTorchTensorValue log1p(const PyAnyTorchTensorValue &self, PyLocation *loc, 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -3348,7 +3348,7 @@ PyAnyTorchTensorValue log1p_(const PyAnyTorchTensorValue &self, PyLocation *loc,
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -3364,7 +3364,7 @@ PyAnyTorchTensorValue log2(const PyAnyTorchTensorValue &self, PyLocation *loc, P
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -3380,7 +3380,7 @@ PyAnyTorchTensorValue log2_(const PyAnyTorchTensorValue &self, PyLocation *loc, 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -3396,7 +3396,7 @@ PyTorch_FloatValue log(const PyTorch_IntValue &a, PyLocation *loc, PyInsertionPo
   auto _returnTypes = inferReturnTypes(operationName, {a}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a}, 
@@ -3412,7 +3412,7 @@ PyAnyTorchTensorValue log(const PyAnyTorchTensorValue &self, PyLocation *loc, Py
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -3428,7 +3428,7 @@ PyAnyTorchTensorValue log_softmax(const PyAnyTorchTensorValue &self, const PyTor
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, dtype}, 
@@ -3444,7 +3444,7 @@ PyAnyTorchTensorValue log_(const PyAnyTorchTensorValue &self, PyLocation *loc, P
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -3460,7 +3460,7 @@ PyAnyTorchTensorValue logical_and(const PyAnyTorchTensorValue &self, const PyAny
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -3476,7 +3476,7 @@ PyAnyTorchTensorValue logical_and_(const PyAnyTorchTensorValue &self, const PyAn
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -3492,7 +3492,7 @@ PyAnyTorchTensorValue logical_not(const PyAnyTorchTensorValue &self, PyLocation 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -3508,7 +3508,7 @@ PyAnyTorchTensorValue logical_not_(const PyAnyTorchTensorValue &self, PyLocation
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -3524,7 +3524,7 @@ PyAnyTorchTensorValue logical_or(const PyAnyTorchTensorValue &self, const PyAnyT
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -3540,7 +3540,7 @@ PyAnyTorchTensorValue logical_or_(const PyAnyTorchTensorValue &self, const PyAny
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -3556,7 +3556,7 @@ PyAnyTorchTensorValue logical_xor(const PyAnyTorchTensorValue &self, const PyAny
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -3572,7 +3572,7 @@ PyAnyTorchTensorValue logical_xor_(const PyAnyTorchTensorValue &self, const PyAn
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -3588,7 +3588,7 @@ PyAnyTorchTensorValue logsumexp(const PyAnyTorchTensorValue &self, const PyAnyTo
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, keepdim}, 
@@ -3604,7 +3604,7 @@ PyTorch_BoolValue lt(const PyTorch_FloatValue &a, const PyTorch_IntValue &b, PyL
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -3620,7 +3620,7 @@ PyTorch_BoolValue lt(const PyTorch_FloatValue &a, const PyTorch_FloatValue &b, P
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -3636,7 +3636,7 @@ PyTorch_BoolValue lt(const PyTorch_IntValue &a, const PyTorch_IntValue &b, PyLoc
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -3652,7 +3652,7 @@ PyAnyTorchTensorValue lt(const PyAnyTorchTensorValue &self, const PyAnyTorchScal
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -3668,7 +3668,7 @@ PyAnyTorchTensorValue lt(const PyAnyTorchTensorValue &self, const PyAnyTorchTens
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -3684,7 +3684,7 @@ PyAnyTorchTensorValue lt_(const PyAnyTorchTensorValue &self, const PyAnyTorchSca
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -3700,7 +3700,7 @@ PyAnyTorchTensorValue lt_(const PyAnyTorchTensorValue &self, const PyAnyTorchTen
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -3716,7 +3716,7 @@ PyAnyTorchTensorValue masked_fill(const PyAnyTorchTensorValue &self, const PyAny
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, mask, value}, 
@@ -3732,7 +3732,7 @@ PyAnyTorchTensorValue masked_fill(const PyAnyTorchTensorValue &self, const PyAny
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, mask, value}, 
@@ -3748,7 +3748,7 @@ PyAnyTorchTensorValue masked_fill_(const PyAnyTorchTensorValue &self, const PyAn
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, mask, value}, 
@@ -3764,7 +3764,7 @@ PyAnyTorchTensorValue masked_fill_(const PyAnyTorchTensorValue &self, const PyAn
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, mask, value}, 
@@ -3780,7 +3780,7 @@ PyAnyTorchTensorValue masked_select(const PyAnyTorchTensorValue &self, const PyA
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, mask}, 
@@ -3796,7 +3796,7 @@ PyAnyTorchTensorValue matmul(const PyAnyTorchTensorValue &self, const PyAnyTorch
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -3812,7 +3812,7 @@ std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> max(const PyAnyTorchTen
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, keepdim}, 
@@ -3828,7 +3828,7 @@ PyAnyTorchTensorValue max(const PyAnyTorchTensorValue &self, PyLocation *loc, Py
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -3844,7 +3844,7 @@ PyAnyTorchTensorValue max_pool2d(const PyAnyTorchTensorValue &self, const PyAnyT
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, kernel_size, stride, padding, dilation, ceil_mode}, 
@@ -3860,7 +3860,7 @@ PyAnyTorchTensorValue max_pool2d_with_indices_backward(const PyAnyTorchTensorVal
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {grad_output, self, kernel_size, stride, padding, dilation, ceil_mode, indices}, 
@@ -3876,7 +3876,7 @@ std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> max_pool2d_with_indices
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, kernel_size, stride, padding, dilation, ceil_mode}, 
@@ -3892,7 +3892,7 @@ PyAnyTorchTensorValue maximum(const PyAnyTorchTensorValue &self, const PyAnyTorc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -3908,7 +3908,7 @@ PyAnyTorchTensorValue mean(const PyAnyTorchTensorValue &self, const PyAnyTorchOp
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, keepdim, dtype}, 
@@ -3924,7 +3924,7 @@ PyAnyTorchTensorValue mean(const PyAnyTorchTensorValue &self, const PyAnyTorchOp
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dtype}, 
@@ -3940,7 +3940,7 @@ PyAnyTorchTensorValue minimum(const PyAnyTorchTensorValue &self, const PyAnyTorc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -3956,7 +3956,7 @@ PyAnyTorchTensorValue mish(const PyAnyTorchTensorValue &self, PyLocation *loc, P
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -3972,7 +3972,7 @@ PyAnyTorchTensorValue mm(const PyAnyTorchTensorValue &self, const PyAnyTorchTens
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, mat2}, 
@@ -3988,7 +3988,7 @@ PyAnyTorchTensorValue movedim(const PyAnyTorchTensorValue &self, const PyTorch_I
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, source, destination}, 
@@ -4004,7 +4004,7 @@ PyAnyTorchTensorValue mse_loss_backward(const PyAnyTorchTensorValue &grad_output
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {grad_output, self, target, reduction}, 
@@ -4020,7 +4020,7 @@ PyAnyTorchTensorValue mse_loss(const PyAnyTorchTensorValue &self, const PyAnyTor
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, target, reduction}, 
@@ -4036,7 +4036,7 @@ PyTorch_FloatValue mul(const PyTorch_FloatValue &a, const PyTorch_FloatValue &b,
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -4052,7 +4052,7 @@ PyTorch_IntValue mul(const PyTorch_IntValue &a, const PyTorch_IntValue &b, PyLoc
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -4068,7 +4068,7 @@ PyAnyTorchTensorValue mul(const PyAnyTorchTensorValue &self, const PyAnyTorchSca
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -4084,7 +4084,7 @@ PyAnyTorchTensorValue mul(const PyAnyTorchTensorValue &self, const PyAnyTorchTen
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -4100,7 +4100,7 @@ PyAnyTorchTensorValue mul_(const PyAnyTorchTensorValue &self, const PyAnyTorchSc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -4116,7 +4116,7 @@ PyAnyTorchTensorValue mul_(const PyAnyTorchTensorValue &self, const PyAnyTorchTe
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -4132,7 +4132,7 @@ PyAnyTorchTensorValue mv(const PyAnyTorchTensorValue &self, const PyAnyTorchTens
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, vec}, 
@@ -4148,7 +4148,7 @@ PyAnyTorchTensorValue narrow(const PyAnyTorchTensorValue &self, const PyTorch_In
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, start, length}, 
@@ -4164,7 +4164,7 @@ std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue> 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {grad_out, input, weight, running_mean, running_var, save_mean, save_invstd, train, eps, output_mask}, 
@@ -4180,7 +4180,7 @@ std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue> 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {input, weight, bias, running_mean, running_var, training, momentum, eps}, 
@@ -4196,7 +4196,7 @@ PyAnyTorchTensorValue native_dropout_backward(const PyAnyTorchTensorValue &grad_
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {grad_output, mask, scale}, 
@@ -4212,7 +4212,7 @@ std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> native_dropout(const Py
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {input, p, train}, 
@@ -4228,7 +4228,7 @@ std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue> 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {grad_out, input, mean, rstd, weight, N, C, HxW, group, output_mask}, 
@@ -4244,7 +4244,7 @@ std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue> 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {input, weight, bias, N, C, HxW, group, eps}, 
@@ -4260,7 +4260,7 @@ std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue> 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {grad_out, input, normalized_shape, mean, rstd, weight, bias, output_mask}, 
@@ -4276,7 +4276,7 @@ std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue> 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {input, normalized_shape, weight, bias, eps}, 
@@ -4292,7 +4292,7 @@ PyTorch_BoolValue ne(const PyTorch_BoolValue &a, const PyTorch_BoolValue &b, PyL
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -4308,7 +4308,7 @@ PyTorch_BoolValue ne(const PyTorch_FloatValue &a, const PyTorch_IntValue &b, PyL
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -4324,7 +4324,7 @@ PyTorch_BoolValue ne(const PyAnyTorchListOfTorchIntValue &a, const PyAnyTorchLis
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -4340,7 +4340,7 @@ PyTorch_BoolValue ne(const PyTorch_IntValue &a, const PyTorch_IntValue &b, PyLoc
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -4356,7 +4356,7 @@ PyAnyTorchTensorValue ne(const PyAnyTorchTensorValue &self, const PyAnyTorchScal
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -4372,7 +4372,7 @@ PyAnyTorchTensorValue ne(const PyAnyTorchTensorValue &self, const PyAnyTorchTens
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -4388,7 +4388,7 @@ PyAnyTorchTensorValue ne_(const PyAnyTorchTensorValue &self, const PyAnyTorchSca
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -4404,7 +4404,7 @@ PyAnyTorchTensorValue ne_(const PyAnyTorchTensorValue &self, const PyAnyTorchTen
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -4420,7 +4420,7 @@ PyTorch_FloatValue neg(const PyTorch_FloatValue &a, PyLocation *loc, PyInsertion
   auto _returnTypes = inferReturnTypes(operationName, {a}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a}, 
@@ -4436,7 +4436,7 @@ PyTorch_IntValue neg(const PyTorch_IntValue &a, PyLocation *loc, PyInsertionPoin
   auto _returnTypes = inferReturnTypes(operationName, {a}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a}, 
@@ -4452,7 +4452,7 @@ PyAnyTorchTensorValue neg(const PyAnyTorchTensorValue &self, PyLocation *loc, Py
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -4468,7 +4468,7 @@ PyAnyTorchTensorValue neg_(const PyAnyTorchTensorValue &self, PyLocation *loc, P
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -4484,7 +4484,7 @@ PyAnyTorchTensorValue new_empty(const PyAnyTorchTensorValue &self, const PyAnyTo
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, size, dtype, layout, device, pin_memory}, 
@@ -4500,7 +4500,7 @@ PyAnyTorchTensorValue new_empty_strided(const PyAnyTorchTensorValue &self, const
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, size, stride, dtype, layout, device, pin_memory}, 
@@ -4516,7 +4516,7 @@ PyAnyTorchTensorValue new_ones(const PyAnyTorchTensorValue &self, const PyAnyTor
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, size, dtype, layout, device, pin_memory}, 
@@ -4532,7 +4532,7 @@ PyAnyTorchTensorValue new_zeros(const PyAnyTorchTensorValue &self, const PyAnyTo
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, size, dtype, layout, device, pin_memory}, 
@@ -4548,7 +4548,7 @@ PyAnyTorchTensorValue nll_loss2d_backward(const PyAnyTorchTensorValue &grad_outp
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {grad_output, self, target, weight, reduction, ignore_index, total_weight}, 
@@ -4564,7 +4564,7 @@ std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> nll_loss2d_forward(cons
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, target, weight, reduction, ignore_index}, 
@@ -4580,7 +4580,7 @@ PyAnyTorchTensorValue nll_loss_backward(const PyAnyTorchTensorValue &grad_output
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {grad_output, self, target, weight, reduction, ignore_index, total_weight}, 
@@ -4596,7 +4596,7 @@ std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> nll_loss_forward(const 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, target, weight, reduction, ignore_index}, 
@@ -4612,7 +4612,7 @@ PyAnyTorchTensorValue norm(const PyAnyTorchTensorValue &self, const PyAnyTorchOp
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, p, dim, keepdim}, 
@@ -4628,7 +4628,7 @@ PyTorch_IntValue numel(const PyAnyTorchTensorValue &self, PyLocation *loc, PyIns
   auto _returnTypes = inferReturnTypes(operationName, {self}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -4644,7 +4644,7 @@ PyAnyTorchTensorValue numpy_T(const PyAnyTorchTensorValue &self, PyLocation *loc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -4660,7 +4660,7 @@ PyAnyTorchTensorValue one_hot(const PyAnyTorchTensorValue &self, const PyTorch_I
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, num_classes}, 
@@ -4676,7 +4676,7 @@ PyAnyTorchTensorValue ones_like(const PyAnyTorchTensorValue &self, const PyAnyTo
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dtype, layout, device, pin_memory, memory_format}, 
@@ -4692,7 +4692,7 @@ PyAnyTorchTensorValue ones(const PyAnyTorchListOfTorchIntValue &size, const PyAn
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {size, dtype, layout, device, pin_memory}, 
@@ -4708,7 +4708,7 @@ PyAnyTorchTensorValue pad(const PyAnyTorchTensorValue &self, const PyAnyTorchLis
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, pad__, mode, value}, 
@@ -4724,7 +4724,7 @@ PyAnyTorchTensorValue permute_copy(const PyAnyTorchTensorValue &self, const PyAn
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dims}, 
@@ -4740,7 +4740,7 @@ PyAnyTorchTensorValue permute(const PyAnyTorchTensorValue &self, const PyAnyTorc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dims}, 
@@ -4756,7 +4756,7 @@ PyTorch_FloatValue pow(const PyTorch_IntValue &a, const PyTorch_FloatValue &b, P
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -4772,7 +4772,7 @@ PyAnyTorchTensorValue pow(const PyAnyTorchScalarValue &self, const PyAnyTorchTen
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, exponent}, 
@@ -4788,7 +4788,7 @@ PyAnyTorchTensorValue pow(const PyAnyTorchTensorValue &self, const PyAnyTorchSca
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, exponent}, 
@@ -4804,7 +4804,7 @@ PyAnyTorchTensorValue pow(const PyAnyTorchTensorValue &self, const PyAnyTorchTen
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, exponent}, 
@@ -4820,7 +4820,7 @@ PyAnyTorchTensorValue prelu(const PyAnyTorchTensorValue &self, const PyAnyTorchT
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, weight}, 
@@ -4836,7 +4836,7 @@ PyAnyTorchTensorValue rand_like(const PyAnyTorchTensorValue &self, const PyAnyTo
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dtype, layout, device, pin_memory, memory_format}, 
@@ -4852,7 +4852,7 @@ PyAnyTorchTensorValue randint(const PyTorch_IntValue &low, const PyTorch_IntValu
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {low, high, size, dtype, layout, device, pin_memory}, 
@@ -4868,7 +4868,7 @@ PyAnyTorchTensorValue randint(const PyTorch_IntValue &high, const PyAnyTorchList
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {high, size, dtype, layout, device, pin_memory}, 
@@ -4884,7 +4884,7 @@ PyAnyTorchTensorValue randn(const PyAnyTorchListOfTorchIntValue &size, const PyA
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {size, generator, dtype, layout, device, pin_memory}, 
@@ -4900,7 +4900,7 @@ PyAnyTorchTensorValue randn_like(const PyAnyTorchTensorValue &self, const PyAnyT
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dtype, layout, device, pin_memory, memory_format}, 
@@ -4916,7 +4916,7 @@ PyAnyTorchTensorValue randn(const PyAnyTorchListOfTorchIntValue &size, const PyA
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {size, dtype, layout, device, pin_memory}, 
@@ -4932,7 +4932,7 @@ PyAnyTorchTensorValue real(const PyAnyTorchTensorValue &self, PyLocation *loc, P
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -4948,7 +4948,7 @@ PyAnyTorchTensorValue reciprocal(const PyAnyTorchTensorValue &self, PyLocation *
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -4964,7 +4964,7 @@ PyAnyTorchTensorValue reciprocal_(const PyAnyTorchTensorValue &self, PyLocation 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -4980,7 +4980,7 @@ PyAnyTorchTensorValue relu6(const PyAnyTorchTensorValue &self, PyLocation *loc, 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -4996,7 +4996,7 @@ PyAnyTorchTensorValue relu6_(const PyAnyTorchTensorValue &self, PyLocation *loc,
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -5012,7 +5012,7 @@ PyAnyTorchTensorValue relu(const PyAnyTorchTensorValue &self, PyLocation *loc, P
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -5028,7 +5028,7 @@ PyAnyTorchTensorValue relu_(const PyAnyTorchTensorValue &self, PyLocation *loc, 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -5044,7 +5044,7 @@ PyTorch_IntValue remainder(const PyTorch_IntValue &a, const PyTorch_IntValue &b,
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -5060,7 +5060,7 @@ PyAnyTorchTensorValue remainder(const PyAnyTorchTensorValue &self, const PyAnyTo
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -5076,7 +5076,7 @@ PyAnyTorchTensorValue repeat(const PyAnyTorchTensorValue &self, const PyAnyTorch
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, repeats}, 
@@ -5092,7 +5092,7 @@ PyAnyTorchTensorValue reshape(const PyAnyTorchTensorValue &self, const PyAnyTorc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, shape}, 
@@ -5108,7 +5108,7 @@ PyAnyTorchTensorValue resize_(const PyAnyTorchTensorValue &self, const PyAnyTorc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, size, memory_format}, 
@@ -5124,7 +5124,7 @@ PyAnyTorchTensorValue roll(const PyAnyTorchTensorValue &self, const PyAnyTorchLi
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, shifts, dims}, 
@@ -5140,7 +5140,7 @@ PyAnyTorchTensorValue round(const PyAnyTorchTensorValue &self, PyLocation *loc, 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -5156,7 +5156,7 @@ PyAnyTorchTensorValue round_(const PyAnyTorchTensorValue &self, PyLocation *loc,
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -5172,7 +5172,7 @@ PyAnyTorchTensorValue rsqrt(const PyAnyTorchTensorValue &self, PyLocation *loc, 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -5188,7 +5188,7 @@ PyAnyTorchTensorValue rsqrt_(const PyAnyTorchTensorValue &self, PyLocation *loc,
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -5204,7 +5204,7 @@ PyAnyTorchTensorValue rsub(const PyAnyTorchTensorValue &self, const PyAnyTorchSc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other, alpha}, 
@@ -5220,7 +5220,7 @@ PyAnyTorchTensorValue scalar_tensor(const PyAnyTorchScalarValue &s, const PyAnyT
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {s, dtype, layout, device, pin_memory}, 
@@ -5236,7 +5236,7 @@ PyAnyTorchTensorValue scaled_dot_product_attention(const PyAnyTorchTensorValue &
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {query, key, value, attn_mask, dropout_p, is_causal, scale}, 
@@ -5252,7 +5252,7 @@ PyAnyTorchTensorValue scatter_add(const PyAnyTorchTensorValue &self, const PyTor
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, index, src}, 
@@ -5268,7 +5268,7 @@ PyAnyTorchTensorValue scatter_add_(const PyAnyTorchTensorValue &self, const PyTo
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, index, src}, 
@@ -5284,7 +5284,7 @@ PyAnyTorchTensorValue scatter_reduce(const PyAnyTorchTensorValue &self, const Py
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, index, src, reduce, include_self}, 
@@ -5300,7 +5300,7 @@ PyAnyTorchTensorValue scatter_reduce_(const PyAnyTorchTensorValue &self, const P
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, index, src, reduce, include_self}, 
@@ -5316,7 +5316,7 @@ PyAnyTorchTensorValue scatter(const PyAnyTorchTensorValue &self, const PyTorch_I
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, index, src}, 
@@ -5332,7 +5332,7 @@ PyAnyTorchTensorValue scatter(const PyAnyTorchTensorValue &self, const PyTorch_I
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, index, value}, 
@@ -5348,7 +5348,7 @@ PyAnyTorchTensorValue scatter_(const PyAnyTorchTensorValue &self, const PyTorch_
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, index, src}, 
@@ -5364,7 +5364,7 @@ PyAnyTorchTensorValue scatter_(const PyAnyTorchTensorValue &self, const PyTorch_
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, index, value}, 
@@ -5380,7 +5380,7 @@ PyAnyTorchTensorValue select_copy(const PyAnyTorchTensorValue &self, const PyTor
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, index}, 
@@ -5396,7 +5396,7 @@ PyAnyTorchTensorValue select(const PyAnyTorchTensorValue &self, const PyTorch_In
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, index}, 
@@ -5412,7 +5412,7 @@ PyAnyTorchTensorValue select_scatter(const PyAnyTorchTensorValue &self, const Py
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, src, dim, index}, 
@@ -5428,7 +5428,7 @@ PyAnyTorchTensorValue sigmoid(const PyAnyTorchTensorValue &self, PyLocation *loc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -5444,7 +5444,7 @@ PyAnyTorchTensorValue sigmoid_(const PyAnyTorchTensorValue &self, PyLocation *lo
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -5460,7 +5460,7 @@ PyAnyTorchTensorValue sign(const PyAnyTorchTensorValue &self, PyLocation *loc, P
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -5476,7 +5476,7 @@ PyAnyTorchTensorValue sign_(const PyAnyTorchTensorValue &self, PyLocation *loc, 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -5492,7 +5492,7 @@ PyAnyTorchTensorValue silu(const PyAnyTorchTensorValue &self, PyLocation *loc, P
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -5508,7 +5508,7 @@ PyAnyTorchTensorValue silu_(const PyAnyTorchTensorValue &self, PyLocation *loc, 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -5524,7 +5524,7 @@ PyAnyTorchTensorValue sin(const PyAnyTorchTensorValue &self, PyLocation *loc, Py
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -5540,7 +5540,7 @@ PyAnyTorchTensorValue sin_(const PyAnyTorchTensorValue &self, PyLocation *loc, P
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -5556,7 +5556,7 @@ PyTorch_IntValue size(const PyAnyTorchTensorValue &self, const PyTorch_IntValue 
   auto _returnTypes = inferReturnTypes(operationName, {self, dim}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim}, 
@@ -5572,7 +5572,7 @@ PyAnyTorchListOfTorchIntValue size(const PyAnyTorchTensorValue &self, PyLocation
   std::vector<PyType> _returnTypes = {PyAnyTorchListOfTorchIntType(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -5588,7 +5588,7 @@ PyAnyTorchTensorValue slice_copy(const PyAnyTorchTensorValue &self, const PyTorc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, start, end, step}, 
@@ -5604,7 +5604,7 @@ PyAnyTorchTensorValue slice_scatter(const PyAnyTorchTensorValue &self, const PyA
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, src, dim, start, end, step}, 
@@ -5620,7 +5620,7 @@ PyAnyTorchListValue slice(const PyAnyTorchListValue &l, const PyAnyTorchOptional
   std::vector<PyType> _returnTypes = {PyAnyTorchListType(torchMlirTorchListTypeGetContainedType(mlirValueGetType(l)), loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {l, start, end, step}, 
@@ -5636,7 +5636,7 @@ PyAnyTorchTensorValue slice(const PyAnyTorchTensorValue &self, const PyTorch_Int
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, start, end, step}, 
@@ -5652,7 +5652,7 @@ PyAnyTorchTensorValue softmax(const PyAnyTorchTensorValue &self, const PyTorch_I
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, dtype}, 
@@ -5668,7 +5668,7 @@ PyAnyTorchTensorValue softplus(const PyAnyTorchTensorValue &self, const PyAnyTor
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, beta, threshold__}, 
@@ -5684,7 +5684,7 @@ void sort(const PyAnyTorchListOfTorchIntValue &self, const PyTorch_BoolValue &re
   std::vector<PyType> _returnTypes = {}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, reverse}, 
@@ -5700,7 +5700,7 @@ std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> sort(const PyAnyTorchTe
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, descending}, 
@@ -5716,7 +5716,7 @@ PyAnyTorchListOfTensorValue split(const PyAnyTorchTensorValue &self, const PyTor
   std::vector<PyType> _returnTypes = {PyAnyTorchListOfTensorType(PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, split_size, dim}, 
@@ -5732,7 +5732,7 @@ PyTorch_FloatValue sqrt(const PyTorch_IntValue &a, PyLocation *loc, PyInsertionP
   auto _returnTypes = inferReturnTypes(operationName, {a}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a}, 
@@ -5748,7 +5748,7 @@ PyAnyTorchTensorValue sqrt(const PyAnyTorchTensorValue &self, PyLocation *loc, P
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -5764,7 +5764,7 @@ PyAnyTorchTensorValue sqrt_(const PyAnyTorchTensorValue &self, PyLocation *loc, 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -5780,7 +5780,7 @@ PyAnyTorchTensorValue square(const PyAnyTorchTensorValue &self, PyLocation *loc,
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -5796,7 +5796,7 @@ PyAnyTorchTensorValue square_(const PyAnyTorchTensorValue &self, PyLocation *loc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -5812,7 +5812,7 @@ PyAnyTorchTensorValue squeeze_copy(const PyAnyTorchTensorValue &self, const PyTo
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim}, 
@@ -5828,7 +5828,7 @@ PyAnyTorchTensorValue squeeze_copy(const PyAnyTorchTensorValue &self, PyLocation
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -5844,7 +5844,7 @@ PyAnyTorchTensorValue squeeze(const PyAnyTorchTensorValue &self, const PyTorch_I
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim}, 
@@ -5860,7 +5860,7 @@ PyAnyTorchTensorValue squeeze(const PyAnyTorchTensorValue &self, PyLocation *loc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -5876,7 +5876,7 @@ PyAnyTorchTensorValue stack(const PyAnyTorchListOfTensorValue &tensors, const Py
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {tensors, dim}, 
@@ -5892,7 +5892,7 @@ PyAnyTorchTensorValue std(const PyAnyTorchTensorValue &self, const PyAnyTorchOpt
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, correction, keepdim}, 
@@ -5908,7 +5908,7 @@ PyAnyTorchTensorValue std(const PyAnyTorchTensorValue &self, const PyAnyTorchOpt
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, unbiased, keepdim}, 
@@ -5924,7 +5924,7 @@ PyAnyTorchTensorValue std(const PyAnyTorchTensorValue &self, const PyTorch_BoolV
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, unbiased}, 
@@ -5940,7 +5940,7 @@ PyTorch_FloatValue sub(const PyTorch_FloatValue &a, const PyTorch_FloatValue &b,
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -5956,7 +5956,7 @@ PyTorch_IntValue sub(const PyTorch_IntValue &a, const PyTorch_IntValue &b, PyLoc
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -5972,7 +5972,7 @@ PyAnyTorchTensorValue sub(const PyAnyTorchTensorValue &self, const PyAnyTorchSca
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other, alpha}, 
@@ -5988,7 +5988,7 @@ PyAnyTorchTensorValue sub(const PyAnyTorchTensorValue &self, const PyAnyTorchTen
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other, alpha}, 
@@ -6004,7 +6004,7 @@ PyAnyTorchTensorValue sub_(const PyAnyTorchTensorValue &self, const PyAnyTorchSc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other, alpha}, 
@@ -6020,7 +6020,7 @@ PyAnyTorchTensorValue sub_(const PyAnyTorchTensorValue &self, const PyAnyTorchTe
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other, alpha}, 
@@ -6036,7 +6036,7 @@ PyAnyTorchTensorValue sum(const PyAnyTorchTensorValue &self, const PyAnyTorchOpt
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, keepdim, dtype}, 
@@ -6052,7 +6052,7 @@ PyAnyTorchTensorValue sum(const PyAnyTorchTensorValue &self, const PyAnyTorchOpt
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dtype}, 
@@ -6068,7 +6068,7 @@ PyAnyTorchTensorValue t_copy(const PyAnyTorchTensorValue &self, PyLocation *loc,
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -6084,7 +6084,7 @@ PyAnyTorchTensorValue t(const PyAnyTorchTensorValue &self, PyLocation *loc, PyIn
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -6100,7 +6100,7 @@ PyAnyTorchTensorValue tanh_backward(const PyAnyTorchTensorValue &grad_output, co
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {grad_output, output}, 
@@ -6116,7 +6116,7 @@ PyAnyTorchTensorValue tanh(const PyAnyTorchTensorValue &self, PyLocation *loc, P
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -6132,7 +6132,7 @@ PyAnyTorchTensorValue tanh_(const PyAnyTorchTensorValue &self, PyLocation *loc, 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -6148,7 +6148,7 @@ PyAnyTorchTensorValue tensor(const PyTorch_BoolValue &t, const PyAnyTorchOptiona
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {t, dtype, device, requires_grad}, 
@@ -6164,7 +6164,7 @@ PyAnyTorchTensorValue tensor(const PyTorch_FloatValue &t, const PyAnyTorchOption
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {t, dtype, device, requires_grad}, 
@@ -6180,7 +6180,7 @@ PyAnyTorchTensorValue tensor(const PyTorch_IntValue &t, const PyAnyTorchOptional
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {t, dtype, device, requires_grad}, 
@@ -6196,7 +6196,7 @@ PyAnyTorchTensorValue tensor(const PyAnyTorchListValue &data, const PyAnyTorchOp
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {data, dtype, device, requires_grad}, 
@@ -6212,7 +6212,7 @@ PyAnyTorchTensorValue threshold_backward(const PyAnyTorchTensorValue &grad_outpu
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {grad_output, self, threshold__}, 
@@ -6228,7 +6228,7 @@ PyAnyTorchTensorValue threshold(const PyAnyTorchTensorValue &self, const PyAnyTo
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, threshold__, value}, 
@@ -6244,7 +6244,7 @@ PyAnyTorchTensorValue threshold_(const PyAnyTorchTensorValue &self, const PyAnyT
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, threshold__, value}, 
@@ -6260,7 +6260,7 @@ PyAnyTorchTensorValue to(const PyAnyTorchTensorValue &self, const PyTorch_Device
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, device, dtype, non_blocking, copy, memory_format}, 
@@ -6276,7 +6276,7 @@ PyAnyTorchTensorValue to(const PyAnyTorchTensorValue &self, const PyAnyTorchOpti
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dtype, layout, device, pin_memory, non_blocking, copy, memory_format}, 
@@ -6292,7 +6292,7 @@ PyAnyTorchTensorValue to(const PyAnyTorchTensorValue &self, const PyTorch_IntVal
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dtype, non_blocking, copy, memory_format}, 
@@ -6308,7 +6308,7 @@ PyAnyTorchTensorValue to(const PyAnyTorchTensorValue &self, const PyAnyTorchTens
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other, non_blocking, copy, memory_format}, 
@@ -6324,7 +6324,7 @@ PyAnyTorchTensorValue to(const PyAnyTorchTensorValue &self, const PyAnyTorchOpti
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, device, dtype, non_blocking, copy}, 
@@ -6340,7 +6340,7 @@ std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> topk(const PyAnyTorchTe
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, k, dim, largest, sorted}, 
@@ -6356,7 +6356,7 @@ PyAnyTorchTensorValue transpose_copy(const PyAnyTorchTensorValue &self, const Py
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim0, dim1}, 
@@ -6372,7 +6372,7 @@ PyAnyTorchTensorValue transpose(const PyAnyTorchTensorValue &self, const PyTorch
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim0, dim1}, 
@@ -6388,7 +6388,7 @@ PyAnyTorchTensorValue tril(const PyAnyTorchTensorValue &self, const PyTorch_IntV
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, diagonal}, 
@@ -6404,7 +6404,7 @@ PyAnyTorchTensorValue tril_(const PyAnyTorchTensorValue &self, const PyTorch_Int
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, diagonal}, 
@@ -6420,7 +6420,7 @@ PyAnyTorchTensorValue triu(const PyAnyTorchTensorValue &self, const PyTorch_IntV
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, diagonal}, 
@@ -6436,7 +6436,7 @@ PyAnyTorchTensorValue triu_(const PyAnyTorchTensorValue &self, const PyTorch_Int
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, diagonal}, 
@@ -6452,7 +6452,7 @@ PyAnyTorchTensorValue type_as(const PyAnyTorchTensorValue &self, const PyAnyTorc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -6468,7 +6468,7 @@ PyAnyTorchListOfTensorValue unbind(const PyAnyTorchTensorValue &self, const PyTo
   std::vector<PyType> _returnTypes = {PyAnyTorchListOfTensorType(PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim}, 
@@ -6484,7 +6484,7 @@ PyAnyTorchTensorValue unfold_copy(const PyAnyTorchTensorValue &self, const PyTor
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dimension, size, step}, 
@@ -6500,7 +6500,7 @@ PyAnyTorchTensorValue uniform(const PyAnyTorchTensorValue &self, const PyTorch_F
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, from, to, generator}, 
@@ -6516,7 +6516,7 @@ PyAnyTorchTensorValue uniform_(const PyAnyTorchTensorValue &self, const PyTorch_
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, from, to, generator}, 
@@ -6532,7 +6532,7 @@ PyAnyTorchTensorValue unsqueeze_copy(const PyAnyTorchTensorValue &self, const Py
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim}, 
@@ -6548,7 +6548,7 @@ PyAnyTorchTensorValue unsqueeze(const PyAnyTorchTensorValue &self, const PyTorch
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim}, 
@@ -6564,7 +6564,7 @@ PyAnyTorchTensorValue unsqueeze_(const PyAnyTorchTensorValue &self, const PyTorc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim}, 
@@ -6580,7 +6580,7 @@ PyAnyTorchTensorValue upsample_nearest2d_backward(const PyAnyTorchTensorValue &g
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {grad_output, output_size, input_size, scales_h, scales_w}, 
@@ -6596,7 +6596,7 @@ PyAnyTorchTensorValue upsample_nearest2d(const PyAnyTorchTensorValue &self, cons
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, output_size, scales_h, scales_w}, 
@@ -6612,7 +6612,7 @@ PyAnyTorchTensorValue var(const PyAnyTorchTensorValue &self, const PyAnyTorchOpt
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, correction, keepdim}, 
@@ -6628,7 +6628,7 @@ PyAnyTorchTensorValue var(const PyAnyTorchTensorValue &self, const PyAnyTorchOpt
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, unbiased, keepdim}, 
@@ -6644,7 +6644,7 @@ std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> var_mean(const PyAnyTor
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, correction, keepdim}, 
@@ -6660,7 +6660,7 @@ std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> var_mean(const PyAnyTor
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, unbiased, keepdim}, 
@@ -6676,7 +6676,7 @@ std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> var_mean(const PyAnyTor
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, unbiased}, 
@@ -6692,7 +6692,7 @@ PyAnyTorchTensorValue var(const PyAnyTorchTensorValue &self, const PyTorch_BoolV
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, unbiased}, 
@@ -6708,7 +6708,7 @@ PyAnyTorchTensorValue view_as_complex(const PyAnyTorchTensorValue &self, PyLocat
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -6724,7 +6724,7 @@ PyAnyTorchTensorValue view_copy(const PyAnyTorchTensorValue &self, const PyTorch
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dtype}, 
@@ -6740,7 +6740,7 @@ PyAnyTorchTensorValue view_copy(const PyAnyTorchTensorValue &self, const PyAnyTo
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, size}, 
@@ -6756,7 +6756,7 @@ PyAnyTorchTensorValue view(const PyAnyTorchTensorValue &self, const PyAnyTorchLi
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, size}, 
@@ -6772,7 +6772,7 @@ PyAnyTorchTensorValue where(const PyAnyTorchTensorValue &condition, const PyAnyT
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {condition, self, other}, 
@@ -6788,7 +6788,7 @@ PyAnyTorchTensorValue where(const PyAnyTorchTensorValue &condition, const PyAnyT
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {condition, self, other}, 
@@ -6804,7 +6804,7 @@ PyAnyTorchTensorValue where(const PyAnyTorchTensorValue &condition, const PyAnyT
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {condition, self, other}, 
@@ -6820,7 +6820,7 @@ PyAnyTorchTensorValue where(const PyAnyTorchTensorValue &condition, const PyAnyT
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {condition, self, other}, 
@@ -6836,7 +6836,7 @@ PyAnyTorchTensorValue zero(const PyAnyTorchTensorValue &self, PyLocation *loc, P
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -6852,7 +6852,7 @@ PyAnyTorchTensorValue zero_(const PyAnyTorchTensorValue &self, PyLocation *loc, 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -6868,7 +6868,7 @@ PyAnyTorchTensorValue zeros_like(const PyAnyTorchTensorValue &self, const PyAnyT
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dtype, layout, device, pin_memory, memory_format}, 
@@ -6884,7 +6884,7 @@ PyAnyTorchTensorValue zeros(const PyAnyTorchListOfTorchIntValue &size, const PyA
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {size, dtype, layout, device, pin_memory}, 
@@ -6900,7 +6900,7 @@ PyAnyTorchTensorValue _convolution(const PyAnyTorchTensorValue &input, const PyA
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {input, weight, bias, stride, padding, dilation, transposed, output_padding, groups, benchmark, deterministic, cudnn_enabled}, 
@@ -6916,7 +6916,7 @@ PyAnyTorchTensorValue _convolution(const PyAnyTorchTensorValue &input, const PyA
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {input, weight, bias, stride, padding, dilation, transposed, output_padding, groups, benchmark, deterministic, cudnn_enabled, allow_tf32}, 
@@ -6932,7 +6932,7 @@ std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue, PyAnyTorchTensorValue, 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {weight, indices, offsets, scale_grad_by_freq, mode, sparse, per_sample_weights, include_last_offset, padding_idx}, 
@@ -6948,7 +6948,7 @@ PyAnyTorchTensorValue _index_put_impl(const PyAnyTorchTensorValue &self, const P
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, indices, values, accumulate, unsafe}, 
@@ -6964,7 +6964,7 @@ PyAnyTorchTensorValue _index_put_impl_(const PyAnyTorchTensorValue &self, const 
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, indices, values, accumulate, unsafe}, 
@@ -6980,7 +6980,7 @@ PyAnyTorchTensorValue _log_softmax_backward_data(const PyAnyTorchTensorValue &gr
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {grad_output, output, dim, input_dtype}, 
@@ -6996,7 +6996,7 @@ PyAnyTorchTensorValue _log_softmax(const PyAnyTorchTensorValue &self, const PyTo
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, half_to_float}, 
@@ -7012,7 +7012,7 @@ PyAnyTorchTensorValue _reshape_alias_copy(const PyAnyTorchTensorValue &self, con
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, size, stride}, 
@@ -7028,7 +7028,7 @@ PyAnyTorchTensorValue _reshape_alias(const PyAnyTorchTensorValue &self, const Py
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, size, stride}, 
@@ -7044,7 +7044,7 @@ PyAnyTorchTensorValue _shape_as_tensor(const PyAnyTorchTensorValue &self, PyLoca
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -7060,7 +7060,7 @@ PyAnyTorchTensorValue _softmax_backward_data(const PyAnyTorchTensorValue &grad_o
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {grad_output, output, dim, input_dtype}, 
@@ -7076,7 +7076,7 @@ PyAnyTorchTensorValue _softmax(const PyAnyTorchTensorValue &self, const PyTorch_
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dim, half_to_float}, 
@@ -7092,7 +7092,7 @@ PyAnyTorchTensorValue _to_copy(const PyAnyTorchTensorValue &self, const PyAnyTor
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, dtype, layout, device, pin_memory, non_blocking, memory_format}, 
@@ -7108,7 +7108,7 @@ PyAnyTorchTensorValue _unsafe_view(const PyAnyTorchTensorValue &self, const PyAn
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, size}, 
@@ -7124,7 +7124,7 @@ PyTorch_BoolValue __and__(const PyTorch_BoolValue &a, const PyTorch_BoolValue &b
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -7140,7 +7140,7 @@ PyAnyTorchTensorValue __and__(const PyAnyTorchTensorValue &self, const PyAnyTorc
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self, other}, 
@@ -7156,7 +7156,7 @@ PyTorch_BoolValue __contains__(const PyAnyTorchListOfTorchIntValue &l, const PyT
   auto _returnTypes = inferReturnTypes(operationName, {l, item}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {l, item}, 
@@ -7172,7 +7172,7 @@ PyTorch_BoolValue __contains__(const PyTorch_DictValue &dict, const PyTorch_Stri
   auto _returnTypes = inferReturnTypes(operationName, {dict, key}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {dict, key}, 
@@ -7188,7 +7188,7 @@ PyTorch_IntValue __derive_index(const PyTorch_IntValue &index, const PyTorch_Int
   auto _returnTypes = inferReturnTypes(operationName, {index, start, step}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {index, start, step}, 
@@ -7204,7 +7204,7 @@ PyTorch_BoolValue __not__(const PyTorch_BoolValue &self, PyLocation *loc, PyInse
   auto _returnTypes = inferReturnTypes(operationName, {self}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -7220,7 +7220,7 @@ PyTorch_IntValue __range_length(const PyTorch_IntValue &lo, const PyTorch_IntVal
   auto _returnTypes = inferReturnTypes(operationName, {lo, hi, step}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {lo, hi, step}, 
@@ -7236,7 +7236,7 @@ PyTorch_DeviceValue device(const PyAnyTorchTensorValue &a, PyLocation *loc, PyIn
   auto _returnTypes = inferReturnTypes(operationName, {a}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a}, 
@@ -7252,7 +7252,7 @@ PyTorch_IntValue dtype(const PyAnyTorchTensorValue &a, PyLocation *loc, PyInsert
   auto _returnTypes = inferReturnTypes(operationName, {a}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a}, 
@@ -7268,7 +7268,7 @@ PyTorch_IntValue layout(const PyAnyTorchTensorValue &a, PyLocation *loc, PyInser
   auto _returnTypes = inferReturnTypes(operationName, {a}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a}, 
@@ -7284,7 +7284,7 @@ PyTorch_IntValue max(const PyTorch_IntValue &a, const PyTorch_IntValue &b, PyLoc
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -7300,7 +7300,7 @@ PyTorch_IntValue max(const PyAnyTorchListOfTorchIntValue &self, PyLocation *loc,
   auto _returnTypes = inferReturnTypes(operationName, {self}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -7316,7 +7316,7 @@ PyTorch_IntValue min(const PyTorch_IntValue &a, const PyTorch_IntValue &b, PyLoc
   auto _returnTypes = inferReturnTypes(operationName, {a, b}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, b}, 
@@ -7332,7 +7332,7 @@ PyTorch_IntValue min(const PyAnyTorchListOfTorchIntValue &self, PyLocation *loc,
   auto _returnTypes = inferReturnTypes(operationName, {self}, loc->getContext().get(), loc); 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {self}, 
@@ -7348,7 +7348,7 @@ PyAnyTorchTensorValue NumToTensor(const PyAnyTorchScalarValue &a, PyLocation *lo
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a}, 
@@ -7364,7 +7364,7 @@ void RaiseException(const PyTorch_StringValue &msg, const PyAnyTorchOptionalStri
   std::vector<PyType> _returnTypes = {}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {msg, cls}, 
@@ -7380,7 +7380,7 @@ PyAnyTorchTensorValue convert_element_type(const PyAnyTorchTensorValue &a, const
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, dtype}, 
@@ -7396,7 +7396,7 @@ PyAnyTorchTensorValue squeeze(const PyAnyTorchTensorValue &a, const PyAnyTorchLi
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a, dimensions}, 
@@ -7412,7 +7412,7 @@ PyAnyTorchTensorValue var(const PyAnyTorchTensorValue &inp, const PyAnyTorchOpti
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {inp, dims, correction, output_dtype}, 
@@ -7428,7 +7428,7 @@ PyAnyTorchTensorValue view_of(const PyAnyTorchTensorValue &a, PyLocation *loc, P
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {a}, 
@@ -7444,7 +7444,7 @@ PyAnyTorchTensorValue linear(const PyAnyTorchTensorValue &X, const PyTorch_Linea
   std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
   std::vector<std::reference_wrapper<const PyType>> returnTypes; 
   for (const auto& returnType : _returnTypes) 
-    returnTypes.emplace_back(returnType);
+    returnTypes.push_back(returnType);
   PyOperationRef opRef = createOperation(operationName,
             returnTypes,
             {X, W_prepack, Y_scale_i, Y_zero_point_i}, 
