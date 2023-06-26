@@ -262,11 +262,6 @@ public:
             mapListToPyTorchListValue(list, DefaultingPyMlirContext::resolve()),
             list){};
 
-  PyAnyTorchListValue(const py::tuple &list)
-      : PyAnyTorchListValue(
-            mapListToPyTorchListValue(list, DefaultingPyMlirContext::resolve()),
-            list){};
-
   static void bindDerived(ClassTy &c);
 };
 
