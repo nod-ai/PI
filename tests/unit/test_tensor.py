@@ -70,7 +70,7 @@ class TestOverloadCast:
                     dedent(
                         """\
                         argmax(): incompatible function arguments. The following argument types are supported:
-                            1. (self: pi.mlir._mlir_libs._pi_mlir.Tensor, dim: pi.mlir._mlir_libs._pi_mlir.AnyTorchOptionalIntValue = None, keepdim: pi.mlir._mlir_libs._pi_mlir.Torch_BoolValue = False, *, loc: mlir.ir.Location = None, ip: object = None) -> pi.mlir._mlir_libs._pi_mlir.Tensor
+                            1. (self: pi.mlir._mlir_libs._pi_mlir.Tensor, dim: pi.mlir._mlir_libs._pi_mlir.AnyTorchOptionalIntValue = None, keepdim: pi.mlir._mlir_libs._pi_mlir.Torch_BoolValue = False, *, loc: mlir.ir.Location = None, ip: mlir.ir.InsertionPoint = None) -> pi.mlir._mlir_libs._pi_mlir.Tensor
 
                         Invoked with: <pi.mlir._mlir_libs._pi_mlir.Tensor object at %DONT_CARE>, <pi.mlir._mlir_libs._pi_mlir.Torch_BoolValue object at %DONT_CARE>
                         """

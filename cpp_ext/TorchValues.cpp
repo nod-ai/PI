@@ -2,10 +2,13 @@
 // Created by maksim on 5/13/23.
 //
 #include "IRModule.h"
+#include "PybindUtils.h"
+
 #include "mlir-c/BuiltinAttributes.h"
 #include "mlir-c/BuiltinTypes.h"
 #include "mlir-c/IR.h"
 #include "mlir-c/Interfaces.h"
+#include "mlir/Bindings/Python/PybindAdaptors.h"
 
 #include "TorchDType.h"
 #include "TorchOps.h"
@@ -192,9 +195,16 @@ MlirStringRef toMlirStringRef(const std::string &s) {
   return mlirStringRefCreate(s.data(), s.size());
 }
 
-PyInsertionPoint *getInsertionPoint(const py::object &maybeIp) {
-  return maybeIp.is_none() ? PyThreadContextEntry::getDefaultInsertionPoint()
-                           : py::cast<PyInsertionPoint *>(maybeIp);
+PyInsertionPoint &DefaultingPyInsertionPoint::resolve() {
+  auto *ip = PyThreadContextEntry::getDefaultInsertionPoint();
+  if (!ip) {
+    throw std::runtime_error(
+        "An MLIR function requires a InsertionPoint but none was provided in "
+        "the "
+        "call or from the surrounding environment. Either pass to the function "
+        "with a 'ip=' argument or establish a default using 'with ip:'");
+  }
+  return *ip;
 }
 
 PyOperationRef createOperation(
@@ -539,7 +549,7 @@ void PyTorch_IntValue::bindDerived(ClassTy &c) {
       [](const PyTorch_IntValue &self,
          const PyTorch_IntValue &other) -> PyTorch_IntValue {
         auto loc = getValueLocation(self);
-        return add(self, other, &loc, getInsertionPoint());
+        return add(self, other, &loc, &DefaultingPyInsertionPoint::resolve());
       },
       "other"_a);
   c.def(
@@ -547,7 +557,7 @@ void PyTorch_IntValue::bindDerived(ClassTy &c) {
       [](const PyTorch_IntValue &self,
          const PyTorch_IntValue &other) -> PyTorch_IntValue {
         auto loc = getValueLocation(self);
-        return sub(self, other, &loc, getInsertionPoint());
+        return sub(self, other, &loc, &DefaultingPyInsertionPoint::resolve());
       },
       "other"_a);
   c.def(
@@ -555,7 +565,7 @@ void PyTorch_IntValue::bindDerived(ClassTy &c) {
       [](const PyTorch_IntValue &self,
          const PyTorch_IntValue &other) -> PyTorch_IntValue {
         auto loc = getValueLocation(self);
-        return mul(self, other, &loc, getInsertionPoint());
+        return mul(self, other, &loc, &DefaultingPyInsertionPoint::resolve());
       },
       "other"_a);
   c.def(
@@ -563,7 +573,7 @@ void PyTorch_IntValue::bindDerived(ClassTy &c) {
       [](const PyTorch_IntValue &self,
          const PyTorch_IntValue &other) -> PyTorch_FloatValue {
         auto loc = getValueLocation(self);
-        return div(self, other, &loc, getInsertionPoint());
+        return div(self, other, &loc, &DefaultingPyInsertionPoint::resolve());
       },
       "other"_a);
   c.def(
@@ -571,7 +581,8 @@ void PyTorch_IntValue::bindDerived(ClassTy &c) {
       [](const PyTorch_IntValue &self,
          const PyTorch_IntValue &other) -> PyTorch_IntValue {
         auto loc = getValueLocation(self);
-        return floordiv(self, other, &loc, getInsertionPoint());
+        return floordiv(self, other, &loc,
+                        &DefaultingPyInsertionPoint::resolve());
       },
       "other"_a);
   py::implicitly_convertible<int, PyTorch_IntValue>();
@@ -598,7 +609,7 @@ void PyTorch_FloatValue::bindDerived(ClassTy &c) {
       [](const PyTorch_FloatValue &self,
          const PyTorch_FloatValue &other) -> PyTorch_FloatValue {
         auto loc = getValueLocation(self);
-        return sub(self, other, &loc, getInsertionPoint());
+        return sub(self, other, &loc, &DefaultingPyInsertionPoint::resolve());
       },
       "other"_a);
   c.def(
@@ -606,7 +617,7 @@ void PyTorch_FloatValue::bindDerived(ClassTy &c) {
       [](const PyTorch_FloatValue &self,
          const PyTorch_FloatValue &other) -> PyTorch_FloatValue {
         auto loc = getValueLocation(self);
-        return mul(self, other, &loc, getInsertionPoint());
+        return mul(self, other, &loc, &DefaultingPyInsertionPoint::resolve());
       },
       "other"_a);
   c.def(
@@ -614,7 +625,7 @@ void PyTorch_FloatValue::bindDerived(ClassTy &c) {
       [](const PyTorch_FloatValue &self,
          const PyTorch_FloatValue &other) -> PyTorch_FloatValue {
         auto loc = getValueLocation(self);
-        return div(self, other, &loc, getInsertionPoint());
+        return div(self, other, &loc, &DefaultingPyInsertionPoint::resolve());
       },
       "other"_a);
   py::implicitly_convertible<float, PyTorch_FloatValue>();
