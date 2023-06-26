@@ -238,7 +238,7 @@ def generate_torch_ops_impls(cpp_ext_dir, torch_mlir_ods_json):
                 f"""\
                       std::vector<std::reference_wrapper<const PyType>> returnTypes; 
                       for (const auto& returnType : _returnTypes) 
-                        returnTypes.emplace_back(returnType);
+                        returnTypes.push_back(returnType);
                       PyOperationRef opRef = createOperation(operationName,
                                 returnTypes,
                                 {{{joined_params}}}, 
