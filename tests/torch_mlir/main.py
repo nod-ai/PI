@@ -29,10 +29,10 @@ from infra.path_hacks import (
     patch_meta_path,
 )
 from pi.mlir.compile import lower_pi_to_linalg
-import pi
+from pi import swap_pi_int_float
 
 ONLY = {
-    # "ChunkListUnpackUneven_Module_basic"
+    # "AtenIntTensorByteDtypeModule_basic"
 }
 
 
@@ -130,6 +130,8 @@ def run_pi_tests(torch_mlir_module_strs, sequential=False):
     tests = sorted(GLOBAL_TEST_REGISTRY.values(), key=lambda t: t.unique_name)
     assert tests, "failed to load tests"
 
+    import pi
+
     pi.nn.Module.train = lambda *args, **kwargs: None
     pi_config = PIConfig()
     num_processes = min(int(cpu_count() * 1.1), len(tests))
@@ -149,62 +151,63 @@ def run_pi_tests(torch_mlir_module_strs, sequential=False):
         )
 
     def compile_and_run_test(test):
-        if test.unique_name in CRASHING | COMMON_TORCH_MLIR_LOWERING_XFAILS or (
-            ONLY and test.unique_name not in ONLY
-        ):
-            SKIPs.append(test.unique_name)
-            return
-        logger.info(f"running {test.unique_name}")
+        with swap_pi_int_float():
+            if test.unique_name in CRASHING | COMMON_TORCH_MLIR_LOWERING_XFAILS or (
+                ONLY and test.unique_name not in ONLY
+            ):
+                SKIPs.append(test.unique_name)
+                return
+            logger.info(f"running {test.unique_name}")
 
-        (
-            torch_linalg_module,
-            torch_dialect_module,
-            torch_dialect_module_raw,
-        ) = torch_mlir_module_strs[test.unique_name]
+            (
+                torch_linalg_module,
+                torch_dialect_module,
+                torch_dialect_module_raw,
+            ) = torch_mlir_module_strs[test.unique_name]
 
-        try:
-            pi_mlir_module = pi_config.compile(test)
-        except Exception as e:
-            Exception_FAILs.append((test.unique_name, str(e)))
-            return
+            try:
+                pi_mlir_module = pi_config.compile(test)
+            except Exception as e:
+                Exception_FAILs.append((test.unique_name, str(e)))
+                return
 
-        pi_torch_dialect_module_str = str(
-            pi_mlir_module.operation.get_asm(large_elements_limit=10)
-        )
-        try:
-            pi_linalg_module_str = str(
-                lower_pi_to_linalg(
-                    pi_mlir_module, enable_ir_printing=False
-                ).operation.get_asm(large_elements_limit=10)
+            pi_torch_dialect_module_str = str(
+                pi_mlir_module.operation.get_asm(large_elements_limit=10)
             )
-        except Exception as e:
-            lower_to_linalg_FAILs.append(
-                (test.unique_name, str(e), pi_torch_dialect_module_str)
-            )
-            return
+            try:
+                pi_linalg_module_str = str(
+                    lower_pi_to_linalg(
+                        pi_mlir_module, enable_ir_printing=False
+                    ).operation.get_asm(large_elements_limit=10)
+                )
+            except Exception as e:
+                lower_to_linalg_FAILs.append(
+                    (test.unique_name, str(e), pi_torch_dialect_module_str)
+                )
+                return
 
-        sorted_diff = list(
-            difflib.unified_diff(
-                sorted(str(pi_linalg_module_str).splitlines()),
-                sorted(str(torch_linalg_module).splitlines()),
-                lineterm="",
-            )
-        )
-
-        if len(sorted_diff) and test.unique_name in PI_XFAIL_SET:
-            XFAILs.append(test.unique_name)
-        elif len(sorted_diff):
-            diff = list(
+            sorted_diff = list(
                 difflib.unified_diff(
-                    str(pi_linalg_module_str).splitlines(),
-                    str(torch_linalg_module).splitlines(),
+                    sorted(str(pi_linalg_module_str).splitlines()),
+                    sorted(str(torch_linalg_module).splitlines()),
                     lineterm="",
                 )
             )
-            ir_FAILs.append((test.unique_name, diff))
-        else:
-            logger.info("PASS")
-            return 1
+
+            if len(sorted_diff) and test.unique_name in PI_XFAIL_SET:
+                XFAILs.append(test.unique_name)
+            elif len(sorted_diff):
+                diff = list(
+                    difflib.unified_diff(
+                        str(pi_linalg_module_str).splitlines(),
+                        str(torch_linalg_module).splitlines(),
+                        lineterm="",
+                    )
+                )
+                ir_FAILs.append((test.unique_name, diff))
+            else:
+                logger.info("PASS")
+                return 1
 
     if sequential:
         handles = map(compile_and_run_test, tests)
