@@ -504,6 +504,7 @@ public:
 };
 
 void populateTorchMLIRValues(py::module &m);
+void populateTorchConstants(py::module &m);
 
 } // namespace mlir::torch
 
