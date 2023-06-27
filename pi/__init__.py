@@ -3,6 +3,9 @@ import contextlib
 from .mlir import Tensor
 
 # noinspection PyUnresolvedReferences
+from .mlir._mlir_libs._pi_mlir.constants import *
+
+# noinspection PyUnresolvedReferences
 from .mlir._mlir_libs._pi_mlir import ops
 
 

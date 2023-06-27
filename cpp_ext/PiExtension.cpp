@@ -22,4 +22,6 @@ PYBIND11_MODULE(_pi_mlir, m) {
   populateTorchDType(m);
   auto ops = m.def_submodule("ops");
   populateTorchMLIROps(ops);
+  auto constants = m.def_submodule("constants");
+  populateTorchConstants(constants);
 }

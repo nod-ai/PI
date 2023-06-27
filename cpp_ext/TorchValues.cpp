@@ -750,4 +750,6 @@ void populateTorchMLIRValues(py::module &m) {
   PyAnyTorchScalarValue::bind(m);
 }
 
+void populateTorchConstants(py::module &m) { m.attr("nan") = std::nanf(""); }
+
 } // namespace mlir::torch
