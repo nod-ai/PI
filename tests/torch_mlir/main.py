@@ -32,7 +32,7 @@ from pi.mlir.compile import lower_pi_to_linalg
 import pi
 
 ONLY = {
-    # "Add_Module_basic"
+    # "ChunkListUnpackUneven_Module_basic"
 }
 
 
@@ -221,7 +221,7 @@ def run_pi_tests(torch_mlir_module_strs, sequential=False):
         print(test_name, "\n", e, "\n", pi_torch_dialect_module_str, "\n")
 
     print(
-        "\n", "".join("*" * 80), "\n", "lower_to_linalg_FAILs", "\n", "".join("*" * 80)
+        "\n", "".join("*" * 80), "\n", "ir_FAILs", "\n", "".join("*" * 80)
     )
     for test_name, diff in ir_FAILs:
         print(test_name, "\n", "\n".join(diff), "\n")

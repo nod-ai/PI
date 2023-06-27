@@ -242,6 +242,35 @@ static inline py::list mapListElementsToPyType(py::list list) {
 
 py::object mapListToPyTorchListValue(const py::list &list, PyMlirContext &ctx);
 
+MlirStringRef toMlirStringRef(const std::string &s);
+
+// putting here prevents "function with deduced return type cannot be used
+// before it is defined"
+template <typename T> auto getAttributeValue(const T &value) {
+  auto owner = getOwner(value);
+  if (!unwrap(mlirIdentifierStr(mlirOperationGetName(owner)))
+           .starts_with("torch.constant"))
+    throw py::value_error("Torch Value not constant; can't get value.");
+  MlirAttribute attr =
+      mlirOperationGetAttributeByName(owner, toMlirStringRef("value"));
+  if constexpr (std::is_same<T, PyTorch_BoolValue>::value)
+    return mlirBoolAttrGetValue(attr);
+  else if constexpr (std::is_same<T, PyTorch_FloatValue>::value)
+    return mlirFloatAttrGetValueDouble(attr);
+  else if constexpr (std::is_same<T, PyTorch_IntValue>::value)
+    return mlirIntegerAttrGetValueInt(attr);
+  else if constexpr (std::is_same<T, PyTorch_StringValue>::value ||
+                     std::is_same<T, PyTorch_DeviceValue>::value)
+    return unwrap(mlirStringAttrGetValue(attr)).str();
+  else
+    throw std::runtime_error("unknown element type");
+}
+
+MlirOperation getOwner(const PyValue &value);
+
+template <typename T, typename U>
+std::vector<T> makeListIter(U &self, PyLocation *loc, PyInsertionPoint *ip);
+
 class PyAnyTorchListValue : public PyConcreteValue<PyAnyTorchListValue> {
 public:
   static constexpr IsAFunctionTy isaFunction = isAAnyTorchListValue;
@@ -251,7 +280,9 @@ public:
   PyAnyTorchListValue(const py::object &type, const py::list &list)
       : PyAnyTorchListValue(makePyAnyTorchListValue(
             type, list, &DefaultingPyLocation::resolve(),
-            &DefaultingPyInsertionPoint::resolve())){};
+            &DefaultingPyInsertionPoint::resolve())) {
+    length = list.size();
+  };
 
   template <class T>
   PyAnyTorchListValue(py::object type, const py::list &list, tag<T>)
@@ -263,6 +294,7 @@ public:
             list){};
 
   static void bindDerived(ClassTy &c);
+  std::optional<int> length;
 };
 
 #define DECLARE_SCALAR_VALUE(TORCHTYPE)                                        \
@@ -299,7 +331,9 @@ DECLARE_SCALAR_VALUE(Number)
                       py::cast(PyAnyTorchListOfTorch##TORCHTYPE##Type(         \
                           DefaultingPyMlirContext::resolve().getRef().get())), \
                       l, tag<PyTorch_##TORCHTYPE##Value>{}))                   \
-                  .cast<PyAnyTorchListOfTorch##TORCHTYPE##Value>()){};         \
+                  .cast<PyAnyTorchListOfTorch##TORCHTYPE##Value>()) {          \
+      length = l.size();                                                       \
+    };                                                                         \
                                                                                \
     static void bindDerived(ClassTy &c);                                       \
   };

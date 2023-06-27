@@ -276,6 +276,18 @@ void PyAnyTorchTensorValue::bindDerived(ClassTy &c) {
       "memory_format"_a = py::none(), py::kw_only(), "loc"_a = py::none(),
       "ip"_a = py::none());
 
+  // chunk(self, chunks: _int, dim: _int=0) -> List[Tensor]
+  // aten::chunk : (Tensor, int, int) -> (Tensor[])
+  c.def(
+      "chunk",
+      [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &chunks,
+         const PyTorch_IntValue &dim, DefaultingPyLocation &loc,
+         const DefaultingPyInsertionPoint &ip) -> PyAnyTorchListOfTensorValue {
+        return chunk(self, chunks, dim, loc.get(), ip.get());
+      },
+      "chunks"_a, "dim"_a = 0, py::kw_only(), "loc"_a = py::none(),
+      "ip"_a = py::none());
+
 #include "TorchTensor.pybinds.cpp"
 }
 
@@ -296,6 +308,12 @@ void PyAnyTorchListOfTensorValue::bindDerived(ClassTy &c) {
   c.def(py::init<py::tuple>(), "value"_a);
   py::implicitly_convertible<py::list, PyAnyTorchListOfTensorValue>();
   py::implicitly_convertible<py::tuple, PyAnyTorchListOfTensorValue>();
+  c.def("__len__", [](const PyAnyTorchListValue &self) { return self.length; });
+  c.def("__iter__", [](const PyAnyTorchListOfTensorValue &self) {
+    return py::iter(py::cast(makeListIter<PyAnyTorchTensorValue>(
+        self, &DefaultingPyLocation::resolve(),
+        &DefaultingPyInsertionPoint::resolve())));
+  });
 }
 
 PyAnyTorchListOfOptionalTensorValue

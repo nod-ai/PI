@@ -138,9 +138,13 @@ public:
   static constexpr const char *pyClassName = "AnyTorchListOfTensorValue";
   using PyConcreteValue::PyConcreteValue;
   PyAnyTorchListOfTensorValue(const py::list &l)
-      : PyAnyTorchListOfTensorValue(mapListToTorchListOfTensorValue(l)){};
+      : PyAnyTorchListOfTensorValue(mapListToTorchListOfTensorValue(l)) {
+    length = l.size();
+  };
   PyAnyTorchListOfTensorValue(const py::tuple &l)
-      : PyAnyTorchListOfTensorValue(mapListToTorchListOfTensorValue(l)){};
+      : PyAnyTorchListOfTensorValue(mapListToTorchListOfTensorValue(l)) {
+    length = l.size();
+  };
   static void bindDerived(ClassTy &c);
 };
 

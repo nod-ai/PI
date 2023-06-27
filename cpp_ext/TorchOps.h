@@ -64,6 +64,12 @@ PyAnyTorchScalarValue sub(const PyAnyTorchScalarValue &a,
 //                           const PyAnyTorchListOfTorchIntValue &size,
 //                           PyLocation *loc, PyInsertionPoint *ip);
 
+// aten::chunk : (Tensor, int, int) -> (Tensor[])
+PyAnyTorchListOfTensorValue chunk(const PyAnyTorchTensorValue &self,
+                                  const PyTorch_IntValue &chunks,
+                                  const PyTorch_IntValue &dim, PyLocation *loc,
+                                  PyInsertionPoint *ip);
+
 void populateTorchMLIROps(py::module &m);
 
 } // namespace mlir::torch

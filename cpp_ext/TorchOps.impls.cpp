@@ -990,22 +990,6 @@ PyAnyTorchTensorValue ceil_(const PyAnyTorchTensorValue &self, PyLocation *loc, 
   MlirOperation operation = opRef->get();
   return {opRef, mlirOperationGetResult(operation, 0)};
 }
-// aten::chunk : (Tensor, int, int) -> (Tensor[])
-PyAnyTorchListOfTensorValue chunk(const PyAnyTorchTensorValue &self, const PyTorch_IntValue &chunks, const PyTorch_IntValue &dim, PyLocation *loc, PyInsertionPoint *ip) {
-  std::string operationName = "torch.aten.chunk";
-  std::vector<PyType> _returnTypes = {PyAnyTorchListOfTensorType(PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), loc->getContext().get())}; 
-  std::vector<std::reference_wrapper<const PyType>> returnTypes; 
-  for (const auto& returnType : _returnTypes) 
-    returnTypes.push_back(returnType);
-  PyOperationRef opRef = createOperation(operationName,
-            returnTypes,
-            {self, chunks, dim}, 
-            /*attributes=*/{}, 
-            loc, 
-            ip);
-  MlirOperation operation = opRef->get();
-  return {opRef, mlirOperationGetResult(operation, 0)};
-}
 // aten::clamp_max : (Tensor, Scalar) -> (Tensor)
 PyAnyTorchTensorValue clamp_max(const PyAnyTorchTensorValue &self, const PyAnyTorchScalarValue &max, PyLocation *loc, PyInsertionPoint *ip) {
   std::string operationName = "torch.aten.clamp_max";

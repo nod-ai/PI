@@ -90,6 +90,32 @@ PyAnyTorchTensorValue mean(const PyAnyTorchTensorValue &self,
   return {opRef, mlirOperationGetResult(opRef->get(), 0)};
 }
 
+// aten::chunk : (Tensor, int, int) -> (Tensor[])
+PyAnyTorchListOfTensorValue chunk(const PyAnyTorchTensorValue &self,
+                                  const PyTorch_IntValue &chunks,
+                                  const PyTorch_IntValue &dim, PyLocation *loc,
+                                  PyInsertionPoint *ip) {
+  std::string operationName = "torch.aten.chunk";
+  std::vector<PyType> _returnTypes = {PyAnyTorchListOfTensorType(
+      PyAnyTorchTensorType::getWithLeastStaticInformation(
+          loc->getContext().get()),
+      loc->getContext().get())};
+  std::vector<std::reference_wrapper<const PyType>> returnTypes;
+  for (const auto &returnType : _returnTypes)
+    returnTypes.push_back(returnType);
+  PyOperationRef opRef =
+      createOperation(operationName, returnTypes, {self, chunks, dim},
+                      /*attributes=*/{}, loc, ip);
+  MlirOperation operation = opRef->get();
+  auto res = mlirOperationGetResult(operation, 0);
+  auto list = py::cast(res).cast<PyAnyTorchListOfTensorValue>();
+  auto owner = getOwner(chunks);
+  if (unwrap(mlirIdentifierStr(mlirOperationGetName(owner)))
+          .starts_with("torch.constant"))
+    list.length = getAttributeValue(chunks);
+  return list;
+}
+
 void populateTorchMLIROps(py::module &m) {
   py::register_exception_translator([](std::exception_ptr p) {
     try {
@@ -195,6 +221,17 @@ void populateTorchMLIROps(py::module &m) {
       },
       "self"_a, "ord"_a = 2, "dim"_a = py::none(), "keepdim"_a = false,
       "dtype"_a = py::none(), py::kw_only(), "loc"_a = py::none(),
+      "ip"_a = py::none());
+
+  // aten::chunk : (Tensor, int, int) -> (Tensor[])
+  m.def(
+      "chunk",
+      [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &chunks,
+         const PyTorch_IntValue &dim, DefaultingPyLocation &loc,
+         const DefaultingPyInsertionPoint &ip) -> PyAnyTorchListOfTensorValue {
+        return chunk(self, chunks, dim, loc.get(), ip.get());
+      },
+      "self"_a, "chunks"_a, "dim"_a = 0, py::kw_only(), "loc"_a = py::none(),
       "ip"_a = py::none());
 }
 

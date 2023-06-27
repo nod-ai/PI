@@ -53,13 +53,14 @@ UNIMPLEMENTED_TYPES = {
     "AnyTorchType",
     "anonymous_430",
 }
-SKIP_OPS = {"Torch_PrimsSqrtOp"}
+SKIP_OPS = {"Torch_PrimsSqrtOp", "Torch_AtenChunkOp"}
 SKIP_TENSOR_BINDS = {
     "@overload view(self, dtype: _dtype) -> Tensor",
     "@overload view(self, size: Sequence[Union[_int, SymInt]]) -> Tensor",
     "@overload view(self, *size: _int) -> Tensor",
     "__truediv__(self, other: Any) -> Tensor",
     "__rtruediv__(self, other: Any) -> Tensor",
+    "chunk(self, chunks: _int, dim: _int=0) -> List[Tensor]",
 }
 
 TORCH_OPS_IMPL_CPP = "TorchOps.impls.cpp"

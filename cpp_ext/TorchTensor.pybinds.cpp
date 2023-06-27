@@ -651,10 +651,6 @@ c.def("cholesky_inverse", [](PyAnyTorchTensorValue& self, py::args args, py::kwa
 // cholesky_solve(self, input2: Tensor, upper: _bool=False) -> Tensor
 c.def("cholesky_solve", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("NotImplementedError: cholesky_solve with signature cholesky_solve(self, input2: Tensor, upper: _bool=False) -> Tensor"); });
 
-// chunk(self, chunks: _int, dim: _int=0) -> List[Tensor]
-// aten::chunk : (Tensor, int, int) -> (Tensor[])
-c.def("chunk", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &chunks, const PyTorch_IntValue &dim, DefaultingPyLocation &loc, const DefaultingPyInsertionPoint &ip) -> PyAnyTorchListOfTensorValue { return chunk(self, chunks, dim, loc.get(), ip.get()); }, "chunks"_a, "dim"_a = 0, py::kw_only(), "loc"_a = py::none(), "ip"_a = py::none());
-
 // @overload clamp(self, min: Optional[Tensor]=None, max: Optional[Tensor]=None) -> Tensor
 // aten::clamp : (Tensor, Scalar?, Scalar?) -> (Tensor)
 c.def("clamp", [](const PyAnyTorchTensorValue &self, const PyAnyTorchOptionalScalarValue &min, const PyAnyTorchOptionalScalarValue &max, DefaultingPyLocation &loc, const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue { return clamp(self, min, max, loc.get(), ip.get()); }, "min"_a = py::none(), "max"_a = py::none(), py::kw_only(), "loc"_a = py::none(), "ip"_a = py::none());

@@ -7,8 +7,8 @@ from pi.mlir import (
     # AnyTorchDictKeyValue,
     AnyTorchListOfOptionalTensorValue,
     AnyTorchOptionalListOfTorchIntValue,
-    # AnyTorchTensorValue,
     AnyTorchListOfTensorType,
+    AnyTorchListOfTensorValue,
     AnyTorchListOfTorchBoolValue,
     AnyTorchListOfTorchIntValue,
     AnyTorchListOfTorchFloatValue,
@@ -568,6 +568,24 @@ class TestTorchValues:
                 r.owner,
             )
 
+            l = AnyTorchListOfTensorValue([t, t, t])
+            tt = list(iter(l))
+            assert tt[0].get_name().split("#")[-1] == "0"
+            assert tt[1].get_name().split("#")[-1] == "1"
+            assert tt[2].get_name().split("#")[-1] == "2"
+            check_correct(
+                "Tensor(%3:3 = torch.prim.ListUnpack %2 : !torch.list<tensor<[2,2],f64>> -> !torch.tensor<[2,2],f64>, !torch.tensor<[2,2],f64>, !torch.tensor<[2,2],f64>)",
+                tt[0],
+            )
+            check_correct(
+                "Tensor(%3:3 = torch.prim.ListUnpack %2 : !torch.list<tensor<[2,2],f64>> -> !torch.tensor<[2,2],f64>, !torch.tensor<[2,2],f64>, !torch.tensor<[2,2],f64>)",
+                tt[1],
+            )
+            check_correct(
+                "Tensor(%3:3 = torch.prim.ListUnpack %2 : !torch.list<tensor<[2,2],f64>> -> !torch.tensor<[2,2],f64>, !torch.tensor<[2,2],f64>, !torch.tensor<[2,2],f64>)",
+                tt[2],
+            )
+
     def test_ListIndexing(self):
         with mlir_mod_ctx() as module:
             l = AnyTorchListOfTorchIntValue([1, 2, 3])
@@ -575,6 +593,22 @@ class TestTorchValues:
             check_correct(
                 "Torch_IntValue(%1 = torch.aten.__getitem__.t %0, %int0 : !torch.list<int>, !torch.int -> !torch.int)",
                 t,
+            )
+            tt = list(iter(l))
+            assert tt[0].get_name().split("#")[-1] == "0"
+            assert tt[1].get_name().split("#")[-1] == "1"
+            assert tt[2].get_name().split("#")[-1] == "2"
+            check_correct(
+                "Torch_IntValue(%2:3 = torch.prim.ListUnpack %0 : !torch.list<int> -> !torch.int, !torch.int, !torch.int)",
+                tt[0],
+            )
+            check_correct(
+                "Torch_IntValue(%2:3 = torch.prim.ListUnpack %0 : !torch.list<int> -> !torch.int, !torch.int, !torch.int)",
+                tt[1],
+            )
+            check_correct(
+                "Torch_IntValue(%2:3 = torch.prim.ListUnpack %0 : !torch.list<int> -> !torch.int, !torch.int, !torch.int)",
+                tt[2],
             )
 
             l = AnyTorchListOfTorchFloatValue([1.0, 2.0, 3.0])

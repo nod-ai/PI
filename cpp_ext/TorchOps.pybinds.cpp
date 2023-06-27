@@ -185,9 +185,6 @@ m.def("ceil", [](const PyAnyTorchTensorValue &self, DefaultingPyLocation &loc, c
 // aten::ceil_ : (Tensor) -> (Tensor)
 m.def("ceil_", [](const PyAnyTorchTensorValue &self, DefaultingPyLocation &loc, const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue { return ceil_(self, loc.get(), ip.get()); }, "self"_a, py::kw_only(), "loc"_a = py::none(), "ip"_a = py::none());
 
-// aten::chunk : (Tensor, int, int) -> (Tensor[])
-m.def("chunk", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &chunks, const PyTorch_IntValue &dim, DefaultingPyLocation &loc, const DefaultingPyInsertionPoint &ip) -> PyAnyTorchListOfTensorValue { return chunk(self, chunks, dim, loc.get(), ip.get()); }, "self"_a, "chunks"_a, "dim"_a = 0, py::kw_only(), "loc"_a = py::none(), "ip"_a = py::none());
-
 // aten::clamp_max : (Tensor, Scalar) -> (Tensor)
 m.def("clamp_max", [](const PyAnyTorchTensorValue &self, const PyAnyTorchScalarValue &max, DefaultingPyLocation &loc, const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue { return clamp_max(self, max, loc.get(), ip.get()); }, "self"_a, "max"_a, py::kw_only(), "loc"_a = py::none(), "ip"_a = py::none());
 

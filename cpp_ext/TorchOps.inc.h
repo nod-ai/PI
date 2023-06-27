@@ -185,9 +185,6 @@ PyAnyTorchTensorValue ceil(const PyAnyTorchTensorValue &self, PyLocation *loc, P
 // aten::ceil_ : (Tensor) -> (Tensor)
 PyAnyTorchTensorValue ceil_(const PyAnyTorchTensorValue &self, PyLocation *loc, PyInsertionPoint *ip);
 
-// aten::chunk : (Tensor, int, int) -> (Tensor[])
-PyAnyTorchListOfTensorValue chunk(const PyAnyTorchTensorValue &self, const PyTorch_IntValue &chunks, const PyTorch_IntValue &dim, PyLocation *loc, PyInsertionPoint *ip);
-
 // aten::clamp_max : (Tensor, Scalar) -> (Tensor)
 PyAnyTorchTensorValue clamp_max(const PyAnyTorchTensorValue &self, const PyAnyTorchScalarValue &max, PyLocation *loc, PyInsertionPoint *ip);
 

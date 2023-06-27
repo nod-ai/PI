@@ -390,26 +390,6 @@ PyAnyTorchListValue makePyAnyTorchListValue(const py::object &type,
   return {opRef, mlirOperationGetResult(opRef->get(), 0)};
 }
 
-template <typename T> auto getAttributeValue(const T &value) {
-  auto owner = getOwner(value);
-  if (!unwrap(mlirIdentifierStr(mlirOperationGetName(owner)))
-           .starts_with("torch.constant"))
-    throw py::value_error("Torch Value not constant; can't get value.");
-  MlirAttribute attr =
-      mlirOperationGetAttributeByName(owner, toMlirStringRef("value"));
-  if constexpr (std::is_same<T, PyTorch_BoolValue>::value)
-    return mlirBoolAttrGetValue(attr);
-  else if constexpr (std::is_same<T, PyTorch_FloatValue>::value)
-    return mlirFloatAttrGetValueDouble(attr);
-  else if constexpr (std::is_same<T, PyTorch_IntValue>::value)
-    return mlirIntegerAttrGetValueInt(attr);
-  else if constexpr (std::is_same<T, PyTorch_StringValue>::value ||
-                     std::is_same<T, PyTorch_DeviceValue>::value)
-    return unwrap(mlirStringAttrGetValue(attr)).str();
-  else
-    throw std::runtime_error("unknown element type");
-}
-
 template <typename T, typename U>
 T makeGetItem(U &self, const PyTorch_IntValue &idx, PyLocation *loc,
               PyInsertionPoint *ip) {
@@ -448,11 +428,41 @@ PyLocation getValueLocation(const PyValue &value) {
   return {ctx, location};
 }
 
+template <typename T, typename U>
+std::vector<T> makeListIter(U &self, PyLocation *loc, PyInsertionPoint *ip) {
+  if (!self.length)
+    throw py::value_error("PyAnyTorchListValue has unknown length;");
+  std::vector<PyType> _returnTypes;
+  auto containedType =
+      torchMlirTorchListTypeGetContainedType(mlirValueGetType(self));
+  for (int i = 0; i < self.length.value(); ++i) {
+    _returnTypes.push_back(py::cast(containedType).template cast<PyType>());
+  }
+  std::vector<std::reference_wrapper<const PyType>> returnTypes;
+  for (const auto &returnType : _returnTypes)
+    returnTypes.push_back(returnType);
+  PyOperationRef opRef =
+      createOperation("torch.prim.ListUnpack", returnTypes, {self},
+                      /*attributes=*/{}, loc, ip);
+  MlirOperation operation = opRef->get();
+  std::vector<T> list;
+  list.reserve(self.length.value());
+  for (int i = 0; i < self.length.value(); ++i)
+    list.push_back(py::cast(mlirOperationGetResult(operation, i)).cast<T>());
+  return list;
+}
+
+// explicit template instantiation
+template std::vector<PyAnyTorchTensorValue>
+makeListIter<PyAnyTorchTensorValue, PyAnyTorchListOfTensorValue const>(
+    PyAnyTorchListOfTensorValue const &, PyLocation *, PyInsertionPoint *);
+
 void PyAnyTorchListValue::bindDerived(ClassTy &c) {
   c.def(py::init<py::list>(), "value"_a);
   c.def(py::init<py::tuple>(), "value"_a);
   py::implicitly_convertible<py::list, PyAnyTorchListValue>();
   py::implicitly_convertible<py::tuple, PyAnyTorchListValue>();
+  c.def("__len__", [](const PyAnyTorchListValue &self) { return self.length; });
 }
 
 #define DEFINE_LIST_BASE_CONCRETE_VALUE(TORCHTYPE, SCALARTYPE)                 \
@@ -465,9 +475,14 @@ void PyAnyTorchListValue::bindDerived(ClassTy &c) {
            const PyTorch_IntValue &idx) -> PyTorch_##SCALARTYPE##Value {       \
           return makeGetItem<PyTorch_##SCALARTYPE##Value>(                     \
               self, idx, &DefaultingPyLocation::resolve(),                     \
-              PyThreadContextEntry::getDefaultInsertionPoint());               \
+              &DefaultingPyInsertionPoint::resolve());                         \
         },                                                                     \
         "idx"_a);                                                              \
+    c.def("__iter__", [](const PyAnyTorchListOf##TORCHTYPE##Value &self) {     \
+      return py::iter(py::cast(makeListIter<PyTorch_##SCALARTYPE##Value>(      \
+          self, &DefaultingPyLocation::resolve(),                              \
+          &DefaultingPyInsertionPoint::resolve())));                           \
+    });                                                                        \
     py::implicitly_convertible<py::list,                                       \
                                PyAnyTorchListOf##TORCHTYPE##Value>();          \
     py::implicitly_convertible<py::tuple,                                      \
