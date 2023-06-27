@@ -130,13 +130,18 @@ def run_pi_tests(torch_mlir_module_strs, sequential=False):
     num_processes = min(int(cpu_count() * 1.1), len(tests))
     pool = Pool(num_processes)
     manager = Manager()
-    (
-        XFAILs,
-        Exception_FAILs,
-        lower_to_linalg_FAILs,
-        ir_FAILs,
-        SKIPs,
-    ) = map(manager.list, [[], [], [], [], []])
+    XFAILs, Exception_FAILs, lower_to_linalg_FAILs, ir_FAILs, SKIPs = (
+        [],
+        [],
+        [],
+        [],
+        [],
+    )
+    if not sequential:
+        XFAILs, Exception_FAILs, lower_to_linalg_FAILs, ir_FAILs, SKIPs = map(
+            manager.list,
+            [XFAILs, Exception_FAILs, lower_to_linalg_FAILs, ir_FAILs, SKIPs],
+        )
 
     def compile_and_run_test(test):
         if test.unique_name in CRASHING | COMMON_TORCH_MLIR_LOWERING_XFAILS or (
@@ -220,9 +225,7 @@ def run_pi_tests(torch_mlir_module_strs, sequential=False):
     for test_name, e, pi_torch_dialect_module_str in lower_to_linalg_FAILs:
         print(test_name, "\n", e, "\n", pi_torch_dialect_module_str, "\n")
 
-    print(
-        "\n", "".join("*" * 80), "\n", "ir_FAILs", "\n", "".join("*" * 80)
-    )
+    print("\n", "".join("*" * 80), "\n", "ir_FAILs", "\n", "".join("*" * 80))
     for test_name, diff in ir_FAILs:
         print(test_name, "\n", "\n".join(diff), "\n")
 
@@ -282,7 +285,7 @@ class TestMain:
         with patch_meta_path(overloads):
             torch_mlir_register_all_tests()
 
-        run_pi_tests(torch_mlir_linalg_module_strs, sequential=sequential)
+        run_pi_tests(torch_mlir_linalg_module_strs, sequential=True)
 
 
 if __name__ == "__main__":
