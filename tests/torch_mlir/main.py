@@ -10,7 +10,7 @@ formatter = logging.Formatter(FORMAT)
 logging.basicConfig(level=logging.DEBUG, format=FORMAT)
 logger = logging.getLogger(__name__)
 
-from multiprocessing import cpu_count, Manager, Value
+from multiprocessing import cpu_count, Manager
 from multiprocess.pool import Pool
 
 # noinspection PyUnresolvedReferences
@@ -64,7 +64,6 @@ def run_torch_mlir_tests(sequential=False):
         )
 
     num_processes = min(int(cpu_count() * 1.1), len(tests))
-
     torch_dialect_config = TorchDialectConfig()
     pool = Pool(num_processes)
 
@@ -103,7 +102,13 @@ def run_torch_mlir_tests(sequential=False):
     if sequential:
         handles = map(compile_and_run_test, tests)
     else:
-        handles = pool.map_async(compile_and_run_test, tests).get()
+
+        def error_callback(*args, **kwargs):
+            print("uncaught error inside torch-mlir test", args, kwargs)
+
+        handles = pool.map_async(
+            compile_and_run_test, tests, error_callback=error_callback
+        ).get()
     for (
         name,
         linalg_module,
@@ -285,7 +290,7 @@ class TestMain:
         with patch_meta_path(overloads):
             torch_mlir_register_all_tests()
 
-        run_pi_tests(torch_mlir_linalg_module_strs, sequential=True)
+        run_pi_tests(torch_mlir_linalg_module_strs, sequential=False)
 
 
 if __name__ == "__main__":
