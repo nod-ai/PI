@@ -390,16 +390,16 @@ void PyAnyTorchTensorValue::bindDerived(ClassTy &c) {
         });
 
   // @overload double(self) -> Tensor
-  c.def(
-      "double",
-      [](const PyAnyTorchTensorValue &self)-> PyAnyTorchTensorValue {
-        const PyTorch_IntValue dtype = 7;
-        const PyTorch_BoolValue non_blocking = false;
-        const PyTorch_BoolValue copy = false;
-        const PyAnyTorchOptionalIntValue memory_format = NULL;
-        auto loc = getValueLocation(self);
-        return to(self, dtype, non_blocking, copy, memory_format, &loc, &DefaultingPyInsertionPoint::resolve());
-      });
+  c.def("double",
+        [](const PyAnyTorchTensorValue &self) -> PyAnyTorchTensorValue {
+          const PyTorch_IntValue dtype = 7;
+          const PyTorch_BoolValue non_blocking = false;
+          const PyTorch_BoolValue copy = false;
+          const PyAnyTorchOptionalIntValue memory_format = NULL;
+          auto loc = getValueLocation(self);
+          return to(self, dtype, non_blocking, copy, memory_format, &loc,
+                    &DefaultingPyInsertionPoint::resolve());
+        });
 
 #include "TorchTensor.pybinds.cpp"
 }
