@@ -415,6 +415,15 @@ void PyAnyTorchListOfTensorValue::bindDerived(ClassTy &c) {
         self, &DefaultingPyLocation::resolve(),
         &DefaultingPyInsertionPoint::resolve())));
   });
+  c.def(
+      "__getitem__",
+      [](const PyAnyTorchListOfTensorValue &self,
+         const PyTorch_IntValue &idx) -> PyAnyTorchTensorValue {
+        return makeGetItem<PyAnyTorchTensorValue>(
+            self, idx, &DefaultingPyLocation::resolve(),
+            &DefaultingPyInsertionPoint::resolve());
+      },
+      "idx"_a);
 }
 
 PyAnyTorchListOfOptionalTensorValue

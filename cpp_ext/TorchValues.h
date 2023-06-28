@@ -168,6 +168,10 @@ PyAnyTorchListValue makePyAnyTorchListValue(const py::object &type,
                                             PyLocation *loc,
                                             PyInsertionPoint *ip);
 
+template <typename T, typename U>
+T makeGetItem(U &self, const PyTorch_IntValue &idx, PyLocation *loc,
+              PyInsertionPoint *ip);
+
 class PyTorch_NoneValue : public PyConcreteValue<PyTorch_NoneValue> {
 public:
   static constexpr IsAFunctionTy isaFunction = isATorch_NoneValue;

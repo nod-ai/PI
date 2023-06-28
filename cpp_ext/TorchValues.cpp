@@ -402,6 +402,9 @@ T makeGetItem(U &self, const PyTorch_IntValue &idx, PyLocation *loc,
     t = torchMlirTorchIntTypeGet(loc->getContext()->get());
   else if (std::is_same<T, PyTorch_StringValue>::value)
     t = torchMlirTorchStringTypeGet(loc->getContext()->get());
+  else if (std::is_same<T, PyAnyTorchTensorValue>::value)
+    t = torchMlirTorchNonValueTensorTypeGetWithLeastStaticInformation(
+        loc->getContext()->get());
   else
     throw std::runtime_error("unknown element type");
   auto resultType = py::cast(t).cast<PyType>();
@@ -409,6 +412,11 @@ T makeGetItem(U &self, const PyTorch_IntValue &idx, PyLocation *loc,
       "torch.aten.__getitem__.t", {resultType}, {self, idx}, {}, loc, ip);
   return {opRef, mlirOperationGetResult(opRef->get(), 0)};
 }
+
+template PyAnyTorchTensorValue
+makeGetItem<PyAnyTorchTensorValue>(const PyAnyTorchListOfTensorValue &self,
+                                   const PyTorch_IntValue &idx, PyLocation *loc,
+                                   PyInsertionPoint *ip);
 
 MlirOperation getOwner(const PyValue &value) {
   MlirOperation owner;
