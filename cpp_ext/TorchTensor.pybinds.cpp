@@ -40,9 +40,6 @@ c.def("__ge__", [](const PyAnyTorchTensorValue &self, const PyAnyTorchScalarValu
 // aten::ge.Tensor : (Tensor, Tensor) -> (Tensor)
 c.def("__ge__", [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &other, DefaultingPyLocation &loc, const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue { return __ge__(self, other, loc.get(), ip.get()); }, "other"_a, py::kw_only(), "loc"_a = py::none(), "ip"_a = py::none());
 
-// __getitem__(self, indices: Union[None, _int, slice, Tensor, List, Tuple]) -> Tensor
-c.def("__getitem__", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("NotImplementedError: __getitem__ with signature __getitem__(self, indices: Union[None, _int, slice, Tensor, List, Tuple]) -> Tensor"); });
-
 // __gt__(self, other: Any) -> Tensor
 // aten::gt.Scalar : (Tensor, Scalar) -> (Tensor)
 c.def("__gt__", [](const PyAnyTorchTensorValue &self, const PyAnyTorchScalarValue &other, DefaultingPyLocation &loc, const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue { return __gt__(self, other, loc.get(), ip.get()); }, "other"_a, py::kw_only(), "loc"_a = py::none(), "ip"_a = py::none());
@@ -285,9 +282,6 @@ c.def("_nested_tensor_strides", [](PyAnyTorchTensorValue& self, py::args args, p
 
 // _nnz(self) -> _int
 c.def("_nnz", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("NotImplementedError: _nnz with signature _nnz(self) -> _int"); });
-
-// _sparse_mask_projection(self, mask: Tensor) -> Tensor
-c.def("_sparse_mask_projection", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("NotImplementedError: _sparse_mask_projection with signature _sparse_mask_projection(self, mask: Tensor) -> Tensor"); });
 
 // _to_dense(self, dtype: Optional[_dtype]=None, masked_grad: Optional[_bool]=None) -> Tensor
 c.def("_to_dense", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("NotImplementedError: _to_dense with signature _to_dense(self, dtype: Optional[_dtype]=None, masked_grad: Optional[_bool]=None) -> Tensor"); });

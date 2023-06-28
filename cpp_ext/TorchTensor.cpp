@@ -288,6 +288,107 @@ void PyAnyTorchTensorValue::bindDerived(ClassTy &c) {
       "chunks"_a, "dim"_a = 0, py::kw_only(), "loc"_a = py::none(),
       "ip"_a = py::none());
 
+  // __truediv__(self, other Any) -> Tensor
+  // aten::div.Scalar : (Tensor, Scalar) -> (Tensor)
+  c.def(
+      "__truediv__",
+      [](const PyAnyTorchTensorValue &self,
+         PyAnyTorchScalarValue &other) -> PyAnyTorchTensorValue {
+        auto loc = getValueLocation(self);
+        return div(self, other, &loc, &DefaultingPyInsertionPoint::resolve());
+      },
+      "other"_a);
+
+  // aten::div.Tensor : (Tensor, Tensor) -> (Tensor)
+  c.def(
+      "__truediv__",
+      [](const PyAnyTorchTensorValue &self,
+         PyAnyTorchTensorValue &other) -> PyAnyTorchTensorValue {
+        auto loc = getValueLocation(self);
+        return div(self, other, &loc, &DefaultingPyInsertionPoint::resolve());
+      },
+      "other"_a);
+
+  // __rtruediv__(self, other Any) -> Tensor
+  c.def(
+      "__rtruediv__",
+      [](const PyAnyTorchTensorValue &self,
+         PyAnyTorchScalarValue &other) -> PyAnyTorchTensorValue {
+        auto loc = getValueLocation(self);
+        PyAnyTorchTensorValue recip =
+            reciprocal(self, &loc, &DefaultingPyInsertionPoint::resolve());
+        auto recip_loc = getValueLocation(recip);
+        return mul(recip, other, &recip_loc,
+                   &DefaultingPyInsertionPoint::resolve());
+      },
+      "other"_a);
+
+  // __getitem__(self, indices: Union[None, _int, slice, Tensor, List, Tuple])
+  // -> Tensor
+  // __getitem__(self, int) -> Tensor
+  c.def(
+      "__getitem__",
+      [](const PyAnyTorchTensorValue &self,
+         const PyTorch_IntValue &index) -> PyAnyTorchTensorValue {
+        auto loc = getValueLocation(self);
+        return select(self, 0, index, &loc,
+                      &DefaultingPyInsertionPoint::resolve());
+      },
+      "index"_a);
+
+  // __getitem__(self, None) -> Tensor
+  c.def("__getitem__",
+        [](const PyAnyTorchTensorValue &self,
+           const py::none &noneValue) -> PyAnyTorchTensorValue {
+          auto loc = getValueLocation(self);
+          return unsqueeze(self, 0, &loc,
+                           &DefaultingPyInsertionPoint::resolve());
+        });
+
+  // __getitem__(self, slice) -> Tensor
+  c.def("__getitem__",
+        [](const PyAnyTorchTensorValue &self,
+           py::slice &sliceObject) -> PyAnyTorchTensorValue {
+          int dim = 0;
+
+          auto parseAttr =
+              [](const py::object &obj) -> PyAnyTorchOptionalIntValue {
+            if (py::isinstance<py::none>(obj)) {
+              return obj.cast<PyAnyTorchOptionalIntValue>();
+            } else if (py::isinstance<py::int_>(obj)) {
+              return obj.cast<int>();
+            } else {
+              throw std::invalid_argument(
+                  "Invalid: aten.slice.Tensor expects either an integer or "
+                  "None type as indices");
+            }
+          };
+
+          PyAnyTorchOptionalIntValue start =
+              parseAttr(getattr(sliceObject, "start"));
+          PyAnyTorchOptionalIntValue stop =
+              parseAttr(getattr(sliceObject, "stop"));
+          py::object step_attr = getattr(sliceObject, "step");
+          PyTorch_IntValue step =
+              py::isinstance<py::none>(step_attr) ? 1 : step_attr.cast<int>();
+
+          auto loc = getValueLocation(step);
+
+          return slice(self, dim, start, stop, step, &loc,
+                       &DefaultingPyInsertionPoint::resolve());
+        });
+
+  // @overload reshape(self, shape: Sequence[Union[_int, SymInt]]) -> Tensor
+  // aten::reshape : (Tensor, int...) -> (Tensor)
+  c.def("reshape",
+        [](const PyAnyTorchTensorValue &self,
+           const py::args &args) -> PyAnyTorchTensorValue {
+          auto shape = PyAnyTorchListOfTorchIntValue(args);
+          auto loc = getValueLocation(shape);
+          return reshape(self, shape, &loc,
+                         &DefaultingPyInsertionPoint::resolve());
+        });
+
 #include "TorchTensor.pybinds.cpp"
 }
 

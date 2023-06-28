@@ -173,7 +173,7 @@ def star_args_wrapper(factory):
     return wrapper
 
 
-empty = functools.partial(_np_wrapper, factory=np.empty)
+empty_placeholder = functools.partial(_np_wrapper, factory=np.empty)
 ones = functools.partial(_np_wrapper, factory=star_args_wrapper(np.ones))
 zeros = functools.partial(_np_wrapper, factory=star_args_wrapper(np.zeros))
 rand = functools.partial(_np_wrapper, factory=np.random.rand)

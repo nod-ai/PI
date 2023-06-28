@@ -17,7 +17,7 @@ from .mlir.utils import (
     LongTensor,
     TensorPlaceholder,
     dtype,
-    empty,
+    empty_placeholder,
     layout,
     memory_format,
     ones,

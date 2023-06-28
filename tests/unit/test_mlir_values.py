@@ -631,3 +631,40 @@ class TestTorchValues:
                 "Torch_StringValue(%7 = torch.aten.__getitem__.t %6, %int0 : !torch.list<str>, !torch.int -> !torch.str)",
                 t,
             )
+
+    def test_ListConcatenation(self):
+        with mlir_mod_ctx():
+            x = AnyTorchListValue([1, 2, 3])
+            y = AnyTorchListValue([4, 5])
+
+            r = x + y
+            check_correct(
+                "AnyTorchListValue(%DONT_CARE = torch.aten.add.t %DONT_CARE, %DONT_CARE : !torch.list<int>, !torch.list<int> -> !torch.list<int>)",
+                r,
+            )
+
+            py_list = [1, 2, 3]
+            r = x + py_list
+            check_correct(
+                "AnyTorchListValue(%DONT_CARE = torch.aten.add.t %DONT_CARE, %DONT_CARE : !torch.list<int>, !torch.list<int> -> !torch.list<int>)",
+                r,
+            )
+
+            r = py_list + x
+            check_correct(
+                "AnyTorchListValue(%DONT_CARE = torch.aten.add.t %DONT_CARE, %DONT_CARE : !torch.list<int>, !torch.list<int> -> !torch.list<int>)",
+                r,
+            )
+
+            py_tuple = (4, 5)
+            r = x + py_tuple
+            check_correct(
+                "AnyTorchListValue(%DONT_CARE = torch.aten.add.t %DONT_CARE, %DONT_CARE : !torch.list<int>, !torch.list<int> -> !torch.list<int>)",
+                r,
+            )
+
+            r = py_tuple + x
+            check_correct(
+                "AnyTorchListValue(%DONT_CARE = torch.aten.add.t %DONT_CARE, %DONT_CARE : !torch.list<int>, !torch.list<int> -> !torch.list<int>)",
+                r,
+            )
