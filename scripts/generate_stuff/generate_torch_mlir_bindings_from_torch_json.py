@@ -62,6 +62,7 @@ SKIP_TENSOR_BINDS = {
     "__rtruediv__(self, other: Any) -> Tensor",
     "chunk(self, chunks: _int, dim: _int=0) -> List[Tensor]",
     "__getitem__(self, indices: Union[None, _int, slice, Tensor, List, Tuple]) -> Tensor",
+    "@overload double(self) -> Tensor",
 }
 
 TORCH_OPS_IMPL_CPP = "TorchOps.impls.cpp"
