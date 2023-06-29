@@ -2055,7 +2055,7 @@ pad = pi._C._nn.pad
 
 # cosine_similarity = pi.cosine_similarity
 
-# one_hot = pi._C._nn.one_hot
+one_hot = pi._C._nn.one_hot
 
 
 def triplet_margin_loss(
