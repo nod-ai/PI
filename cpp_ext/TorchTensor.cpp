@@ -395,7 +395,7 @@ void PyAnyTorchTensorValue::bindDerived(ClassTy &c) {
           const PyTorch_IntValue dtype = 7;
           const PyTorch_BoolValue non_blocking = false;
           const PyTorch_BoolValue copy = false;
-          const PyAnyTorchOptionalIntValue memory_format = NULL;
+          const PyAnyTorchOptionalIntValue memory_format = py::none();
           auto loc = getValueLocation(self);
           return to(self, dtype, non_blocking, copy, memory_format, &loc,
                     &DefaultingPyInsertionPoint::resolve());
