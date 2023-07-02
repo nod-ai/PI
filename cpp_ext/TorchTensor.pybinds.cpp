@@ -283,6 +283,9 @@ c.def("_nested_tensor_strides", [](PyAnyTorchTensorValue& self, py::args args, p
 // _nnz(self) -> _int
 c.def("_nnz", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("NotImplementedError: _nnz with signature _nnz(self) -> _int"); });
 
+// _sparse_mask_projection(self, mask: Tensor) -> Tensor
+c.def("_sparse_mask_projection", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("NotImplementedError: _sparse_mask_projection with signature _sparse_mask_projection(self, mask: Tensor) -> Tensor"); });
+
 // _to_dense(self, dtype: Optional[_dtype]=None, masked_grad: Optional[_bool]=None) -> Tensor
 c.def("_to_dense", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("NotImplementedError: _to_dense with signature _to_dense(self, dtype: Optional[_dtype]=None, masked_grad: Optional[_bool]=None) -> Tensor"); });
 
@@ -895,9 +898,6 @@ c.def("divide_", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwarg
 
 // dot(self, tensor: Tensor) -> Tensor
 c.def("dot", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("NotImplementedError: dot with signature dot(self, tensor: Tensor) -> Tensor"); });
-
-// double(self) -> Tensor
-c.def("double", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("NotImplementedError: double with signature double(self) -> Tensor"); });
 
 // @overload dsplit(self, sections: _int) -> List[Tensor]
 c.def("dsplit", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("NotImplementedError: dsplit with signature @overload dsplit(self, sections: _int) -> List[Tensor]"); });
