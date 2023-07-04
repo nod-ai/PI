@@ -191,7 +191,8 @@ ones = functools.partial(_np_wrapper, factory=star_args_wrapper(np.ones))
 zeros = functools.partial(_np_wrapper, factory=star_args_wrapper(np.zeros))
 rand = functools.partial(_np_wrapper, factory=np.random.rand)
 randn = functools.partial(
-    _np_wrapper, factory=random_normal_wrapper(np.random.Generator.standard_normal))
+    _np_wrapper, factory=random_normal_wrapper(np.random.Generator.standard_normal)
+)
 tensor = functools.partial(_np_wrapper, factory=np.array)
 LongTensor = functools.partial(_np_wrapper, factory=np.array, dtype=dtype.int64)
 
