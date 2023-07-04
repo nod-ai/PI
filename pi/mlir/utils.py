@@ -71,7 +71,7 @@ def disable_multithreading(context=None):
 
 @contextlib.contextmanager
 def mlir_mod_ctx(
-        src: Optional[str] = None, context: Context = None, location: Location = None
+    src: Optional[str] = None, context: Context = None, location: Location = None
 ):
     if context is None:
         context = Context()
@@ -98,7 +98,7 @@ def _i1Attr(x, context):
 
 
 def infer_mlir_type(
-        py_val: Union[int, float, bool, np.ndarray]
+    py_val: Union[int, float, bool, np.ndarray]
 ) -> Union[IntegerType, F64Type, RankedTensorType]:
     if isinstance(py_val, bool):
         return IntegerType.get_signless(1)
@@ -190,7 +190,8 @@ empty_placeholder = functools.partial(_np_wrapper, factory=np.empty)
 ones = functools.partial(_np_wrapper, factory=star_args_wrapper(np.ones))
 zeros = functools.partial(_np_wrapper, factory=star_args_wrapper(np.zeros))
 rand = functools.partial(_np_wrapper, factory=np.random.rand)
-randn = functools.partial(_np_wrapper, factory=random_normal_wrapper(np.random.Generator.standard_normal))
+randn = functools.partial(
+    _np_wrapper, factory=random_normal_wrapper(np.random.Generator.standard_normal))
 tensor = functools.partial(_np_wrapper, factory=np.array)
 LongTensor = functools.partial(_np_wrapper, factory=np.array, dtype=dtype.int64)
 
@@ -261,7 +262,7 @@ ArgAnnotation = Union[type, Tuple[List[int], dtype]]
 
 
 def annotations_to_placeholders(
-        args: List[str], annotations: List[Optional[ArgAnnotation]]
+    args: List[str], annotations: List[Optional[ArgAnnotation]]
 ):
     from collections import OrderedDict
 
