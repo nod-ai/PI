@@ -173,26 +173,16 @@ def star_args_wrapper(factory):
     return wrapper
 
 
-def random_normal_wrapper(factory):
-    @functools.wraps(factory)
-    def wrapper(*args, **kwargs):
-        # Create a random number generator
-        rng = np.random.default_rng()
-        if len(args) == 1 and isinstance(args[0], (list, tuple)):
-            return factory(rng, args[0], **kwargs)
-        else:
-            return factory(rng, args, **kwargs)
+def standard_normal(*args, **kwargs):
+    rng = np.random.default_rng()
 
-    return wrapper
-
+    return np.random.Generator.standard_normal(rng, *args, **kwargs)
 
 empty_placeholder = functools.partial(_np_wrapper, factory=np.empty)
 ones = functools.partial(_np_wrapper, factory=star_args_wrapper(np.ones))
 zeros = functools.partial(_np_wrapper, factory=star_args_wrapper(np.zeros))
 rand = functools.partial(_np_wrapper, factory=np.random.rand)
-randn = functools.partial(
-    _np_wrapper, factory=random_normal_wrapper(np.random.Generator.standard_normal)
-)
+randn = functools.partial(_np_wrapper, factory=star_args_wrapper(standard_normal))
 tensor = functools.partial(_np_wrapper, factory=np.array)
 LongTensor = functools.partial(_np_wrapper, factory=np.array, dtype=dtype.int64)
 
