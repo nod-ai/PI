@@ -178,6 +178,7 @@ def standard_normal(*args, **kwargs):
 
     return np.random.Generator.standard_normal(rng, *args, **kwargs)
 
+
 empty_placeholder = functools.partial(_np_wrapper, factory=np.empty)
 ones = functools.partial(_np_wrapper, factory=star_args_wrapper(np.ones))
 zeros = functools.partial(_np_wrapper, factory=star_args_wrapper(np.zeros))
