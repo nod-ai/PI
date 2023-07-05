@@ -1,7 +1,3 @@
-# Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
-# See https://llvm.org/LICENSE.txt for license information.
-# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-# Also available under a BSD-style license. See LICENSE.
 import contextlib
 import functools
 import inspect
@@ -10,9 +6,8 @@ from enum import Enum
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
-from . import (
-    dtype,
-    AnyTorchListOfOptionalTensorValue,
+
+from ..mlir import (
     AnyTorchListOfTensorType,
     AnyTorchListOfTensorValue,
     AnyTorchListOfTorchBoolType,
@@ -23,20 +18,22 @@ from . import (
     AnyTorchListOfTorchIntValue,
     AnyTorchListOfTorchStringType,
     AnyTorchListOfTorchStringValue,
-    AnyTorchListType,
     AnyTorchListValue,
+    Tensor,
     Torch_BoolValue,
     Torch_DeviceValue,
     Torch_FloatValue,
     Torch_IntValue,
+    Torch_NonValueTensorValue,
     Torch_NoneValue,
     Torch_StringValue,
     Torch_TupleValue,
-    Torch_NonValueTensorValue,
     Torch_ValueTensorValue,
-    Tensor,
+    dtype,
+    ops,
 )
-from .ir import (
+from ..mlir.dialects import torch as torch_dialect
+from ..mlir.ir import (
     Context,
     DenseElementsAttr,
     DictAttr,
@@ -54,7 +51,6 @@ from .ir import (
     TypeAttr,
     register_attribute_builder,
 )
-from .dialects import torch as torch_dialect
 
 
 @contextlib.contextmanager
@@ -338,3 +334,49 @@ def value_tensor_op(elem_attr):
 
 def tensor_op(elem_attr):
     return Tensor(non_value_tensor_op(elem_attr))
+
+
+import builtins
+
+builtin_int = builtins.int
+builtin_bool = builtins.bool
+builtin_float = builtins.float
+
+
+def pi_bool(x):
+    if isinstance(x, Tensor):
+        return ops.Bool(x)
+    elif isinstance(x, Torch_BoolValue):
+        try:
+            return builtin_bool(x)
+        except:
+            return x
+    else:
+        return builtin_bool(x)
+
+
+def pi_int(x, base=None):
+    if isinstance(x, Tensor):
+        return ops.Int(x)
+    elif isinstance(x, Torch_IntValue):
+        try:
+            return builtin_int(x)
+        except:
+            return x
+    else:
+        if base is not None:
+            return builtin_int(x, base)
+        else:
+            return builtin_int(x)
+
+
+def pi_float(x):
+    if isinstance(x, Tensor):
+        return ops.Float(x)
+    elif isinstance(x, Torch_FloatValue):
+        try:
+            return builtin_float(x)
+        except:
+            return x
+    else:
+        return builtin_float(x)

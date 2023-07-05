@@ -26,7 +26,7 @@ from pi.mlir import (
     Torch_ValueTensorType,
 )
 from pi.mlir import F32
-from pi.mlir.utils import mlir_mod_ctx
+from pi.utils import mlir_mod_ctx
 from util import check_correct
 
 

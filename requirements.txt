@@ -12,3 +12,6 @@ wheel
 pytest
 orjson
 patchelf; sys_platform == 'linux'
+
+-f https://github.com/makslevental/pyframe_eval/releases/expanded_assets/0.0.1
+pyframe_eval

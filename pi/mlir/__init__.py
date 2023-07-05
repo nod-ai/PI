@@ -1,7 +1,6 @@
 import atexit
 import contextlib
 import ctypes
-import inspect
 import sys
 
 

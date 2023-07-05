@@ -9,7 +9,9 @@ from pi import Tensor, TensorPlaceholder, float32, int64, nn
 from pi.mlir import ir
 from pi.mlir.compile import run_pipeline_with_repro_report
 from pi.mlir.dialects import func as func_dialect, torch as torch_dialect
-from pi.mlir.utils import mlir_mod_ctx
+from pi.utils import mlir_mod_ctx
+from pi.utils.ast_rewrite import rewrite_ast_callback
+from pi.utils.dynamo import dynamo
 
 FIXED = np.linspace(0, 0.1, 101)
 
@@ -153,7 +155,8 @@ class PIConfig:
             test_module.register_forward_post_hook(collect_results, prepend=True)
 
             with ir.InsertionPoint.at_block_begin(func_op_entry_block):
-                test_case.program_invoker(test_module, tu)
+                with dynamo(rewrite_ast_callback):
+                    test_case.program_invoker(test_module, tu)
                 if isinstance(results[0], (tuple, list)):
                     results = results[0]
 
