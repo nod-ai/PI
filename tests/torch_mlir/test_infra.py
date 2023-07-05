@@ -1,5 +1,5 @@
-from pi.mlir.utils import annotate_args, export, mlir_mod_ctx
 import pi
+from pi.utils import annotate_args, export, mlir_mod_ctx
 
 pi.nn.Module.train = lambda *args, **kwargs: None
 from infra.util import TestUtils, register_test_case, PIConfig, GLOBAL_TEST_REGISTRY
@@ -45,6 +45,26 @@ class Add_Module(pi.nn.Module):
 @register_test_case(module_factory=lambda: Add_Module())
 def Add_Module_basic(module, tu: TestUtils):
     module.forward(tu.rand(2, 3))
+
+
+class AtenIntTensorCharDtypeModule(pi.nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    @export
+    @annotate_args(
+        [
+            None,
+            ([], pi.int8, True),
+        ]
+    )
+    def forward(self, val):
+        return int(val)
+
+
+@register_test_case(module_factory=lambda: AtenIntTensorCharDtypeModule())
+def AtenIntTensorCharDtypeModule_basic(module, tu: TestUtils):
+    module.forward(tu.randint(low=-100, high=100).to(dtype=pi.int8))
 
 
 class Test:

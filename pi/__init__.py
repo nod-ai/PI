@@ -1,26 +1,29 @@
 import contextlib
 
-from .mlir import Tensor
+# noinspection PyUnresolvedReferences
+from .mlir._mlir_libs._pi_mlir import ops
 
 # noinspection PyUnresolvedReferences
 from .mlir._mlir_libs._pi_mlir.constants import *
 
-# noinspection PyUnresolvedReferences
-from .mlir._mlir_libs._pi_mlir import ops
-
-
 # note this import needs to be above the one below it so that e.g. ops.zeros is replaced by util.zeros
 # noinspection PyUnresolvedReferences
 from .mlir._mlir_libs._pi_mlir.ops import *
-
-from .mlir.utils import (
+from .utils import (
     LongTensor,
+    Tensor,
     TensorPlaceholder,
+    Torch_BoolValue,
+    Torch_FloatValue,
+    Torch_IntValue,
     dtype,
     empty_placeholder,
     layout,
     memory_format,
     ones,
+    pi_bool,
+    pi_float,
+    pi_int,
     rand,
     randn,
     tensor,

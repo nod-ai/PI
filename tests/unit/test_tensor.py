@@ -4,7 +4,7 @@ import numpy as np
 
 import pi
 from pi import ops
-from pi.mlir.utils import mlir_mod_ctx, int_op, non_value_tensor_op, bool_op, tensor_op
+from pi.utils import mlir_mod_ctx, int_op, non_value_tensor_op, bool_op, tensor_op
 from util import check_correct
 
 

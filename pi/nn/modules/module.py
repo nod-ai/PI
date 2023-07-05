@@ -16,6 +16,18 @@ from . import hooks
 from .hooks import RemovableHandle
 
 
+def get_children(module):
+    children = list(module._modules.values())
+    flat_children = []
+    if not children:
+        return [module]
+    else:
+        for child in children:
+            children = get_children(child)
+            flat_children.extend(children)
+    return flat_children
+
+
 class Module:
     _parameters: Dict[str, Optional[Union[Parameter, UninitializedParameter]]]
     _buffers: Dict[str, Optional[Union[Tensor, UninitializedBuffer]]]
@@ -26,8 +38,8 @@ class Module:
     training = False
 
     def __init__(self):
+        # so that you don't go through the guarded __setattr__ below
         _set = super().__setattr__
-        _get = super().__getattribute__
 
         _set("_parameters", {})
         _set("_buffers", {})
@@ -36,11 +48,11 @@ class Module:
         _set("_forward_post_hooks", OrderedDict())
         _set(
             "_initialize_hook",
-            _get("register_forward_pre_hook")(_get("_initialize")),
+            self.register_forward_pre_hook(self._initialize),
         )
 
         if "forward" in dir(self):
-            orig_forward = _get("forward")
+            orig_forward = self.forward
             # super attr is Module.__call__ d'oh
             call = self.__call__
             # name mangling means trying to get __forward actually tries
@@ -110,9 +122,6 @@ class Module:
     ) -> RemovableHandle:
         return self._register_hook(hook, self._forward_post_hooks, prepend=prepend)
 
-    def __getattribute__(self, item):
-        return super(Module, self).__getattribute__(item)
-
     def __setattr__(self, name: str, value: Union[Tensor, "Module"]) -> None:
         def remove_from(*dicts_or_sets):
             for d in dicts_or_sets:
@@ -170,6 +179,10 @@ class Module:
         modules = self.__dict__["_modules"]
         if name in modules:
             return modules[name]
+
+        if name in self.__dict__:
+            return self.__dict__[name]
+
         raise AttributeError(f"{type(self).__name__} object has no attribute {name}")
 
     def register_buffer(
@@ -262,17 +275,6 @@ class Module:
         return self
 
     def all_children(self):
-        def get_children(module):
-            children = list(module._modules.values())
-            flat_children = []
-            if not children:
-                return [module]
-            else:
-                for child in children:
-                    children = get_children(child)
-                    flat_children.extend(children)
-            return flat_children
-
         return get_children(self)
 
     modules = all_children

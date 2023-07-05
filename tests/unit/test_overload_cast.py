@@ -1,7 +1,7 @@
 import numpy as np
 
 from pi import ops
-from pi.mlir.utils import (
+from pi.utils import (
     float_op,
     int_op,
     mlir_mod_ctx,

@@ -26,7 +26,7 @@ from pi.mlir import (
     Torch_NoneValue,
     Torch_TupleType,
 )
-from pi.mlir.utils import (
+from pi.utils import (
     _elementsAttr,
     bool_op,
     device_op,

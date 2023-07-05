@@ -29,10 +29,9 @@ from infra.path_hacks import (
     patch_meta_path,
 )
 from pi.mlir.compile import lower_pi_to_linalg
-import pi
 
 ONLY = {
-    # "ChunkListUnpackUneven_Module_basic"
+    # "AtenIntTensorByteDtypeModule_basic"
 }
 
 
@@ -129,6 +128,8 @@ def run_pi_tests(torch_mlir_module_strs, sequential=False):
 
     tests = sorted(GLOBAL_TEST_REGISTRY.values(), key=lambda t: t.unique_name)
     assert tests, "failed to load tests"
+
+    import pi
 
     pi.nn.Module.train = lambda *args, **kwargs: None
     pi_config = PIConfig()
@@ -271,7 +272,7 @@ class TestMain:
                 {
                     "torch.": "pi.",
                     "from torch import nn": "from pi import nn",
-                    "torch_mlir_e2e_test.annotations": "pi.mlir.utils",
+                    "torch_mlir_e2e_test.annotations": "pi.utils",
                     "torch_mlir_e2e_test.registry": "infra.util",
                     "torch_mlir_e2e_test.framework": "infra.util",
                     "import torchvision.models as models": "",

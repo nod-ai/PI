@@ -14,8 +14,10 @@ from itertools import chain
 from . import ir
 from .dialects import func as func_dialect, torch as torch_dialect
 from .passmanager import PassManager
-from .utils import disable_multithreading
 from .. import Tensor, nn
+from ..utils.ast_rewrite import rewrite_ast_callback
+from ..utils.dynamo import dynamo
+from ..utils import disable_multithreading
 
 
 def get_module_name_for_debug_dump(module):
@@ -127,7 +129,12 @@ def lower_pi_to_torch_backend(module, enable_ir_printing=False, print_pipeline=F
     return module
 
 
-def pipile(pi_module: nn.Module, example_args=None, module_name="pi.module_name"):
+def pipile(
+    pi_module: nn.Module,
+    example_args=None,
+    module_name="pi.module_name",
+    lower_to_torch=True,
+):
     if example_args is None:
         example_args = []
 
@@ -139,6 +146,9 @@ def pipile(pi_module: nn.Module, example_args=None, module_name="pi.module_name"
         placeholders = pi_module.forward.__dict__.get("__placeholders__")
         if placeholders:
             assert isinstance(placeholders, OrderedDict)
+        else:
+            assert placeholders is None
+            placeholders = dict()
         func_op = func_dialect.FuncOp(
             name="forward",
             type=(
@@ -190,7 +200,8 @@ def pipile(pi_module: nn.Module, example_args=None, module_name="pi.module_name"
         pi_module.register_forward_post_hook(collect_results, prepend=True)
 
         with ir.InsertionPoint.at_block_begin(func_op_entry_block):
-            pi_module(*example_args)
+            with dynamo(rewrite_ast_callback):
+                pi_module(*example_args)
             if isinstance(results[0], (tuple, list)):
                 results = results[0]
 
@@ -214,6 +225,7 @@ def pipile(pi_module: nn.Module, example_args=None, module_name="pi.module_name"
 
             func_dialect.ReturnOp(results)
 
-    mlir_module = lower_pi_to_torch_backend(mlir_module)
+    if lower_to_torch:
+        mlir_module = lower_pi_to_torch_backend(mlir_module)
 
     return mlir_module

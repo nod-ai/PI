@@ -1,7 +1,6 @@
 import atexit
 import contextlib
 import ctypes
-import inspect
 import sys
 
 
@@ -90,9 +89,7 @@ from ._mlir_libs._pi_mlir import (
 )
 
 # noinspection PyUnresolvedReferences
-from ._mlir_libs._pi_mlir import Tensor, dtype
-
-Tensor = Tensor
+from ._mlir_libs._pi_mlir import Tensor, dtype, ops
 
 from .dialects import _ods_common
 from .dialects._ods_common import get_op_result_or_value, get_op_results_or_values
