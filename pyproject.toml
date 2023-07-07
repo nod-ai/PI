@@ -1,13 +1,21 @@
 [build-system]
-requires = ["setuptools>=42",
+requires = [
+    "setuptools>=42",
     "wheel",
     "numpy",
     "PyYAML",
     "pybind11",
     "pip",
     "cmake",
-    "ninja"]
+    "ninja",
+]
 build-backend = "setuptools.build_meta"
+
+[project]
+dependencies = [
+    "numpy",
+    "pyframe_eval",
+]
 
 [tool.pytest.ini_options]
 log_cli = true

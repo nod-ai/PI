@@ -5,7 +5,7 @@ import pi
 from pi.mlir.compile import pipile
 from pi.utils import TensorPlaceholder, mlir_mod_ctx, tensor_op, Torch_IntValue
 from pi.utils.ast_rewrite import rewrite_ast_callback
-from pi.utils.dynamo import dynamo
+from pyframe_eval import Dynamo
 
 
 def foo():
@@ -14,7 +14,7 @@ def foo():
     return y
 
 
-with mlir_mod_ctx(), dynamo(rewrite_ast_callback):
+with mlir_mod_ctx(), Dynamo(rewrite_ast_callback):
     z = foo()
 
 print(z)
@@ -36,7 +36,7 @@ test_module = MyConv2d()
 
 with mlir_mod_ctx() as module:
     t = tensor_op(np.random.randn(1, 3, 32, 32))
-    with dynamo(rewrite_ast_callback):
+    with Dynamo(rewrite_ast_callback):
         z = test_module(t)
 print(module)
 

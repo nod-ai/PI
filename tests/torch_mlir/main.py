@@ -2,6 +2,7 @@ import difflib
 import inspect
 import logging
 import sys
+import traceback
 from collections import defaultdict
 from pathlib import Path
 
@@ -31,7 +32,7 @@ from infra.path_hacks import (
 from pi.mlir.compile import lower_pi_to_linalg
 
 ONLY = {
-    # "AtenIntTensorByteDtypeModule_basic"
+    # "UnsafeViewCollapseDynamicWithAtenSizeIntModule_basic"
 }
 
 
@@ -166,7 +167,9 @@ def run_pi_tests(torch_mlir_module_strs, sequential=False):
         try:
             pi_mlir_module = pi_config.compile(test)
         except Exception as e:
-            Exception_FAILs.append((test.unique_name, str(e)))
+            Exception_FAILs.append(
+                (test.unique_name, f"{e.__class__.__name__}: {traceback.format_exc()}")
+            )
             return
 
         pi_torch_dialect_module_str = str(
@@ -217,9 +220,9 @@ def run_pi_tests(torch_mlir_module_strs, sequential=False):
         r = 0 if r is None else 1
         PASS += r
 
-    print("\n", "".join("*" * 80), "\n", "SKIPs", "\n", "".join("*" * 80))
-    for test_name in SKIPs:
-        print(test_name)
+    # print("\n", "".join("*" * 80), "\n", "SKIPs", "\n", "".join("*" * 80))
+    # for test_name in SKIPs:
+    #     print(test_name)
 
     print("\n", "".join("*" * 80), "\n", "XFAILs", "\n", "".join("*" * 80))
     for test_name in XFAILs:

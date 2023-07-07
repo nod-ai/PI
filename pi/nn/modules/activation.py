@@ -140,7 +140,7 @@ class Hardtanh(Module):
         self.min_val = min_val
         self.max_val = max_val
         self.inplace = inplace
-        assert self.max_val > self.min_val
+        assert self.max_val > self.min_val, "max_val not > min_val"
 
     def forward(self, input: Tensor) -> Tensor:
         return F.hardtanh(input, self.min_val, self.max_val, self.inplace)

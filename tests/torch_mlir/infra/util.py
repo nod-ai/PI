@@ -11,7 +11,7 @@ from pi.mlir.compile import run_pipeline_with_repro_report
 from pi.mlir.dialects import func as func_dialect, torch as torch_dialect
 from pi.utils import mlir_mod_ctx
 from pi.utils.ast_rewrite import rewrite_ast_callback
-from pi.utils.dynamo import dynamo
+from pyframe_eval import Dynamo
 
 FIXED = np.linspace(0, 0.1, 101)
 
@@ -91,7 +91,7 @@ SMOKE_TEST = False
 
 
 class PIConfig:
-    def compile(self, test_case) -> Any:
+    def compile(self, test_case, dynamo=True) -> Any:
         tu = TestUtils()
         with mlir_mod_ctx() as module:
             test_module = test_case.program_factory()
@@ -120,7 +120,7 @@ class PIConfig:
 
             def replace_block_args(self_, *args, **kwargs):
                 assert not kwargs, f"kwargs not supported {kwargs}"
-                assert len(args) == len(block_args)
+                assert len(args) == len(block_args), f"len({args}) != len({block_args})"
                 return block_args, kwargs
 
             test_module.register_forward_pre_hook(replace_block_args, prepend=True)
@@ -155,7 +155,17 @@ class PIConfig:
             test_module.register_forward_post_hook(collect_results, prepend=True)
 
             with ir.InsertionPoint.at_block_begin(func_op_entry_block):
-                with dynamo(rewrite_ast_callback):
+                if dynamo:
+                    with Dynamo(
+                        rewrite_ast_callback,
+                        skips=[
+                            ".*pi/utils.*",
+                            ".*pi/mlir.*",
+                            r".*torch_mlir/infra/.*",
+                        ],
+                    ):
+                        test_case.program_invoker(test_module, tu)
+                else:
                     test_case.program_invoker(test_module, tu)
                 if isinstance(results[0], (tuple, list)):
                     results = results[0]

@@ -1,17 +1,15 @@
 import ast
-import numpy as np
 from textwrap import dedent
 
-
-import pyframe_eval
-from pi.mlir._mlir_libs._pi_mlir import Torch_IntValue
+import numpy as np
+from pyframe_eval import Dynamo
 
 import pi
+from pi import nn
+from pi.mlir import Torch_IntValue
 from pi.mlir.compile import pipile
 from pi.utils import TensorPlaceholder, mlir_mod_ctx, tensor_op
-from pi import nn
 from pi.utils.ast_rewrite import PiIntFloatBool, rewrite_ast_callback
-from pi.utils.dynamo import dynamo
 from util import check_correct
 
 
@@ -73,36 +71,13 @@ class TestDynamo:
         tree = PiIntFloatBool().visit(tree)
         check_correct("__import__('pi').pi_int(bob, 1)", ast.unparse(tree))
 
-    def test_rewriter_callback(self):
-        def foo():
-            x = 5
-            y = int(x)
-            return y
-
-        pyframe_eval.set_eval_frame(None, rewrite_ast_callback)
-        z = foo()
-        pyframe_eval.set_eval_frame(None, None)
-        assert z == 5
-
-        with mlir_mod_ctx():
-
-            def foo():
-                x = Torch_IntValue(5)
-                y = int(x)
-                return y
-
-            pyframe_eval.set_eval_frame(None, rewrite_ast_callback)
-            z = foo()
-            pyframe_eval.set_eval_frame(None, None)
-            assert z == 5
-
     def test_dynamo(self):
         def foo():
             x = Torch_IntValue(5)
             y = int(x)
             return y
 
-        with mlir_mod_ctx() as module, dynamo(rewrite_ast_callback):
+        with mlir_mod_ctx() as module, Dynamo(rewrite_ast_callback):
             z = foo()
 
         assert z == 5
@@ -122,7 +97,7 @@ class TestDynamo:
 
         with mlir_mod_ctx() as module:
             t = tensor_op(np.random.randn(1, 3, 32, 32))
-            with dynamo(rewrite_ast_callback):
+            with Dynamo(rewrite_ast_callback):
                 z = test_module(t)
             check_correct(
                 dedent(

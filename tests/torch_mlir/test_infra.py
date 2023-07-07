@@ -80,5 +80,6 @@ class Test:
 
         with mlir_mod_ctx():
             for test in tests:
+                print(test.unique_name)
                 pi_mlir_module = pi_config.compile(test)
                 print(pi_mlir_module)

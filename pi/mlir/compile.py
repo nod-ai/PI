@@ -16,8 +16,8 @@ from .dialects import func as func_dialect, torch as torch_dialect
 from .passmanager import PassManager
 from .. import Tensor, nn
 from ..utils.ast_rewrite import rewrite_ast_callback
-from ..utils.dynamo import dynamo
 from ..utils import disable_multithreading
+from pyframe_eval import Dynamo
 
 
 def get_module_name_for_debug_dump(module):
@@ -134,6 +134,7 @@ def pipile(
     example_args=None,
     module_name="pi.module_name",
     lower_to_torch=True,
+    dynamo=True,
 ):
     if example_args is None:
         example_args = []
@@ -145,9 +146,11 @@ def pipile(
     with ir.InsertionPoint(mlir_module.body):
         placeholders = pi_module.forward.__dict__.get("__placeholders__")
         if placeholders:
-            assert isinstance(placeholders, OrderedDict)
+            assert isinstance(
+                placeholders, OrderedDict
+            ), "placeholders not instance OrderedDict"
         else:
-            assert placeholders is None
+            assert placeholders is None, "placeholders is not None"
             placeholders = dict()
         func_op = func_dialect.FuncOp(
             name="forward",
@@ -169,7 +172,7 @@ def pipile(
 
         def replace_block_args(self_, *args, **kwargs):
             assert not kwargs, f"kwargs not supported {kwargs}"
-            assert len(args) == len(block_args)
+            assert len(args) == len(block_args), f"len({args}) != len({block_args})"
             return block_args, kwargs
 
         pi_module.register_forward_pre_hook(replace_block_args, prepend=True)
@@ -200,19 +203,30 @@ def pipile(
         pi_module.register_forward_post_hook(collect_results, prepend=True)
 
         with ir.InsertionPoint.at_block_begin(func_op_entry_block):
-            with dynamo(rewrite_ast_callback):
+            if dynamo:
+                with Dynamo(
+                    rewrite_ast_callback,
+                    skips=[
+                        ".*pi/utils.*",
+                        ".*pi/mlir.*",
+                    ],
+                ):
+                    pi_module(*example_args)
+            else:
                 pi_module(*example_args)
             if isinstance(results[0], (tuple, list)):
                 results = results[0]
 
-            assert all(isinstance(r, (Tensor, ir.Value)) for r in results), results
+            assert all(
+                isinstance(r, (Tensor, ir.Value)) for r in results
+            ), "not all results are Tensors"
             # functions created from python can't return multiple results
             if len(results) > 1:
                 el_type_reg = re.compile(r"!torch\.(.*)")
                 el_types = []
                 for r in results:
                     el_type = el_type_reg.findall(str(r.type))
-                    assert len(el_type) == 1
+                    assert len(el_type) == 1, f"len({el_type}) != 1"
                     el_types.append(el_type[0])
                 res_type = ir.Type.parse(f"!torch.tuple<{', '.join(el_types)}>")
                 results = [torch_dialect.PrimTupleConstructOp(res_type, results).result]
