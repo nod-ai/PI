@@ -234,6 +234,18 @@ void populateTorchMLIROps(py::module &m) {
       },
       "self"_a, "chunks"_a, "dim"_a = 0, py::kw_only(), "loc"_a = py::none(),
       "ip"_a = py::none());
+
+  // aten::amax : (Tensor, int, bool) -> (Tensor)
+  m.def(
+      "amax",
+      [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim,
+         const PyTorch_BoolValue &keepdim, DefaultingPyLocation &loc,
+         const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue {
+        auto dims = PyAnyTorchListOfTensorValue(py::make_tuple(dim));
+        return amax(self, dims, keepdim, loc.get(), ip.get());
+      },
+      "self"_a, "dim"_a, "keepdim"_a = false,
+      py::kw_only(), "loc"_a = py::none(), "ip"_a = py::none());
 }
 
 } // namespace mlir::torch
