@@ -6,7 +6,7 @@ import contextlib
 import functools
 import inspect
 import warnings
-from enum import Enum
+from enum import IntEnum
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
@@ -188,7 +188,7 @@ tensor = functools.partial(_np_wrapper, factory=np.array)
 LongTensor = functools.partial(_np_wrapper, factory=np.array, dtype=dtype.int64)
 
 
-class layout(Enum):
+class layout(IntEnum):
     strided = 1
     sparse_coo = 2
     sparse_csr = 3
@@ -198,7 +198,7 @@ class layout(Enum):
     _mkldnn = 7
 
 
-class memory_format(Enum):
+class memory_format(IntEnum):
     contiguous_format = 0
     preserve_format = 1
     channels_last = 2

@@ -63,7 +63,6 @@ SKIP_TENSOR_BINDS = {
     "chunk(self, chunks: _int, dim: _int=0) -> List[Tensor]",
     "__getitem__(self, indices: Union[None, _int, slice, Tensor, List, Tuple]) -> Tensor",
     "double(self) -> Tensor",
-    "@overload permute(self, dims: _size) -> Tensor",
 }
 
 TORCH_OPS_IMPL_CPP = "TorchOps.impls.cpp"

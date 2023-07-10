@@ -410,10 +410,50 @@ void PyAnyTorchTensorValue::bindDerived(ClassTy &c) {
       [](const PyAnyTorchTensorValue &self, const py::args &dims,
          DefaultingPyLocation &loc,
          const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue {
-        return permute(self, PyAnyTorchListOfTorchIntValue(dims), loc.get(),
-                       ip.get());
+        PyAnyTorchListOfTorchIntValue dims_ =
+            py::isinstance<py::list>(dims[0])
+                ? dims[0].cast<py::list>()
+                : PyAnyTorchListOfTorchIntValue(dims);
+        return permute(self, dims_, loc.get(), ip.get());
       },
       py::kw_only(), "loc"_a = py::none(), "ip"_a = py::none());
+
+  // aten::add.Tensor : (Tensor, Tensor, Scalar) -> (Tensor)
+  c.def(
+      "add",
+      [](const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &other,
+         const PyAnyTorchScalarValue &alpha, DefaultingPyLocation &loc,
+         const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue {
+        return add(self, other, alpha, loc.get(), ip.get());
+      },
+      "other"_a, "alpha"_a = 1, py::kw_only(), "loc"_a = py::none(),
+      "ip"_a = py::none());
+
+  // aten::norm.ScalarOpt_dim : (Tensor, Scalar?, int[], bool) -> (Tensor)
+  c.def(
+      "norm",
+      [](const PyAnyTorchTensorValue &self,
+         const PyAnyTorchOptionalScalarValue &p,
+         const PyAnyTorchListOfTorchIntValue &dim,
+         const PyTorch_BoolValue &keepdim, DefaultingPyLocation &loc,
+         const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue {
+        return norm(self, p, dim, keepdim, loc.get(), ip.get());
+      },
+      "p"_a = py::none(), "dim"_a, "keepdim"_a = false, py::kw_only(),
+      "loc"_a = py::none(), "ip"_a = py::none());
+
+  // aten::norm.ScalarOpt_dim : (Tensor, Scalar?, int, bool) -> (Tensor)
+  c.def(
+      "norm",
+      [](const PyAnyTorchTensorValue &self,
+         const PyAnyTorchOptionalScalarValue &p, const PyTorch_IntValue &dim,
+         const PyTorch_BoolValue &keepdim, DefaultingPyLocation &loc,
+         const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue {
+        auto dims = PyAnyTorchListOfTorchIntValue(py::make_tuple(dim));
+        return norm(self, p, dims, keepdim, loc.get(), ip.get());
+      },
+      "p"_a = py::none(), "dim"_a, "keepdim"_a = false, py::kw_only(),
+      "loc"_a = py::none(), "ip"_a = py::none());
 
 #include "TorchTensor.pybinds.cpp"
 }

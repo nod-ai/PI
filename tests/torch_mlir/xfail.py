@@ -17,6 +17,8 @@ CRASHING = {
 }
 
 PI_XFAIL_SET = {
+
+    # In these, torch-mlir spuriously initializes tensors as double precision and truncates to floating point, we simply initialize as single-precision causing an IR diff
     "ElementwiseGeFloatScalarModule_basic",
     "ArangeStartNegativeStepFloatModule_basic",
     "ArangeStartStepFloatModule_basic",
@@ -33,4 +35,7 @@ PI_XFAIL_SET = {
     "ThresholdBackward3dFloatModule_basic",
     "TypePromotionAlphaWiderModule_basic",
     "TypePromotionSameCategoryZeroRankWider_basic",
+
+    # An IR difference due to an additional pass in torch-mlir, but functionally the same
+    "NormalizeModule_basic"
 }
