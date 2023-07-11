@@ -70,6 +70,12 @@ PyAnyTorchListOfTensorValue chunk(const PyAnyTorchTensorValue &self,
                                   const PyTorch_IntValue &dim, PyLocation *loc,
                                   PyInsertionPoint *ip);
 
+// aten::softplus : (Tensor, Scalar, Scalar) -> (Tensor)
+PyAnyTorchTensorValue softplus(const PyAnyTorchTensorValue &self,
+                               const PyAnyTorchScalarValue &beta,
+                               const PyAnyTorchScalarValue &threshold__,
+                               PyLocation *loc, PyInsertionPoint *ip);
+
 void populateTorchMLIROps(py::module &m);
 
 } // namespace mlir::torch

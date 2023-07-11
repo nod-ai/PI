@@ -1058,9 +1058,6 @@ m.def("slice", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim
 // aten::softmax.int : (Tensor, int, int?) -> (Tensor)
 m.def("softmax", [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim, const PyAnyTorchOptionalIntValue &dtype, DefaultingPyLocation &loc, const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue { return softmax(self, dim, dtype, loc.get(), ip.get()); }, "self"_a, "dim"_a, "dtype"_a = py::none(), py::kw_only(), "loc"_a = py::none(), "ip"_a = py::none());
 
-// aten::softplus : (Tensor, Scalar, Scalar) -> (Tensor)
-m.def("softplus", [](const PyAnyTorchTensorValue &self, const PyAnyTorchScalarValue &beta, const PyAnyTorchScalarValue &threshold__, DefaultingPyLocation &loc, const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue { return softplus(self, beta, threshold__, loc.get(), ip.get()); }, "self"_a, "beta"_a = 1, "threshold__"_a, py::kw_only(), "loc"_a = py::none(), "ip"_a = py::none());
-
 // aten::sort.int : (int[], bool) -> ()
 m.def("sort", [](const PyAnyTorchListOfTorchIntValue &self, const PyTorch_BoolValue &reverse, DefaultingPyLocation &loc, const DefaultingPyInsertionPoint &ip) -> void { return sort(self, reverse, loc.get(), ip.get()); }, "self"_a, "reverse"_a = false, py::kw_only(), "loc"_a = py::none(), "ip"_a = py::none());
 

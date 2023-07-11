@@ -116,6 +116,25 @@ PyAnyTorchListOfTensorValue chunk(const PyAnyTorchTensorValue &self,
   return list;
 }
 
+// aten::softplus : (Tensor, Scalar, Scalar) -> (Tensor)
+PyAnyTorchTensorValue softplus(const PyAnyTorchTensorValue &self,
+                               const PyAnyTorchScalarValue &beta,
+                               const PyAnyTorchScalarValue &threshold__,
+                               PyLocation *loc, PyInsertionPoint *ip) {
+  std::string operationName = "torch.aten.softplus";
+  std::vector<PyType> _returnTypes = {
+      PyAnyTorchTensorType::getWithLeastStaticInformation(
+          loc->getContext().get())};
+  std::vector<std::reference_wrapper<const PyType>> returnTypes;
+  for (const auto &returnType : _returnTypes)
+    returnTypes.push_back(returnType);
+  PyOperationRef opRef =
+      createOperation(operationName, returnTypes, {self, beta, threshold__},
+                      /*attributes=*/{}, loc, ip);
+  MlirOperation operation = opRef->get();
+  return {opRef, mlirOperationGetResult(operation, 0)};
+}
+
 void populateTorchMLIROps(py::module &m) {
   py::register_exception_translator([](std::exception_ptr p) {
     try {
@@ -267,12 +286,10 @@ void populateTorchMLIROps(py::module &m) {
   // aten::sum.dim_IntList : (Tensor, int[]?, bool, int?) -> (Tensor)
   m.def(
       "sum",
-      [](const PyAnyTorchTensorValue &self,
-         const PyTorch_IntValue &dim,
+      [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim,
          const PyTorch_BoolValue &keepdim,
          const PyAnyTorchOptionalIntValue &dtype, DefaultingPyLocation &loc,
          const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue {
-
         auto dims = PyAnyTorchListOfTorchIntValue(py::make_tuple(dim));
         return sum(self, dims, keepdim, dtype, loc.get(), ip.get());
       },
@@ -290,8 +307,6 @@ void populateTorchMLIROps(py::module &m) {
       },
       "self"_a, "beta"_a = 1, "threshold__"_a = 20, py::kw_only(),
       "loc"_a = py::none(), "ip"_a = py::none());
-
-
 }
 
 } // namespace mlir::torch
