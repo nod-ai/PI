@@ -210,6 +210,7 @@ void populateTorchMLIROps(py::module &m) {
       "dtype"_a = py::none(), py::kw_only(), "loc"_a = py::none(),
       "ip"_a = py::none());
 
+  // aten::linalg_vector_norm : (Tensor, Scalar, int[]?, bool, int?) -> (Tensor)
   m.def(
       "vector_norm",
       [](const PyAnyTorchTensorValue &self, const PyAnyTorchScalarValue &ord,
@@ -224,14 +225,13 @@ void populateTorchMLIROps(py::module &m) {
       "dtype"_a = py::none(), py::kw_only(), "loc"_a = py::none(),
       "ip"_a = py::none());
 
+  // aten::linalg_vector_norm : (Tensor, Scalar, int, bool, int?) -> (Tensor)
   m.def(
       "vector_norm",
       [](const PyAnyTorchTensorValue &self, const PyAnyTorchScalarValue &ord,
-         const PyTorch_IntValue &dim,
-         const PyTorch_BoolValue &keepdim,
+         const PyTorch_IntValue &dim, const PyTorch_BoolValue &keepdim,
          const PyAnyTorchOptionalIntValue &dtype, DefaultingPyLocation &loc,
          const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue {
-
         auto dims = PyAnyTorchOptionalListOfTorchIntValue(py::make_tuple(dim));
 
         return linalg_vector_norm(self, ord, dims, keepdim, dtype, loc.get(),
@@ -261,11 +261,24 @@ void populateTorchMLIROps(py::module &m) {
         auto dims = PyAnyTorchListOfTorchIntValue(py::make_tuple(dim));
         return amax(self, dims, keepdim, loc.get(), ip.get());
       },
-      "self"_a, "dim"_a, "keepdim"_a = false,
-      py::kw_only(), "loc"_a = py::none(), "ip"_a = py::none());
+      "self"_a, "dim"_a, "keepdim"_a = false, py::kw_only(),
+      "loc"_a = py::none(), "ip"_a = py::none());
 
+  // aten::sum.dim_IntList : (Tensor, int[]?, bool, int?) -> (Tensor)
+  m.def(
+      "sum",
+      [](const PyAnyTorchTensorValue &self,
+         const PyTorch_IntValue &dim,
+         const PyTorch_BoolValue &keepdim,
+         const PyAnyTorchOptionalIntValue &dtype, DefaultingPyLocation &loc,
+         const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue {
 
-
+        auto dims = PyAnyTorchListOfTorchIntValue(py::make_tuple(dim));
+        return sum(self, dims, keepdim, dtype, loc.get(), ip.get());
+      },
+      "self"_a, "dim"_a = py::none(), "keepdim"_a = false,
+      "dtype"_a = py::none(), py::kw_only(), "loc"_a = py::none(),
+      "ip"_a = py::none());
 }
 
 } // namespace mlir::torch
