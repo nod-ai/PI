@@ -224,6 +224,23 @@ void populateTorchMLIROps(py::module &m) {
       "dtype"_a = py::none(), py::kw_only(), "loc"_a = py::none(),
       "ip"_a = py::none());
 
+  m.def(
+      "vector_norm",
+      [](const PyAnyTorchTensorValue &self, const PyAnyTorchScalarValue &ord,
+         const PyTorch_IntValue &dim,
+         const PyTorch_BoolValue &keepdim,
+         const PyAnyTorchOptionalIntValue &dtype, DefaultingPyLocation &loc,
+         const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue {
+
+        auto dims = PyAnyTorchOptionalListOfTorchIntValue(py::make_tuple(dim));
+
+        return linalg_vector_norm(self, ord, dims, keepdim, dtype, loc.get(),
+                                  ip.get());
+      },
+      "self"_a, "ord"_a = 2, "dim"_a = py::none(), "keepdim"_a = false,
+      "dtype"_a = py::none(), py::kw_only(), "loc"_a = py::none(),
+      "ip"_a = py::none());
+
   // aten::chunk : (Tensor, int, int) -> (Tensor[])
   m.def(
       "chunk",
@@ -246,6 +263,9 @@ void populateTorchMLIROps(py::module &m) {
       },
       "self"_a, "dim"_a, "keepdim"_a = false,
       py::kw_only(), "loc"_a = py::none(), "ip"_a = py::none());
+
+
+
 }
 
 } // namespace mlir::torch
