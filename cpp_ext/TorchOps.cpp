@@ -279,6 +279,19 @@ void populateTorchMLIROps(py::module &m) {
       "self"_a, "dim"_a = py::none(), "keepdim"_a = false,
       "dtype"_a = py::none(), py::kw_only(), "loc"_a = py::none(),
       "ip"_a = py::none());
+
+  // aten::softplus : (Tensor, Scalar, Scalar) -> (Tensor)
+  m.def(
+      "softplus",
+      [](const PyAnyTorchTensorValue &self, const PyAnyTorchScalarValue &beta,
+         const PyAnyTorchScalarValue &threshold__, DefaultingPyLocation &loc,
+         const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue {
+        return softplus(self, beta, threshold__, loc.get(), ip.get());
+      },
+      "self"_a, "beta"_a = 1, "threshold__"_a = 20, py::kw_only(),
+      "loc"_a = py::none(), "ip"_a = py::none());
+
+
 }
 
 } // namespace mlir::torch
