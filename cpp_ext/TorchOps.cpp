@@ -241,7 +241,7 @@ void populateTorchMLIROps(py::module &m) {
       [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim,
          const PyTorch_BoolValue &keepdim, DefaultingPyLocation &loc,
          const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue {
-        auto dims = PyAnyTorchListOfTensorValue(py::make_tuple(dim));
+        auto dims = PyAnyTorchListOfTorchIntValue(py::make_tuple(dim));
         return amax(self, dims, keepdim, loc.get(), ip.get());
       },
       "self"_a, "dim"_a, "keepdim"_a = false,
