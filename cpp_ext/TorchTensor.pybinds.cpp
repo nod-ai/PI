@@ -1752,10 +1752,6 @@ c.def("ormqr", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs)
 // outer(self, vec2: Tensor) -> Tensor
 c.def("outer", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("NotImplementedError: outer with signature outer(self, vec2: Tensor) -> Tensor"); });
 
-// @overload permute(self, dims: _size) -> Tensor
-// aten::permute : (Tensor, int[]) -> (Tensor)
-c.def("permute", [](const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTorchIntValue &dims, DefaultingPyLocation &loc, const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue { return permute(self, dims, loc.get(), ip.get()); }, "dims"_a, py::kw_only(), "loc"_a = py::none(), "ip"_a = py::none());
-
 // pin_memory(self, device: Optional[Union[_device, str, None]]=None) -> Tensor
 c.def("pin_memory", [](PyAnyTorchTensorValue& self, py::args args, py::kwargs kwargs) { throw NotImplementedError("NotImplementedError: pin_memory with signature pin_memory(self, device: Optional[Union[_device, str, None]]=None) -> Tensor"); });
 

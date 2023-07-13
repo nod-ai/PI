@@ -405,6 +405,16 @@ void PyAnyTorchTensorValue::bindDerived(ClassTy &c) {
       "memory_format"_a = py::none(), py::kw_only(), "loc"_a = py::none(),
       "ip"_a = py::none());
 
+  c.def(
+      "permute",
+      [](const PyAnyTorchTensorValue &self, const py::args &dims,
+         DefaultingPyLocation &loc,
+         const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue {
+        return permute(self, PyAnyTorchListOfTorchIntValue(dims), loc.get(),
+                       ip.get());
+      },
+      py::kw_only(), "loc"_a = py::none(), "ip"_a = py::none());
+
 #include "TorchTensor.pybinds.cpp"
 }
 

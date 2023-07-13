@@ -116,6 +116,25 @@ PyAnyTorchListOfTensorValue chunk(const PyAnyTorchTensorValue &self,
   return list;
 }
 
+// aten::softplus : (Tensor, Scalar, Scalar) -> (Tensor)
+PyAnyTorchTensorValue softplus(const PyAnyTorchTensorValue &self,
+                               const PyAnyTorchScalarValue &beta,
+                               const PyAnyTorchScalarValue &threshold__,
+                               PyLocation *loc, PyInsertionPoint *ip) {
+  std::string operationName = "torch.aten.softplus";
+  std::vector<PyType> _returnTypes = {
+      PyAnyTorchTensorType::getWithLeastStaticInformation(
+          loc->getContext().get())};
+  std::vector<std::reference_wrapper<const PyType>> returnTypes;
+  for (const auto &returnType : _returnTypes)
+    returnTypes.push_back(returnType);
+  PyOperationRef opRef =
+      createOperation(operationName, returnTypes, {self, beta, threshold__},
+                      /*attributes=*/{}, loc, ip);
+  MlirOperation operation = opRef->get();
+  return {opRef, mlirOperationGetResult(operation, 0)};
+}
+
 void populateTorchMLIROps(py::module &m) {
   py::register_exception_translator([](std::exception_ptr p) {
     try {
@@ -210,6 +229,7 @@ void populateTorchMLIROps(py::module &m) {
       "dtype"_a = py::none(), py::kw_only(), "loc"_a = py::none(),
       "ip"_a = py::none());
 
+  // aten::linalg_vector_norm : (Tensor, Scalar, int[]?, bool, int?) -> (Tensor)
   m.def(
       "vector_norm",
       [](const PyAnyTorchTensorValue &self, const PyAnyTorchScalarValue &ord,
@@ -218,6 +238,22 @@ void populateTorchMLIROps(py::module &m) {
          const PyAnyTorchOptionalIntValue &dtype, DefaultingPyLocation &loc,
          const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue {
         return linalg_vector_norm(self, ord, dim, keepdim, dtype, loc.get(),
+                                  ip.get());
+      },
+      "self"_a, "ord"_a = 2, "dim"_a = py::none(), "keepdim"_a = false,
+      "dtype"_a = py::none(), py::kw_only(), "loc"_a = py::none(),
+      "ip"_a = py::none());
+
+  // aten::linalg_vector_norm : (Tensor, Scalar, int, bool, int?) -> (Tensor)
+  m.def(
+      "vector_norm",
+      [](const PyAnyTorchTensorValue &self, const PyAnyTorchScalarValue &ord,
+         const PyTorch_IntValue &dim, const PyTorch_BoolValue &keepdim,
+         const PyAnyTorchOptionalIntValue &dtype, DefaultingPyLocation &loc,
+         const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue {
+        auto dims = PyAnyTorchOptionalListOfTorchIntValue(py::make_tuple(dim));
+
+        return linalg_vector_norm(self, ord, dims, keepdim, dtype, loc.get(),
                                   ip.get());
       },
       "self"_a, "ord"_a = 2, "dim"_a = py::none(), "keepdim"_a = false,
@@ -234,6 +270,43 @@ void populateTorchMLIROps(py::module &m) {
       },
       "self"_a, "chunks"_a, "dim"_a = 0, py::kw_only(), "loc"_a = py::none(),
       "ip"_a = py::none());
+
+  // aten::amax : (Tensor, int, bool) -> (Tensor)
+  m.def(
+      "amax",
+      [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim,
+         const PyTorch_BoolValue &keepdim, DefaultingPyLocation &loc,
+         const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue {
+        auto dims = PyAnyTorchListOfTorchIntValue(py::make_tuple(dim));
+        return amax(self, dims, keepdim, loc.get(), ip.get());
+      },
+      "self"_a, "dim"_a, "keepdim"_a = false, py::kw_only(),
+      "loc"_a = py::none(), "ip"_a = py::none());
+
+  // aten::sum.dim_IntList : (Tensor, int[]?, bool, int?) -> (Tensor)
+  m.def(
+      "sum",
+      [](const PyAnyTorchTensorValue &self, const PyTorch_IntValue &dim,
+         const PyTorch_BoolValue &keepdim,
+         const PyAnyTorchOptionalIntValue &dtype, DefaultingPyLocation &loc,
+         const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue {
+        auto dims = PyAnyTorchListOfTorchIntValue(py::make_tuple(dim));
+        return sum(self, dims, keepdim, dtype, loc.get(), ip.get());
+      },
+      "self"_a, "dim"_a = py::none(), "keepdim"_a = false,
+      "dtype"_a = py::none(), py::kw_only(), "loc"_a = py::none(),
+      "ip"_a = py::none());
+
+  // aten::softplus : (Tensor, Scalar, Scalar) -> (Tensor)
+  m.def(
+      "softplus",
+      [](const PyAnyTorchTensorValue &self, const PyAnyTorchScalarValue &beta,
+         const PyAnyTorchScalarValue &threshold__, DefaultingPyLocation &loc,
+         const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue {
+        return softplus(self, beta, threshold__, loc.get(), ip.get());
+      },
+      "self"_a, "beta"_a = 1, "threshold__"_a = 20, py::kw_only(),
+      "loc"_a = py::none(), "ip"_a = py::none());
 }
 
 } // namespace mlir::torch

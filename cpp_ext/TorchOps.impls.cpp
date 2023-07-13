@@ -5646,22 +5646,6 @@ PyAnyTorchTensorValue softmax(const PyAnyTorchTensorValue &self, const PyTorch_I
   MlirOperation operation = opRef->get();
   return {opRef, mlirOperationGetResult(operation, 0)};
 }
-// aten::softplus : (Tensor, Scalar, Scalar) -> (Tensor)
-PyAnyTorchTensorValue softplus(const PyAnyTorchTensorValue &self, const PyAnyTorchScalarValue &beta, const PyAnyTorchScalarValue &threshold__, PyLocation *loc, PyInsertionPoint *ip) {
-  std::string operationName = "torch.aten.softplus";
-  std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
-  std::vector<std::reference_wrapper<const PyType>> returnTypes; 
-  for (const auto& returnType : _returnTypes) 
-    returnTypes.push_back(returnType);
-  PyOperationRef opRef = createOperation(operationName,
-            returnTypes,
-            {self, beta, threshold__}, 
-            /*attributes=*/{}, 
-            loc, 
-            ip);
-  MlirOperation operation = opRef->get();
-  return {opRef, mlirOperationGetResult(operation, 0)};
-}
 // aten::sort.int : (int[], bool) -> ()
 void sort(const PyAnyTorchListOfTorchIntValue &self, const PyTorch_BoolValue &reverse, PyLocation *loc, PyInsertionPoint *ip) {
   std::string operationName = "torch.aten.sort.int";

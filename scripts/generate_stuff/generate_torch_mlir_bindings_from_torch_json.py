@@ -53,7 +53,7 @@ UNIMPLEMENTED_TYPES = {
     "AnyTorchType",
     "anonymous_430",
 }
-SKIP_OPS = {"Torch_PrimsSqrtOp", "Torch_AtenChunkOp"}
+SKIP_OPS = {"Torch_PrimsSqrtOp", "Torch_AtenChunkOp", "Torch_AtenSoftplusOp",}
 SKIP_TENSOR_BINDS = {
     "@overload view(self, dtype: _dtype) -> Tensor",
     "@overload view(self, size: Sequence[Union[_int, SymInt]]) -> Tensor",
@@ -63,6 +63,7 @@ SKIP_TENSOR_BINDS = {
     "chunk(self, chunks: _int, dim: _int=0) -> List[Tensor]",
     "__getitem__(self, indices: Union[None, _int, slice, Tensor, List, Tuple]) -> Tensor",
     "double(self) -> Tensor",
+    "@overload permute(self, dims: _size) -> Tensor",
 }
 
 TORCH_OPS_IMPL_CPP = "TorchOps.impls.cpp"
