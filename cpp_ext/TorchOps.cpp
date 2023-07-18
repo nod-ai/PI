@@ -135,14 +135,43 @@ PyAnyTorchTensorValue softplus(const PyAnyTorchTensorValue &self,
   return {opRef, mlirOperationGetResult(operation, 0)};
 }
 
-  PyAnyTorchListOfTorchIntValue
-  convertArg(const PyAnyTorchListOfTorchIntValue arg) {
-    return arg;
-  }
-  PyAnyTorchListOfTorchIntValue convertArg(const PyTorch_IntValue arg) {
-    int x = getAttributeValue(arg);
-    return PyAnyTorchListOfTorchIntValue(py::make_tuple(x, x));
-  }
+// aten::max_pool2d_with_indices : (Tensor, int[], int[], int[], int[], bool) ->
+// (Tensor, Tensor)
+std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue>
+max_pool2d_with_indices_(const PyAnyTorchTensorValue &self,
+                         const PyAnyTorchListOfTorchIntValue &kernel_size,
+                         const PyAnyTorchListOfTorchIntValue &stride,
+                         const PyAnyTorchListOfTorchIntValue &padding,
+                         const PyAnyTorchListOfTorchIntValue &dilation,
+                         const PyTorch_BoolValue &ceil_mode, PyLocation *loc,
+                         PyInsertionPoint *ip) {
+  std::string operationName = "torch.aten.max_pool2d_with_indices";
+  std::vector<PyType> _returnTypes = {
+      PyAnyTorchTensorType::getWithLeastStaticInformation(
+          loc->getContext().get()),
+      PyAnyTorchTensorType::getWithLeastStaticInformation(
+          loc->getContext().get())};
+  std::vector<std::reference_wrapper<const PyType>> returnTypes;
+  for (const auto &returnType : _returnTypes)
+    returnTypes.push_back(returnType);
+  PyOperationRef opRef =
+      createOperation(operationName, returnTypes,
+                      {self, kernel_size, stride, padding, dilation, ceil_mode},
+                      /*attributes=*/{}, loc, ip);
+  MlirOperation operation = opRef->get();
+  return std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue>(
+      {opRef, mlirOperationGetResult(operation, 0)},
+      {opRef, mlirOperationGetResult(operation, 1)});
+}
+
+PyAnyTorchListOfTorchIntValue
+convertArg(const PyAnyTorchListOfTorchIntValue arg) {
+  return arg;
+}
+PyAnyTorchListOfTorchIntValue convertArg(const PyTorch_IntValue arg) {
+  int x = getAttributeValue(arg);
+  return PyAnyTorchListOfTorchIntValue(py::make_tuple(x, x));
+}
 // aten::max_pool2d_with_indices : (Tensor, Union[int[], int], Union[int[],
 // int], Union[int[], int], Union[int[], int], bool) -> (Tensor, Tensor)
 template <typename T1, typename T2, typename T3, typename T4>
@@ -151,28 +180,32 @@ max_pool2d_with_indices(PyAnyTorchTensorValue &self, T1 &kernel_size,
                         T2 &stride, T3 &padding, T4 &dilation,
                         PyTorch_BoolValue &ceil_mode, PyLocation *loc,
                         PyInsertionPoint *ip) {
-  //  auto convertArg =
-  //      []<typename T>(const T arg) -> const
-  //      PyAnyTorchListOfTorchIntValue {
-  //      if constexpr (std::is_same_v<T, PyAnyTorchListOfTorchIntValue>)
-  //      {
-  //        return arg;
-  //      } else {
-  //        return PyAnyTorchListOfTorchIntValue(py::make_tuple(arg,
-  //        arg));
-  //      }
-  //  };
+  //    auto convertArg =
+  //        []<typename T>(const T arg) -> const
+  //        PyAnyTorchListOfTorchIntValue {
+  //        if constexpr (std::is_same_v<T, PyAnyTorchListOfTorchIntValue>)
+  //        {
+  //          return arg;
+  //        } else {
+  //          return PyAnyTorchListOfTorchIntValue(py::make_tuple(arg,
+  //          arg));
+  //        }
+  //    };
   PyAnyTorchListOfTorchIntValue kernel_size_ = convertArg(kernel_size);
   PyAnyTorchListOfTorchIntValue stride_ = convertArg(stride);
   PyAnyTorchListOfTorchIntValue padding_ = convertArg(padding);
   PyAnyTorchListOfTorchIntValue dilation_ = convertArg(dilation);
+  PyLocation *loc_ = &DefaultingPyLocation::resolve();
+  PyInsertionPoint *ip_ = &DefaultingPyInsertionPoint::resolve();
+
   return max_pool2d_with_indices_(self, kernel_size_, stride_, padding_,
-                                  dilation_, ceil_mode, loc, ip);
+                                  dilation_, ceil_mode, loc_, ip_);
 }
 template <typename T1, typename T2, typename T3, typename T4>
 void bind_max_pool2d_with_indices(py::module &m) {
   //  auto stride_default = std::is_same_v<T1, PyAnyTorchListOfTorchIntValue>
   //  ? std::vector<int>{} : 1;
+
   m.def(
       "max_pool2d_with_indices",
       [](PyAnyTorchTensorValue &self, T1 &kernel_size, T2 &stride, T3 &padding,
@@ -186,54 +219,6 @@ void bind_max_pool2d_with_indices(py::module &m) {
       "ceil_mode"_a = false, py::kw_only(), "loc"_a = py::none(),
       "ip"_a = py::none());
 }
-//void gen_bindings_max_pool2d_with_indices(py::module &m) {
-//  bind_max_pool2d_with_indices<PyTorch_IntValue, PyTorch_IntValue,
-//                               PyTorch_IntValue, PyTorch_IntValue>(m);
-//  bind_max_pool2d_with_indices<PyTorch_IntValue, PyTorch_IntValue,
-//                               PyTorch_IntValue, PyAnyTorchListOfTorchIntValue>(
-//      m);
-//  bind_max_pool2d_with_indices<PyTorch_IntValue, PyTorch_IntValue,
-//                               PyAnyTorchListOfTorchIntValue, PyTorch_IntValue>(
-//      m);
-//  bind_max_pool2d_with_indices<PyTorch_IntValue, PyTorch_IntValue,
-//                               PyAnyTorchListOfTorchIntValue,
-//                               PyAnyTorchListOfTorchIntValue>(m);
-//  bind_max_pool2d_with_indices<PyTorch_IntValue, PyAnyTorchListOfTorchIntValue,
-//                               PyTorch_IntValue, PyTorch_IntValue>(m);
-//  bind_max_pool2d_with_indices<PyTorch_IntValue, PyAnyTorchListOfTorchIntValue,
-//                               PyTorch_IntValue, PyAnyTorchListOfTorchIntValue>(
-//      m);
-//  bind_max_pool2d_with_indices<PyTorch_IntValue, PyAnyTorchListOfTorchIntValue,
-//                               PyAnyTorchListOfTorchIntValue, PyTorch_IntValue>(
-//      m);
-//  bind_max_pool2d_with_indices<PyTorch_IntValue, PyAnyTorchListOfTorchIntValue,
-//                               PyAnyTorchListOfTorchIntValue,
-//                               PyAnyTorchListOfTorchIntValue>(m);
-//  bind_max_pool2d_with_indices<PyAnyTorchListOfTorchIntValue, PyTorch_IntValue,
-//                               PyTorch_IntValue, PyTorch_IntValue>(m);
-//  bind_max_pool2d_with_indices<PyAnyTorchListOfTorchIntValue, PyTorch_IntValue,
-//                               PyTorch_IntValue, PyAnyTorchListOfTorchIntValue>(
-//      m);
-//  bind_max_pool2d_with_indices<PyAnyTorchListOfTorchIntValue, PyTorch_IntValue,
-//                               PyAnyTorchListOfTorchIntValue, PyTorch_IntValue>(
-//      m);
-//  bind_max_pool2d_with_indices<PyAnyTorchListOfTorchIntValue, PyTorch_IntValue,
-//                               PyAnyTorchListOfTorchIntValue,
-//                               PyAnyTorchListOfTorchIntValue>(m);
-//  bind_max_pool2d_with_indices<PyAnyTorchListOfTorchIntValue,
-//                               PyAnyTorchListOfTorchIntValue, PyTorch_IntValue,
-//                               PyTorch_IntValue>(m);
-//  bind_max_pool2d_with_indices<PyAnyTorchListOfTorchIntValue,
-//                               PyAnyTorchListOfTorchIntValue, PyTorch_IntValue,
-//                               PyAnyTorchListOfTorchIntValue>(m);
-//  bind_max_pool2d_with_indices<PyAnyTorchListOfTorchIntValue,
-//                               PyAnyTorchListOfTorchIntValue,
-//                               PyAnyTorchListOfTorchIntValue, PyTorch_IntValue>(
-//      m);
-//  //  bind_max_pool2d_with_indices<PyAnyTorchListOfTorchIntValue,
-//  //  PyAnyTorchListOfTorchIntValue, PyAnyTorchListOfTorchIntValue,
-//  //  PyAnyTorchListOfTorchIntValue>(m);
-//}
 
 // Recursive function to generate bindings for all combinations of int and
 // vector<int> in four slots
@@ -425,30 +410,6 @@ void populateTorchMLIROps(py::module &m) {
       "self"_a, "beta"_a = 1, "threshold__"_a = 20, py::kw_only(),
       "loc"_a = py::none(), "ip"_a = py::none());
 
-  // aten::max_pool2d_with_indices : (Tensor, int[], int[], int[], int[],
-  // bool)
-  // -> (Tensor, Tensor)
-  m.def(
-      "max_pool2d_with_indices",
-      [](const PyAnyTorchTensorValue &self,
-         const PyAnyTorchListOfTorchIntValue &kernel_size,
-         const PyAnyTorchListOfTorchIntValue &stride,
-         const PyAnyTorchListOfTorchIntValue &padding,
-         const PyTorch_IntValue &dilation, const PyTorch_BoolValue &ceil_mode,
-         DefaultingPyLocation &loc, const DefaultingPyInsertionPoint &ip)
-          -> std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> {
-        auto dilation_ =
-            PyAnyTorchListOfTorchIntValue(py::make_tuple(dilation, dilation));
-        return max_pool2d_with_indices(self, kernel_size, stride, padding,
-                                       dilation_, ceil_mode, loc.get(),
-                                       ip.get());
-      },
-      "self"_a, "kernel_size"_a, "stride"_a = std::vector<int>{},
-      "padding"_a = std::vector<int>{0, 0}, "dilation"_a = 1,
-      "ceil_mode"_a = false, py::kw_only(), "loc"_a = py::none(),
-      "ip"_a = py::none());
-
-//  gen_bindings_max_pool2d_with_indices(m);
   generateBindings<4>::generate(m);
 }
 
