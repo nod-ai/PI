@@ -170,7 +170,7 @@ PyAnyTorchTensorValue max_pool2d(const PyAnyTorchTensorValue &self,
     if constexpr (std::is_same_v<T, PyAnyTorchListOfTorchIntValue>) {
       return arg;
     } else {
-      return PyAnyTorchListOfTorchIntValue(arg);
+      return PyAnyTorchListOfTorchIntValue(py::list(arg));
     }
   };
 
@@ -197,10 +197,9 @@ struct bind_max_pool2d {
           return max_pool2d(self, kernel_size, stride, padding, dilation,
                             ceil_mode, loc.get(), ip.get());
         },
-        "self"_a, "kernel_size"_a, "stride"_a = std::vector<int>{},
-        "padding"_a = std::vector<int>{0, 0},
-        "dilation"_a = std::vector<int>{1, 1}, "ceil_mode"_a = false,
-        py::kw_only(), "loc"_a = py::none(), "ip"_a = py::none());
+        "self"_a, "kernel_size"_a, "stride"_a, "padding"_a, "dilation"_a,
+        "ceil_mode"_a = false, py::kw_only(), "loc"_a = py::none(),
+        "ip"_a = py::none());
   }
 };
 
@@ -219,9 +218,8 @@ struct generateListIntCompatibleBindings {
 
 template <class Callback, typename... Args>
 struct generateListIntCompatibleBindings<0, Callback, Args...> {
-    static void generate(py::module& m) {Callback::template bind<Args...>(m);}
+  static void generate(py::module &m) { Callback::template bind<Args...>(m); }
 };
-
 
 void populateTorchMLIROps(py::module &m) {
   py::register_exception_translator([](std::exception_ptr p) {
@@ -395,6 +393,8 @@ void populateTorchMLIROps(py::module &m) {
       },
       "self"_a, "beta"_a = 1, "threshold__"_a = 20, py::kw_only(),
       "loc"_a = py::none(), "ip"_a = py::none());
+
+  generateListIntCompatibleBindings<4, bind_max_pool2d>::generate(m);
 }
 
 } // namespace mlir::torch
