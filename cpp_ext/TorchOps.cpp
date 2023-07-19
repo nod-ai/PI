@@ -135,6 +135,55 @@ PyAnyTorchTensorValue softplus(const PyAnyTorchTensorValue &self,
   return {opRef, mlirOperationGetResult(operation, 0)};
 }
 
+// aten::max_pool2d : (Tensor, int[], int[], int[], int[], bool) -> (Tensor)
+PyAnyTorchTensorValue
+max_pool2d_(const PyAnyTorchTensorValue &self,
+            const PyAnyTorchListOfTorchIntValue &kernel_size,
+            const PyAnyTorchListOfTorchIntValue &stride,
+            const PyAnyTorchListOfTorchIntValue &padding,
+            const PyAnyTorchListOfTorchIntValue &dilation,
+            const PyTorch_BoolValue &ceil_mode, PyLocation *loc,
+            PyInsertionPoint *ip) {
+  std::string operationName = "torch.aten.max_pool2d";
+  std::vector<PyType> _returnTypes = {
+      PyAnyTorchTensorType::getWithLeastStaticInformation(
+          loc->getContext().get())};
+  std::vector<std::reference_wrapper<const PyType>> returnTypes;
+  for (const auto &returnType : _returnTypes)
+    returnTypes.push_back(returnType);
+  PyOperationRef opRef =
+      createOperation(operationName, returnTypes,
+                      {self, kernel_size, stride, padding, dilation, ceil_mode},
+                      /*attributes=*/{}, loc, ip);
+  MlirOperation operation = opRef->get();
+  return {opRef, mlirOperationGetResult(operation, 0)};
+}
+
+template <typename T1, typename T2, typename T3, typename T4>
+PyAnyTorchTensorValue maxpool2d(const PyAnyTorchTensorValue &self,
+                                const T1 &kernel_size, const T2 &stride,
+                                const T3 &padding, const T4 &dilation,
+                                const PyTorch_BoolValue &ceil_mode,
+                                PyLocation *loc, PyInsertionPoint *ip) {
+  auto convertArg = template <typename T>
+  [](const T arg) -> const PyAnyTorchListOfTorchIntValue {
+    if constexpr (std::is_same_v(T, PyAnyTorchListOfTorchIntValue) {
+      return arg;
+    } else {
+      return PyAnyTorchListOfTorchIntValue(T);
+    }
+  };
+
+PyAnyTorchListOfTorchIntValue kernel_size_ = convertArg(kernel_size);
+PyAnyTorchListOfTorchIntValue stride_ = convertArg(stride);
+PyAnyTorchListOfTorchIntValue padding_ = convertArg(padding);
+PyAnyTorchListOfTorchIntValue dilation_ = convertArg(dilation);
+PyLocation *loc_ = &DefaultingPyLocation::resolve();
+PyInsertionPoint *ip_ = &DefaultingPyInsertionPoint::resolve();
+
+  return maxpool2d_(self, kernel_size_, stride_, padding_, dilation_, ceil_mode, loc_, ip_);
+}
+
 void populateTorchMLIROps(py::module &m) {
   py::register_exception_translator([](std::exception_ptr p) {
     try {
