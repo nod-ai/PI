@@ -160,7 +160,7 @@ max_pool2d_(const PyAnyTorchTensorValue &self,
 }
 
 template <typename T1, typename T2, typename T3, typename T4>
-PyAnyTorchTensorValue maxpool2d(const PyAnyTorchTensorValue &self,
+PyAnyTorchTensorValue max_pool2d(const PyAnyTorchTensorValue &self,
                                 const T1 &kernel_size, const T2 &stride,
                                 const T3 &padding, const T4 &dilation,
                                 const PyTorch_BoolValue &ceil_mode,
@@ -181,9 +181,34 @@ PyAnyTorchTensorValue maxpool2d(const PyAnyTorchTensorValue &self,
   PyLocation *loc_ = &DefaultingPyLocation::resolve();
   PyInsertionPoint *ip_ = &DefaultingPyInsertionPoint::resolve();
 
-  return max_pool2d_(self, kernel_size_, stride_, padding_, dilation_, ceil_mode,
-                    loc_, ip_);
+  return max_pool2d_(self, kernel_size_, stride_, padding_, dilation_,
+                     ceil_mode, loc_, ip_);
 }
+
+struct bind_max_pool2d {
+  template <typename T1, typename T2, typename T3, typename T4>
+  static void bind(py::module &m) {
+  m.def(
+      "max_pool2d",
+      [](const PyAnyTorchTensorValue &self,
+         const T1 &kernel_size,
+         const T2 &stride,
+         const T3 &padding,
+         const T4 &dilation,
+         const PyTorch_BoolValue &ceil_mode, DefaultingPyLocation &loc,
+         const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue {
+        return max_pool2d(self, kernel_size, stride, padding, dilation,
+                          ceil_mode, loc.get(), ip.get());
+      },
+      "self"_a, "kernel_size"_a, "stride"_a = std::vector<int>{},
+      "padding"_a = std::vector<int>{0, 0},
+      "dilation"_a = std::vector<int>{1, 1}, "ceil_mode"_a = false,
+      py::kw_only(), "loc"_a = py::none(), "ip"_a = py::none());
+  }
+};
+
+
+
 
 void populateTorchMLIROps(py::module &m) {
   py::register_exception_translator([](std::exception_ptr p) {
