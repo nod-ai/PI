@@ -226,6 +226,92 @@ struct generateListIntCompatibleBindings<0, Callback, Args...> {
   static void generate(py::module &m) { Callback::template bind<Args...>(m); }
 };
 
+// aten::max_pool2d : (Tensor, int[], int[], int[], int[], bool) -> (Tensor)
+PyAnyTorchTensorValue
+max_pool2d_(const PyAnyTorchTensorValue &self,
+            const PyAnyTorchListOfTorchIntValue &kernel_size,
+            const PyAnyTorchListOfTorchIntValue &stride,
+            const PyAnyTorchListOfTorchIntValue &padding,
+            const PyAnyTorchListOfTorchIntValue &dilation,
+            const PyTorch_BoolValue &ceil_mode, PyLocation *loc,
+            PyInsertionPoint *ip) {
+  std::string operationName = "torch.aten.max_pool2d";
+  std::vector<PyType> _returnTypes = {
+      PyAnyTorchTensorType::getWithLeastStaticInformation(
+          loc->getContext().get())};
+  std::vector<std::reference_wrapper<const PyType>> returnTypes;
+  for (const auto &returnType : _returnTypes)
+    returnTypes.push_back(returnType);
+  PyOperationRef opRef =
+      createOperation(operationName, returnTypes,
+                      {self, kernel_size, stride, padding, dilation, ceil_mode},
+                      /*attributes=*/{}, loc, ip);
+  MlirOperation operation = opRef->get();
+  return {opRef, mlirOperationGetResult(operation, 0)};
+}
+
+template <typename T1, typename T2, typename T3, typename T4>
+PyAnyTorchTensorValue max_pool2d(const PyAnyTorchTensorValue &self,
+                                 const T1 &kernel_size, const T2 &stride,
+                                 const T3 &padding, const T4 &dilation,
+                                 const PyTorch_BoolValue &ceil_mode,
+                                 PyLocation *loc, PyInsertionPoint *ip) {
+  auto convertArg =
+      []<typename T>(const T arg) -> const PyAnyTorchListOfTorchIntValue {
+    if constexpr (std::is_same_v<T, PyAnyTorchListOfTorchIntValue>) {
+      return arg;
+    } else {
+      return PyAnyTorchListOfTorchIntValue(py::list(arg));
+    }
+  };
+
+  PyAnyTorchListOfTorchIntValue kernel_size_ = convertArg(kernel_size);
+  PyAnyTorchListOfTorchIntValue stride_ = convertArg(stride);
+  PyAnyTorchListOfTorchIntValue padding_ = convertArg(padding);
+  PyAnyTorchListOfTorchIntValue dilation_ = convertArg(dilation);
+  PyLocation *loc_ = &DefaultingPyLocation::resolve();
+  PyInsertionPoint *ip_ = &DefaultingPyInsertionPoint::resolve();
+
+  return max_pool2d_(self, kernel_size_, stride_, padding_, dilation_,
+                     ceil_mode, loc_, ip_);
+}
+
+struct bind_max_pool2d {
+  template <typename T1, typename T2, typename T3, typename T4>
+  static void bind(py::module &m) {
+    m.def(
+        "max_pool2d",
+        [](const PyAnyTorchTensorValue &self, const T1 &kernel_size,
+           const T2 &stride, const T3 &padding, const T4 &dilation,
+           const PyTorch_BoolValue &ceil_mode, DefaultingPyLocation &loc,
+           const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue {
+          return max_pool2d(self, kernel_size, stride, padding, dilation,
+                            ceil_mode, loc.get(), ip.get());
+        },
+        "self"_a, "kernel_size"_a, "stride"_a, "padding"_a, "dilation"_a,
+        "ceil_mode"_a = false, py::kw_only(), "loc"_a = py::none(),
+        "ip"_a = py::none());
+  }
+};
+
+// Recursive function to generate bindings for all combinations of
+// Torch_IntValue and AnyTorchListOfTorchIntValue in N slots
+template <unsigned int N, class Callback, typename... Args>
+struct generateListIntCompatibleBindings {
+  static void generate(py::module &m) {
+    generateListIntCompatibleBindings<N - 1, Callback, Args...,
+                                      PyTorch_IntValue>::generate(m);
+    generateListIntCompatibleBindings<
+        N - 1, Callback, Args...,
+        PyAnyTorchOptionalListOfTorchIntValue>::generate(m);
+  }
+};
+
+template <class Callback, typename... Args>
+struct generateListIntCompatibleBindings<0, Callback, Args...> {
+  static void generate(py::module &m) { Callback::template bind<Args...>(m); }
+};
+
 void populateTorchMLIROps(py::module &m) {
   py::register_exception_translator([](std::exception_ptr p) {
     try {
@@ -400,6 +486,9 @@ void populateTorchMLIROps(py::module &m) {
       },
       "self"_a, "beta"_a = 1, "threshold__"_a = 20, py::kw_only(),
       "loc"_a = py::none(), "ip"_a = py::none());
+
+  generateListIntCompatibleBindings<4, bind_max_pool2d>::generate(m);
+}
 
   generateListIntCompatibleBindings<4, bind_max_pool2d_with_indices>::generate(
       m);
