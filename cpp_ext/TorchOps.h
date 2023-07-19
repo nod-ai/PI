@@ -87,6 +87,16 @@ max_pool2d_with_indices_(const PyAnyTorchTensorValue &self,
                          const PyTorch_BoolValue &ceil_mode, PyLocation *loc,
                          PyInsertionPoint *ip);
 
+// aten::max_pool2d : (Tensor, int[], int[], int[], int[], bool) -> (Tensor)
+PyAnyTorchTensorValue
+max_pool2d_(const PyAnyTorchTensorValue &self,
+           const PyAnyTorchListOfTorchIntValue &kernel_size,
+           const PyAnyTorchListOfTorchIntValue &stride,
+           const PyAnyTorchListOfTorchIntValue &padding,
+           const PyAnyTorchListOfTorchIntValue &dilation,
+           const PyTorch_BoolValue &ceil_mode, PyLocation *loc,
+           PyInsertionPoint *ip);
+
 void populateTorchMLIROps(py::module &m);
 
 } // namespace mlir::torch

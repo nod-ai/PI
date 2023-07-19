@@ -209,23 +209,6 @@ struct bind_max_pool2d_with_indices {
   }
 };
 
-// Recursive function to generate bindings for all combinations of
-// Torch_IntValue and AnyTorchListOfTorchIntValue in N slots
-template <unsigned int N, class Callback, typename... Args>
-struct generateListIntCompatibleBindings {
-  static void generate(py::module &m) {
-    generateListIntCompatibleBindings<N - 1, Callback, Args...,
-                                      PyTorch_IntValue>::generate(m);
-    generateListIntCompatibleBindings<
-        N - 1, Callback, Args..., PyAnyTorchListOfTorchIntValue>::generate(m);
-  }
-};
-
-template <class Callback, typename... Args>
-struct generateListIntCompatibleBindings<0, Callback, Args...> {
-  static void generate(py::module &m) { Callback::template bind<Args...>(m); }
-};
-
 // aten::max_pool2d : (Tensor, int[], int[], int[], int[], bool) -> (Tensor)
 PyAnyTorchTensorValue
 max_pool2d_(const PyAnyTorchTensorValue &self,
@@ -251,17 +234,17 @@ max_pool2d_(const PyAnyTorchTensorValue &self,
 }
 
 template <typename T1, typename T2, typename T3, typename T4>
-PyAnyTorchTensorValue max_pool2d(const PyAnyTorchTensorValue &self,
-                                 const T1 &kernel_size, const T2 &stride,
-                                 const T3 &padding, const T4 &dilation,
-                                 const PyTorch_BoolValue &ceil_mode,
+PyAnyTorchTensorValue max_pool2d(PyAnyTorchTensorValue &self,
+                                 T1 &kernel_size, T2 &stride,
+                                 T3 &padding, T4 &dilation,
+                                 PyTorch_BoolValue &ceil_mode,
                                  PyLocation *loc, PyInsertionPoint *ip) {
   auto convertArg =
       []<typename T>(const T arg) -> const PyAnyTorchListOfTorchIntValue {
     if constexpr (std::is_same_v<T, PyAnyTorchListOfTorchIntValue>) {
       return arg;
     } else {
-      return PyAnyTorchListOfTorchIntValue(py::list(arg));
+      return PyAnyTorchListOfTorchIntValue(py::make_tuple(arg));
     }
   };
 
@@ -271,7 +254,6 @@ PyAnyTorchTensorValue max_pool2d(const PyAnyTorchTensorValue &self,
   PyAnyTorchListOfTorchIntValue dilation_ = convertArg(dilation);
   PyLocation *loc_ = &DefaultingPyLocation::resolve();
   PyInsertionPoint *ip_ = &DefaultingPyInsertionPoint::resolve();
-
   return max_pool2d_(self, kernel_size_, stride_, padding_, dilation_,
                      ceil_mode, loc_, ip_);
 }
@@ -281,12 +263,12 @@ struct bind_max_pool2d {
   static void bind(py::module &m) {
     m.def(
         "max_pool2d",
-        [](const PyAnyTorchTensorValue &self, const T1 &kernel_size,
-           const T2 &stride, const T3 &padding, const T4 &dilation,
-           const PyTorch_BoolValue &ceil_mode, DefaultingPyLocation &loc,
-           const DefaultingPyInsertionPoint &ip) -> PyAnyTorchTensorValue {
+        [](PyAnyTorchTensorValue &self, T1 &kernel_size,
+           T2 &stride, T3 &padding, T4 &dilation,
+           PyTorch_BoolValue &ceil_mode, PyLocation *loc,
+           PyInsertionPoint *ip) -> PyAnyTorchTensorValue {
           return max_pool2d(self, kernel_size, stride, padding, dilation,
-                            ceil_mode, loc.get(), ip.get());
+                            ceil_mode, loc, ip);
         },
         "self"_a, "kernel_size"_a, "stride"_a, "padding"_a, "dilation"_a,
         "ceil_mode"_a = false, py::kw_only(), "loc"_a = py::none(),
@@ -302,8 +284,7 @@ struct generateListIntCompatibleBindings {
     generateListIntCompatibleBindings<N - 1, Callback, Args...,
                                       PyTorch_IntValue>::generate(m);
     generateListIntCompatibleBindings<
-        N - 1, Callback, Args...,
-        PyAnyTorchOptionalListOfTorchIntValue>::generate(m);
+        N - 1, Callback, Args..., PyAnyTorchListOfTorchIntValue>::generate(m);
   }
 };
 
@@ -488,8 +469,6 @@ void populateTorchMLIROps(py::module &m) {
       "loc"_a = py::none(), "ip"_a = py::none());
 
   generateListIntCompatibleBindings<4, bind_max_pool2d>::generate(m);
-}
-
   generateListIntCompatibleBindings<4, bind_max_pool2d_with_indices>::generate(
       m);
 }
