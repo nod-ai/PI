@@ -165,9 +165,9 @@ PyAnyTorchTensorValue maxpool2d(const PyAnyTorchTensorValue &self,
                                 const T3 &padding, const T4 &dilation,
                                 const PyTorch_BoolValue &ceil_mode,
                                 PyLocation *loc, PyInsertionPoint *ip) {
-  auto convertArg = template <typename T>
-  [](const T arg) -> const PyAnyTorchListOfTorchIntValue {
-    if constexpr (std::is_same_v(T, PyAnyTorchListOfTorchIntValue) {
+  auto convertArg =
+      []<typename T>(const T arg) -> const PyAnyTorchListOfTorchIntValue {
+    if constexpr (std::is_same_v<T, PyAnyTorchListOfTorchIntValue>) {
       return arg;
     } else {
       return PyAnyTorchListOfTorchIntValue(T);
