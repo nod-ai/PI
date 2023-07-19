@@ -717,7 +717,7 @@ std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> max(const PyAnyTorchTen
 PyAnyTorchTensorValue max(const PyAnyTorchTensorValue &self, PyLocation *loc, PyInsertionPoint *ip);
 
 // aten::max_pool2d : (Tensor, int[], int[], int[], int[], bool) -> (Tensor)
-PyAnyTorchTensorValue max_pool2d(const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTorchIntValue &kernel_size, const PyAnyTorchListOfTorchIntValue &stride, const PyAnyTorchListOfTorchIntValue &padding, const PyAnyTorchListOfTorchIntValue &dilation, const PyTorch_BoolValue &ceil_mode, PyLocation *loc, PyInsertionPoint *ip);
+//PyAnyTorchTensorValue max_pool2d(const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTorchIntValue &kernel_size, const PyAnyTorchListOfTorchIntValue &stride, const PyAnyTorchListOfTorchIntValue &padding, const PyAnyTorchListOfTorchIntValue &dilation, const PyTorch_BoolValue &ceil_mode, PyLocation *loc, PyInsertionPoint *ip);
 
 // aten::max_pool2d_with_indices_backward : (Tensor, Tensor, int[], int[], int[], int[], bool, Tensor) -> (Tensor)
 PyAnyTorchTensorValue max_pool2d_with_indices_backward(const PyAnyTorchTensorValue &grad_output, const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTorchIntValue &kernel_size, const PyAnyTorchListOfTorchIntValue &stride, const PyAnyTorchListOfTorchIntValue &padding, const PyAnyTorchListOfTorchIntValue &dilation, const PyTorch_BoolValue &ceil_mode, const PyAnyTorchTensorValue &indices, PyLocation *loc, PyInsertionPoint *ip);

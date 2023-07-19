@@ -174,14 +174,15 @@ PyAnyTorchTensorValue maxpool2d(const PyAnyTorchTensorValue &self,
     }
   };
 
-PyAnyTorchListOfTorchIntValue kernel_size_ = convertArg(kernel_size);
-PyAnyTorchListOfTorchIntValue stride_ = convertArg(stride);
-PyAnyTorchListOfTorchIntValue padding_ = convertArg(padding);
-PyAnyTorchListOfTorchIntValue dilation_ = convertArg(dilation);
-PyLocation *loc_ = &DefaultingPyLocation::resolve();
-PyInsertionPoint *ip_ = &DefaultingPyInsertionPoint::resolve();
+  PyAnyTorchListOfTorchIntValue kernel_size_ = convertArg(kernel_size);
+  PyAnyTorchListOfTorchIntValue stride_ = convertArg(stride);
+  PyAnyTorchListOfTorchIntValue padding_ = convertArg(padding);
+  PyAnyTorchListOfTorchIntValue dilation_ = convertArg(dilation);
+  PyLocation *loc_ = &DefaultingPyLocation::resolve();
+  PyInsertionPoint *ip_ = &DefaultingPyInsertionPoint::resolve();
 
-  return maxpool2d_(self, kernel_size_, stride_, padding_, dilation_, ceil_mode, loc_, ip_);
+  return maxpool2d_(self, kernel_size_, stride_, padding_, dilation_, ceil_mode,
+                    loc_, ip_);
 }
 
 void populateTorchMLIROps(py::module &m) {
