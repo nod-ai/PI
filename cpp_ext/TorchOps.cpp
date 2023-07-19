@@ -170,7 +170,7 @@ PyAnyTorchTensorValue maxpool2d(const PyAnyTorchTensorValue &self,
     if constexpr (std::is_same_v<T, PyAnyTorchListOfTorchIntValue>) {
       return arg;
     } else {
-      return PyAnyTorchListOfTorchIntValue(T);
+      return PyAnyTorchListOfTorchIntValue(arg);
     }
   };
 
@@ -181,7 +181,7 @@ PyAnyTorchTensorValue maxpool2d(const PyAnyTorchTensorValue &self,
   PyLocation *loc_ = &DefaultingPyLocation::resolve();
   PyInsertionPoint *ip_ = &DefaultingPyInsertionPoint::resolve();
 
-  return maxpool2d_(self, kernel_size_, stride_, padding_, dilation_, ceil_mode,
+  return max_pool2d_(self, kernel_size_, stride_, padding_, dilation_, ceil_mode,
                     loc_, ip_);
 }
 
