@@ -131,8 +131,8 @@ jobs:
       - name: Patch/disable tests
         shell: bash
         run: |
-          sed -i.bak 's/check-torch-mlir-capi/#check-torch-mlir-capi/g' $TORCH_MLIR_MAIN_SRC_DIR/CMakeLists.txt
-          sed -i.bak 's/add_subdirectory(CAPI)/#add_subdirectory(CAPI)/g' $TORCH_MLIR_MAIN_SRC_DIR/test/CAPI/CMakeLists.txt
+          sed -i.bak 's/check-torch-mlir-capi/#check-torch-mlir-capi/g' ${TORCH_MLIR_MAIN_SRC_DIR}/CMakeLists.txt
+          sed -i.bak 's/add_subdirectory(CAPI)/#add_subdirectory(CAPI)/g' ${TORCH_MLIR_MAIN_SRC_DIR}/test/CMakeLists.txt
 
       - name: Configure CMake
         run: |
