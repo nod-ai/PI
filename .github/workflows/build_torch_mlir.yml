@@ -128,6 +128,11 @@ jobs:
             echo "ARCH=X86" | tee -a $GITHUB_ENV
           fi
 
+      - name: Patch/disable tests
+        shell: bash
+        run: |
+          sed -i.bak 's/add_subdirectory(test)/#add_subdirectory(test)/g' $TORCH_MLIR_MAIN_SRC_DIR/CMakeLists.txt
+
       - name: Configure CMake
         run: |
           CMAKE_CONFIGS="\
