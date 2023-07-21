@@ -1,6 +1,6 @@
 # Torch-MLIR
 -f https://llvm.github.io/torch-mlir/package-index/
-torch-mlir==20230616.871
+torch-mlir==20230720.905
 
 # TODO: This is copied from the torch-mlir requirements.txt
 # Because it requires installing a nightly build of PyTorch,

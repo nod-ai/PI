@@ -5,6 +5,7 @@ CRASHING = {
     "BernoulliFloatModule_basic",
     "BernoulliPModule_basic",
     "ElementwiseFlattenBroadcastModule_basic",
+    "ElementwiseEqBoolScalarModule_basic",
     "FlattenDynamicModule_basic",
     "FlattenRank0Module_basic",
     "FlipNegativeIndexModule_basic",
@@ -14,6 +15,9 @@ CRASHING = {
     "ResNet18StaticModule_basic",
     "SliceCopyStartGreaterThanDimSize_Module_basic",
     "UniformModule_basic",
+    "UniformStaticShapeModule_basic",
+    "NativeDropoutTrainModule_basic",
+    "NativeDropoutTrainStaticShapeModule_basic",
 }
 
 PI_XFAIL_SET = {
