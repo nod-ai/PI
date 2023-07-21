@@ -136,7 +136,7 @@ PyAnyTorchTensorValue softplus(const PyAnyTorchTensorValue &self,
 }
 
 template <typename T>
-const PyAnyTorchListOfTorchIntValue convertArg(const T arg) {
+const PyAnyTorchListOfTorchIntValue convertTypeToListInt(const T arg) {
   if constexpr (std::is_same_v<T, PyAnyTorchListOfTorchIntValue>) {
     return arg;
   } else {
@@ -182,10 +182,10 @@ max_pool2d_with_indices(PyAnyTorchTensorValue &self, T1 &kernel_size,
                         PyTorch_BoolValue &ceil_mode, PyLocation *loc,
                         PyInsertionPoint *ip) {
 
-  PyAnyTorchListOfTorchIntValue kernel_size_ = convertArg(kernel_size);
-  PyAnyTorchListOfTorchIntValue stride_ = convertArg(stride);
-  PyAnyTorchListOfTorchIntValue padding_ = convertArg(padding);
-  PyAnyTorchListOfTorchIntValue dilation_ = convertArg(dilation);
+  PyAnyTorchListOfTorchIntValue kernel_size_ = convertTypeToListInt(kernel_size);
+  PyAnyTorchListOfTorchIntValue stride_ = convertTypeToListInt(stride);
+  PyAnyTorchListOfTorchIntValue padding_ = convertTypeToListInt(padding);
+  PyAnyTorchListOfTorchIntValue dilation_ = convertTypeToListInt(dilation);
   PyLocation *loc_ = &DefaultingPyLocation::resolve();
   PyInsertionPoint *ip_ = &DefaultingPyInsertionPoint::resolve();
 
@@ -246,10 +246,10 @@ PyAnyTorchTensorValue max_pool2d(PyAnyTorchTensorValue &self, T1 &kernel_size,
                                  PyTorch_BoolValue &ceil_mode, PyLocation *loc,
                                  PyInsertionPoint *ip) {
 
-  PyAnyTorchListOfTorchIntValue kernel_size_ = convertArg(kernel_size);
-  PyAnyTorchListOfTorchIntValue stride_ = convertArg(stride);
-  PyAnyTorchListOfTorchIntValue padding_ = convertArg(padding);
-  PyAnyTorchListOfTorchIntValue dilation_ = convertArg(dilation);
+  PyAnyTorchListOfTorchIntValue kernel_size_ = convertTypeToListInt(kernel_size);
+  PyAnyTorchListOfTorchIntValue stride_ = convertTypeToListInt(stride);
+  PyAnyTorchListOfTorchIntValue padding_ = convertTypeToListInt(padding);
+  PyAnyTorchListOfTorchIntValue dilation_ = convertTypeToListInt(dilation);
   PyLocation *loc_ = &DefaultingPyLocation::resolve();
   PyInsertionPoint *ip_ = &DefaultingPyInsertionPoint::resolve();
 
