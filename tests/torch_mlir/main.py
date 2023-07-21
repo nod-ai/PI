@@ -290,7 +290,7 @@ class TestMain:
         with patch_meta_path(overloads):
             torch_mlir_register_all_tests()
 
-        run_pi_tests(torch_mlir_linalg_module_strs, sequential=True)
+        run_pi_tests(torch_mlir_linalg_module_strs, sequential=False)
 
 
 if __name__ == "__main__":
