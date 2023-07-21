@@ -16,7 +16,7 @@ from multiprocess.pool import Pool
 # noinspection PyUnresolvedReferences
 import torch_mlir
 
-from xfail import CRASHING, PI_XFAIL_SET
+from xfail import CRASHING, PI_XFAIL_SET, PI_XFAIL_EXCEPTION_SET
 
 from torch_mlir_e2e_test.test_suite import COMMON_TORCH_MLIR_LOWERING_XFAILS
 from torch_mlir_e2e_test.test_suite import (
@@ -165,7 +165,10 @@ def run_pi_tests(torch_mlir_module_strs, sequential=False):
         try:
             pi_mlir_module = pi_config.compile(test)
         except Exception as e:
-            Exception_FAILs.append((test.unique_name, str(e)))
+            if test.unique_name in PI_XFAIL_EXCEPTION_SET:
+                XFAILs.append(test.unique_name)
+            else:
+                Exception_FAILs.append((test.unique_name, str(e)))
             return
 
         pi_torch_dialect_module_str = str(
