@@ -53,7 +53,7 @@ UNIMPLEMENTED_TYPES = {
     "AnyTorchType",
     "anonymous_430",
 }
-SKIP_OPS = {"Torch_PrimsSqrtOp", "Torch_AtenChunkOp", "Torch_AtenSoftplusOp", "Torch_AtenMaxPool2dWithIndicesOp"}
+SKIP_OPS = {"Torch_PrimsSqrtOp", "Torch_AtenChunkOp", "Torch_AtenSoftplusOp", "Torch_AtenMaxPool2dWithIndicesOp", "Torch_AtenMaxPool2dOp"}
 SKIP_TENSOR_BINDS = {
     "@overload view(self, dtype: _dtype) -> Tensor",
     "@overload view(self, size: Sequence[Union[_int, SymInt]]) -> Tensor",

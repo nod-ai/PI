@@ -135,6 +135,15 @@ PyAnyTorchTensorValue softplus(const PyAnyTorchTensorValue &self,
   return {opRef, mlirOperationGetResult(operation, 0)};
 }
 
+template <typename T>
+const PyAnyTorchListOfTorchIntValue convertArg(const T arg) {
+  if constexpr (std::is_same_v<T, PyAnyTorchListOfTorchIntValue>) {
+    return arg;
+  } else {
+    return PyAnyTorchListOfTorchIntValue(py::make_tuple(arg, arg));
+  }
+}
+
 // aten::max_pool2d_with_indices : (Tensor, int[], int[], int[], int[], bool) ->
 // (Tensor, Tensor)
 std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue>
@@ -172,14 +181,7 @@ max_pool2d_with_indices(PyAnyTorchTensorValue &self, T1 &kernel_size,
                         T2 &stride, T3 &padding, T4 &dilation,
                         PyTorch_BoolValue &ceil_mode, PyLocation *loc,
                         PyInsertionPoint *ip) {
-  auto convertArg =
-      []<typename T>(const T arg) -> const PyAnyTorchListOfTorchIntValue {
-    if constexpr (std::is_same_v<T, PyAnyTorchListOfTorchIntValue>) {
-      return arg;
-    } else {
-      return PyAnyTorchListOfTorchIntValue(py::make_tuple(arg, arg));
-    }
-  };
+
   PyAnyTorchListOfTorchIntValue kernel_size_ = convertArg(kernel_size);
   PyAnyTorchListOfTorchIntValue stride_ = convertArg(stride);
   PyAnyTorchListOfTorchIntValue padding_ = convertArg(padding);
@@ -192,7 +194,9 @@ max_pool2d_with_indices(PyAnyTorchTensorValue &self, T1 &kernel_size,
 }
 
 struct bind_max_pool2d_with_indices {
-  template <typename T1, typename T2, typename T3, typename T4>
+  template <typename T1, typename T2 = PyAnyTorchListOfTorchIntValue,
+            typename T3 = PyAnyTorchListOfTorchIntValue,
+            typename T4 = PyAnyTorchListOfTorchIntValue>
   static void bind(py::module &m) {
     m.def(
         "max_pool2d_with_indices",
@@ -203,9 +207,10 @@ struct bind_max_pool2d_with_indices {
           return max_pool2d_with_indices(self, kernel_size, stride, padding,
                                          dilation, ceil_mode, loc, ip);
         },
-        "self"_a, "kernel_size"_a, "stride"_a, "padding"_a, "dilation"_a,
-        "ceil_mode"_a = false, py::kw_only(), "loc"_a = py::none(),
-        "ip"_a = py::none());
+        "self"_a, "kernel_size"_a, "stride"_a = std::vector<int>{},
+        "padding"_a = std::vector<int>{0, 0},
+        "dilation"_a = std::vector<int>{1, 1}, "ceil_mode"_a = false,
+        py::kw_only(), "loc"_a = py::none(), "ip"_a = py::none());
   }
 };
 
@@ -240,14 +245,7 @@ PyAnyTorchTensorValue max_pool2d(PyAnyTorchTensorValue &self, T1 &kernel_size,
                                  T2 &stride, T3 &padding, T4 &dilation,
                                  PyTorch_BoolValue &ceil_mode, PyLocation *loc,
                                  PyInsertionPoint *ip) {
-  auto convertArg =
-      []<typename T>(const T arg) -> const PyAnyTorchListOfTorchIntValue {
-    if constexpr (std::is_same_v<T, PyAnyTorchListOfTorchIntValue>) {
-      return arg;
-    } else {
-      return PyAnyTorchListOfTorchIntValue(py::make_tuple(arg));
-    }
-  };
+
   PyAnyTorchListOfTorchIntValue kernel_size_ = convertArg(kernel_size);
   PyAnyTorchListOfTorchIntValue stride_ = convertArg(stride);
   PyAnyTorchListOfTorchIntValue padding_ = convertArg(padding);
@@ -260,14 +258,15 @@ PyAnyTorchTensorValue max_pool2d(PyAnyTorchTensorValue &self, T1 &kernel_size,
 }
 
 struct bind_max_pool2d {
-  template <typename T1, typename T2, typename T3, typename T4>
+  template <typename T1, typename T2 = PyAnyTorchListOfTorchIntValue,
+            typename T3 = PyAnyTorchListOfTorchIntValue,
+            typename T4 = PyAnyTorchListOfTorchIntValue>
   static void bind(py::module &m) {
     m.def(
         "max_pool2d",
         [](PyAnyTorchTensorValue &self, T1 &kernel_size, T2 &stride,
            T3 &padding, T4 &dilation, PyTorch_BoolValue &ceil_mode,
-           PyLocation *loc, PyInsertionPoint *ip)
-            -> PyAnyTorchTensorValue {
+           PyLocation *loc, PyInsertionPoint *ip) -> PyAnyTorchTensorValue {
           return max_pool2d(self, kernel_size, stride, padding, dilation,
                             ceil_mode, loc, ip);
         },
