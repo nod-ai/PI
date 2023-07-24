@@ -3822,22 +3822,6 @@ PyAnyTorchTensorValue max(const PyAnyTorchTensorValue &self, PyLocation *loc, Py
   MlirOperation operation = opRef->get();
   return {opRef, mlirOperationGetResult(operation, 0)};
 }
-// aten::max_pool2d : (Tensor, int[], int[], int[], int[], bool) -> (Tensor)
-PyAnyTorchTensorValue max_pool2d(const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTorchIntValue &kernel_size, const PyAnyTorchListOfTorchIntValue &stride, const PyAnyTorchListOfTorchIntValue &padding, const PyAnyTorchListOfTorchIntValue &dilation, const PyTorch_BoolValue &ceil_mode, PyLocation *loc, PyInsertionPoint *ip) {
-  std::string operationName = "torch.aten.max_pool2d";
-  std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
-  std::vector<std::reference_wrapper<const PyType>> returnTypes; 
-  for (const auto& returnType : _returnTypes) 
-    returnTypes.push_back(returnType);
-  PyOperationRef opRef = createOperation(operationName,
-            returnTypes,
-            {self, kernel_size, stride, padding, dilation, ceil_mode}, 
-            /*attributes=*/{}, 
-            loc, 
-            ip);
-  MlirOperation operation = opRef->get();
-  return {opRef, mlirOperationGetResult(operation, 0)};
-}
 // aten::max_pool2d_with_indices_backward : (Tensor, Tensor, int[], int[], int[], int[], bool, Tensor) -> (Tensor)
 PyAnyTorchTensorValue max_pool2d_with_indices_backward(const PyAnyTorchTensorValue &grad_output, const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTorchIntValue &kernel_size, const PyAnyTorchListOfTorchIntValue &stride, const PyAnyTorchListOfTorchIntValue &padding, const PyAnyTorchListOfTorchIntValue &dilation, const PyTorch_BoolValue &ceil_mode, const PyAnyTorchTensorValue &indices, PyLocation *loc, PyInsertionPoint *ip) {
   std::string operationName = "torch.aten.max_pool2d_with_indices_backward";
@@ -3853,22 +3837,6 @@ PyAnyTorchTensorValue max_pool2d_with_indices_backward(const PyAnyTorchTensorVal
             ip);
   MlirOperation operation = opRef->get();
   return {opRef, mlirOperationGetResult(operation, 0)};
-}
-// aten::max_pool2d_with_indices : (Tensor, int[], int[], int[], int[], bool) -> (Tensor, Tensor)
-std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue> max_pool2d_with_indices(const PyAnyTorchTensorValue &self, const PyAnyTorchListOfTorchIntValue &kernel_size, const PyAnyTorchListOfTorchIntValue &stride, const PyAnyTorchListOfTorchIntValue &padding, const PyAnyTorchListOfTorchIntValue &dilation, const PyTorch_BoolValue &ceil_mode, PyLocation *loc, PyInsertionPoint *ip) {
-  std::string operationName = "torch.aten.max_pool2d_with_indices";
-  std::vector<PyType> _returnTypes = {PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get()), PyAnyTorchTensorType::getWithLeastStaticInformation(loc->getContext().get())}; 
-  std::vector<std::reference_wrapper<const PyType>> returnTypes; 
-  for (const auto& returnType : _returnTypes) 
-    returnTypes.push_back(returnType);
-  PyOperationRef opRef = createOperation(operationName,
-            returnTypes,
-            {self, kernel_size, stride, padding, dilation, ceil_mode}, 
-            /*attributes=*/{}, 
-            loc, 
-            ip);
-  MlirOperation operation = opRef->get();
-  return std::tuple<PyAnyTorchTensorValue, PyAnyTorchTensorValue>({opRef, mlirOperationGetResult(operation, 0)}, {opRef, mlirOperationGetResult(operation, 1)});
 }
 // aten::maximum : (Tensor, Tensor) -> (Tensor)
 PyAnyTorchTensorValue maximum(const PyAnyTorchTensorValue &self, const PyAnyTorchTensorValue &other, PyLocation *loc, PyInsertionPoint *ip) {
