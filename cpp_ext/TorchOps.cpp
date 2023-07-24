@@ -268,7 +268,7 @@ struct bind_max_pool2d {
            T3 &padding, T4 &dilation, PyTorch_BoolValue &ceil_mode,
            PyLocation *loc, PyInsertionPoint *ip) -> PyAnyTorchTensorValue {
           return max_pool2d(self, kernel_size, stride, padding, dilation,
-                            ceil_mode, loc.get(), ip.get());
+                            ceil_mode, loc, ip);
         },
         "self"_a, "kernel_size"_a, "stride"_a = std::vector<int>{},
         "padding"_a = std::vector<int>{0, 0},
