@@ -3,6 +3,7 @@ from pi import ops
 from pi.mlir.utils import mlir_mod_ctx, non_value_tensor_op
 from pi import Tensor
 import numpy as np
+
 # noinspection PyUnresolvedReferences
 from pi.nn.functional import max_pool2d, max_pool2d_with_indices
 from pi.nn.modules import (
